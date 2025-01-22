@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
   title: Retail API
-  description: API description in OpenAPI 3.0 format
-  version: 0.0.1
+  description: Retail service API
+  version: 2.0.0
 
 servers:
   - url: http://localhost:8080/retail
@@ -410,19 +410,19 @@ paths:
       description: Endpoint retrieves the details of an existing product identified by productId. It supports optional language localization.
       operationId: getProductDetailsById
       parameters:
-          - $ref: '#/components/parameters/ProductId'
-          - $ref: '#/components/parameters/Language'
+        - $ref: '#/components/parameters/ProductId'
+        - $ref: '#/components/parameters/Language'
       responses:
-          '200':
-            description: Successfully retrieved product
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/ProductDetailsResponse'
-          '400':
-            $ref: '#/components/responses/BadRequestResponse'
-          '404':
-            $ref: '#/components/responses/NotFoundResponse'
+        '200':
+          description: Successfully retrieved product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetailsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
 
   /v1/management/products:
     get:
@@ -643,8 +643,8 @@ paths:
 #=======================================================================================================================
 components:
 
-#PARAMETERS
-#=======================================================================================================================
+  #PARAMETERS
+  #=======================================================================================================================
   parameters:
     Pageable:
       name: pageable
@@ -686,8 +686,8 @@ components:
       scheme: bearer
       bearerFormat: JWT
 
-#RESPONSES
-#=======================================================================================================================
+  #RESPONSES
+  #=======================================================================================================================
   responses:
     CreatedResponse:
       description: Resource created
@@ -751,8 +751,8 @@ components:
             title: Forbidden
             detail: User does not have success to this resource
 
-#SCHEMAS
-#=======================================================================================================================
+  #SCHEMAS
+  #=======================================================================================================================
   schemas:
     Pageable:
       type: object
@@ -1599,7 +1599,7 @@ components:
         createdBefore:
           type: string
           format: date-time
-          description:  The date of product creation is before
+          description: The date of product creation is before
         tags:
           $ref: '#/components/schemas/ProductTags'
 
