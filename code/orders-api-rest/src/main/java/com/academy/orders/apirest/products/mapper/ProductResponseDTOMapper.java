@@ -17,6 +17,8 @@ import java.util.Set;
 public interface ProductResponseDTOMapper {
 	@Mapping(source = "createdAt", target = "createdAt", qualifiedByName = "mapLocalDateTimeToOffsetDateTime")
 	@Mapping(target = "productTranslations", qualifiedByName = "mapProductTranslations")
+	@Mapping(target = "discount", source = "discount.amount")
+	@Mapping(target = "priceWithDiscount", expression = "java(product.getPriceWithDiscount())")
 	ProductResponseDTO toDTO(Product product);
 
 	@Named("mapLocalDateTimeToOffsetDateTime")

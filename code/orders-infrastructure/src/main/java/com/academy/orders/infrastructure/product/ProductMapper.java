@@ -6,14 +6,14 @@ import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
 import com.academy.orders.infrastructure.tag.TagMapper;
 import com.academy.orders.infrastructure.tag.entity.TagEntity;
+
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+
 import org.hibernate.Hibernate;
-import org.mapstruct.Condition;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", uses = {TagMapper.class, ProductTranslationMapper.class})
 public interface ProductMapper {

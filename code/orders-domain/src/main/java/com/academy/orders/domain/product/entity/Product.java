@@ -1,16 +1,39 @@
 package com.academy.orders.domain.product.entity;
 
+import com.academy.orders.domain.discount.entity.Discount;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
-import lombok.Builder;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
-import lombok.With;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
 @Builder
-public record Product(UUID id, ProductStatus status, @With String image, LocalDateTime createdAt, Integer quantity,
-		BigDecimal price, Set<Tag> tags, Set<ProductTranslation> productTranslations) {
+@EqualsAndHashCode
+@ToString
+public class Product {
+	private UUID id;
+	private ProductStatus status;
+	@With
+	private String image;
+	private LocalDateTime createdAt;
+	private Integer quantity;
+	private BigDecimal price;
+	@Setter
+	private Discount discount;
+	private Set<Tag> tags;
+	private Set<ProductTranslation> productTranslations;
 
+	public BigDecimal getPriceWithDiscount() {
+		if (discount == null) {
+			return null;
+		}
+		final BigDecimal percentage = BigDecimal.valueOf(100 - discount.getAmount()).divide(BigDecimal.valueOf(100));
+		return price.multiply(percentage).setScale(2, RoundingMode.HALF_DOWN);
+	}
 }

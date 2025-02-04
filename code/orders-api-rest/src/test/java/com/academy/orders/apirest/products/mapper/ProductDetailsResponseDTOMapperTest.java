@@ -1,18 +1,20 @@
 package com.academy.orders.apirest.products.mapper;
 
 import com.academy.orders.domain.product.entity.Product;
+import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders_api_rest.generated.model.ProductDetailsResponseDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-import static com.academy.orders.apirest.ModelUtils.getProduct;
-import static com.academy.orders.apirest.ModelUtils.getProductWithEmptyTags;
-import static com.academy.orders.apirest.ModelUtils.getProductWithEmptyTranslations;
+import java.util.Collections;
+
+import static com.academy.orders.apirest.ModelUtils.*;
 import static com.academy.orders.apirest.TestConstants.PRODUCT_DESCRIPTION;
 import static com.academy.orders.apirest.TestConstants.PRODUCT_NAME;
 import static com.academy.orders.apirest.TestConstants.TAG_NAME;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ProductDetailsResponseDTOMapperTest {
 	private ProductDetailsResponseDTOMapper productDetailsResponseDTOMapper;
@@ -27,39 +29,59 @@ class ProductDetailsResponseDTOMapperTest {
 		var product = getProduct();
 		var dto = productDetailsResponseDTOMapper.toDTO(product);
 
-		Assertions.assertEquals(PRODUCT_NAME, dto.getName());
-		Assertions.assertEquals(PRODUCT_DESCRIPTION, dto.getDescription());
-		Assertions.assertEquals(product.image(), dto.getImage());
-		Assertions.assertEquals(1, dto.getTags().size());
-		Assertions.assertEquals(TAG_NAME, dto.getTags().get(0));
-		Assertions.assertEquals(product.quantity(), dto.getQuantity());
-		Assertions.assertEquals(product.price(), dto.getPrice());
+		assertEquals(PRODUCT_NAME, dto.getName());
+		assertEquals(PRODUCT_DESCRIPTION, dto.getDescription());
+		assertEquals(product.getImage(), dto.getImage());
+		assertIterableEquals(product.getTags().stream().map(Tag::name).toList(), dto.getTags());
+		assertEquals(product.getQuantity(), dto.getQuantity());
+		assertEquals(product.getPrice(), dto.getPrice());
+		assertNull(dto.getDiscount());
+		assertNull(dto.getPriceWithDiscount());
+	}
+
+	@Test
+	void toDtoWithDiscountTest() {
+		var product = getProductWithDiscount();
+		var dto = productDetailsResponseDTOMapper.toDTO(product);
+
+		assertEquals(PRODUCT_NAME, dto.getName());
+		assertEquals(PRODUCT_DESCRIPTION, dto.getDescription());
+		assertEquals(product.getImage(), dto.getImage());
+		assertIterableEquals(product.getTags().stream().map(Tag::name).toList(), dto.getTags());
+		assertEquals(product.getQuantity(), dto.getQuantity());
+		assertEquals(product.getPrice(), dto.getPrice());
+		assertEquals(product.getDiscount().getAmount(), dto.getDiscount());
+		assertEquals(product.getPriceWithDiscount(), dto.getPriceWithDiscount());
 	}
 
 	@Test
 	void toDtoWithEmptyTranslationsTest() {
-		Product product = getProductWithEmptyTranslations();
-		ProductDetailsResponseDTO dto = productDetailsResponseDTOMapper.toDTO(product);
+		var product = getProductWithEmptyTranslations();
+		var dto = productDetailsResponseDTOMapper.toDTO(product);
 
-		Assertions.assertNull(dto.getName());
-		Assertions.assertNull(dto.getDescription());
-		Assertions.assertEquals(product.image(), dto.getImage());
-		Assertions.assertEquals(1, dto.getTags().size());
-		Assertions.assertEquals(TAG_NAME, dto.getTags().get(0));
-		Assertions.assertEquals(product.quantity(), dto.getQuantity());
-		Assertions.assertEquals(product.price(), dto.getPrice());
+		assertNull(dto.getName());
+		assertNull(dto.getDescription());
+		assertEquals(product.getImage(), dto.getImage());
+		assertEquals(1, dto.getTags().size());
+		assertEquals(TAG_NAME, dto.getTags().get(0));
+		assertEquals(product.getQuantity(), dto.getQuantity());
+		assertEquals(product.getPrice(), dto.getPrice());
+		assertNull(dto.getDiscount());
+		assertNull(dto.getPriceWithDiscount());
 	}
 
 	@Test
 	void toDtoWithEmptyTagsTest() {
-		Product product = getProductWithEmptyTags();
-		ProductDetailsResponseDTO dto = productDetailsResponseDTOMapper.toDTO(product);
+		var product = getProductWithEmptyTags();
+		var dto = productDetailsResponseDTOMapper.toDTO(product);
 
-		Assertions.assertEquals(PRODUCT_NAME, dto.getName());
-		Assertions.assertEquals(PRODUCT_DESCRIPTION, dto.getDescription());
-		Assertions.assertEquals(product.image(), dto.getImage());
-		Assertions.assertEquals(0, dto.getTags().size());
-		Assertions.assertEquals(product.quantity(), dto.getQuantity());
-		Assertions.assertEquals(product.price(), dto.getPrice());
+		assertEquals(PRODUCT_NAME, dto.getName());
+		assertEquals(PRODUCT_DESCRIPTION, dto.getDescription());
+		assertEquals(product.getImage(), dto.getImage());
+		assertEquals(Collections.EMPTY_LIST, dto.getTags());
+		assertEquals(product.getQuantity(), dto.getQuantity());
+		assertEquals(product.getPrice(), dto.getPrice());
+		assertNull(dto.getDiscount());
+		assertEquals(product.getPriceWithDiscount(), dto.getPriceWithDiscount());
 	}
 }

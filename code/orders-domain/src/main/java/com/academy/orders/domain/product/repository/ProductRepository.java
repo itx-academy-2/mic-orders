@@ -2,6 +2,7 @@ package com.academy.orders.domain.product.repository;
 
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
+import com.academy.orders.domain.discount.entity.Discount;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductManagement;
@@ -186,4 +187,21 @@ public interface ProductRepository {
 	 *         empty {@link Optional}.
 	 */
 	Optional<Product> getByIdAndLanguageCode(UUID productId, String lang);
+
+	/**
+	 * Retrieves a paginated list of {@link Product} entities where the discount is
+	 * available for the provided language. This method uses the language to filter
+	 * the products and only returns those that have a non-null discount.
+	 *
+	 * @param language
+	 *            the language code to filter the products (e.g., "en", "uk").
+	 * @param pageable
+	 *            the pagination information that includes the page number, size,
+	 *            and sorting.
+	 *
+	 * @return a {@link Page} of {@link Product} entities with a non-null discount,
+	 *         filtered by the given language and according to the provided
+	 *         pagination.
+	 */
+	Page<Product> findProductsWhereDiscountIsNotNull(String language, Pageable pageable);
 }
