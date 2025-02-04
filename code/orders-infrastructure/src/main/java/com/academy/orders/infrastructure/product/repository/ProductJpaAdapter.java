@@ -51,9 +51,13 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
 	 *            The pagination information.
 	 * @return A paginated {@link Page} of {@link ProductTranslationEntity}.
 	 */
-	@Query("SELECT pt " + "FROM ProductTranslationEntity AS pt " + "INNER JOIN FETCH pt.product AS p "
-			+ "INNER JOIN FETCH pt.language AS l " + "INNER JOIN FETCH p.discount "
-			+ "WHERE l.code= :language AND p.status = 'VISIBLE'")
+	@Query("""
+			SELECT pt \
+			FROM ProductTranslationEntity AS pt \
+			INNER JOIN FETCH pt.product AS p \
+			INNER JOIN FETCH pt.language AS l \
+			INNER JOIN FETCH p.discount \
+			WHERE l.code= :language AND p.status = 'VISIBLE'""")
 	Page<ProductTranslationEntity> findAllByLanguageCodeAndStatusVisibleAndDiscountNotNull(String language,
 			Pageable pageable);
 
