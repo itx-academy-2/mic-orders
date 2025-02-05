@@ -11,6 +11,8 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -68,8 +72,16 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerExceptionResolver handlerExceptionResolver)
 			throws Exception {
-		return http.cors(CorsConfigurer::disable).csrf(AbstractHttpConfigurer::disable)
-				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+		return http.cors(configurer -> {
+			final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+			final CorsConfiguration corsConfiguration = new CorsConfiguration();
+			corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+			corsConfiguration.setAllowedHeaders(List.of("*"));
+			corsConfiguration.setAllowedOrigins(List.of("*"));
+
+			source.registerCorsConfiguration("/**", corsConfiguration);
+			configurer.configurationSource(source);
+		}).csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterAfter(accountStatusFilter(), BearerTokenAuthenticationFilter.class)
 				.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
