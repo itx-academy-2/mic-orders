@@ -14,19 +14,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("it")
 class OrderImageRepositoryIT {
-	@Autowired
-	private OrderImageRepository orderImageRepository;
+  @Autowired
+  private OrderImageRepository orderImageRepository;
 
-	@Test
-	void loadOrderItemForProductInOrderItemTest() {
-		var order = getOrderWithoutId();
-		var productWithImageLink = getProductWithImageLink();
+  @Test
+  void loadOrderItemForProductInOrderItemTest() {
+    var order = getOrderWithoutId();
+    var productWithImageLink = getProductWithImageLink();
 
-		var actual = orderImageRepository.loadImageForProductInOrder(order);
+    var actual = orderImageRepository.loadImageForProductInOrder(order);
 
-		assertEquals(order.postAddress(), actual.postAddress());
-		assertEquals(order.receiver(), actual.receiver());
-		assertEquals(order.receiver(), actual.receiver());
-		assertEquals(productWithImageLink, actual.orderItems().get(0).product());
-	}
+    assertEquals(order.postAddress(), actual.postAddress());
+    assertEquals(order.receiver(), actual.receiver());
+    assertEquals(order.receiver(), actual.receiver());
+    assertEquals(productWithImageLink, actual.orderItems().get(0).product());
+  }
 }

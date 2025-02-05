@@ -12,21 +12,23 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class OrderImageRepositoryImpl implements OrderImageRepository {
-	private final ImageRepository imageRepository;
-	private final OrderMapper orderMapper;
-	private final ProductMapper productMapper;
+  private final ImageRepository imageRepository;
 
-	@Override
-	public Order loadImageForProductInOrder(Order order) {
-		var orderItems = order.orderItems().stream().map(this::loadOrderItemForProductInOrderItem).toList();
+  private final OrderMapper orderMapper;
 
-		return orderMapper.toOrderWithItems(order, orderItems);
-	}
+  private final ProductMapper productMapper;
 
-	private OrderItem loadOrderItemForProductInOrderItem(OrderItem orderItem) {
-		var product = orderItem.product();
-		var link = imageRepository.getImageLinkByName(product.getImage());
-		var productWithLink = productMapper.mapDomainImage(product, link);
-		return orderMapper.mapOrderItemWithUpdatedProduct(orderItem, productWithLink);
-	}
+  @Override
+  public Order loadImageForProductInOrder(Order order) {
+    var orderItems = order.orderItems().stream().map(this::loadOrderItemForProductInOrderItem).toList();
+
+    return orderMapper.toOrderWithItems(order, orderItems);
+  }
+
+  private OrderItem loadOrderItemForProductInOrderItem(OrderItem orderItem) {
+    var product = orderItem.product();
+    var link = imageRepository.getImageLinkByName(product.getImage());
+    var productWithLink = productMapper.mapDomainImage(product, link);
+    return orderMapper.mapOrderItemWithUpdatedProduct(orderItem, productWithLink);
+  }
 }

@@ -16,26 +16,28 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ProductImageRepositoryTest {
-	@InjectMocks
-	private ProductImageRepositoryImpl productImageRepository;
-	@Mock
-	private ImageRepository imageRepository;
-	@Mock
-	private ProductMapper productMapper;
+  @InjectMocks
+  private ProductImageRepositoryImpl productImageRepository;
 
-	@Test
-	void loadImageForProductTest() {
-		var product = ModelUtils.getProduct();
-		var imageLink = ModelUtils.TEST_IMAGE_LINK;
-		var productWithLink = Product.builder().image(imageLink).build();
+  @Mock
+  private ImageRepository imageRepository;
 
-		when(imageRepository.getImageLinkByName(product.getImage())).thenReturn(imageLink);
-		when(productMapper.mapDomainImage(product, imageLink)).thenReturn(productWithLink);
-		var result = productImageRepository.loadImageForProduct(product);
+  @Mock
+  private ProductMapper productMapper;
 
-		assertEquals(productWithLink, result);
-		verify(imageRepository).getImageLinkByName(product.getImage());
-		verify(productMapper).mapDomainImage(product, imageLink);
-	}
+  @Test
+  void loadImageForProductTest() {
+    var product = ModelUtils.getProduct();
+    var imageLink = ModelUtils.TEST_IMAGE_LINK;
+    var productWithLink = Product.builder().image(imageLink).build();
+
+    when(imageRepository.getImageLinkByName(product.getImage())).thenReturn(imageLink);
+    when(productMapper.mapDomainImage(product, imageLink)).thenReturn(productWithLink);
+    var result = productImageRepository.loadImageForProduct(product);
+
+    assertEquals(productWithLink, result);
+    verify(imageRepository).getImageLinkByName(product.getImage());
+    verify(productMapper).mapDomainImage(product, imageLink);
+  }
 
 }

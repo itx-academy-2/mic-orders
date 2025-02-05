@@ -20,7 +20,6 @@ import com.academy.orders_api_rest.generated.model.PageUserOrderDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
 import com.academy.orders_api_rest.generated.model.PlaceOrderRequestDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.UUID;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +31,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.UUID;
 
 import static com.academy.orders.apirest.ModelUtils.getJwtRequest;
 import static com.academy.orders.apirest.ModelUtils.getOrder;
@@ -55,125 +56,132 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(OrdersController.class)
 @ContextConfiguration(classes = {OrdersController.class})
 @Import(value = {CheckAccountIdUseCaseImpl.class, AopAutoConfiguration.class, TestSecurityConfig.class,
-		ErrorHandler.class})
+    ErrorHandler.class})
 class OrdersControllerTest {
-	@Autowired
-	private ObjectMapper objectMapper;
-	@Autowired
-	private MockMvc mockMvc;
-	@MockBean
-	private CreateOrderUseCase createOrderUseCase;
-	@MockBean
-	private CancelOrderUseCase cancelOrderUseCase;
-	@MockBean
-	private OrderDTOMapper mapper;
-	@MockBean
-	private PageableDTOMapper pageableDTOMapper;
-	@MockBean
-	private PageOrderDTOMapper pageOrderDTOMapper;
-	@MockBean
-	private GetOrdersByUserIdUseCase getOrdersByUserIdUseCase;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-	@Test
-	@SneakyThrows
-	void createOrderTest() {
-		Long userId = 1L;
-		String role = "ROLE_ADMIN";
-		var orderId = UUID.randomUUID();
+  @Autowired
+  private MockMvc mockMvc;
 
-		when(mapper.toCreateOrderDto(any(PlaceOrderRequestDTO.class))).thenReturn(CreateOrderDto.builder().build());
-		when(createOrderUseCase.createOrder(any(CreateOrderDto.class), anyLong())).thenReturn(orderId);
+  @MockBean
+  private CreateOrderUseCase createOrderUseCase;
 
-		mockMvc.perform(post("/v1/users/{id}/orders", userId).with(getJwtRequest(userId, role))
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(getPlaceOrderRequestDTO()))).andExpect(status().isCreated())
-				.andExpect(jsonPath("$.orderId").value(orderId.toString()));
+  @MockBean
+  private CancelOrderUseCase cancelOrderUseCase;
 
-		verify(mapper).toCreateOrderDto(any(PlaceOrderRequestDTO.class));
-		verify(createOrderUseCase).createOrder(any(CreateOrderDto.class), anyLong());
-	}
+  @MockBean
+  private OrderDTOMapper mapper;
 
-	@Test
-	@SneakyThrows
-	void createOrderThrowsEmptyCartExceptionTest() {
-		Long userId = 1L;
-		String role = "ROLE_ADMIN";
+  @MockBean
+  private PageableDTOMapper pageableDTOMapper;
 
-		when(mapper.toCreateOrderDto(any(PlaceOrderRequestDTO.class))).thenReturn(CreateOrderDto.builder().build());
-		when(createOrderUseCase.createOrder(any(CreateOrderDto.class), anyLong())).thenThrow(new EmptyCartException());
+  @MockBean
+  private PageOrderDTOMapper pageOrderDTOMapper;
 
-		mockMvc.perform(post("/v1/users/{id}/orders", userId).with(getJwtRequest(userId, role))
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(getPlaceOrderRequestDTO())))
-				.andExpect(status().isBadRequest());
+  @MockBean
+  private GetOrdersByUserIdUseCase getOrdersByUserIdUseCase;
 
-		verify(mapper).toCreateOrderDto(any(PlaceOrderRequestDTO.class));
-		verify(createOrderUseCase).createOrder(any(CreateOrderDto.class), anyLong());
-	}
+  @Test
+  @SneakyThrows
+  void createOrderTest() {
+    Long userId = 1L;
+    String role = "ROLE_ADMIN";
+    var orderId = UUID.randomUUID();
 
-	@Test
-	@SneakyThrows
-	void createOrderThrowsInsufficientProductQuantityExceptionTest() {
-		Long userId = 1L;
-		String role = "ROLE_ADMIN";
+    when(mapper.toCreateOrderDto(any(PlaceOrderRequestDTO.class))).thenReturn(CreateOrderDto.builder().build());
+    when(createOrderUseCase.createOrder(any(CreateOrderDto.class), anyLong())).thenReturn(orderId);
 
-		when(mapper.toCreateOrderDto(any(PlaceOrderRequestDTO.class))).thenReturn(CreateOrderDto.builder().build());
+    mockMvc.perform(post("/v1/users/{id}/orders", userId).with(getJwtRequest(userId, role))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(getPlaceOrderRequestDTO()))).andExpect(status().isCreated())
+        .andExpect(jsonPath("$.orderId").value(orderId.toString()));
 
-		when(createOrderUseCase.createOrder(any(CreateOrderDto.class), anyLong()))
-				.thenThrow(new InsufficientProductQuantityException(UUID.randomUUID()));
+    verify(mapper).toCreateOrderDto(any(PlaceOrderRequestDTO.class));
+    verify(createOrderUseCase).createOrder(any(CreateOrderDto.class), anyLong());
+  }
 
-		mockMvc.perform(post("/v1/users/{id}/orders", userId).with(getJwtRequest(userId, role))
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(getPlaceOrderRequestDTO()))).andExpect(status().isConflict());
-		verify(mapper).toCreateOrderDto(any(PlaceOrderRequestDTO.class));
-		verify(createOrderUseCase).createOrder(any(CreateOrderDto.class), anyLong());
-	}
+  @Test
+  @SneakyThrows
+  void createOrderThrowsEmptyCartExceptionTest() {
+    Long userId = 1L;
+    String role = "ROLE_ADMIN";
 
-	@Test
-	@SneakyThrows
-	void getOrdersByUserTest() {
-		// Given
-		Long userId = 1L;
-		String role = "ROLE_USER";
-		String language = "uk";
-		PageableDTO pageableDTO = new PageableDTO();
-		Pageable pageable = getPageable();
-		Page<Order> orderPage = getPageOf(getOrder());
-		PageUserOrderDTO pageOrderDTO = getPageUserOrderDTO();
+    when(mapper.toCreateOrderDto(any(PlaceOrderRequestDTO.class))).thenReturn(CreateOrderDto.builder().build());
+    when(createOrderUseCase.createOrder(any(CreateOrderDto.class), anyLong())).thenThrow(new EmptyCartException());
 
-		when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
-		when(getOrdersByUserIdUseCase.getOrdersByUserId(userId, language, pageable)).thenReturn(orderPage);
-		when(pageOrderDTOMapper.toUserDto(orderPage)).thenReturn(pageOrderDTO);
+    mockMvc.perform(post("/v1/users/{id}/orders", userId).with(getJwtRequest(userId, role))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(getPlaceOrderRequestDTO())))
+        .andExpect(status().isBadRequest());
 
-		// When
-		MvcResult result = mockMvc
-				.perform(get("/v1/users/{id}/orders", userId).with(getJwtRequest(userId, role))
-						.contentType(MediaType.APPLICATION_JSON).param("lang", language)
-						.params(getPageableParams(pageableDTO.getPage(), pageableDTO.getSize(), pageableDTO.getSort())))
-				.andExpect(status().isOk()).andReturn();
-		String contentAsString = result.getResponse().getContentAsString();
+    verify(mapper).toCreateOrderDto(any(PlaceOrderRequestDTO.class));
+    verify(createOrderUseCase).createOrder(any(CreateOrderDto.class), anyLong());
+  }
 
-		// Then
-		assertEquals(pageOrderDTO, objectMapper.readValue(contentAsString, PageUserOrderDTO.class));
-		verify(pageableDTOMapper).fromDto(pageableDTO);
-		verify(getOrdersByUserIdUseCase).getOrdersByUserId(userId, language, pageable);
-		verify(pageOrderDTOMapper).toUserDto(orderPage);
-	}
+  @Test
+  @SneakyThrows
+  void createOrderThrowsInsufficientProductQuantityExceptionTest() {
+    Long userId = 1L;
+    String role = "ROLE_ADMIN";
 
-	@Test
-	@SneakyThrows
-	void cancelOrderTest() {
-		// Given
-		Long userId = 1L;
-		UUID orderId = ModelUtils.getOrder().id();
-		doNothing().when(cancelOrderUseCase).cancelOrder(userId, orderId);
+    when(mapper.toCreateOrderDto(any(PlaceOrderRequestDTO.class))).thenReturn(CreateOrderDto.builder().build());
 
-		// When
-		mockMvc.perform(patch("/v1/users/{userId}/orders/{orderId}/cancel", userId, orderId)
-				.with(getJwtRequest(userId, "ROLE_USER")).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk());
+    when(createOrderUseCase.createOrder(any(CreateOrderDto.class), anyLong()))
+        .thenThrow(new InsufficientProductQuantityException(UUID.randomUUID()));
 
-		// Then
-		verify(cancelOrderUseCase).cancelOrder(userId, orderId);
-	}
+    mockMvc.perform(post("/v1/users/{id}/orders", userId).with(getJwtRequest(userId, role))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(getPlaceOrderRequestDTO()))).andExpect(status().isConflict());
+    verify(mapper).toCreateOrderDto(any(PlaceOrderRequestDTO.class));
+    verify(createOrderUseCase).createOrder(any(CreateOrderDto.class), anyLong());
+  }
+
+  @Test
+  @SneakyThrows
+  void getOrdersByUserTest() {
+    // Given
+    Long userId = 1L;
+    String role = "ROLE_USER";
+    String language = "uk";
+    PageableDTO pageableDTO = new PageableDTO();
+    Pageable pageable = getPageable();
+    Page<Order> orderPage = getPageOf(getOrder());
+    PageUserOrderDTO pageOrderDTO = getPageUserOrderDTO();
+
+    when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
+    when(getOrdersByUserIdUseCase.getOrdersByUserId(userId, language, pageable)).thenReturn(orderPage);
+    when(pageOrderDTOMapper.toUserDto(orderPage)).thenReturn(pageOrderDTO);
+
+    // When
+    MvcResult result = mockMvc
+        .perform(get("/v1/users/{id}/orders", userId).with(getJwtRequest(userId, role))
+            .contentType(MediaType.APPLICATION_JSON).param("lang", language)
+            .params(getPageableParams(pageableDTO.getPage(), pageableDTO.getSize(), pageableDTO.getSort())))
+        .andExpect(status().isOk()).andReturn();
+    String contentAsString = result.getResponse().getContentAsString();
+
+    // Then
+    assertEquals(pageOrderDTO, objectMapper.readValue(contentAsString, PageUserOrderDTO.class));
+    verify(pageableDTOMapper).fromDto(pageableDTO);
+    verify(getOrdersByUserIdUseCase).getOrdersByUserId(userId, language, pageable);
+    verify(pageOrderDTOMapper).toUserDto(orderPage);
+  }
+
+  @Test
+  @SneakyThrows
+  void cancelOrderTest() {
+    // Given
+    Long userId = 1L;
+    UUID orderId = ModelUtils.getOrder().id();
+    doNothing().when(cancelOrderUseCase).cancelOrder(userId, orderId);
+
+    // When
+    mockMvc.perform(patch("/v1/users/{userId}/orders/{orderId}/cancel", userId, orderId)
+        .with(getJwtRequest(userId, "ROLE_USER")).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+
+    // Then
+    verify(cancelOrderUseCase).cancelOrder(userId, orderId);
+  }
 }

@@ -6,53 +6,55 @@ import com.academy.orders.domain.cart.entity.CreateCartItemDTO;
 import com.academy.orders.domain.cart.exception.CartItemNotFoundException;
 import com.academy.orders.domain.cart.exception.QuantityExceedsAvailableException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
+import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
 import com.academy.orders.domain.cart.usecase.UpdateCartItemQuantityUseCase;
 import com.academy.orders.domain.product.entity.Product;
-import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UpdateCartItemQuantityUseCaseImpl implements UpdateCartItemQuantityUseCase {
-	private final CartItemRepository cartItemRepository;
-	private final CalculatePriceUseCase calculatePriceUseCase;
+  private final CartItemRepository cartItemRepository;
 
-	@Override
-	@Transactional
-	public UpdatedCartItemDto setQuantity(UUID productId, Long userId, Integer quantity) {
+  private final CalculatePriceUseCase calculatePriceUseCase;
 
-		checkCartItemExists(productId, userId);
+  @Override
+  @Transactional
+  public UpdatedCartItemDto setQuantity(UUID productId, Long userId, Integer quantity) {
 
-		var updatedCartItem = updateQuantityOfCartItem(quantity, productId, userId);
-		var getAll = cartItemRepository.findCartItemsByAccountId(userId);
+    checkCartItemExists(productId, userId);
 
-		Product product = updatedCartItem.product();
+    var updatedCartItem = updateQuantityOfCartItem(quantity, productId, userId);
+    var getAll = cartItemRepository.findCartItemsByAccountId(userId);
 
-		if (quantity > product.getQuantity()) {
-			throw new QuantityExceedsAvailableException(productId, quantity, product.getQuantity());
-		}
+    Product product = updatedCartItem.product();
 
-		var cartItemPrice = calculatePriceUseCase.calculateCartItemPrice(updatedCartItem);
-		var totalPrice = calculatePriceUseCase.calculateCartTotalPrice(getAll);
+    if (quantity > product.getQuantity()) {
+      throw new QuantityExceedsAvailableException(productId, quantity, product.getQuantity());
+    }
 
-		return new UpdatedCartItemDto(productId, quantity, product.getPrice(), cartItemPrice, totalPrice);
-	}
+    var cartItemPrice = calculatePriceUseCase.calculateCartItemPrice(updatedCartItem);
+    var totalPrice = calculatePriceUseCase.calculateCartTotalPrice(getAll);
 
-	private void checkCartItemExists(UUID productId, Long userId) {
-		if (!Boolean.TRUE.equals(cartItemRepository.existsByProductIdAndUserId(productId, userId))) {
-			throw new CartItemNotFoundException(productId);
-		}
-	}
+    return new UpdatedCartItemDto(productId, quantity, product.getPrice(), cartItemPrice, totalPrice);
+  }
 
-	private CartItem updateQuantityOfCartItem(Integer quantity, UUID productId, Long userId) {
-		CartItem cartItem = cartItemRepository.findByProductIdAndUserId(productId, userId)
-				.orElseThrow(() -> new CartItemNotFoundException(productId));
-		CartItem updatedCartItem = new CartItem(cartItem.product(), quantity);
+  private void checkCartItemExists(UUID productId, Long userId) {
+    if (!Boolean.TRUE.equals(cartItemRepository.existsByProductIdAndUserId(productId, userId))) {
+      throw new CartItemNotFoundException(productId);
+    }
+  }
 
-		return cartItemRepository
-				.save(new CreateCartItemDTO(updatedCartItem.product().getId(), userId, updatedCartItem.quantity()));
-	}
+  private CartItem updateQuantityOfCartItem(Integer quantity, UUID productId, Long userId) {
+    CartItem cartItem = cartItemRepository.findByProductIdAndUserId(productId, userId)
+        .orElseThrow(() -> new CartItemNotFoundException(productId));
+    CartItem updatedCartItem = new CartItem(cartItem.product(), quantity);
+
+    return cartItemRepository
+        .save(new CreateCartItemDTO(updatedCartItem.product().getId(), userId, updatedCartItem.quantity()));
+  }
 }

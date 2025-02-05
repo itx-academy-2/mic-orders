@@ -6,6 +6,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface DiscountMapper {
-	Discount fromEntity(DiscountEntity discountEntity);
-	DiscountEntity toEntity(Discount discount);
+  Discount fromEntity(DiscountEntity discountEntity);
+
+  DiscountEntity toEntity(Discount discount);
 }

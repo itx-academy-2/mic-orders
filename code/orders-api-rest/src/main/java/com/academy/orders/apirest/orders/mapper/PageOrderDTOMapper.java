@@ -10,6 +10,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", uses = {OrderDTOMapper.class, LocalDateTimeMapper.class})
 public interface PageOrderDTOMapper {
-	PageUserOrderDTO toUserDto(Page<Order> orderPage);
-	PageManagerOrderPreviewDTO toManagerDto(Page<OrderManagement> orderManagementPage);
+  PageUserOrderDTO toUserDto(Page<Order> orderPage);
+
+  PageManagerOrderPreviewDTO toManagerDto(Page<OrderManagement> orderManagementPage);
 }

@@ -11,7 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -19,6 +18,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.UUID;
 
 @Table(name = "post_addresses")
 @Setter
@@ -30,21 +31,21 @@ import lombok.ToString;
 @ToString(exclude = "order")
 @Entity
 public class PostAddressEntity {
-	@Id
-	private UUID id;
+  @Id
+  private UUID id;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "delivery_method", nullable = false)
-	private DeliveryMethod deliveryMethod;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "delivery_method", nullable = false)
+  private DeliveryMethod deliveryMethod;
 
-	@Column(nullable = false)
-	private String city;
+  @Column(nullable = false)
+  private String city;
 
-	@Column(nullable = false)
-	private String department;
+  @Column(nullable = false)
+  private String department;
 
-	@MapsId
-	@OneToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "id", nullable = false)
-	private OrderEntity order;
+  @MapsId
+  @OneToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "id", nullable = false)
+  private OrderEntity order;
 }

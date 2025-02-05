@@ -21,40 +21,43 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class OrderImageRepositoryImplTest {
-	@InjectMocks
-	private OrderImageRepositoryImpl orderImageRepository;
-	@Mock
-	private ImageRepository imageRepository;
-	@Mock
-	private OrderMapper orderMapper;
-	@Mock
-	private ProductMapper productMapper;
+  @InjectMocks
+  private OrderImageRepositoryImpl orderImageRepository;
 
-	@Test
-	void loadImageForProductInOrderTest() {
-		var order = ModelUtils.getOrder();
-		var orderItem = order.orderItems().get(0);
-		var product = orderItem.product();
+  @Mock
+  private ImageRepository imageRepository;
 
-		var productWithLink = Product.builder().image(TEST_IMAGE_LINK).build();
-		var orderItemWithProduct = OrderItem.builder().product(productWithLink).build();
-		var orderItemsWithProducts = singletonList(orderItemWithProduct);
-		var orderWithMappedItems = Order.builder().orderItems(orderItemsWithProducts).build();
+  @Mock
+  private OrderMapper orderMapper;
 
-		when(imageRepository.getImageLinkByName(product.getImage())).thenReturn(TEST_IMAGE_LINK);
-		when(productMapper.mapDomainImage(product, TEST_IMAGE_LINK)).thenReturn(productWithLink);
-		when(orderMapper.mapOrderItemWithUpdatedProduct(orderItem, productWithLink)).thenReturn(orderItemWithProduct);
-		when(orderMapper.mapOrderItemWithUpdatedProduct(orderItem, productWithLink)).thenReturn(orderItemWithProduct);
-		when(orderMapper.toOrderWithItems(order, orderItemsWithProducts)).thenReturn(orderWithMappedItems);
+  @Mock
+  private ProductMapper productMapper;
 
-		var actualOrder = orderImageRepository.loadImageForProductInOrder(order);
+  @Test
+  void loadImageForProductInOrderTest() {
+    var order = ModelUtils.getOrder();
+    var orderItem = order.orderItems().get(0);
+    var product = orderItem.product();
 
-		assertEquals(orderWithMappedItems, actualOrder);
+    var productWithLink = Product.builder().image(TEST_IMAGE_LINK).build();
+    var orderItemWithProduct = OrderItem.builder().product(productWithLink).build();
+    var orderItemsWithProducts = singletonList(orderItemWithProduct);
+    var orderWithMappedItems = Order.builder().orderItems(orderItemsWithProducts).build();
 
-		verify(imageRepository).getImageLinkByName(product.getImage());
-		verify(productMapper).mapDomainImage(product, TEST_IMAGE_LINK);
-		verify(orderMapper).mapOrderItemWithUpdatedProduct(orderItem, productWithLink);
-		verify(orderMapper).mapOrderItemWithUpdatedProduct(orderItem, productWithLink);
-		verify(orderMapper).toOrderWithItems(order, orderItemsWithProducts);
-	}
+    when(imageRepository.getImageLinkByName(product.getImage())).thenReturn(TEST_IMAGE_LINK);
+    when(productMapper.mapDomainImage(product, TEST_IMAGE_LINK)).thenReturn(productWithLink);
+    when(orderMapper.mapOrderItemWithUpdatedProduct(orderItem, productWithLink)).thenReturn(orderItemWithProduct);
+    when(orderMapper.mapOrderItemWithUpdatedProduct(orderItem, productWithLink)).thenReturn(orderItemWithProduct);
+    when(orderMapper.toOrderWithItems(order, orderItemsWithProducts)).thenReturn(orderWithMappedItems);
+
+    var actualOrder = orderImageRepository.loadImageForProductInOrder(order);
+
+    assertEquals(orderWithMappedItems, actualOrder);
+
+    verify(imageRepository).getImageLinkByName(product.getImage());
+    verify(productMapper).mapDomainImage(product, TEST_IMAGE_LINK);
+    verify(orderMapper).mapOrderItemWithUpdatedProduct(orderItem, productWithLink);
+    verify(orderMapper).mapOrderItemWithUpdatedProduct(orderItem, productWithLink);
+    verify(orderMapper).toOrderWithItems(order, orderItemsWithProducts);
+  }
 }

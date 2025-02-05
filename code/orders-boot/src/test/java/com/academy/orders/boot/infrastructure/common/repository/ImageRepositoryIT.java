@@ -12,15 +12,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("it")
 class ImageRepositoryIT {
-	@Autowired
-	private ImageRepository imageRepository;
+  @Autowired
+  private ImageRepository imageRepository;
 
-	@Test
-	void getImageLinkByNameTest() {
-		var imageName = "image.jpg";
-		var expected = "https://j65jb0fdkxuua0go.public.blob.vercel-storage.com/" + imageName;
-		var actual = imageRepository.getImageLinkByName(imageName);
+  @Test
+  void getImageLinkByNameTest() {
+    var imageName = "image.jpg";
+    var expected = "https://j65jb0fdkxuua0go.public.blob.vercel-storage.com/" + imageName;
+    var actual = imageRepository.getImageLinkByName(imageName);
 
-		assertEquals(expected, actual);
-	}
+    assertEquals(expected, actual);
+  }
 }

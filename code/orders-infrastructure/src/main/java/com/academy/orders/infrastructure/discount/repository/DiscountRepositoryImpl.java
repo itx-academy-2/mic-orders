@@ -14,22 +14,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 public class DiscountRepositoryImpl implements DiscountRepository {
-	private final DiscountJpaAdapter discountJpaAdapter;
-	private final DiscountMapper discountMapper;
+  private final DiscountJpaAdapter discountJpaAdapter;
 
-	@Override
-	public Discount save(Discount discount) {
-		final DiscountEntity discountEntity = discountJpaAdapter.save(discountMapper.toEntity(discount));
-		return discountMapper.fromEntity(discountEntity);
-	}
+  private final DiscountMapper discountMapper;
 
-	@Override
-	public boolean deleteById(UUID discountId) {
-		if (discountJpaAdapter.existsById(discountId)) {
-			discountJpaAdapter.deleteById(discountId);
-			return true;
-		}
-		return false;
+  @Override
+  public Discount save(Discount discount) {
+    final DiscountEntity discountEntity = discountJpaAdapter.save(discountMapper.toEntity(discount));
+    return discountMapper.fromEntity(discountEntity);
+  }
 
-	}
+  @Override
+  public boolean deleteById(UUID discountId) {
+    if (discountJpaAdapter.existsById(discountId)) {
+      discountJpaAdapter.deleteById(discountId);
+      return true;
+    }
+    return false;
+
+  }
 }

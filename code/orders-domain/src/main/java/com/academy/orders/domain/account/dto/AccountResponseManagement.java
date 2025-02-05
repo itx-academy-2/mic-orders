@@ -8,5 +8,5 @@ import java.time.LocalDateTime;
 
 @Builder
 public record AccountResponseManagement(Long id, String email, String firstName, String lastName, Role role,
-		UserStatus status, LocalDateTime createdAt) {
+    UserStatus status, LocalDateTime createdAt) {
 }

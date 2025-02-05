@@ -13,12 +13,13 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class GetManagerProductsUseCaseImpl implements GetManagerProductsUseCase {
-	private final ProductRepository productRepository;
-	private final ProductImageRepository productImageRepository;
+  private final ProductRepository productRepository;
 
-	@Override
-	public Page<Product> getManagerProducts(Pageable pageable, ProductManagementFilterDto filter, String lang) {
-		return productRepository.findAllByLanguageWithFilter(lang, filter, pageable)
-				.map(productImageRepository::loadImageForProduct);
-	}
+  private final ProductImageRepository productImageRepository;
+
+  @Override
+  public Page<Product> getManagerProducts(Pageable pageable, ProductManagementFilterDto filter, String lang) {
+    return productRepository.findAllByLanguageWithFilter(lang, filter, pageable)
+        .map(productImageRepository::loadImageForProduct);
+  }
 }

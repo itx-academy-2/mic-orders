@@ -7,5 +7,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", uses = {LocalDateTimeMapper.class})
 public interface OrderFilterParametersDTOMapper {
-	OrdersFilterParametersDto fromDTO(OrdersFilterParametersDTO ordersFilterParametersDTO);
+  OrdersFilterParametersDto fromDTO(OrdersFilterParametersDTO ordersFilterParametersDTO);
 }

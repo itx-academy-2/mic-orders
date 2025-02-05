@@ -23,39 +23,41 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GetOrdersByUserIdUseCaseTest {
-	@InjectMocks
-	private GetOrdersByUserIdUseCaseImpl getOrdersByUserIdUseCase;
-	@Mock
-	private OrderRepository orderRepository;
-	@Mock
-	private CalculateOrderTotalPriceUseCase calculateOrderTotalPriceUseCase;
+  @InjectMocks
+  private GetOrdersByUserIdUseCaseImpl getOrdersByUserIdUseCase;
 
-	@Mock
-	private OrderImageRepository orderImageRepository;
+  @Mock
+  private OrderRepository orderRepository;
 
-	@Test
-	void getOrdersByUserIdTest() {
-		// Given
-		Long userId = 1L;
-		String language = "uk";
-		Pageable pageable = getPageable();
-		Order withoutTotal = getOrderWithoutTotal();
-		Order withTotal = getOrder();
-		Page<Order> orderPage = getPageOf(withoutTotal);
-		Page<Order> expected = getPageOf(withTotal);
+  @Mock
+  private CalculateOrderTotalPriceUseCase calculateOrderTotalPriceUseCase;
 
-		when(orderRepository.findAllByUserId(userId, language, pageable)).thenReturn(orderPage);
-		when(orderImageRepository.loadImageForProductInOrder(any(Order.class))).thenReturn(withTotal);
-		when(calculateOrderTotalPriceUseCase.calculateTotalPriceFor(orderPage.content()))
-				.thenReturn(expected.content());
+  @Mock
+  private OrderImageRepository orderImageRepository;
 
-		// When
-		Page<Order> ordersByUserId = getOrdersByUserIdUseCase.getOrdersByUserId(userId, language, pageable);
+  @Test
+  void getOrdersByUserIdTest() {
+    // Given
+    Long userId = 1L;
+    String language = "uk";
+    Pageable pageable = getPageable();
+    Order withoutTotal = getOrderWithoutTotal();
+    Order withTotal = getOrder();
+    Page<Order> orderPage = getPageOf(withoutTotal);
+    Page<Order> expected = getPageOf(withTotal);
 
-		// Then
-		assertEquals(expected, ordersByUserId);
-		verify(orderRepository).findAllByUserId(userId, language, pageable);
-		verify(calculateOrderTotalPriceUseCase).calculateTotalPriceFor(orderPage.content());
-		verify(orderImageRepository).loadImageForProductInOrder(withTotal);
-	}
+    when(orderRepository.findAllByUserId(userId, language, pageable)).thenReturn(orderPage);
+    when(orderImageRepository.loadImageForProductInOrder(any(Order.class))).thenReturn(withTotal);
+    when(calculateOrderTotalPriceUseCase.calculateTotalPriceFor(orderPage.content()))
+        .thenReturn(expected.content());
+
+    // When
+    Page<Order> ordersByUserId = getOrdersByUserIdUseCase.getOrdersByUserId(userId, language, pageable);
+
+    // Then
+    assertEquals(expected, ordersByUserId);
+    verify(orderRepository).findAllByUserId(userId, language, pageable);
+    verify(calculateOrderTotalPriceUseCase).calculateTotalPriceFor(orderPage.content());
+    verify(orderImageRepository).loadImageForProductInOrder(withTotal);
+  }
 }

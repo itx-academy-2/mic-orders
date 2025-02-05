@@ -12,13 +12,13 @@ import static java.lang.Boolean.TRUE;
 @Service
 @RequiredArgsConstructor
 public class CreateUserAccountUseCaseImpl implements CreateUserAccountUseCase {
-	private final AccountRepository accountRepository;
+  private final AccountRepository accountRepository;
 
-	@Override
-	public void create(CreateAccountDTO account) {
-		if (TRUE.equals(accountRepository.existsByEmail(account.email()))) {
-			throw new AccountAlreadyExistsException(account.email());
-		}
-		accountRepository.save(account);
-	}
+  @Override
+  public void create(CreateAccountDTO account) {
+    if (TRUE.equals(accountRepository.existsByEmail(account.email()))) {
+      throw new AccountAlreadyExistsException(account.email());
+    }
+    accountRepository.save(account);
+  }
 }

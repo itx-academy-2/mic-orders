@@ -6,5 +6,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface PageableDTOMapper {
-	Pageable fromDto(PageableDTO pageableDTO);
+  Pageable fromDto(PageableDTO pageableDTO);
 }

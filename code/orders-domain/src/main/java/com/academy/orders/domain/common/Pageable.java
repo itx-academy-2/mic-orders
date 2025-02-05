@@ -1,6 +1,7 @@
 package com.academy.orders.domain.common;
 
 import lombok.Builder;
+
 import java.util.List;
 
 @Builder

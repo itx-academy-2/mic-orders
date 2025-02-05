@@ -19,33 +19,36 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CartItemImageRepositoryTest {
-	@InjectMocks
-	private CartItemImageRepositoryImpl cartItemImageRepository;
-	@Mock
-	private ImageRepository imageRepository;
-	@Mock
-	private CartItemMapper cartItemMapper;
-	@Mock
-	private ProductMapper productMapper;
+  @InjectMocks
+  private CartItemImageRepositoryImpl cartItemImageRepository;
 
-	@Test
-	void loadImageForProductInCartTest() {
-		var cartItem = ModelUtils.getCartItem();
-		var product = cartItem.product();
+  @Mock
+  private ImageRepository imageRepository;
 
-		var productWithLink = Product.builder().image(TEST_IMAGE_LINK).build();
-		var cartItemWithProduct = CartItem.builder().product(productWithLink).build();
+  @Mock
+  private CartItemMapper cartItemMapper;
 
-		when(imageRepository.getImageLinkByName(product.getImage())).thenReturn(TEST_IMAGE_LINK);
-		when(productMapper.mapDomainImage(product, TEST_IMAGE_LINK)).thenReturn(productWithLink);
-		when(cartItemMapper.fromDomainWithProduct(cartItem, productWithLink)).thenReturn(cartItemWithProduct);
+  @Mock
+  private ProductMapper productMapper;
 
-		var actualCartItem = cartItemImageRepository.loadImageForProductInCart(cartItem);
+  @Test
+  void loadImageForProductInCartTest() {
+    var cartItem = ModelUtils.getCartItem();
+    var product = cartItem.product();
 
-		assertEquals(cartItemWithProduct, actualCartItem);
+    var productWithLink = Product.builder().image(TEST_IMAGE_LINK).build();
+    var cartItemWithProduct = CartItem.builder().product(productWithLink).build();
 
-		verify(imageRepository).getImageLinkByName(product.getImage());
-		verify(productMapper).mapDomainImage(product, TEST_IMAGE_LINK);
-		verify(cartItemMapper).fromDomainWithProduct(cartItem, productWithLink);
-	}
+    when(imageRepository.getImageLinkByName(product.getImage())).thenReturn(TEST_IMAGE_LINK);
+    when(productMapper.mapDomainImage(product, TEST_IMAGE_LINK)).thenReturn(productWithLink);
+    when(cartItemMapper.fromDomainWithProduct(cartItem, productWithLink)).thenReturn(cartItemWithProduct);
+
+    var actualCartItem = cartItemImageRepository.loadImageForProductInCart(cartItem);
+
+    assertEquals(cartItemWithProduct, actualCartItem);
+
+    verify(imageRepository).getImageLinkByName(product.getImage());
+    verify(productMapper).mapDomainImage(product, TEST_IMAGE_LINK);
+    verify(cartItemMapper).fromDomainWithProduct(cartItem, productWithLink);
+  }
 }

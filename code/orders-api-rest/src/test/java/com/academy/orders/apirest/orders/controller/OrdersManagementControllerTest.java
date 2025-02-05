@@ -22,7 +22,6 @@ import com.academy.orders_api_rest.generated.model.OrdersFilterParametersDTO;
 import com.academy.orders_api_rest.generated.model.PageManagerOrderPreviewDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
@@ -34,6 +33,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.UUID;
+
 import static com.academy.orders.apirest.ModelUtils.getManagerOrderDTO;
 import static com.academy.orders.apirest.ModelUtils.getOrder;
 import static com.academy.orders.apirest.ModelUtils.getOrderManagement;
@@ -62,112 +64,122 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {OrdersManagementController.class})
 @Import(value = {AopAutoConfiguration.class, TestSecurityConfig.class, ErrorHandler.class})
 class OrdersManagementControllerTest {
-	@Autowired
-	private ObjectMapper objectMapper;
-	@Autowired
-	private MockMvc mockMvc;
-	@MockBean
-	private UpdateOrderStatusUseCase updateOrderStatusUseCase;
-	@MockBean
-	private GetOrderByIdUseCase getOrderByIdUseCase;
-	@MockBean
-	private PageableDTOMapper pageableDTOMapper;
-	@MockBean
-	private PageOrderDTOMapper pageOrderDTOMapper;
-	@MockBean
-	private GetAllOrdersUseCase getAllOrdersUseCase;
-	@MockBean
-	private OrderFilterParametersDTOMapper orderFilterParametersDTOMapper;
-	@MockBean
-	private OrderDTOMapper orderDTOMapper;
-	@MockBean
-	private OrderStatusInfoDTOMapper orderStatusInfoDTOMapper;
-	@MockBean
-	private UpdateOrderStatusRequestDTOMapper updateOrderStatusRequestDTOMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-	@Test
-	@WithMockUser(authorities = ROLE_MANAGER)
-	void getAllOrdersTest() throws Exception {
-		// Given
-		Long userId = 1L;
-		PageableDTO pageableDTO = new PageableDTO();
-		Pageable pageable = getPageable();
-		Page<OrderManagement> orderPage = getPageOf(getOrderManagement());
-		OrdersFilterParametersDto orderFilterParametersDto = getOrdersFilterParametersDto();
-		OrdersFilterParametersDTO orderFilterParametersDTO = getOrdersFilterParametersDTO();
-		PageManagerOrderPreviewDTO pageOrderDTO = getPageManagerOrderPreviewDTO();
+  @Autowired
+  private MockMvc mockMvc;
 
-		when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
-		when(orderFilterParametersDTOMapper.fromDTO(orderFilterParametersDTO)).thenReturn(orderFilterParametersDto);
-		when(getAllOrdersUseCase.getAllOrders(orderFilterParametersDto, pageable, ROLE_MANAGER)).thenReturn(orderPage);
-		when(pageOrderDTOMapper.toManagerDto(orderPage)).thenReturn(pageOrderDTO);
+  @MockBean
+  private UpdateOrderStatusUseCase updateOrderStatusUseCase;
 
-		// When
-		MvcResult result = mockMvc
-				.perform(get("/v1/management/orders", userId).contentType(MediaType.APPLICATION_JSON)
-						.params(getPageableParams(pageableDTO.getPage(), pageableDTO.getSize(), pageableDTO.getSort()))
-						.params(getOrdersFilterParametersDTOParams(orderFilterParametersDTO)))
-				.andExpect(status().isOk()).andReturn();
-		String contentAsString = result.getResponse().getContentAsString();
+  @MockBean
+  private GetOrderByIdUseCase getOrderByIdUseCase;
 
-		// Then
+  @MockBean
+  private PageableDTOMapper pageableDTOMapper;
 
-		verify(pageableDTOMapper).fromDto(pageableDTO);
-		verify(orderFilterParametersDTOMapper).fromDTO(orderFilterParametersDTO);
-		verify(getAllOrdersUseCase).getAllOrders(orderFilterParametersDto, pageable, ROLE_MANAGER);
-		assertEquals(pageOrderDTO, objectMapper.readValue(contentAsString, PageManagerOrderPreviewDTO.class));
-	}
+  @MockBean
+  private PageOrderDTOMapper pageOrderDTOMapper;
 
-	@Test
-	@WithMockUser(authorities = ROLE_MANAGER)
-	void updateOrderStatusTest() throws Exception {
-		var orderId = UUID.randomUUID();
-		var updateOrderStatusRequestDTO = getUpdateOrderStatusRequestDTO();
-		var updateOrderStatusDto = getUpdateOrderStatusDto();
+  @MockBean
+  private GetAllOrdersUseCase getAllOrdersUseCase;
 
-		var orderStatusInfoDTO = getOrderStatusInfoDTO();
-		var orderStatusInfo = getOrderStatusInfo();
+  @MockBean
+  private OrderFilterParametersDTOMapper orderFilterParametersDTOMapper;
 
-		when(updateOrderStatusRequestDTOMapper.fromDTO(updateOrderStatusRequestDTO)).thenReturn(updateOrderStatusDto);
-		when(updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER))
-				.thenReturn(orderStatusInfo);
-		when(orderStatusInfoDTOMapper.toDTO(orderStatusInfo)).thenReturn(orderStatusInfoDTO);
+  @MockBean
+  private OrderDTOMapper orderDTOMapper;
 
-		var request = objectMapper.writeValueAsString(updateOrderStatusRequestDTO);
-		var result = mockMvc.perform(
-				patch(UPDATE_ORDER_STATUS_URL, orderId).contentType(MediaType.APPLICATION_JSON).content(request))
-				.andExpect(status().isOk()).andReturn();
+  @MockBean
+  private OrderStatusInfoDTOMapper orderStatusInfoDTOMapper;
 
-		var contentAsString = result.getResponse().getContentAsString();
-		assertEquals(orderStatusInfoDTO, objectMapper.readValue(contentAsString, OrderStatusInfoDTO.class));
+  @MockBean
+  private UpdateOrderStatusRequestDTOMapper updateOrderStatusRequestDTOMapper;
 
-		verify(updateOrderStatusRequestDTOMapper).fromDTO(updateOrderStatusRequestDTO);
-		verify(updateOrderStatusUseCase).updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER);
-		verify(orderStatusInfoDTOMapper).toDTO(orderStatusInfo);
+  @Test
+  @WithMockUser(authorities = ROLE_MANAGER)
+  void getAllOrdersTest() throws Exception {
+    // Given
+    Long userId = 1L;
+    PageableDTO pageableDTO = new PageableDTO();
+    Pageable pageable = getPageable();
+    Page<OrderManagement> orderPage = getPageOf(getOrderManagement());
+    OrdersFilterParametersDto orderFilterParametersDto = getOrdersFilterParametersDto();
+    OrdersFilterParametersDTO orderFilterParametersDTO = getOrdersFilterParametersDTO();
+    PageManagerOrderPreviewDTO pageOrderDTO = getPageManagerOrderPreviewDTO();
 
-	}
+    when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
+    when(orderFilterParametersDTOMapper.fromDTO(orderFilterParametersDTO)).thenReturn(orderFilterParametersDto);
+    when(getAllOrdersUseCase.getAllOrders(orderFilterParametersDto, pageable, ROLE_MANAGER)).thenReturn(orderPage);
+    when(pageOrderDTOMapper.toManagerDto(orderPage)).thenReturn(pageOrderDTO);
 
-	@Test
-	@WithMockUser(authorities = ROLE_MANAGER)
-	void getOrderByIdTest() throws Exception {
-		// Given
-		UUID orderId = TEST_UUID;
-		String language = "uk";
-		Order order = getOrder();
-		ManagerOrderDTO orderDTO = getManagerOrderDTO();
+    // When
+    MvcResult result = mockMvc
+        .perform(get("/v1/management/orders", userId).contentType(MediaType.APPLICATION_JSON)
+            .params(getPageableParams(pageableDTO.getPage(), pageableDTO.getSize(), pageableDTO.getSort()))
+            .params(getOrdersFilterParametersDTOParams(orderFilterParametersDTO)))
+        .andExpect(status().isOk()).andReturn();
+    String contentAsString = result.getResponse().getContentAsString();
 
-		when(getOrderByIdUseCase.getOrderById(orderId, language)).thenReturn(order);
-		when(orderDTOMapper.toManagerDto(order)).thenReturn(orderDTO);
+    // Then
 
-		// When
-		MvcResult result = mockMvc.perform(get("/v1/management/orders/{orderId}", orderId)
-				.contentType(MediaType.APPLICATION_JSON).param("lang", language)).andExpect(status().isOk())
-				.andReturn();
-		String contentAsString = result.getResponse().getContentAsString();
+    verify(pageableDTOMapper).fromDto(pageableDTO);
+    verify(orderFilterParametersDTOMapper).fromDTO(orderFilterParametersDTO);
+    verify(getAllOrdersUseCase).getAllOrders(orderFilterParametersDto, pageable, ROLE_MANAGER);
+    assertEquals(pageOrderDTO, objectMapper.readValue(contentAsString, PageManagerOrderPreviewDTO.class));
+  }
 
-		// Then
-		verify(getOrderByIdUseCase).getOrderById(orderId, language);
-		verify(orderDTOMapper).toManagerDto(order);
-		assertEquals(orderDTO, objectMapper.readValue(contentAsString, ManagerOrderDTO.class));
-	}
+  @Test
+  @WithMockUser(authorities = ROLE_MANAGER)
+  void updateOrderStatusTest() throws Exception {
+    var orderId = UUID.randomUUID();
+    var updateOrderStatusRequestDTO = getUpdateOrderStatusRequestDTO();
+    var updateOrderStatusDto = getUpdateOrderStatusDto();
+
+    var orderStatusInfoDTO = getOrderStatusInfoDTO();
+    var orderStatusInfo = getOrderStatusInfo();
+
+    when(updateOrderStatusRequestDTOMapper.fromDTO(updateOrderStatusRequestDTO)).thenReturn(updateOrderStatusDto);
+    when(updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER))
+        .thenReturn(orderStatusInfo);
+    when(orderStatusInfoDTOMapper.toDTO(orderStatusInfo)).thenReturn(orderStatusInfoDTO);
+
+    var request = objectMapper.writeValueAsString(updateOrderStatusRequestDTO);
+    var result = mockMvc.perform(
+        patch(UPDATE_ORDER_STATUS_URL, orderId).contentType(MediaType.APPLICATION_JSON).content(request))
+        .andExpect(status().isOk()).andReturn();
+
+    var contentAsString = result.getResponse().getContentAsString();
+    assertEquals(orderStatusInfoDTO, objectMapper.readValue(contentAsString, OrderStatusInfoDTO.class));
+
+    verify(updateOrderStatusRequestDTOMapper).fromDTO(updateOrderStatusRequestDTO);
+    verify(updateOrderStatusUseCase).updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER);
+    verify(orderStatusInfoDTOMapper).toDTO(orderStatusInfo);
+
+  }
+
+  @Test
+  @WithMockUser(authorities = ROLE_MANAGER)
+  void getOrderByIdTest() throws Exception {
+    // Given
+    UUID orderId = TEST_UUID;
+    String language = "uk";
+    Order order = getOrder();
+    ManagerOrderDTO orderDTO = getManagerOrderDTO();
+
+    when(getOrderByIdUseCase.getOrderById(orderId, language)).thenReturn(order);
+    when(orderDTOMapper.toManagerDto(order)).thenReturn(orderDTO);
+
+    // When
+    MvcResult result = mockMvc.perform(get("/v1/management/orders/{orderId}", orderId)
+        .contentType(MediaType.APPLICATION_JSON).param("lang", language)).andExpect(status().isOk())
+        .andReturn();
+    String contentAsString = result.getResponse().getContentAsString();
+
+    // Then
+    verify(getOrderByIdUseCase).getOrderById(orderId, language);
+    verify(orderDTOMapper).toManagerDto(order);
+    assertEquals(orderDTO, objectMapper.readValue(contentAsString, ManagerOrderDTO.class));
+  }
 }

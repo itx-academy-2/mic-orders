@@ -6,12 +6,13 @@ import lombok.Getter;
 
 @Getter
 public class InvalidOrderStatusTransitionException extends BadRequestException {
-	private final OrderStatus currentStatus;
-	private final OrderStatus newStatus;
+  private final OrderStatus currentStatus;
 
-	public InvalidOrderStatusTransitionException(OrderStatus currentStatus, OrderStatus newStatus) {
-		super("Invalid status transition from " + currentStatus.toString() + " to " + newStatus.toString());
-		this.currentStatus = currentStatus;
-		this.newStatus = newStatus;
-	}
+  private final OrderStatus newStatus;
+
+  public InvalidOrderStatusTransitionException(OrderStatus currentStatus, OrderStatus newStatus) {
+    super("Invalid status transition from " + currentStatus.toString() + " to " + newStatus.toString());
+    this.currentStatus = currentStatus;
+    this.newStatus = newStatus;
+  }
 }

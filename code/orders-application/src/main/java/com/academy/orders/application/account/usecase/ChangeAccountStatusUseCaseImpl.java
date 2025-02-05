@@ -13,23 +13,23 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ChangeAccountStatusUseCaseImpl implements ChangeAccountStatusUseCase {
-	private final AccountRepository accountRepository;
+  private final AccountRepository accountRepository;
 
-	@Override
-	@Transactional
-	public void changeStatus(Long id, UserStatus status) {
-		checkAccountExistsById(id);
-		updateStatus(id, status);
-	}
+  @Override
+  @Transactional
+  public void changeStatus(Long id, UserStatus status) {
+    checkAccountExistsById(id);
+    updateStatus(id, status);
+  }
 
-	private void checkAccountExistsById(Long id) {
-		if (Boolean.FALSE.equals(accountRepository.existsById(id))) {
-			throw new AccountNotFoundException(id);
-		}
-	}
+  private void checkAccountExistsById(Long id) {
+    if (Boolean.FALSE.equals(accountRepository.existsById(id))) {
+      throw new AccountNotFoundException(id);
+    }
+  }
 
-	private void updateStatus(Long id, UserStatus status) {
-		log.debug("Updating account status to {} for account with id {}", status, id);
-		accountRepository.updateStatus(id, status);
-	}
+  private void updateStatus(Long id, UserStatus status) {
+    log.debug("Updating account status to {} for account with id {}", status, id);
+    accountRepository.updateStatus(id, status);
+  }
 }

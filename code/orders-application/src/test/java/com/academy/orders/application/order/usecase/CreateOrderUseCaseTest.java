@@ -3,6 +3,7 @@ package com.academy.orders.application.order.usecase;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.cart.exception.EmptyCartException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
+import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
 import com.academy.orders.domain.order.dto.CreateOrderDto;
 import com.academy.orders.domain.order.entity.Order;
 import com.academy.orders.domain.order.entity.OrderItem;
@@ -11,17 +12,17 @@ import com.academy.orders.domain.order.entity.PostAddress;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.order.exception.InsufficientProductQuantityException;
 import com.academy.orders.domain.order.repository.OrderRepository;
-import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
-import com.academy.orders.domain.product.usecase.ChangeQuantityUseCase;
 import com.academy.orders.domain.product.entity.Product;
-import java.math.BigDecimal;
-import java.util.UUID;
+import com.academy.orders.domain.product.usecase.ChangeQuantityUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.util.UUID;
 
 import static com.academy.orders.application.ModelUtils.getCartItem;
 import static com.academy.orders.application.ModelUtils.getCreateOrderDto;
@@ -40,84 +41,90 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CreateOrderUseCaseTest {
-	@InjectMocks
-	private CreateOrderUseCaseImpl createOrderUseCase;
-	@Mock
-	private CalculatePriceUseCase calculatePriceUseCase;
-	@Mock
-	private ChangeQuantityUseCase changeQuantityUseCase;
-	@Mock
-	private OrderRepository orderRepository;
-	@Mock
-	private CartItemRepository cartItemRepository;
+  @InjectMocks
+  private CreateOrderUseCaseImpl createOrderUseCase;
 
-	private CreateOrderDto createOrderDto;
-	private CartItem cartItem;
-	private BigDecimal calculatedPrice;
+  @Mock
+  private CalculatePriceUseCase calculatePriceUseCase;
 
-	@BeforeEach
-	void setUp() {
-		createOrderDto = getCreateOrderDto();
-		cartItem = getCartItem();
-		calculatedPrice = cartItem.product().getPrice().multiply(BigDecimal.valueOf(cartItem.quantity()));
+  @Mock
+  private ChangeQuantityUseCase changeQuantityUseCase;
 
-	}
+  @Mock
+  private OrderRepository orderRepository;
 
-	@Test
-	void createOrderTest() {
-		var expectedOrderId = UUID.randomUUID();
-		var order = Order.builder().receiver(getOrderReceiver()).postAddress(getPostAddress())
-				.orderStatus(OrderStatus.IN_PROGRESS)
-				.orderItems(singletonList(new OrderItem(cartItem.product(), calculatedPrice, cartItem.quantity())))
-				.isPaid(false).build();
+  @Mock
+  private CartItemRepository cartItemRepository;
 
-		when(cartItemRepository.findCartItemsByAccountId(anyLong())).thenReturn(singletonList(cartItem));
-		when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(calculatedPrice);
-		doNothing().when(changeQuantityUseCase).changeQuantityOfProduct(any(Product.class), anyInt());
-		when(orderRepository.save(eq(order), anyLong())).thenReturn(expectedOrderId);
-		doNothing().when(cartItemRepository).deleteCartItemsByAccountId(anyLong());
+  private CreateOrderDto createOrderDto;
 
-		var actualOrderId = createOrderUseCase.createOrder(createOrderDto, 1L);
+  private CartItem cartItem;
 
-		assertEquals(expectedOrderId, actualOrderId);
+  private BigDecimal calculatedPrice;
 
-		verify(cartItemRepository).findCartItemsByAccountId(anyLong());
-		verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
-		verify(changeQuantityUseCase).changeQuantityOfProduct(any(Product.class), anyInt());
-		verify(orderRepository).save(any(Order.class), anyLong());
-		verify(cartItemRepository).deleteCartItemsByAccountId(anyLong());
-	}
+  @BeforeEach
+  void setUp() {
+    createOrderDto = getCreateOrderDto();
+    cartItem = getCartItem();
+    calculatedPrice = cartItem.product().getPrice().multiply(BigDecimal.valueOf(cartItem.quantity()));
 
-	private OrderReceiver getOrderReceiver() {
-		return OrderReceiver.builder().firstName(createOrderDto.firstName()).lastName(createOrderDto.lastName())
-				.email(createOrderDto.email()).build();
-	}
+  }
 
-	private PostAddress getPostAddress() {
-		return PostAddress.builder().city(createOrderDto.city()).department(createOrderDto.department())
-				.deliveryMethod(createOrderDto.deliveryMethod()).build();
-	}
+  @Test
+  void createOrderTest() {
+    var expectedOrderId = UUID.randomUUID();
+    var order = Order.builder().receiver(getOrderReceiver()).postAddress(getPostAddress())
+        .orderStatus(OrderStatus.IN_PROGRESS)
+        .orderItems(singletonList(new OrderItem(cartItem.product(), calculatedPrice, cartItem.quantity())))
+        .isPaid(false).build();
 
-	@Test
-	void createOrderThrowsInsufficientProductQuantityExceptionTest() {
-		when(cartItemRepository.findCartItemsByAccountId(anyLong())).thenReturn(singletonList(cartItem));
-		when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(calculatedPrice);
-		doThrow(InsufficientProductQuantityException.class).when(changeQuantityUseCase)
-				.changeQuantityOfProduct(any(Product.class), anyInt());
+    when(cartItemRepository.findCartItemsByAccountId(anyLong())).thenReturn(singletonList(cartItem));
+    when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(calculatedPrice);
+    doNothing().when(changeQuantityUseCase).changeQuantityOfProduct(any(Product.class), anyInt());
+    when(orderRepository.save(eq(order), anyLong())).thenReturn(expectedOrderId);
+    doNothing().when(cartItemRepository).deleteCartItemsByAccountId(anyLong());
 
-		assertThrows(InsufficientProductQuantityException.class,
-				() -> createOrderUseCase.createOrder(createOrderDto, 1L));
+    var actualOrderId = createOrderUseCase.createOrder(createOrderDto, 1L);
 
-		verify(cartItemRepository).findCartItemsByAccountId(anyLong());
-		verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
-		verify(changeQuantityUseCase).changeQuantityOfProduct(any(Product.class), anyInt());
-	}
+    assertEquals(expectedOrderId, actualOrderId);
 
-	@Test
-	void createOrderThrowsEmptyCartExceptionTest() {
-		when(cartItemRepository.findCartItemsByAccountId(anyLong())).thenReturn(emptyList());
+    verify(cartItemRepository).findCartItemsByAccountId(anyLong());
+    verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
+    verify(changeQuantityUseCase).changeQuantityOfProduct(any(Product.class), anyInt());
+    verify(orderRepository).save(any(Order.class), anyLong());
+    verify(cartItemRepository).deleteCartItemsByAccountId(anyLong());
+  }
 
-		assertThrows(EmptyCartException.class, () -> createOrderUseCase.createOrder(createOrderDto, 1L));
-		verify(cartItemRepository).findCartItemsByAccountId(anyLong());
-	}
+  private OrderReceiver getOrderReceiver() {
+    return OrderReceiver.builder().firstName(createOrderDto.firstName()).lastName(createOrderDto.lastName())
+        .email(createOrderDto.email()).build();
+  }
+
+  private PostAddress getPostAddress() {
+    return PostAddress.builder().city(createOrderDto.city()).department(createOrderDto.department())
+        .deliveryMethod(createOrderDto.deliveryMethod()).build();
+  }
+
+  @Test
+  void createOrderThrowsInsufficientProductQuantityExceptionTest() {
+    when(cartItemRepository.findCartItemsByAccountId(anyLong())).thenReturn(singletonList(cartItem));
+    when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(calculatedPrice);
+    doThrow(InsufficientProductQuantityException.class).when(changeQuantityUseCase)
+        .changeQuantityOfProduct(any(Product.class), anyInt());
+
+    assertThrows(InsufficientProductQuantityException.class,
+        () -> createOrderUseCase.createOrder(createOrderDto, 1L));
+
+    verify(cartItemRepository).findCartItemsByAccountId(anyLong());
+    verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
+    verify(changeQuantityUseCase).changeQuantityOfProduct(any(Product.class), anyInt());
+  }
+
+  @Test
+  void createOrderThrowsEmptyCartExceptionTest() {
+    when(cartItemRepository.findCartItemsByAccountId(anyLong())).thenReturn(emptyList());
+
+    assertThrows(EmptyCartException.class, () -> createOrderUseCase.createOrder(createOrderDto, 1L));
+    verify(cartItemRepository).findCartItemsByAccountId(anyLong());
+  }
 }
