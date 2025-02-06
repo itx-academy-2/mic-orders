@@ -1,6 +1,7 @@
 package com.academy.orders.domain.cart.usecase;
 
 import com.academy.orders.domain.cart.entity.CartItem;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -9,21 +10,19 @@ import java.util.List;
  */
 public interface CalculatePriceUseCase {
 
-	/**
-	 * Method calculates price for cartItem.
-	 *
-	 * @return {@link BigDecimal} calculated price
-	 *
-	 * @author Denys Ryhal
-	 */
-	BigDecimal calculateCartItemPrice(CartItem cartItem);
+  /**
+   * Method calculates price for cartItem.
+   *
+   * @return {@link BigDecimal} calculated price
+   * @author Denys Ryhal
+   */
+  BigDecimal calculateCartItemPrice(CartItem cartItem);
 
-	/**
-	 * Method calculates total price of cart.
-	 *
-	 * @return {@link BigDecimal} total price of cart
-	 *
-	 * @author Denys Ryhal
-	 */
-	BigDecimal calculateCartTotalPrice(List<CartItem> cartItems);
+  /**
+   * Method calculates total price of cart.
+   *
+   * @return {@link BigDecimal} total price of cart
+   * @author Denys Ryhal
+   */
+  BigDecimal calculateCartTotalPrice(List<CartItem> cartItems);
 }

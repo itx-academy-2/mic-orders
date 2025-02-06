@@ -12,102 +12,109 @@ import com.academy.orders.infrastructure.order.OrderMapper;
 import com.academy.orders.infrastructure.order.OrderPageMapper;
 import com.academy.orders.infrastructure.order.entity.OrderEntity;
 import com.academy.orders.infrastructure.product.repository.ProductJpaAdapter;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
 public class OrderRepositoryImpl implements OrderRepository {
-	private final OrderJpaAdapter jpaAdapter;
-	private final CustomOrderRepository customOrderRepository;
-	private final ProductJpaAdapter productJpaAdapter;
-	private final AccountJpaAdapter accountJpaAdapter;
-	private final OrderMapper mapper;
-	private final PageableMapper pageableMapper;
-	private final OrderPageMapper pageMapper;
+  private final OrderJpaAdapter jpaAdapter;
 
-	@Override
-	public Optional<Order> findById(UUID id) {
-		return jpaAdapter.findById(id).map(mapper::fromEntity);
-	}
+  private final CustomOrderRepository customOrderRepository;
 
-	@Override
-	public Optional<Order> findById(UUID id, String language) {
-		Optional<OrderEntity> order = jpaAdapter.findByIdFetchOrderItemsData(id);
-		order.ifPresent(orderEntity -> loadProducts(language, orderEntity));
-		return order.map(mapper::fromEntity);
-	}
+  private final ProductJpaAdapter productJpaAdapter;
 
-	@Override
-	public Page<Order> findAllByUserId(Long userId, String language, Pageable pageable) {
-		var springPageable = pageableMapper.fromDomain(pageable);
-		var orderEntityPage = jpaAdapter.findAllByAccountId(userId, springPageable);
-		jpaAdapter.findAllOrdersByOrderIdsFetchProductData(
-				orderEntityPage.getContent().stream().map(OrderEntity::getId).toList(), language);
-		return pageMapper.toDomain(orderEntityPage);
-	}
+  private final AccountJpaAdapter accountJpaAdapter;
 
-	@Override
-	@Transactional
-	public UUID save(Order order, Long accountId) {
-		var orderEntity = getOrderEntityWithPostAddress(order);
-		addAccountToOrder(orderEntity, accountId);
-		mapOrderItemsWithProductsAndOrder(orderEntity);
+  private final OrderMapper mapper;
 
-		return jpaAdapter.save(orderEntity).getId();
-	}
+  private final PageableMapper pageableMapper;
 
-	@Override
-	public Page<Order> findAll(OrdersFilterParametersDto filterParametersDto, Pageable pageable) {
-		var springPageable = pageableMapper.fromDomain(pageable);
-		var orderEntityPage = customOrderRepository.findAllByFilterParameters(filterParametersDto, springPageable);
-		return pageMapper.toDomain(orderEntityPage);
-	}
+  private final OrderPageMapper pageMapper;
 
-	@Override
-	public Optional<Order> findByIdFetchData(UUID orderId) {
-		return jpaAdapter.findByIdFetchData(orderId).map(mapper::fromEntity);
-	}
+  @Override
+  public Optional<Order> findById(UUID id) {
+    return jpaAdapter.findById(id).map(mapper::fromEntity);
+  }
 
-	@Override
-	@Transactional
-	public void updateOrderStatus(UUID orderId, OrderStatus orderStatus) {
-		jpaAdapter.updateOrderStatus(orderId, orderStatus);
-	}
+  @Override
+  public Optional<Order> findById(UUID id, String language) {
+    Optional<OrderEntity> order = jpaAdapter.findByIdFetchOrderItemsData(id);
+    order.ifPresent(orderEntity -> loadProducts(language, orderEntity));
+    return order.map(mapper::fromEntity);
+  }
 
-	@Override
-	@Transactional
-	public void updateIsPaidStatus(UUID orderId, Boolean isPaid) {
-		jpaAdapter.updateIsPaidStatus(orderId, isPaid);
-	}
+  @Override
+  public Page<Order> findAllByUserId(Long userId, String language, Pageable pageable) {
+    var springPageable = pageableMapper.fromDomain(pageable);
+    var orderEntityPage = jpaAdapter.findAllByAccountId(userId, springPageable);
+    jpaAdapter.findAllOrdersByOrderIdsFetchProductData(
+        orderEntityPage.getContent().stream().map(OrderEntity::getId).toList(), language);
+    return pageMapper.toDomain(orderEntityPage);
+  }
 
-	private OrderEntity getOrderEntityWithPostAddress(Order order) {
-		var orderEntity = mapper.toEntity(order);
-		orderEntity.getPostAddress().setOrder(orderEntity);
-		return orderEntity;
-	}
+  @Override
+  @Transactional
+  public UUID save(Order order, Long accountId) {
+    var orderEntity = getOrderEntityWithPostAddress(order);
+    addAccountToOrder(orderEntity, accountId);
+    mapOrderItemsWithProductsAndOrder(orderEntity);
 
-	private void addAccountToOrder(OrderEntity orderEntity, Long accountId) {
-		orderEntity.setAccount(accountJpaAdapter.getReferenceById(accountId));
-	}
+    return jpaAdapter.save(orderEntity).getId();
+  }
 
-	private void mapOrderItemsWithProductsAndOrder(OrderEntity orderEntity) {
-		orderEntity.getOrderItems().forEach(item -> {
-			item.setProduct(productJpaAdapter.getReferenceById(item.getProduct().getId()));
-			item.setOrder(orderEntity);
-		});
-	}
+  @Override
+  public Page<Order> findAll(OrdersFilterParametersDto filterParametersDto, Pageable pageable) {
+    var springPageable = pageableMapper.fromDomain(pageable);
+    var orderEntityPage = customOrderRepository.findAllByFilterParameters(filterParametersDto, springPageable);
+    return pageMapper.toDomain(orderEntityPage);
+  }
 
-	private void loadProducts(String language, OrderEntity... orderEntities) {
-		var productIds = Arrays.stream(orderEntities).flatMap(orderEntity -> orderEntity.getOrderItems().stream())
-				.map(orderItemEntity -> orderItemEntity.getProduct().getId()).toList();
-		productJpaAdapter.findAllByIdAndLanguageCode(productIds, language);
-	}
+  @Override
+  public Optional<Order> findByIdFetchData(UUID orderId) {
+    return jpaAdapter.findByIdFetchData(orderId).map(mapper::fromEntity);
+  }
+
+  @Override
+  @Transactional
+  public void updateOrderStatus(UUID orderId, OrderStatus orderStatus) {
+    jpaAdapter.updateOrderStatus(orderId, orderStatus);
+  }
+
+  @Override
+  @Transactional
+  public void updateIsPaidStatus(UUID orderId, Boolean isPaid) {
+    jpaAdapter.updateIsPaidStatus(orderId, isPaid);
+  }
+
+  private OrderEntity getOrderEntityWithPostAddress(Order order) {
+    var orderEntity = mapper.toEntity(order);
+    orderEntity.getPostAddress().setOrder(orderEntity);
+    return orderEntity;
+  }
+
+  private void addAccountToOrder(OrderEntity orderEntity, Long accountId) {
+    orderEntity.setAccount(accountJpaAdapter.getReferenceById(accountId));
+  }
+
+  private void mapOrderItemsWithProductsAndOrder(OrderEntity orderEntity) {
+    orderEntity.getOrderItems().forEach(item -> {
+      item.setProduct(productJpaAdapter.getReferenceById(item.getProduct().getId()));
+      item.setOrder(orderEntity);
+    });
+  }
+
+  private void loadProducts(String language, OrderEntity... orderEntities) {
+    var productIds = Arrays.stream(orderEntities).flatMap(orderEntity -> orderEntity.getOrderItems().stream())
+        .map(orderItemEntity -> orderItemEntity.getProduct().getId()).toList();
+    productJpaAdapter.findAllByIdAndLanguageCode(productIds, language);
+  }
 }

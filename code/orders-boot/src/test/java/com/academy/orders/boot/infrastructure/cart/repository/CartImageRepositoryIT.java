@@ -14,17 +14,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("it")
 class CartImageRepositoryIT {
-	@Autowired
-	private CartItemImageRepository cartItemImageRepository;
+  @Autowired
+  private CartItemImageRepository cartItemImageRepository;
 
-	@Test
-	void loadOrderItemForProductInOrderItemTest() {
-		var cartItem = getCartItem();
-		var productWithImageLink = getProductWithImageLink();
+  @Test
+  void loadOrderItemForProductInOrderItemTest() {
+    var cartItem = getCartItem();
+    var productWithImageLink = getProductWithImageLink();
 
-		var actual = cartItemImageRepository.loadImageForProductInCart(cartItem);
+    var actual = cartItemImageRepository.loadImageForProductInCart(cartItem);
 
-		assertEquals(cartItem.quantity(), actual.quantity());
-		assertEquals(productWithImageLink, actual.product());
-	}
+    assertEquals(cartItem.quantity(), actual.quantity());
+    assertEquals(productWithImageLink, actual.product());
+  }
 }

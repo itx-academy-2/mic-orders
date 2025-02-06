@@ -1,1 +1,3 @@
-UPDATE languages SET code = 'uk' where id = 2
+UPDATE languages
+SET code = 'uk'
+where id = 2

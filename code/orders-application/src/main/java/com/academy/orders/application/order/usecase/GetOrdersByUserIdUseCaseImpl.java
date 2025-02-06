@@ -13,22 +13,24 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class GetOrdersByUserIdUseCaseImpl implements GetOrdersByUserIdUseCase {
-	private final OrderRepository orderRepository;
-	private final CalculateOrderTotalPriceUseCase calculateOrderTotalPriceUseCase;
-	private final OrderImageRepository orderImageRepository;
+  private final OrderRepository orderRepository;
 
-	@Override
-	public Page<Order> getOrdersByUserId(Long id, String language, Pageable pageable) {
-		Page<Order> orderPage = orderRepository.findAllByUserId(id, language, pageable);
-		Page<Order> newPage = buildPage(orderPage);
+  private final CalculateOrderTotalPriceUseCase calculateOrderTotalPriceUseCase;
 
-		return newPage.map(orderImageRepository::loadImageForProductInOrder);
-	}
+  private final OrderImageRepository orderImageRepository;
 
-	private Page<Order> buildPage(Page<Order> orderPage) {
-		return Page.<Order>builder().totalElements(orderPage.totalElements()).totalPages(orderPage.totalPages())
-				.first(orderPage.first()).last(orderPage.last()).number(orderPage.number())
-				.numberOfElements(orderPage.numberOfElements()).size(orderPage.size()).empty(orderPage.empty())
-				.content(calculateOrderTotalPriceUseCase.calculateTotalPriceFor(orderPage.content())).build();
-	}
+  @Override
+  public Page<Order> getOrdersByUserId(Long id, String language, Pageable pageable) {
+    Page<Order> orderPage = orderRepository.findAllByUserId(id, language, pageable);
+    Page<Order> newPage = buildPage(orderPage);
+
+    return newPage.map(orderImageRepository::loadImageForProductInOrder);
+  }
+
+  private Page<Order> buildPage(Page<Order> orderPage) {
+    return Page.<Order>builder().totalElements(orderPage.totalElements()).totalPages(orderPage.totalPages())
+        .first(orderPage.first()).last(orderPage.last()).number(orderPage.number())
+        .numberOfElements(orderPage.numberOfElements()).size(orderPage.size()).empty(orderPage.empty())
+        .content(calculateOrderTotalPriceUseCase.calculateTotalPriceFor(orderPage.content())).build();
+  }
 }

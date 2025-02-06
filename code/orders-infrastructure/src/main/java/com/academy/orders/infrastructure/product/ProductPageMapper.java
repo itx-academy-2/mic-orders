@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = "spring", uses = {ProductMapper.class})
 public interface ProductPageMapper {
-	com.academy.orders.domain.common.Page<Product> toDomain(Page<ProductEntity> page);
-	com.academy.orders.domain.common.Page<Product> fromProductTranslationEntity(Page<ProductTranslationEntity> page);
+  com.academy.orders.domain.common.Page<Product> toDomain(Page<ProductEntity> page);
+
+  com.academy.orders.domain.common.Page<Product> fromProductTranslationEntity(Page<ProductTranslationEntity> page);
 }

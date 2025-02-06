@@ -16,33 +16,34 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CreateUserAccountUseCaseTest {
-	@Mock
-	private AccountRepository accountRepository;
-	@InjectMocks
-	private CreateUserAccountUseCaseImpl createUserAccountUseCase;
+  @Mock
+  private AccountRepository accountRepository;
 
-	@Test
-	void createTest() {
-		CreateAccountDTO createAccountDTO = CreateAccountDTO.builder().email("newuser@mail.com").password("Admin_1234")
-				.firstName("John").lastName("Doe").build();
-		Account account = Account.builder().id(1L).firstName(createAccountDTO.firstName())
-				.lastName(createAccountDTO.lastName()).email(createAccountDTO.email()).password("password").build();
-		when(accountRepository.existsByEmail(createAccountDTO.email())).thenReturn(false);
-		when(accountRepository.save(createAccountDTO)).thenReturn(account);
+  @InjectMocks
+  private CreateUserAccountUseCaseImpl createUserAccountUseCase;
 
-		createUserAccountUseCase.create(createAccountDTO);
+  @Test
+  void createTest() {
+    CreateAccountDTO createAccountDTO = CreateAccountDTO.builder().email("newuser@mail.com").password("Admin_1234")
+        .firstName("John").lastName("Doe").build();
+    Account account = Account.builder().id(1L).firstName(createAccountDTO.firstName())
+        .lastName(createAccountDTO.lastName()).email(createAccountDTO.email()).password("password").build();
+    when(accountRepository.existsByEmail(createAccountDTO.email())).thenReturn(false);
+    when(accountRepository.save(createAccountDTO)).thenReturn(account);
 
-		verify(accountRepository).existsByEmail(createAccountDTO.email());
-		verify(accountRepository).save(createAccountDTO);
-	}
+    createUserAccountUseCase.create(createAccountDTO);
 
-	@Test
-	void createThrowsAccountAlreadyExistsExceptionTest() {
-		CreateAccountDTO createAccountDTO = CreateAccountDTO.builder().email("newuser@mail.com").password("Admin_1234")
-				.firstName("John").lastName("Doe").build();
+    verify(accountRepository).existsByEmail(createAccountDTO.email());
+    verify(accountRepository).save(createAccountDTO);
+  }
 
-		when(accountRepository.existsByEmail(createAccountDTO.email())).thenReturn(true);
+  @Test
+  void createThrowsAccountAlreadyExistsExceptionTest() {
+    CreateAccountDTO createAccountDTO = CreateAccountDTO.builder().email("newuser@mail.com").password("Admin_1234")
+        .firstName("John").lastName("Doe").build();
 
-		assertThrows(AccountAlreadyExistsException.class, () -> createUserAccountUseCase.create(createAccountDTO));
-	}
+    when(accountRepository.existsByEmail(createAccountDTO.email())).thenReturn(true);
+
+    assertThrows(AccountAlreadyExistsException.class, () -> createUserAccountUseCase.create(createAccountDTO));
+  }
 }

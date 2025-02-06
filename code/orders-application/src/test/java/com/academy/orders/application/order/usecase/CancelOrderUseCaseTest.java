@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,61 +24,63 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CancelOrderUseCaseTest {
-	@Mock
-	private OrderRepository orderRepository;
-	@InjectMocks
-	private CancelOrderUseCaseImpl cancelOrderUseCase;
+  private final Long userId = 1L;
 
-	private final Long userId = 1L;
-	private final Order order = getOrder();
+  private final Order order = getOrder();
 
-	@Test
-	void cancelOrderTest() {
-		// Given
-		UUID orderId = order.id();
-		when(orderRepository.findByIdFetchData(orderId)).thenReturn(Optional.of(order));
-		doNothing().when(orderRepository).updateOrderStatus(orderId, OrderStatus.CANCELED);
+  @Mock
+  private OrderRepository orderRepository;
 
-		// When
-		cancelOrderUseCase.cancelOrder(userId, orderId);
+  @InjectMocks
+  private CancelOrderUseCaseImpl cancelOrderUseCase;
 
-		// Then
-		verify(orderRepository).findByIdFetchData(orderId);
-		verify(orderRepository).updateOrderStatus(orderId, OrderStatus.CANCELED);
-	}
+  @Test
+  void cancelOrderTest() {
+    // Given
+    UUID orderId = order.id();
+    when(orderRepository.findByIdFetchData(orderId)).thenReturn(Optional.of(order));
+    doNothing().when(orderRepository).updateOrderStatus(orderId, OrderStatus.CANCELED);
 
-	@Test
-	void cancelOrderThrowsOrderNotFoundExceptionWhenOrderNotFoundTest() {
-		// Given
-		UUID orderId = order.id();
-		when(orderRepository.findByIdFetchData(orderId)).thenReturn(Optional.empty());
+    // When
+    cancelOrderUseCase.cancelOrder(userId, orderId);
 
-		// Then
-		assertThrows(OrderNotFoundException.class, () -> cancelOrderUseCase.cancelOrder(userId, orderId));
-		verify(orderRepository).findByIdFetchData(orderId);
-	}
+    // Then
+    verify(orderRepository).findByIdFetchData(orderId);
+    verify(orderRepository).updateOrderStatus(orderId, OrderStatus.CANCELED);
+  }
 
-	@Test
-	void cancelOrderThrowsOrderFinalStateExceptionWhenOrderCanceledTest() {
-		Order canceledOrder = getCanceledOrder();
-		// Given
-		UUID orderId = canceledOrder.id();
-		when(orderRepository.findByIdFetchData(orderId)).thenReturn(Optional.of(canceledOrder));
+  @Test
+  void cancelOrderThrowsOrderNotFoundExceptionWhenOrderNotFoundTest() {
+    // Given
+    UUID orderId = order.id();
+    when(orderRepository.findByIdFetchData(orderId)).thenReturn(Optional.empty());
 
-		// Then
-		assertThrows(OrderFinalStateException.class, () -> cancelOrderUseCase.cancelOrder(userId, orderId));
-		verify(orderRepository).findByIdFetchData(orderId);
-	}
+    // Then
+    assertThrows(OrderNotFoundException.class, () -> cancelOrderUseCase.cancelOrder(userId, orderId));
+    verify(orderRepository).findByIdFetchData(orderId);
+  }
 
-	@Test
-	void cancelOrderThrowsOrderFinalStateExceptionWhenOrderCompletedTest() {
-		Order completedOrder = getCompletedOrder();
-		// Given
-		UUID orderId = completedOrder.id();
-		when(orderRepository.findByIdFetchData(orderId)).thenReturn(Optional.of(completedOrder));
+  @Test
+  void cancelOrderThrowsOrderFinalStateExceptionWhenOrderCanceledTest() {
+    Order canceledOrder = getCanceledOrder();
+    // Given
+    UUID orderId = canceledOrder.id();
+    when(orderRepository.findByIdFetchData(orderId)).thenReturn(Optional.of(canceledOrder));
 
-		// Then
-		assertThrows(OrderFinalStateException.class, () -> cancelOrderUseCase.cancelOrder(userId, orderId));
-		verify(orderRepository).findByIdFetchData(orderId);
-	}
+    // Then
+    assertThrows(OrderFinalStateException.class, () -> cancelOrderUseCase.cancelOrder(userId, orderId));
+    verify(orderRepository).findByIdFetchData(orderId);
+  }
+
+  @Test
+  void cancelOrderThrowsOrderFinalStateExceptionWhenOrderCompletedTest() {
+    Order completedOrder = getCompletedOrder();
+    // Given
+    UUID orderId = completedOrder.id();
+    when(orderRepository.findByIdFetchData(orderId)).thenReturn(Optional.of(completedOrder));
+
+    // Then
+    assertThrows(OrderFinalStateException.class, () -> cancelOrderUseCase.cancelOrder(userId, orderId));
+    verify(orderRepository).findByIdFetchData(orderId);
+  }
 }

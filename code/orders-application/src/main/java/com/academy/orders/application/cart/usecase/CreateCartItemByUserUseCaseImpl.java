@@ -6,37 +6,39 @@ import com.academy.orders.domain.cart.repository.CartItemRepository;
 import com.academy.orders.domain.cart.usecase.CreateCartItemByUserUseCase;
 import com.academy.orders.domain.product.exception.ProductNotFoundException;
 import com.academy.orders.domain.product.repository.ProductRepository;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class CreateCartItemByUserUseCaseImpl implements CreateCartItemByUserUseCase {
-	private final CartItemRepository cartItemRepository;
-	private final ProductRepository productRepository;
+  private final CartItemRepository cartItemRepository;
 
-	@Override
-	public void create(CreateCartItemDTO cartItem) {
-		checkIfProductExistsById(cartItem.productId());
-		checkIsProductAddedToCart(cartItem);
-		saveCartItem(cartItem);
-	}
+  private final ProductRepository productRepository;
 
-	private void checkIfProductExistsById(UUID uuid) {
-		if (!productRepository.existById(uuid)) {
-			throw new ProductNotFoundException(uuid);
-		}
-	}
+  @Override
+  public void create(CreateCartItemDTO cartItem) {
+    checkIfProductExistsById(cartItem.productId());
+    checkIsProductAddedToCart(cartItem);
+    saveCartItem(cartItem);
+  }
 
-	private void checkIsProductAddedToCart(CreateCartItemDTO cartItem) {
-		boolean isPresent = cartItemRepository.existsByProductIdAndUserId(cartItem.productId(), cartItem.userId());
-		if (isPresent) {
-			throw new CartItemAlreadyExists(cartItem.productId());
-		}
-	}
+  private void checkIfProductExistsById(UUID uuid) {
+    if (!productRepository.existById(uuid)) {
+      throw new ProductNotFoundException(uuid);
+    }
+  }
 
-	private void saveCartItem(CreateCartItemDTO cartItem) {
-		cartItemRepository.save(cartItem);
-	}
+  private void checkIsProductAddedToCart(CreateCartItemDTO cartItem) {
+    boolean isPresent = cartItemRepository.existsByProductIdAndUserId(cartItem.productId(), cartItem.userId());
+    if (isPresent) {
+      throw new CartItemAlreadyExists(cartItem.productId());
+    }
+  }
+
+  private void saveCartItem(CreateCartItemDTO cartItem) {
+    cartItemRepository.save(cartItem);
+  }
 }

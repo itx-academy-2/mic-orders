@@ -16,24 +16,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class AccountsManagementController implements UsersManagementApi {
-	private final AccountDTOMapper accountDTOMapper;
-	private final ChangeAccountStatusUseCase changeAccountStatusUseCase;
-	private final GetAllUsersUseCase getAllUsersUseCase;
-	private final AccountResponseDTOMapper accountResponseDTOMapper;
+  private final AccountDTOMapper accountDTOMapper;
 
-	@Override
-	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
-	public void changeUserStatus(Long userId, AccountStatusDTO status) {
-		var userStatus = accountDTOMapper.mapToUserStatus(status);
-		changeAccountStatusUseCase.changeStatus(userId, userStatus);
-	}
+  private final ChangeAccountStatusUseCase changeAccountStatusUseCase;
 
-	@Override
-	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
-	public PageAccountsDTO getAccounts(AccountFilterDTO filterDTO, PageableDTO pageableDTO) {
-		var filter = accountDTOMapper.toDomain(filterDTO);
-		var pageable = accountDTOMapper.toDomain(pageableDTO);
-		var accountPage = getAllUsersUseCase.getAllUsers(filter, pageable);
-		return accountResponseDTOMapper.toResponse(accountPage);
-	}
+  private final GetAllUsersUseCase getAllUsersUseCase;
+
+  private final AccountResponseDTOMapper accountResponseDTOMapper;
+
+  @Override
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  public void changeUserStatus(Long userId, AccountStatusDTO status) {
+    var userStatus = accountDTOMapper.mapToUserStatus(status);
+    changeAccountStatusUseCase.changeStatus(userId, userStatus);
+  }
+
+  @Override
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  public PageAccountsDTO getAccounts(AccountFilterDTO filterDTO, PageableDTO pageableDTO) {
+    var filter = accountDTOMapper.toDomain(filterDTO);
+    var pageable = accountDTOMapper.toDomain(pageableDTO);
+    var accountPage = getAllUsersUseCase.getAllUsers(filter, pageable);
+    return accountResponseDTOMapper.toResponse(accountPage);
+  }
 }

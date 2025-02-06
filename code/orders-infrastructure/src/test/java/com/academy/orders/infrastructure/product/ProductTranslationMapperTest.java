@@ -19,58 +19,58 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class ProductTranslationMapperTest {
-	private ProductTranslationMapper productTranslationMapper;
+  private ProductTranslationMapper productTranslationMapper;
 
-	@BeforeEach
-	void setUp() {
-		productTranslationMapper = Mappers.getMapper(ProductTranslationMapper.class);
-	}
+  @BeforeEach
+  void setUp() {
+    productTranslationMapper = Mappers.getMapper(ProductTranslationMapper.class);
+  }
 
-	@Test
-	void mapProductTranslationEntityToProductTranslationTest() {
-		var languageEntity = getLanguageEntity();
-		var productTranslationEntity = getProductTranslationEntity();
+  @Test
+  void mapProductTranslationEntityToProductTranslationTest() {
+    var languageEntity = getLanguageEntity();
+    var productTranslationEntity = getProductTranslationEntity();
 
-		ProductTranslation result = productTranslationMapper.fromEntity(productTranslationEntity);
+    ProductTranslation result = productTranslationMapper.fromEntity(productTranslationEntity);
 
-		Assertions.assertEquals("Name", result.name());
-		Assertions.assertEquals("Description", result.description());
-		Assertions.assertEquals(languageEntity.getId(), result.language().id());
-		Assertions.assertEquals(languageEntity.getCode(), result.language().code());
-	}
+    Assertions.assertEquals("Name", result.name());
+    Assertions.assertEquals("Description", result.description());
+    Assertions.assertEquals(languageEntity.getId(), result.language().id());
+    Assertions.assertEquals(languageEntity.getCode(), result.language().code());
+  }
 
-	@Test
-	void returnTrueForInitializedLanguageEntityTest() {
-		var languageEntity = getLanguageEntity();
+  @Test
+  void returnTrueForInitializedLanguageEntityTest() {
+    var languageEntity = getLanguageEntity();
 
-		boolean result = productTranslationMapper.isNotLazyLoadedLanguageEntity(languageEntity);
+    boolean result = productTranslationMapper.isNotLazyLoadedLanguageEntity(languageEntity);
 
-		assertTrue(result);
-	}
+    assertTrue(result);
+  }
 
-	@Test
-	void returnFalseForUninitializedLanguageEntityTest() {
-		LanguageEntity uninitializedLanguageEntity = new LanguageEntity();
+  @Test
+  void returnFalseForUninitializedLanguageEntityTest() {
+    LanguageEntity uninitializedLanguageEntity = new LanguageEntity();
 
-		try (MockedStatic<Hibernate> mockedHibernate = Mockito.mockStatic(Hibernate.class)) {
-			mockedHibernate.when(() -> Hibernate.isInitialized(uninitializedLanguageEntity)).thenReturn(false);
+    try (MockedStatic<Hibernate> mockedHibernate = Mockito.mockStatic(Hibernate.class)) {
+      mockedHibernate.when(() -> Hibernate.isInitialized(uninitializedLanguageEntity)).thenReturn(false);
 
-			boolean result = productTranslationMapper.isNotLazyLoadedLanguageEntity(uninitializedLanguageEntity);
-			assertFalse(result);
-		}
-	}
+      boolean result = productTranslationMapper.isNotLazyLoadedLanguageEntity(uninitializedLanguageEntity);
+      assertFalse(result);
+    }
+  }
 
-	@Test
-	void detectPartialInitializationTest() {
-		LanguageEntity partialLanguageEntity = new LanguageEntity();
-		partialLanguageEntity.setCode("EN");
+  @Test
+  void detectPartialInitializationTest() {
+    LanguageEntity partialLanguageEntity = new LanguageEntity();
+    partialLanguageEntity.setCode("EN");
 
-		try (MockedStatic<Hibernate> mockedHibernate = Mockito.mockStatic(Hibernate.class)) {
-			mockedHibernate.when(() -> Hibernate.isInitialized(partialLanguageEntity)).thenReturn(false);
+    try (MockedStatic<Hibernate> mockedHibernate = Mockito.mockStatic(Hibernate.class)) {
+      mockedHibernate.when(() -> Hibernate.isInitialized(partialLanguageEntity)).thenReturn(false);
 
-			boolean result = productTranslationMapper.isNotLazyLoadedLanguageEntity(partialLanguageEntity);
+      boolean result = productTranslationMapper.isNotLazyLoadedLanguageEntity(partialLanguageEntity);
 
-			assertFalse(result);
-		}
-	}
+      assertFalse(result);
+    }
+  }
 }

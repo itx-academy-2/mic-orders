@@ -6,5 +6,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface LanguageMapper {
-	Language fromEntity(LanguageEntity languageEntity);
+  Language fromEntity(LanguageEntity languageEntity);
 }

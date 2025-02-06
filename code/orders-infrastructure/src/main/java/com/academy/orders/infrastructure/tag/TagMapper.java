@@ -8,6 +8,7 @@ import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface TagMapper {
-	Tag fromEntity(TagEntity tagEntity);
-	Set<Tag> fromEntities(Set<TagEntity> tagEntities);
+  Tag fromEntity(TagEntity tagEntity);
+
+  Set<Tag> fromEntities(Set<TagEntity> tagEntities);
 }

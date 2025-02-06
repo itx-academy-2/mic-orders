@@ -15,32 +15,32 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ImageRepositoryTest {
-	@Mock
-	private ImagesApi imagesApi;
+  @Mock
+  private ImagesApi imagesApi;
 
-	@InjectMocks
-	private ImageRepositoryImpl imageRepository;
+  @InjectMocks
+  private ImageRepositoryImpl imageRepository;
 
-	@Test
-	void getImageLinkByNameTest() {
-		String imageName = "example";
-		String imageUrl = "https://example.com/image.png";
+  @Test
+  void getImageLinkByNameTest() {
+    String imageName = "example";
+    String imageUrl = "https://example.com/image.png";
 
-		when(imagesApi.getImageByName(imageName)).thenReturn(new ImageUrlDTO().imageUrl(imageUrl));
+    when(imagesApi.getImageByName(imageName)).thenReturn(new ImageUrlDTO().imageUrl(imageUrl));
 
-		String result = imageRepository.getImageLinkByName(imageName);
+    String result = imageRepository.getImageLinkByName(imageName);
 
-		assertEquals(imageUrl, result);
-		verify(imagesApi, times(1)).getImageByName(imageName);
-	}
+    assertEquals(imageUrl, result);
+    verify(imagesApi, times(1)).getImageByName(imageName);
+  }
 
-	@Test
-	void getDefaultUrlTest() {
-		String imageName = "example";
-		var defaultImageUrlTest = imageRepository.getDefaultUrl("default", new Throwable());
+  @Test
+  void getDefaultUrlTest() {
+    String imageName = "example";
+    var defaultImageUrlTest = imageRepository.getDefaultUrl("default", new Throwable());
 
-		String result = imageRepository.getDefaultUrl(imageName, new RuntimeException("API error"));
+    String result = imageRepository.getDefaultUrl(imageName, new RuntimeException("API error"));
 
-		assertEquals(defaultImageUrlTest, result);
-	}
+    assertEquals(defaultImageUrlTest, result);
+  }
 }

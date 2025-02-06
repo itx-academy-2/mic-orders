@@ -13,12 +13,13 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class GetProductByIdUseCaseImpl implements GetProductByIdUseCase {
-	private final ProductRepository productRepository;
-	private final ProductImageRepository productImageRepository;
+  private final ProductRepository productRepository;
 
-	@Override
-	public Product getProductById(UUID productId) {
-		return productRepository.getById(productId).map(productImageRepository::loadImageForProduct)
-				.orElseThrow(() -> new ProductNotFoundException(productId));
-	}
+  private final ProductImageRepository productImageRepository;
+
+  @Override
+  public Product getProductById(UUID productId) {
+    return productRepository.getById(productId).map(productImageRepository::loadImageForProduct)
+        .orElseThrow(() -> new ProductNotFoundException(productId));
+  }
 }

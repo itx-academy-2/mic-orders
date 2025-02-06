@@ -6,166 +6,173 @@ import com.academy.orders.domain.cart.entity.CreateCartItemDTO;
 import com.academy.orders.domain.cart.exception.CartItemNotFoundException;
 import com.academy.orders.domain.cart.exception.QuantityExceedsAvailableException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
-import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
+import com.academy.orders.domain.product.entity.Product;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import static com.academy.orders.application.ModelUtils.getCartItem;
 import static com.academy.orders.application.ModelUtils.getProductWithQuantity;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateCartItemQuantityUseCaseTest {
-	@InjectMocks
-	private UpdateCartItemQuantityUseCaseImpl updateCartItemQuantityUseCase;
-	@Mock
-	private CartItemRepository cartItemRepository;
-	@Mock
-	private CalculatePriceUseCase calculatePriceUseCase;
+  @InjectMocks
+  private UpdateCartItemQuantityUseCaseImpl updateCartItemQuantityUseCase;
 
-	@Test
-	void setQuantitySuccessfulUpdateTest() {
-		UUID productId = UUID.randomUUID();
-		Long userId = 1L;
-		Integer quantity = 2;
+  @Mock
+  private CartItemRepository cartItemRepository;
 
-		Product product = getProductWithQuantity(5);
+  @Mock
+  private CalculatePriceUseCase calculatePriceUseCase;
 
-		CartItem cartItem = getCartItem(product, 1);
-		List<CartItem> cartItems = List.of(cartItem);
+  @Test
+  void setQuantitySuccessfulUpdateTest() {
+    UUID productId = UUID.randomUUID();
+    Long userId = 1L;
+    Integer quantity = 2;
 
-		when(cartItemRepository.existsByProductIdAndUserId(productId, userId)).thenReturn(true);
-		when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.of(cartItem));
-		when(cartItemRepository.save(any(CreateCartItemDTO.class))).thenReturn(new CartItem(product, quantity));
-		when(cartItemRepository.findCartItemsByAccountId(userId)).thenReturn(cartItems);
-		when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(BigDecimal.TEN);
-		when(calculatePriceUseCase.calculateCartTotalPrice(anyList())).thenReturn(BigDecimal.valueOf(100));
+    Product product = getProductWithQuantity(5);
 
-		UpdatedCartItemDto updatedCartItemDto = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity);
+    CartItem cartItem = getCartItem(product, 1);
+    List<CartItem> cartItems = List.of(cartItem);
 
-		Assertions.assertEquals(productId, updatedCartItemDto.productId());
-		Assertions.assertEquals(quantity, updatedCartItemDto.quantity());
-		Assertions.assertEquals(product.getPrice(), updatedCartItemDto.productPrice());
-		Assertions.assertEquals(BigDecimal.TEN, updatedCartItemDto.calculatedPrice());
-		Assertions.assertEquals(BigDecimal.valueOf(100), updatedCartItemDto.totalPrice());
+    when(cartItemRepository.existsByProductIdAndUserId(productId, userId)).thenReturn(true);
+    when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.of(cartItem));
+    when(cartItemRepository.save(any(CreateCartItemDTO.class))).thenReturn(new CartItem(product, quantity));
+    when(cartItemRepository.findCartItemsByAccountId(userId)).thenReturn(cartItems);
+    when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(BigDecimal.TEN);
+    when(calculatePriceUseCase.calculateCartTotalPrice(anyList())).thenReturn(BigDecimal.valueOf(100));
 
-		verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
-		verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
-		verify(cartItemRepository).save(any(CreateCartItemDTO.class));
-		verify(cartItemRepository).findCartItemsByAccountId(userId);
-		verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
-		verify(calculatePriceUseCase).calculateCartTotalPrice(anyList());
-	}
+    UpdatedCartItemDto updatedCartItemDto = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity);
 
-	@Test
-	void setQuantityCartItemNotFoundTest() {
-		UUID productId = UUID.randomUUID();
-		Long userId = 1L;
-		int quantity = 2;
+    Assertions.assertEquals(productId, updatedCartItemDto.productId());
+    Assertions.assertEquals(quantity, updatedCartItemDto.quantity());
+    Assertions.assertEquals(product.getPrice(), updatedCartItemDto.productPrice());
+    Assertions.assertEquals(BigDecimal.TEN, updatedCartItemDto.calculatedPrice());
+    Assertions.assertEquals(BigDecimal.valueOf(100), updatedCartItemDto.totalPrice());
 
-		when(cartItemRepository.existsByProductIdAndUserId(productId, userId)).thenReturn(false);
+    verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
+    verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
+    verify(cartItemRepository).save(any(CreateCartItemDTO.class));
+    verify(cartItemRepository).findCartItemsByAccountId(userId);
+    verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
+    verify(calculatePriceUseCase).calculateCartTotalPrice(anyList());
+  }
 
-		assertThrows(CartItemNotFoundException.class,
-				() -> updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity));
+  @Test
+  void setQuantityCartItemNotFoundTest() {
+    UUID productId = UUID.randomUUID();
+    Long userId = 1L;
+    int quantity = 2;
 
-		verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
-		verify(cartItemRepository, never()).findByProductIdAndUserId(any(UUID.class), anyLong());
-		verify(cartItemRepository, never()).save(any(CreateCartItemDTO.class));
-		verify(calculatePriceUseCase, never()).calculateCartItemPrice(any(CartItem.class));
-		verify(calculatePriceUseCase, never()).calculateCartTotalPrice(anyList());
-	}
+    when(cartItemRepository.existsByProductIdAndUserId(productId, userId)).thenReturn(false);
 
-	@Test
-	void setQuantityExceedsAvailableExceptionTest() {
-		UUID productId = UUID.randomUUID();
-		Long userId = 1L;
-		Integer quantity = 6;
-		Integer availableQuantity = 5;
+    assertThrows(CartItemNotFoundException.class,
+        () -> updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity));
 
-		Product product = getProductWithQuantity(5);
+    verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
+    verify(cartItemRepository, never()).findByProductIdAndUserId(any(UUID.class), anyLong());
+    verify(cartItemRepository, never()).save(any(CreateCartItemDTO.class));
+    verify(calculatePriceUseCase, never()).calculateCartItemPrice(any(CartItem.class));
+    verify(calculatePriceUseCase, never()).calculateCartTotalPrice(anyList());
+  }
 
-		CartItem cartItem = getCartItem(product, 1);
+  @Test
+  void setQuantityExceedsAvailableExceptionTest() {
+    UUID productId = UUID.randomUUID();
+    Long userId = 1L;
+    Integer quantity = 6;
+    Integer availableQuantity = 5;
 
-		when(cartItemRepository.existsByProductIdAndUserId(productId, userId)).thenReturn(true);
-		when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.of(cartItem));
-		when(cartItemRepository.save(any(CreateCartItemDTO.class))).thenReturn(new CartItem(product, quantity));
+    Product product = getProductWithQuantity(5);
 
-		QuantityExceedsAvailableException exception = assertThrows(QuantityExceedsAvailableException.class,
-				() -> updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity));
+    CartItem cartItem = getCartItem(product, 1);
 
-		Assertions.assertEquals(
-				String.format("Product with id: %s exceeded available quantity. Requested: %d, Available: %d",
-						productId, quantity, availableQuantity),
-				exception.getMessage());
+    when(cartItemRepository.existsByProductIdAndUserId(productId, userId)).thenReturn(true);
+    when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.of(cartItem));
+    when(cartItemRepository.save(any(CreateCartItemDTO.class))).thenReturn(new CartItem(product, quantity));
 
-		verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
-		verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
-		verify(cartItemRepository).save(any(CreateCartItemDTO.class));
-		verify(calculatePriceUseCase, never()).calculateCartItemPrice(any(CartItem.class));
-		verify(calculatePriceUseCase, never()).calculateCartTotalPrice(anyList());
-	}
+    QuantityExceedsAvailableException exception = assertThrows(QuantityExceedsAvailableException.class,
+        () -> updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity));
 
-	@Test
-	void setQuantityEqualProductQuantityTest() {
-		UUID productId = UUID.randomUUID();
-		Long userId = 1L;
-		Integer quantity = 5;
+    Assertions.assertEquals(
+        String.format("Product with id: %s exceeded available quantity. Requested: %d, Available: %d",
+            productId, quantity, availableQuantity),
+        exception.getMessage());
 
-		Product product = getProductWithQuantity(5);
+    verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
+    verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
+    verify(cartItemRepository).save(any(CreateCartItemDTO.class));
+    verify(calculatePriceUseCase, never()).calculateCartItemPrice(any(CartItem.class));
+    verify(calculatePriceUseCase, never()).calculateCartTotalPrice(anyList());
+  }
 
-		CartItem cartItem = getCartItem(product, 1);
-		List<CartItem> cartItems = List.of(cartItem);
+  @Test
+  void setQuantityEqualProductQuantityTest() {
+    UUID productId = UUID.randomUUID();
+    Long userId = 1L;
+    Integer quantity = 5;
 
-		when(cartItemRepository.existsByProductIdAndUserId(productId, userId)).thenReturn(true);
-		when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.of(cartItem));
-		when(cartItemRepository.save(any(CreateCartItemDTO.class))).thenReturn(new CartItem(product, quantity));
-		when(cartItemRepository.findCartItemsByAccountId(userId)).thenReturn(cartItems);
-		when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(BigDecimal.TEN);
-		when(calculatePriceUseCase.calculateCartTotalPrice(anyList())).thenReturn(BigDecimal.valueOf(100));
+    Product product = getProductWithQuantity(5);
 
-		UpdatedCartItemDto updatedCartItemDto = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity);
+    CartItem cartItem = getCartItem(product, 1);
+    List<CartItem> cartItems = List.of(cartItem);
 
-		Assertions.assertEquals(productId, updatedCartItemDto.productId());
-		Assertions.assertEquals(quantity, updatedCartItemDto.quantity());
-		Assertions.assertEquals(product.getPrice(), updatedCartItemDto.productPrice());
-		Assertions.assertEquals(BigDecimal.TEN, updatedCartItemDto.calculatedPrice());
-		Assertions.assertEquals(BigDecimal.valueOf(100), updatedCartItemDto.totalPrice());
+    when(cartItemRepository.existsByProductIdAndUserId(productId, userId)).thenReturn(true);
+    when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.of(cartItem));
+    when(cartItemRepository.save(any(CreateCartItemDTO.class))).thenReturn(new CartItem(product, quantity));
+    when(cartItemRepository.findCartItemsByAccountId(userId)).thenReturn(cartItems);
+    when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(BigDecimal.TEN);
+    when(calculatePriceUseCase.calculateCartTotalPrice(anyList())).thenReturn(BigDecimal.valueOf(100));
 
-		verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
-		verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
-		verify(cartItemRepository).save(any(CreateCartItemDTO.class));
-		verify(cartItemRepository).findCartItemsByAccountId(userId);
-		verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
-		verify(calculatePriceUseCase).calculateCartTotalPrice(anyList());
-	}
+    UpdatedCartItemDto updatedCartItemDto = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity);
 
-	@Test
-	void setQuantityUpdateQuantityOfCartItemReturnsNullTest() {
-		UUID productId = UUID.randomUUID();
-		Long userId = 1L;
-		Integer quantity = 2;
+    Assertions.assertEquals(productId, updatedCartItemDto.productId());
+    Assertions.assertEquals(quantity, updatedCartItemDto.quantity());
+    Assertions.assertEquals(product.getPrice(), updatedCartItemDto.productPrice());
+    Assertions.assertEquals(BigDecimal.TEN, updatedCartItemDto.calculatedPrice());
+    Assertions.assertEquals(BigDecimal.valueOf(100), updatedCartItemDto.totalPrice());
 
-		when(cartItemRepository.existsByProductIdAndUserId(productId, userId)).thenReturn(true);
-		when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.empty());
+    verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
+    verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
+    verify(cartItemRepository).save(any(CreateCartItemDTO.class));
+    verify(cartItemRepository).findCartItemsByAccountId(userId);
+    verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
+    verify(calculatePriceUseCase).calculateCartTotalPrice(anyList());
+  }
 
-		assertThrows(CartItemNotFoundException.class,
-				() -> updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity));
+  @Test
+  void setQuantityUpdateQuantityOfCartItemReturnsNullTest() {
+    UUID productId = UUID.randomUUID();
+    Long userId = 1L;
+    Integer quantity = 2;
 
-		verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
-		verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
-		verify(cartItemRepository, never()).save(any(CreateCartItemDTO.class));
-		verify(calculatePriceUseCase, never()).calculateCartItemPrice(any(CartItem.class));
-		verify(calculatePriceUseCase, never()).calculateCartTotalPrice(anyList());
-	}
+    when(cartItemRepository.existsByProductIdAndUserId(productId, userId)).thenReturn(true);
+    when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.empty());
+
+    assertThrows(CartItemNotFoundException.class,
+        () -> updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity));
+
+    verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
+    verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
+    verify(cartItemRepository, never()).save(any(CreateCartItemDTO.class));
+    verify(calculatePriceUseCase, never()).calculateCartItemPrice(any(CartItem.class));
+    verify(calculatePriceUseCase, never()).calculateCartTotalPrice(anyList());
+  }
 }

@@ -1,7 +1,7 @@
 package com.academy.orders.application.product.usecase;
 
-import com.academy.orders.domain.language.repository.LanguageRepository;
 import com.academy.orders.domain.language.exception.LanguageNotFoundException;
+import com.academy.orders.domain.language.repository.LanguageRepository;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductManagement;
@@ -16,6 +16,7 @@ import com.academy.orders.domain.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,63 +24,64 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
-	private final ProductRepository productRepository;
-	private final TagRepository tagRepository;
-	private final LanguageRepository languageRepository;
-	private final ExtractNameFromUrlUseCase extractNameFromUrlUseCase;
+  private final ProductRepository productRepository;
 
-	@Transactional
-	@Override
-	public void updateProduct(UUID productId, ProductRequestDto request) {
-		var existingProduct = productRepository.getById(productId)
-				.orElseThrow(() -> new ProductNotFoundException(productId));
+  private final TagRepository tagRepository;
 
-		var imageName = extractNameFromUrlUseCase.extractNameFromUrl(request.image());
-		var existingTranslations = productRepository.findTranslationsByProductId(productId);
+  private final LanguageRepository languageRepository;
 
-		var tags = getTags(request, existingProduct);
+  private final ExtractNameFromUrlUseCase extractNameFromUrlUseCase;
 
-		request.productTranslations().forEach(dto -> languageRepository.findByCode(dto.languageCode())
-				.orElseThrow(() -> new LanguageNotFoundException(dto.languageCode())));
+  @Transactional
+  @Override
+  public void updateProduct(UUID productId, ProductRequestDto request) {
+    var existingProduct = productRepository.getById(productId)
+        .orElseThrow(() -> new ProductNotFoundException(productId));
 
-		var existingTranslationsMap = existingTranslations.stream()
-				.collect(Collectors.toMap(t -> t.language().code(), t -> t));
+    var imageName = extractNameFromUrlUseCase.extractNameFromUrl(request.image());
+    var existingTranslations = productRepository.findTranslationsByProductId(productId);
 
-		var updatedTranslations = request.productTranslations().stream().map(dto -> {
-			var existingTranslation = existingTranslationsMap.get(dto.languageCode());
-			return new ProductTranslationManagement(existingProduct.getId(), existingTranslation.language().id(),
-					getValue(dto.name(), existingTranslation.name()),
-					getValue(dto.description(), existingTranslation.description()), existingTranslation.language());
-		}).collect(Collectors.toSet());
+    var tags = getTags(request, existingProduct);
 
-		var updatedProduct = new ProductManagement(existingProduct.getId(),
-				ProductStatus.valueOf(getValue(request.status(), String.valueOf(existingProduct.getStatus()))),
-				getValue(imageName, existingProduct.getImage()), existingProduct.getCreatedAt(),
-				getValue(request.quantity(), existingProduct.getQuantity()),
-				getValue(request.price(), existingProduct.getPrice()), tags, updatedTranslations);
+    request.productTranslations().forEach(dto -> languageRepository.findByCode(dto.languageCode())
+        .orElseThrow(() -> new LanguageNotFoundException(dto.languageCode())));
 
-		productRepository.update(updatedProduct);
-	}
+    var existingTranslationsMap = existingTranslations.stream()
+        .collect(Collectors.toMap(t -> t.language().code(), t -> t));
 
-	/**
-	 * Determines the set of tags based on the request and the existing product. If
-	 * request.tagIds() is empty, returns the existing tags from existingProduct. If
-	 * request.tagIds() contains -1, returns an empty set (indicating removal of all
-	 * tags). Otherwise, returns tags corresponding to request.tagIds() from the
-	 * repository.
-	 */
-	private Set<Tag> getTags(ProductRequestDto request, Product existingProduct) {
-		if (request.tagIds().isEmpty()) {
-			return existingProduct.getTags();
-		}
+    var updatedTranslations = request.productTranslations().stream().map(dto -> {
+      var existingTranslation = existingTranslationsMap.get(dto.languageCode());
+      return new ProductTranslationManagement(existingProduct.getId(), existingTranslation.language().id(),
+          getValue(dto.name(), existingTranslation.name()),
+          getValue(dto.description(), existingTranslation.description()), existingTranslation.language());
+    }).collect(Collectors.toSet());
 
-		if (request.tagIds().size() == 1 && request.tagIds().get(0) == -1) {
-			return Set.of();
-		}
-		return tagRepository.getTagsByIds(request.tagIds());
-	}
+    var updatedProduct = new ProductManagement(existingProduct.getId(),
+        ProductStatus.valueOf(getValue(request.status(), String.valueOf(existingProduct.getStatus()))),
+        getValue(imageName, existingProduct.getImage()), existingProduct.getCreatedAt(),
+        getValue(request.quantity(), existingProduct.getQuantity()),
+        getValue(request.price(), existingProduct.getPrice()), tags, updatedTranslations);
 
-	private <T> T getValue(T newValue, T existingValue) {
-		return newValue != null ? newValue : existingValue;
-	}
+    productRepository.update(updatedProduct);
+  }
+
+  /**
+   * Determines the set of tags based on the request and the existing product. If request.tagIds() is empty, returns the existing tags from
+   * existingProduct. If request.tagIds() contains -1, returns an empty set (indicating removal of all tags). Otherwise, returns tags
+   * corresponding to request.tagIds() from the repository.
+   */
+  private Set<Tag> getTags(ProductRequestDto request, Product existingProduct) {
+    if (request.tagIds().isEmpty()) {
+      return existingProduct.getTags();
+    }
+
+    if (request.tagIds().size() == 1 && request.tagIds().get(0) == -1) {
+      return Set.of();
+    }
+    return tagRepository.getTagsByIds(request.tagIds());
+  }
+
+  private <T> T getValue(T newValue, T existingValue) {
+    return newValue != null ? newValue : existingValue;
+  }
 }

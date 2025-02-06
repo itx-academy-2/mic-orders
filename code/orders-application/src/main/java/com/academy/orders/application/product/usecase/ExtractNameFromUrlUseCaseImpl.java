@@ -7,8 +7,8 @@ import static java.util.Objects.nonNull;
 
 @Service
 public class ExtractNameFromUrlUseCaseImpl implements ExtractNameFromUrlUseCase {
-	@Override
-	public String extractNameFromUrl(String url) {
-		return nonNull(url) ? url.substring(url.lastIndexOf('/') + 1) : null;
-	}
+  @Override
+  public String extractNameFromUrl(String url) {
+    return nonNull(url) ? url.substring(url.lastIndexOf('/') + 1) : null;
+  }
 }

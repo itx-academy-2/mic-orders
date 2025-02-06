@@ -1,11 +1,9 @@
 package com.academy.orders.application.product.usecase;
 
-import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.repository.ProductImageRepository;
 import com.academy.orders.domain.product.repository.ProductRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,65 +11,70 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import static com.academy.orders.application.ModelUtils.*;
+import static com.academy.orders.application.ModelUtils.getPage;
+import static com.academy.orders.application.ModelUtils.getProductWithImageUrlAndAppliedDiscount;
+import static com.academy.orders.application.ModelUtils.getProductWithImageUrlAndDiscount;
 import static com.academy.orders.application.TestConstants.LANGUAGE_EN;
-import static com.academy.orders.application.TestConstants.TEST_DISCOUNT_PRICE;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GetProductsOnSaleUseCaseTest {
-	@InjectMocks
-	private GetProductsOnSaleUseCaseImpl getProductsOnSaleUseCase;
-	@Mock
-	private ProductRepository productRepository;
-	@Mock
-	private ProductImageRepository productImageRepository;
+  @InjectMocks
+  private GetProductsOnSaleUseCaseImpl getProductsOnSaleUseCase;
 
-	@Test
-	void getProductsOnSaleTest() {
-		var lang = LANGUAGE_EN;
-		var size = 5;
-		var pageable = Pageable.builder().page(0).size(size).build();
-		var product = getProductWithImageUrlAndDiscount();
-		var expectedProduct = getProductWithImageUrlAndAppliedDiscount();
-		var page = getPage(List.of(product), 1L, 1, 0, size);
+  @Mock
+  private ProductRepository productRepository;
 
-		when(productRepository.findProductsWhereDiscountIsNotNull(lang, pageable)).thenReturn(page);
-		when(productImageRepository.loadImageForProduct(any(Product.class)))
-				.thenAnswer(invocation -> invocation.getArgument(0));
+  @Mock
+  private ProductImageRepository productImageRepository;
 
-		var actual = getProductsOnSaleUseCase.getProductsOnSale(pageable, lang);
+  @Test
+  void getProductsOnSaleTest() {
+    var lang = LANGUAGE_EN;
+    var size = 5;
+    var pageable = Pageable.builder().page(0).size(size).build();
+    var product = getProductWithImageUrlAndDiscount();
+    var expectedProduct = getProductWithImageUrlAndAppliedDiscount();
+    var page = getPage(List.of(product), 1L, 1, 0, size);
 
-		assertNotNull(actual);
-		assertEquals(1, actual.content().size());
-		assertEquals(expectedProduct, actual.content().get(0));
-		assertNotNull(actual.content().get(0).getPriceWithDiscount());
+    when(productRepository.findProductsWhereDiscountIsNotNull(lang, pageable)).thenReturn(page);
+    when(productImageRepository.loadImageForProduct(any(Product.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
-		verify(productRepository).findProductsWhereDiscountIsNotNull(lang, pageable);
-		verify(productImageRepository).loadImageForProduct(product);
-	}
+    var actual = getProductsOnSaleUseCase.getProductsOnSale(pageable, lang);
 
-	@Test
-	void getProductsOnSaleReturnsEmptyPageTest() {
-		var lang = LANGUAGE_EN;
-		var size = 5;
-		var pageable = Pageable.builder().page(0).size(size).build();
+    assertNotNull(actual);
+    assertEquals(1, actual.content().size());
+    assertEquals(expectedProduct, actual.content().get(0));
+    assertNotNull(actual.content().get(0).getPriceWithDiscount());
 
-		var page = getPage(new ArrayList<Product>(), 0L, 0, 0, size);
+    verify(productRepository).findProductsWhereDiscountIsNotNull(lang, pageable);
+    verify(productImageRepository).loadImageForProduct(product);
+  }
 
-		when(productRepository.findProductsWhereDiscountIsNotNull(lang, pageable)).thenReturn(page);
+  @Test
+  void getProductsOnSaleReturnsEmptyPageTest() {
+    var lang = LANGUAGE_EN;
+    var size = 5;
+    var pageable = Pageable.builder().page(0).size(size).build();
 
-		var actual = getProductsOnSaleUseCase.getProductsOnSale(pageable, lang);
+    var page = getPage(new ArrayList<Product>(), 0L, 0, 0, size);
 
-		assertNotNull(actual);
-		assertEquals(0, actual.content().size());
+    when(productRepository.findProductsWhereDiscountIsNotNull(lang, pageable)).thenReturn(page);
 
-		verify(productRepository).findProductsWhereDiscountIsNotNull(lang, pageable);
-		verifyNoInteractions(productImageRepository);
-	}
+    var actual = getProductsOnSaleUseCase.getProductsOnSale(pageable, lang);
+
+    assertNotNull(actual);
+    assertEquals(0, actual.content().size());
+
+    verify(productRepository).findProductsWhereDiscountIsNotNull(lang, pageable);
+    verifyNoInteractions(productImageRepository);
+  }
 }

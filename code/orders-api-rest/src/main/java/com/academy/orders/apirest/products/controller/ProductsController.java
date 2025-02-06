@@ -27,40 +27,47 @@ import java.util.UUID;
 @Slf4j
 @CrossOrigin
 public class ProductsController implements ProductsApi {
-	private final GetAllProductsUseCase getAllProductsUseCase;
-	private final GetProductsOnSaleUseCase getProductsOnSaleUseCase;
-	private final GetProductDetailsByIdUseCase getProductDetailsByIdUseCase;
-	private final GetProductSearchResultsUseCase getProductSearchResultsUseCase;
-	private final ProductPreviewDTOMapper productPreviewDTOMapper;
-	private final PageableDTOMapper pageableDTOMapper;
-	private final PageProductSearchResultDTOMapper pageProductSearchResultDTOMapper;
-	private final ProductDetailsResponseDTOMapper productDetailsResponseDTOMapper;
+  private final GetAllProductsUseCase getAllProductsUseCase;
 
-	@Override
-	public ProductDetailsResponseDTO getProductDetailsById(UUID productId, String lang) {
-		var product = getProductDetailsByIdUseCase.getProductDetailsById(productId, lang);
-		return productDetailsResponseDTOMapper.toDTO(product);
-	}
+  private final GetProductsOnSaleUseCase getProductsOnSaleUseCase;
 
-	@Override
-	public PageProductsDTO getProductsOnSale(PageableDTO pageableDTO, String lang) {
-		var pageable = pageableDTOMapper.fromDto(pageableDTO);
-		var productsOnSale = getProductsOnSaleUseCase.getProductsOnSale(pageable, lang);
-		return productPreviewDTOMapper.toPageProductsDTO(productsOnSale);
-	}
+  private final GetProductDetailsByIdUseCase getProductDetailsByIdUseCase;
 
-	@Override
-	public PageProductsDTO getProducts(ProductFilterDTO productFilter, PageableDTO dto, String lang) {
-		log.debug("Get all products by language code: {}", lang);
-		var pageable = pageableDTOMapper.fromDto(dto);
-		var products = getAllProductsUseCase.getAllProducts(lang, pageable, productFilter.getTags());
-		return productPreviewDTOMapper.toPageProductsDTO(products);
-	}
+  private final GetProductSearchResultsUseCase getProductSearchResultsUseCase;
 
-	@Override
-	public PageProductSearchResultDTO searchProducts(String searchQuery, String lang, PageableDTO pageable) {
-		Pageable pageableDomain = pageableDTOMapper.fromDto(pageable);
-		var products = getProductSearchResultsUseCase.findProductsBySearchQuery(searchQuery, lang, pageableDomain);
-		return pageProductSearchResultDTOMapper.toDto(products);
-	}
+  private final ProductPreviewDTOMapper productPreviewDTOMapper;
+
+  private final PageableDTOMapper pageableDTOMapper;
+
+  private final PageProductSearchResultDTOMapper pageProductSearchResultDTOMapper;
+
+  private final ProductDetailsResponseDTOMapper productDetailsResponseDTOMapper;
+
+  @Override
+  public ProductDetailsResponseDTO getProductDetailsById(UUID productId, String lang) {
+    var product = getProductDetailsByIdUseCase.getProductDetailsById(productId, lang);
+    return productDetailsResponseDTOMapper.toDTO(product);
+  }
+
+  @Override
+  public PageProductsDTO getProductsOnSale(PageableDTO pageableDTO, String lang) {
+    var pageable = pageableDTOMapper.fromDto(pageableDTO);
+    var productsOnSale = getProductsOnSaleUseCase.getProductsOnSale(pageable, lang);
+    return productPreviewDTOMapper.toPageProductsDTO(productsOnSale);
+  }
+
+  @Override
+  public PageProductsDTO getProducts(ProductFilterDTO productFilter, PageableDTO dto, String lang) {
+    log.debug("Get all products by language code: {}", lang);
+    var pageable = pageableDTOMapper.fromDto(dto);
+    var products = getAllProductsUseCase.getAllProducts(lang, pageable, productFilter.getTags());
+    return productPreviewDTOMapper.toPageProductsDTO(products);
+  }
+
+  @Override
+  public PageProductSearchResultDTO searchProducts(String searchQuery, String lang, PageableDTO pageable) {
+    Pageable pageableDomain = pageableDTOMapper.fromDto(pageable);
+    var products = getProductSearchResultsUseCase.findProductsBySearchQuery(searchQuery, lang, pageableDomain);
+    return pageProductSearchResultDTOMapper.toDto(products);
+  }
 }

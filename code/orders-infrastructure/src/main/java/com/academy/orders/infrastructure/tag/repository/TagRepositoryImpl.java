@@ -15,11 +15,12 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 public class TagRepositoryImpl implements TagRepository {
-	private final TagJpaAdapter tagJpaAdapter;
-	private final TagMapper tagMapper;
+  private final TagJpaAdapter tagJpaAdapter;
 
-	@Override
-	public Set<Tag> getTagsByIds(List<Long> tagIds) {
-		return tagMapper.fromEntities(new HashSet<>(tagJpaAdapter.findAllById(tagIds)));
-	}
+  private final TagMapper tagMapper;
+
+  @Override
+  public Set<Tag> getTagsByIds(List<Long> tagIds) {
+    return tagMapper.fromEntities(new HashSet<>(tagJpaAdapter.findAllById(tagIds)));
+  }
 }

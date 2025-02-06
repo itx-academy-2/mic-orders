@@ -14,21 +14,21 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class ImageRepositoryImpl implements ImageRepository {
-	private final ImagesApi imagesApi;
+  private final ImagesApi imagesApi;
 
-	@Value("${images.default.url}")
-	private String defaultImageUrl;
+  @Value("${images.default.url}")
+  private String defaultImageUrl;
 
-	@Retry(name = "imagesRetry", fallbackMethod = "getDefaultUrl")
-	@CachePut(value = "images", key = "#name")
-	public String getImageLinkByName(String name) {
-		log.info("Call api with name param: {}", name);
-		return imagesApi.getImageByName(name).getImageUrl();
-	}
+  @Retry(name = "imagesRetry", fallbackMethod = "getDefaultUrl")
+  @CachePut(value = "images", key = "#name")
+  public String getImageLinkByName(String name) {
+    log.info("Call api with name param: {}", name);
+    return imagesApi.getImageByName(name).getImageUrl();
+  }
 
-	@Cacheable(value = "images", key = "#name")
-	public String getDefaultUrl(String name, Throwable exception) {
-		log.warn("Call api with name {} failed {}", name, exception.getMessage());
-		return defaultImageUrl;
-	}
+  @Cacheable(value = "images", key = "#name")
+  public String getDefaultUrl(String name, Throwable exception) {
+    log.warn("Call api with name {} failed {}", name, exception.getMessage());
+    return defaultImageUrl;
+  }
 }

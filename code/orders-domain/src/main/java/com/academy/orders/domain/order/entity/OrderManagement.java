@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @Builder
 public record OrderManagement(UUID id, OrderStatus orderStatus, List<OrderStatus> availableStatuses,
-		OrderReceiver receiver, PostAddress postAddress, BigDecimal total, Account account, List<OrderItem> orderItems,
-		Boolean isPaid, LocalDateTime editedAt, LocalDateTime createdAt) {
+    OrderReceiver receiver, PostAddress postAddress, BigDecimal total, Account account,
+    List<OrderItem> orderItems,
+    Boolean isPaid, LocalDateTime editedAt, LocalDateTime createdAt) {
 }

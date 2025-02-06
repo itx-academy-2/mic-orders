@@ -18,27 +18,29 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GetManagerProductsUseCaseTest {
-	@InjectMocks
-	private GetManagerProductsUseCaseImpl getManagerProductsUseCase;
-	@Mock
-	private ProductRepository productRepository;
-	@Mock
-	private ProductImageRepository productImageRepository;
+  @InjectMocks
+  private GetManagerProductsUseCaseImpl getManagerProductsUseCase;
 
-	@Test
-	void getManagerProductsTest() {
-		var product = getProductWithImageLink();
-		var filter = getManagementFilterDto();
-		var lang = "uk";
-		var pageable = getPageable();
-		var page = getPageOf(product);
+  @Mock
+  private ProductRepository productRepository;
 
-		when(productRepository.findAllByLanguageWithFilter(lang, filter, pageable)).thenReturn(page);
-		when(productImageRepository.loadImageForProduct(product)).thenReturn(product);
-		var actual = getManagerProductsUseCase.getManagerProducts(pageable, filter, lang);
+  @Mock
+  private ProductImageRepository productImageRepository;
 
-		assertEquals(page, actual);
-		verify(productRepository).findAllByLanguageWithFilter(lang, filter, pageable);
-		verify(productImageRepository).loadImageForProduct(product);
-	}
+  @Test
+  void getManagerProductsTest() {
+    var product = getProductWithImageLink();
+    var filter = getManagementFilterDto();
+    var lang = "uk";
+    var pageable = getPageable();
+    var page = getPageOf(product);
+
+    when(productRepository.findAllByLanguageWithFilter(lang, filter, pageable)).thenReturn(page);
+    when(productImageRepository.loadImageForProduct(product)).thenReturn(product);
+    var actual = getManagerProductsUseCase.getManagerProducts(pageable, filter, lang);
+
+    assertEquals(page, actual);
+    verify(productRepository).findAllByLanguageWithFilter(lang, filter, pageable);
+    verify(productImageRepository).loadImageForProduct(product);
+  }
 }

@@ -2,12 +2,13 @@ package com.academy.orders.application.cart.usecase;
 
 import com.academy.orders.domain.cart.exception.CartItemNotFoundException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -20,34 +21,35 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DeleteProductFromCartUseCaseTest {
-	@InjectMocks
-	private DeleteProductFromCartUseCaseImpl deleteProductFromCartUseCase;
-	@Mock
-	private CartItemRepository cartItemRepository;
+  @InjectMocks
+  private DeleteProductFromCartUseCaseImpl deleteProductFromCartUseCase;
 
-	@Test
-	void deleteProductFromCartTest() {
-		var accountId = 1L;
-		var productId = UUID.randomUUID();
+  @Mock
+  private CartItemRepository cartItemRepository;
 
-		when(cartItemRepository.existsByProductIdAndUserId(productId, accountId)).thenReturn(true);
-		doNothing().when(cartItemRepository).deleteCartItemByAccountAndProductIds(accountId, productId);
+  @Test
+  void deleteProductFromCartTest() {
+    var accountId = 1L;
+    var productId = UUID.randomUUID();
 
-		assertDoesNotThrow(() -> deleteProductFromCartUseCase.deleteProductFromCart(accountId, productId));
-		verify(cartItemRepository).existsByProductIdAndUserId(any(UUID.class), anyLong());
-		verify(cartItemRepository).deleteCartItemByAccountAndProductIds(anyLong(), any(UUID.class));
-	}
+    when(cartItemRepository.existsByProductIdAndUserId(productId, accountId)).thenReturn(true);
+    doNothing().when(cartItemRepository).deleteCartItemByAccountAndProductIds(accountId, productId);
 
-	@Test
-	void deleteProductFromCartThrowsCartItemNotFoundExceptionTest() {
-		var accountId = 1L;
-		var productId = UUID.randomUUID();
+    assertDoesNotThrow(() -> deleteProductFromCartUseCase.deleteProductFromCart(accountId, productId));
+    verify(cartItemRepository).existsByProductIdAndUserId(any(UUID.class), anyLong());
+    verify(cartItemRepository).deleteCartItemByAccountAndProductIds(anyLong(), any(UUID.class));
+  }
 
-		when(cartItemRepository.existsByProductIdAndUserId(productId, accountId)).thenReturn(false);
+  @Test
+  void deleteProductFromCartThrowsCartItemNotFoundExceptionTest() {
+    var accountId = 1L;
+    var productId = UUID.randomUUID();
 
-		assertThrows(CartItemNotFoundException.class,
-				() -> deleteProductFromCartUseCase.deleteProductFromCart(accountId, productId));
-		verify(cartItemRepository).existsByProductIdAndUserId(any(UUID.class), anyLong());
-		verify(cartItemRepository, never()).deleteCartItemByAccountAndProductIds(anyLong(), any(UUID.class));
-	}
+    when(cartItemRepository.existsByProductIdAndUserId(productId, accountId)).thenReturn(false);
+
+    assertThrows(CartItemNotFoundException.class,
+        () -> deleteProductFromCartUseCase.deleteProductFromCart(accountId, productId));
+    verify(cartItemRepository).existsByProductIdAndUserId(any(UUID.class), anyLong());
+    verify(cartItemRepository, never()).deleteCartItemByAccountAndProductIds(anyLong(), any(UUID.class));
+  }
 }

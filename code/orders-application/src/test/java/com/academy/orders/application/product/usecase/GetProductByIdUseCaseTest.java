@@ -21,36 +21,36 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GetProductByIdUseCaseTest {
-	@InjectMocks
-	private GetProductByIdUseCaseImpl getProductByIdUseCase;
+  @InjectMocks
+  private GetProductByIdUseCaseImpl getProductByIdUseCase;
 
-	@Mock
-	private ProductRepository productRepository;
+  @Mock
+  private ProductRepository productRepository;
 
-	@Mock
-	private ProductImageRepository productImageRepository;
+  @Mock
+  private ProductImageRepository productImageRepository;
 
-	@Test
-	void getProductByIdUseCaseTest() {
-		var productWithImageLink = getProductWithImageLink();
-		var productWithImageName = getProductWithImageName();
+  @Test
+  void getProductByIdUseCaseTest() {
+    var productWithImageLink = getProductWithImageLink();
+    var productWithImageName = getProductWithImageName();
 
-		when(productRepository.getById(TEST_UUID)).thenReturn(Optional.of(productWithImageName));
-		when(productImageRepository.loadImageForProduct(productWithImageName)).thenReturn(productWithImageLink);
+    when(productRepository.getById(TEST_UUID)).thenReturn(Optional.of(productWithImageName));
+    when(productImageRepository.loadImageForProduct(productWithImageName)).thenReturn(productWithImageLink);
 
-		var result = getProductByIdUseCase.getProductById(TEST_UUID);
-		Assertions.assertEquals(result, productWithImageLink);
+    var result = getProductByIdUseCase.getProductById(TEST_UUID);
+    Assertions.assertEquals(result, productWithImageLink);
 
-		verify(productRepository).getById(TEST_UUID);
-		verify(productImageRepository).loadImageForProduct(productWithImageName);
-	}
+    verify(productRepository).getById(TEST_UUID);
+    verify(productImageRepository).loadImageForProduct(productWithImageName);
+  }
 
-	@Test
-	void getProductByIdUseCaseThrowsNotFoundExceptionTest() {
-		when(productRepository.getById(TEST_UUID)).thenReturn(Optional.empty());
+  @Test
+  void getProductByIdUseCaseThrowsNotFoundExceptionTest() {
+    when(productRepository.getById(TEST_UUID)).thenReturn(Optional.empty());
 
-		assertThrows(ProductNotFoundException.class, () -> getProductByIdUseCase.getProductById(TEST_UUID));
+    assertThrows(ProductNotFoundException.class, () -> getProductByIdUseCase.getProductById(TEST_UUID));
 
-		verify(productRepository).getById(TEST_UUID);
-	}
+    verify(productRepository).getById(TEST_UUID);
+  }
 }
