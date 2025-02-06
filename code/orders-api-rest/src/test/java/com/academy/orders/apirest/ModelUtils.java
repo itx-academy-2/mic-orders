@@ -384,7 +384,7 @@ public class ModelUtils {
   }
 
   public static CartItemsResponseDTO getCartItemResponseDto() {
-    return new CartItemsResponseDTO(singletonList(getCartItemDTO()), TEST_PRICE.doubleValue());
+    return new CartItemsResponseDTO(singletonList(getCartItemDTO()), TEST_PRICE);
   }
 
   public static UpdatedCartItemDto getUpdatedCartItemDto() {
@@ -406,8 +406,8 @@ public class ModelUtils {
     CartItemDTO cartItemDTO = new CartItemDTO();
     cartItemDTO.setProductId(TEST_UUID);
     cartItemDTO.setQuantity(TEST_QUANTITY);
-    cartItemDTO.setProductPrice(TEST_PRICE.doubleValue());
-    cartItemDTO.setCalculatedPrice(TEST_PRICE.doubleValue());
+    cartItemDTO.setProductPrice(TEST_PRICE);
+    cartItemDTO.setCalculatedPrice(TEST_PRICE);
     cartItemDTO.setName(PRODUCT_NAME);
     cartItemDTO.setImage(IMAGE_URL);
 
