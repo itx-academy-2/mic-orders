@@ -300,8 +300,8 @@ public class ModelUtils {
   }
 
   public static OrderStatusInfo getOrderStatusInfo() {
-    return OrderStatusInfo.builder().availableStatuses(
-        List.of(OrderStatus.SHIPPED, OrderStatus.DELIVERED, OrderStatus.COMPLETED, OrderStatus.CANCELED))
+    return OrderStatusInfo.builder()
+        .availableStatuses(List.of(OrderStatus.SHIPPED, OrderStatus.DELIVERED, OrderStatus.COMPLETED, OrderStatus.CANCELED))
         .isPaid(false).build();
   }
 
