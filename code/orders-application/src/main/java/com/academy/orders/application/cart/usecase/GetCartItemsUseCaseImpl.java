@@ -28,8 +28,9 @@ public class GetCartItemsUseCaseImpl implements GetCartItemsUseCase {
   public CartResponseDto getCartItems(Long accountId, String lang) {
     var cartItems = getCartItemsByAccountIdAndLang(accountId, lang);
     var cartItemDtos = mapToCartItemsDtos(cartItems);
-    var totalPrice = calculateTotalPrice(cartItems);
-    return buildCartResponseDTO(cartItemDtos, totalPrice);
+    final BigDecimal totalPrice = calculatePriceUseCase.calculateCartTotalPrice(cartItems);
+    final BigDecimal totalPriceWithDiscount = calculatePriceUseCase.calculateTotalPriceWithDiscount(cartItems);
+    return buildCartResponseDTO(cartItemDtos, totalPrice, totalPriceWithDiscount);
   }
 
   private List<CartItem> getCartItemsByAccountIdAndLang(Long accountId, String lang) {
@@ -45,8 +46,12 @@ public class GetCartItemsUseCaseImpl implements GetCartItemsUseCase {
     var productItem = cartItem.product();
 
     return CartItemDto.builder().productId(productItem.getId()).image(productItem.getImage())
+        .productPriceWithDiscount(productItem.getPriceWithDiscount())
+        .discount(productItem.getDiscount() == null ? null : productItem.getDiscount().getAmount())
         .name(mapName(productItem.getProductTranslations())).productPrice(productItem.getPrice())
-        .quantity(cartItem.quantity()).calculatedPrice(calculatePriceUseCase.calculateCartItemPrice(cartItem))
+        .quantity(cartItem.quantity())
+        .calculatedPrice(calculatePriceUseCase.calculateCartItemPrice(cartItem))
+        .calculatedPriceWithDiscount(calculatePriceUseCase.calculateCartItemPriceWithDiscount(cartItem))
         .build();
   }
 
@@ -54,12 +59,14 @@ public class GetCartItemsUseCaseImpl implements GetCartItemsUseCase {
     return productTranslations.stream().iterator().next().name();
   }
 
-  private BigDecimal calculateTotalPrice(List<CartItem> cartItems) {
-    return calculatePriceUseCase.calculateCartTotalPrice(cartItems);
-  }
-
-  private CartResponseDto buildCartResponseDTO(List<CartItemDto> cartItemDtos, BigDecimal totalPrice) {
-    return CartResponseDto.builder().items(cartItemDtos).totalPrice(totalPrice).build();
+  private CartResponseDto buildCartResponseDTO(List<CartItemDto> cartItemDtos,
+      BigDecimal totalPrice,
+      BigDecimal totalPriceWithDiscount) {
+    return CartResponseDto.builder()
+        .items(cartItemDtos)
+        .totalPrice(totalPrice)
+        .totalPriceWithDiscount(totalPriceWithDiscount)
+        .build();
   }
 
 }

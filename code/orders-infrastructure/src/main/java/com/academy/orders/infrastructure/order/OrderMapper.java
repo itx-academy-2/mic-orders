@@ -33,6 +33,7 @@ public interface OrderMapper {
   @Mapping(target = "product", source = "product")
   @Mapping(target = "price", source = "orderItem.price")
   @Mapping(target = "quantity", source = "orderItem.quantity")
+  @Mapping(target = "discount", source = "orderItem.discount")
   OrderItem mapOrderItemWithUpdatedProduct(OrderItem orderItem, Product product);
 
   @Mapping(target = "orderItems", source = "orderItems")

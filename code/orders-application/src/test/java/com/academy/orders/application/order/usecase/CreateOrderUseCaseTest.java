@@ -75,7 +75,7 @@ class CreateOrderUseCaseTest {
     var expectedOrderId = UUID.randomUUID();
     var order = Order.builder().receiver(getOrderReceiver()).postAddress(getPostAddress())
         .orderStatus(OrderStatus.IN_PROGRESS)
-        .orderItems(singletonList(new OrderItem(cartItem.product(), calculatedPrice, cartItem.quantity())))
+        .orderItems(singletonList(new OrderItem(cartItem.product(), calculatedPrice, null, cartItem.quantity())))
         .isPaid(false).build();
 
     when(cartItemRepository.findCartItemsByAccountId(anyLong())).thenReturn(singletonList(cartItem));

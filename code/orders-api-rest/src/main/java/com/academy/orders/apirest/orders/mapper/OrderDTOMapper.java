@@ -9,9 +9,11 @@ import com.academy.orders_api_rest.generated.model.ManagerOrderPreviewDTO;
 import com.academy.orders_api_rest.generated.model.PlaceOrderRequestDTO;
 import com.academy.orders_api_rest.generated.model.UserOrderDTO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {ProductPreviewDTOMapper.class, LocalDateTimeMapper.class})
 public interface OrderDTOMapper {
+  @Mapping(target = "totalWithDiscount", expression = "java(order.getTotalWithDiscount())")
   UserOrderDTO toUserDto(Order order);
 
   ManagerOrderDTO toManagerDto(Order order);
