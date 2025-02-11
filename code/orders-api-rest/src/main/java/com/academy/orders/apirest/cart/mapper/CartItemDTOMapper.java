@@ -8,7 +8,6 @@ import com.academy.orders_api_rest.generated.model.CartItemDTO;
 import com.academy.orders_api_rest.generated.model.CartItemsResponseDTO;
 import com.academy.orders_api_rest.generated.model.UpdatedCartItemDTO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 

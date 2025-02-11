@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -75,14 +76,10 @@ public class CreateOrderUseCaseImpl implements CreateOrderUseCase {
   }
 
   private OrderItem createItem(CartItem cartItem) {
-    var calculatedPrice = calculatePriceUseCase.calculateCartItemPrice(cartItem);
+    final BigDecimal calculatedPrice = calculatePriceUseCase.calculateCartItemPrice(cartItem);
     changeQuantityUseCase.changeQuantityOfProduct(cartItem.product(), cartItem.quantity());
-    Integer currentDiscount = getProductDiscount(cartItem);
+    final Integer currentDiscount = cartItem.product().getDiscountAmount();
     return new OrderItem(cartItem.product(), calculatedPrice, currentDiscount, cartItem.quantity());
-  }
-
-  private Integer getProductDiscount(CartItem cartItem) {
-    return cartItem.product().getDiscount() == null ? null : cartItem.product().getDiscount().getAmount();
   }
 
   private UUID saveOrder(Order order, Long accountId) {

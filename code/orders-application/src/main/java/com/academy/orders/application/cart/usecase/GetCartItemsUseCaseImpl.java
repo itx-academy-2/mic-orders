@@ -45,10 +45,13 @@ public class GetCartItemsUseCaseImpl implements GetCartItemsUseCase {
   private CartItemDto toCartItemDto(CartItem cartItem) {
     var productItem = cartItem.product();
 
-    return CartItemDto.builder().productId(productItem.getId()).image(productItem.getImage())
+    return CartItemDto.builder()
+        .productId(productItem.getId())
+        .image(productItem.getImage())
+        .name(mapName(productItem.getProductTranslations()))
+        .productPrice(productItem.getPrice())
         .productPriceWithDiscount(productItem.getPriceWithDiscount())
-        .discount(productItem.getDiscount() == null ? null : productItem.getDiscount().getAmount())
-        .name(mapName(productItem.getProductTranslations())).productPrice(productItem.getPrice())
+        .discount(productItem.getDiscountAmount())
         .quantity(cartItem.quantity())
         .calculatedPrice(calculatePriceUseCase.calculateCartItemPrice(cartItem))
         .calculatedPriceWithDiscount(calculatePriceUseCase.calculateCartItemPriceWithDiscount(cartItem))
@@ -59,7 +62,8 @@ public class GetCartItemsUseCaseImpl implements GetCartItemsUseCase {
     return productTranslations.stream().iterator().next().name();
   }
 
-  private CartResponseDto buildCartResponseDTO(List<CartItemDto> cartItemDtos,
+  private CartResponseDto buildCartResponseDTO(
+      List<CartItemDto> cartItemDtos,
       BigDecimal totalPrice,
       BigDecimal totalPriceWithDiscount) {
     return CartResponseDto.builder()

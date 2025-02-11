@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -40,7 +41,13 @@ public class UpdateCartItemQuantityUseCaseImpl implements UpdateCartItemQuantity
     var cartItemPrice = calculatePriceUseCase.calculateCartItemPrice(updatedCartItem);
     var totalPrice = calculatePriceUseCase.calculateCartTotalPrice(getAll);
 
-    return new UpdatedCartItemDto(productId, quantity, product.getPrice(), cartItemPrice, totalPrice);
+    final BigDecimal cartItemPriceWithDiscount = calculatePriceUseCase
+        .calculateCartItemPriceWithDiscount(updatedCartItem);
+    final BigDecimal totalPriceWithDiscount = calculatePriceUseCase.calculateTotalPriceWithDiscount(getAll);
+
+    return new UpdatedCartItemDto(productId, quantity, product.getPrice(), product.getPriceWithDiscount(),
+        product.getDiscountAmount(), cartItemPrice, cartItemPriceWithDiscount,
+        totalPrice, totalPriceWithDiscount);
   }
 
   private void checkCartItemExists(UUID productId, Long userId) {
@@ -52,9 +59,7 @@ public class UpdateCartItemQuantityUseCaseImpl implements UpdateCartItemQuantity
   private CartItem updateQuantityOfCartItem(Integer quantity, UUID productId, Long userId) {
     CartItem cartItem = cartItemRepository.findByProductIdAndUserId(productId, userId)
         .orElseThrow(() -> new CartItemNotFoundException(productId));
-    CartItem updatedCartItem = new CartItem(cartItem.product(), quantity);
 
-    return cartItemRepository
-        .save(new CreateCartItemDTO(updatedCartItem.product().getId(), userId, updatedCartItem.quantity()));
+    return cartItemRepository.save(new CreateCartItemDTO(productId, userId, quantity));
   }
 }

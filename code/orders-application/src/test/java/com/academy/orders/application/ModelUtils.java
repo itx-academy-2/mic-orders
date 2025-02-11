@@ -114,6 +114,13 @@ public class ModelUtils {
     return CartItem.builder().product(getProductWithImageLink()).quantity(1).build();
   }
 
+  public static CartItem getCartItemWithDiscount() {
+    return CartItem.builder()
+        .product(getProductWithImageUrlAndDiscount())
+        .quantity(TEST_QUANTITY)
+        .build();
+  }
+
   public static <T> Page<T> getPage(List<T> content, long totalElements, int totalPages, int number, int size) {
     return Page.<T>builder().totalElements(totalElements).totalPages(totalPages).first(number == 0)
         .last(number == totalPages - 1).number(number).numberOfElements(content.size()).size(size)
@@ -208,8 +215,28 @@ public class ModelUtils {
         .build();
   }
 
-  public static CartResponseDto getCartResponseDto(List<CartItemDto> cartItemDtos, BigDecimal totalPrice) {
-    return CartResponseDto.builder().items(cartItemDtos).totalPrice(totalPrice).build();
+  public static CartItemDto getCartItemDtoWithDiscount(CartItem cartItem) {
+    return CartItemDto.builder()
+        .productId(cartItem.product().getId())
+        .image(cartItem.product().getImage())
+        .name(cartItem.product().getProductTranslations().iterator().next().name())
+        .productPrice(cartItem.product().getPrice())
+        .productPriceWithDiscount(cartItem.product().getPriceWithDiscount())
+        .discount(cartItem.product().getDiscountAmount())
+        .quantity(cartItem.quantity())
+        .calculatedPrice(cartItem.product().getPrice().multiply(BigDecimal.valueOf(cartItem.quantity())))
+        .calculatedPriceWithDiscount(cartItem.product().getPriceWithDiscount().multiply(BigDecimal.valueOf(cartItem.quantity())))
+        .build();
+  }
+
+  public static CartResponseDto getCartResponseDto(List<CartItemDto> cartItemDtos,
+      BigDecimal totalPrice,
+      BigDecimal totalPriceWithDiscount) {
+    return CartResponseDto.builder()
+        .items(cartItemDtos)
+        .totalPrice(totalPrice)
+        .totalPriceWithDiscount(totalPriceWithDiscount)
+        .build();
   }
 
   public static OrdersFilterParametersDto getOrdersFilterParametersDto() {

@@ -38,7 +38,7 @@ public class CalculatePriceUseCaseImpl implements CalculatePriceUseCase {
       final BigDecimal priceWithDiscount = cartItem.product().getPriceWithDiscount();
       if (Objects.nonNull(priceWithDiscount)) {
         anyProductWithDiscount = true;
-        totalPriceWithDiscount = totalPriceWithDiscount.add(priceWithDiscount.multiply(new BigDecimal(cartItem.quantity())));
+        totalPriceWithDiscount = totalPriceWithDiscount.add(calculateCartItemPriceWithDiscount(cartItem));
       } else {
         totalPriceWithDiscount = totalPriceWithDiscount.add(calculateCartItemPrice(cartItem));
       }

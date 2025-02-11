@@ -20,11 +20,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.academy.orders.application.ModelUtils.getCartItem;
-import static com.academy.orders.application.ModelUtils.getProductWithQuantity;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
+import static com.academy.orders.application.ModelUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -58,14 +56,21 @@ class UpdateCartItemQuantityUseCaseTest {
     when(cartItemRepository.findCartItemsByAccountId(userId)).thenReturn(cartItems);
     when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(BigDecimal.TEN);
     when(calculatePriceUseCase.calculateCartTotalPrice(anyList())).thenReturn(BigDecimal.valueOf(100));
+    when(calculatePriceUseCase.calculateTotalPriceWithDiscount(anyList())).thenReturn(null);
+    when(calculatePriceUseCase.calculateCartItemPriceWithDiscount(any(CartItem.class))).thenReturn(null);
 
     UpdatedCartItemDto updatedCartItemDto = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity);
 
-    Assertions.assertEquals(productId, updatedCartItemDto.productId());
-    Assertions.assertEquals(quantity, updatedCartItemDto.quantity());
-    Assertions.assertEquals(product.getPrice(), updatedCartItemDto.productPrice());
-    Assertions.assertEquals(BigDecimal.TEN, updatedCartItemDto.calculatedPrice());
-    Assertions.assertEquals(BigDecimal.valueOf(100), updatedCartItemDto.totalPrice());
+    assertNotNull(updatedCartItemDto);
+    assertEquals(productId, updatedCartItemDto.productId());
+    assertEquals(quantity, updatedCartItemDto.quantity());
+    assertEquals(product.getPrice(), updatedCartItemDto.productPrice());
+    assertEquals(BigDecimal.TEN, updatedCartItemDto.calculatedPrice());
+    assertEquals(BigDecimal.valueOf(100), updatedCartItemDto.totalPrice());
+    assertNull(updatedCartItemDto.calculatedPriceWithDiscount());
+    assertNull(updatedCartItemDto.totalPriceWithDiscount());
+    assertNull(updatedCartItemDto.productPriceWithDiscount());
+    assertNull(updatedCartItemDto.discount());
 
     verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
@@ -73,6 +78,52 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository).findCartItemsByAccountId(userId);
     verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
     verify(calculatePriceUseCase).calculateCartTotalPrice(anyList());
+    verify(calculatePriceUseCase).calculateTotalPriceWithDiscount(anyList());
+    verify(calculatePriceUseCase).calculateCartItemPriceWithDiscount(any(CartItem.class));
+  }
+
+  @Test
+  void setQuantityWhenProductHasDiscount() {
+    final UUID productId = UUID.randomUUID();
+    final Long userId = 1L;
+    final BigDecimal quantity = BigDecimal.valueOf(9);
+    final CartItem cartItemBefore = getCartItemWithDiscount();
+    final CartItem cartItemAfter = new CartItem(cartItemBefore.product(), quantity.intValue());
+    final Product product = cartItemAfter.product();
+    final BigDecimal sumOfAllPrices = product.getPrice().multiply(quantity);
+    final BigDecimal sumOfAllDiscountedPrices = product.getPriceWithDiscount().multiply(quantity);
+
+    when(cartItemRepository.existsByProductIdAndUserId(productId, userId)).thenReturn(true);
+    when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.of(cartItemBefore));
+    when(cartItemRepository.save(any(CreateCartItemDTO.class))).thenReturn(cartItemAfter);
+    when(cartItemRepository.findCartItemsByAccountId(userId)).thenReturn(List.of(cartItemAfter));
+    when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(sumOfAllPrices);
+    when(calculatePriceUseCase.calculateCartTotalPrice(anyList())).thenReturn(sumOfAllPrices);
+    when(calculatePriceUseCase.calculateTotalPriceWithDiscount(anyList())).thenReturn(sumOfAllDiscountedPrices);
+    when(calculatePriceUseCase.calculateCartItemPriceWithDiscount(any(CartItem.class)))
+        .thenReturn(sumOfAllDiscountedPrices);
+
+    final UpdatedCartItemDto result = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity.intValue());
+
+    assertNotNull(result);
+    assertEquals(productId, result.productId());
+    assertEquals(quantity.intValue(), result.quantity());
+    assertEquals(product.getPrice(), result.productPrice());
+    assertEquals(product.getPriceWithDiscount(), result.productPriceWithDiscount());
+    assertEquals(product.getDiscountAmount(), result.discount());
+    assertEquals(sumOfAllPrices, result.totalPrice());
+    assertEquals(sumOfAllDiscountedPrices, result.totalPriceWithDiscount());
+    assertEquals(sumOfAllPrices, result.calculatedPrice());
+    assertEquals(sumOfAllDiscountedPrices, result.calculatedPriceWithDiscount());
+
+    verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
+    verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
+    verify(cartItemRepository).save(any(CreateCartItemDTO.class));
+    verify(cartItemRepository).findCartItemsByAccountId(userId);
+    verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
+    verify(calculatePriceUseCase).calculateCartTotalPrice(anyList());
+    verify(calculatePriceUseCase).calculateTotalPriceWithDiscount(anyList());
+    verify(calculatePriceUseCase).calculateCartItemPriceWithDiscount(any(CartItem.class));
   }
 
   @Test
@@ -91,6 +142,8 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository, never()).save(any(CreateCartItemDTO.class));
     verify(calculatePriceUseCase, never()).calculateCartItemPrice(any(CartItem.class));
     verify(calculatePriceUseCase, never()).calculateCartTotalPrice(anyList());
+    verify(calculatePriceUseCase, never()).calculateCartItemPriceWithDiscount(any(CartItem.class));
+    verify(calculatePriceUseCase, never()).calculateTotalPriceWithDiscount(anyList());
   }
 
   @Test
@@ -121,6 +174,8 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository).save(any(CreateCartItemDTO.class));
     verify(calculatePriceUseCase, never()).calculateCartItemPrice(any(CartItem.class));
     verify(calculatePriceUseCase, never()).calculateCartTotalPrice(anyList());
+    verify(calculatePriceUseCase, never()).calculateCartItemPriceWithDiscount(any(CartItem.class));
+    verify(calculatePriceUseCase, never()).calculateTotalPriceWithDiscount(anyList());
   }
 
   @Test
@@ -128,9 +183,7 @@ class UpdateCartItemQuantityUseCaseTest {
     UUID productId = UUID.randomUUID();
     Long userId = 1L;
     Integer quantity = 5;
-
     Product product = getProductWithQuantity(5);
-
     CartItem cartItem = getCartItem(product, 1);
     List<CartItem> cartItems = List.of(cartItem);
 
@@ -140,6 +193,8 @@ class UpdateCartItemQuantityUseCaseTest {
     when(cartItemRepository.findCartItemsByAccountId(userId)).thenReturn(cartItems);
     when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(BigDecimal.TEN);
     when(calculatePriceUseCase.calculateCartTotalPrice(anyList())).thenReturn(BigDecimal.valueOf(100));
+    when(calculatePriceUseCase.calculateTotalPriceWithDiscount(anyList())).thenReturn(null);
+    when(calculatePriceUseCase.calculateCartItemPriceWithDiscount(any(CartItem.class))).thenReturn(null);
 
     UpdatedCartItemDto updatedCartItemDto = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity);
 
@@ -174,5 +229,7 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository, never()).save(any(CreateCartItemDTO.class));
     verify(calculatePriceUseCase, never()).calculateCartItemPrice(any(CartItem.class));
     verify(calculatePriceUseCase, never()).calculateCartTotalPrice(anyList());
+    verify(calculatePriceUseCase, never()).calculateCartItemPriceWithDiscount(any(CartItem.class));
+    verify(calculatePriceUseCase, never()).calculateTotalPriceWithDiscount(anyList());
   }
 }

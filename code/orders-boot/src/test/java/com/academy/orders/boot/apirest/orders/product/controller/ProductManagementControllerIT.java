@@ -31,6 +31,5 @@ class ProductManagementControllerIT extends AbstractControllerIT {
     assertNotNull(productPage);
     assertNotNull(productPage.getContent());
     assertFalse(productPage.getContent().isEmpty());
-    System.out.println(productPage.getContent().get(0).getCreatedAt());
   }
 }
