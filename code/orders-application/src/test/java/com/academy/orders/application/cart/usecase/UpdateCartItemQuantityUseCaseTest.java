@@ -61,8 +61,8 @@ class UpdateCartItemQuantityUseCaseTest {
     assertEquals(productId, updatedCartItemDto.productId());
     assertEquals(quantity, updatedCartItemDto.quantity());
     assertEquals(product.getPrice(), updatedCartItemDto.productPrice());
-    assertEquals(BigDecimal.TEN, updatedCartItemDto.calculatedPrice());
-    assertEquals(BigDecimal.valueOf(100), updatedCartItemDto.totalPrice());
+    assertEquals(BigDecimal.valueOf(1999.98), updatedCartItemDto.calculatedPrice());
+    assertEquals(BigDecimal.valueOf(999.99), updatedCartItemDto.totalPrice());
     assertNull(updatedCartItemDto.calculatedPriceWithDiscount());
     assertNull(updatedCartItemDto.totalPriceWithDiscount());
     assertNull(updatedCartItemDto.productPriceWithDiscount());
@@ -172,8 +172,8 @@ class UpdateCartItemQuantityUseCaseTest {
     assertEquals(productId, updatedCartItemDto.productId());
     assertEquals(quantity, updatedCartItemDto.quantity());
     assertEquals(product.getPrice(), updatedCartItemDto.productPrice());
-    assertEquals(BigDecimal.TEN, updatedCartItemDto.calculatedPrice());
-    assertEquals(BigDecimal.valueOf(100), updatedCartItemDto.totalPrice());
+    assertEquals(BigDecimal.valueOf(4999.95), updatedCartItemDto.calculatedPrice());
+    assertEquals(BigDecimal.valueOf(999.99), updatedCartItemDto.totalPrice());
 
     verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).findByProductIdAndUserId(productId, userId);

@@ -40,8 +40,8 @@ class GetCartItemsUseCaseTest {
     var accountId = 1L;
     var lang = "uk";
     var cartItem = getCartItem();
-    var cartItemPrice = BigDecimal.valueOf(100.00);
-    var totalPrice = BigDecimal.valueOf(1000.00);
+    var cartItemPrice = BigDecimal.valueOf(999.99);
+    var totalPrice = BigDecimal.valueOf(999.99);
     final CartItemDto cartItemDto = getCartItemDto(cartItem, cartItemPrice);
     var cartResponseDto = getCartResponseDto(singletonList(cartItemDto), totalPrice, null);
 
