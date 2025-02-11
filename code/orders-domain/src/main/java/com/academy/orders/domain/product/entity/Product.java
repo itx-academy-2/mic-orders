@@ -51,4 +51,11 @@ public class Product {
     final BigDecimal percentage = BigDecimal.valueOf(100 - discount.getAmount()).divide(BigDecimal.valueOf(100));
     return price.multiply(percentage).setScale(2, RoundingMode.HALF_DOWN);
   }
+
+  public Integer getDiscountAmount() {
+    if (discount == null) {
+      return null;
+    }
+    return discount.getAmount();
+  }
 }

@@ -3,7 +3,6 @@ package com.academy.orders.application.order.usecase;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.cart.exception.EmptyCartException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
-import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
 import com.academy.orders.domain.order.dto.CreateOrderDto;
 import com.academy.orders.domain.order.entity.Order;
 import com.academy.orders.domain.order.entity.OrderItem;
@@ -17,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -24,8 +24,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CreateOrderUseCaseImpl implements CreateOrderUseCase {
-  private final CalculatePriceUseCase calculatePriceUseCase;
-
   private final ChangeQuantityUseCase changeQuantityUseCase;
 
   private final OrderRepository orderRepository;
@@ -75,9 +73,10 @@ public class CreateOrderUseCaseImpl implements CreateOrderUseCase {
   }
 
   private OrderItem createItem(CartItem cartItem) {
-    var calculatedPrice = calculatePriceUseCase.calculateCartItemPrice(cartItem);
+    final BigDecimal calculatedPrice = CartItem.calculateCartItemPrice(cartItem);
     changeQuantityUseCase.changeQuantityOfProduct(cartItem.product(), cartItem.quantity());
-    return new OrderItem(cartItem.product(), calculatedPrice, cartItem.quantity());
+    final Integer currentDiscount = cartItem.product().getDiscountAmount();
+    return new OrderItem(cartItem.product(), calculatedPrice, currentDiscount, cartItem.quantity());
   }
 
   private UUID saveOrder(Order order, Long accountId) {

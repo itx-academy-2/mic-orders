@@ -5,7 +5,6 @@ import com.academy.orders.domain.cart.dto.CartResponseDto;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.cart.repository.CartItemImageRepository;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
-import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
 import com.academy.orders.domain.cart.usecase.GetCartItemsUseCase;
 import com.academy.orders.domain.product.entity.ProductTranslation;
 import lombok.RequiredArgsConstructor;
@@ -20,16 +19,15 @@ import java.util.Set;
 public class GetCartItemsUseCaseImpl implements GetCartItemsUseCase {
   private final CartItemRepository cartItemRepository;
 
-  private final CalculatePriceUseCase calculatePriceUseCase;
-
   private final CartItemImageRepository cartItemImageRepository;
 
   @Override
   public CartResponseDto getCartItems(Long accountId, String lang) {
     var cartItems = getCartItemsByAccountIdAndLang(accountId, lang);
     var cartItemDtos = mapToCartItemsDtos(cartItems);
-    var totalPrice = calculateTotalPrice(cartItems);
-    return buildCartResponseDTO(cartItemDtos, totalPrice);
+    final BigDecimal totalPrice = CartItem.calculateCartTotalPrice(cartItems);
+    final BigDecimal totalPriceWithDiscount = CartItem.calculateTotalPriceWithDiscount(cartItems);
+    return buildCartResponseDTO(cartItemDtos, totalPrice, totalPriceWithDiscount);
   }
 
   private List<CartItem> getCartItemsByAccountIdAndLang(Long accountId, String lang) {
@@ -44,9 +42,16 @@ public class GetCartItemsUseCaseImpl implements GetCartItemsUseCase {
   private CartItemDto toCartItemDto(CartItem cartItem) {
     var productItem = cartItem.product();
 
-    return CartItemDto.builder().productId(productItem.getId()).image(productItem.getImage())
-        .name(mapName(productItem.getProductTranslations())).productPrice(productItem.getPrice())
-        .quantity(cartItem.quantity()).calculatedPrice(calculatePriceUseCase.calculateCartItemPrice(cartItem))
+    return CartItemDto.builder()
+        .productId(productItem.getId())
+        .image(productItem.getImage())
+        .name(mapName(productItem.getProductTranslations()))
+        .productPrice(productItem.getPrice())
+        .productPriceWithDiscount(productItem.getPriceWithDiscount())
+        .discount(productItem.getDiscountAmount())
+        .quantity(cartItem.quantity())
+        .calculatedPrice(CartItem.calculateCartItemPrice(cartItem))
+        .calculatedPriceWithDiscount(CartItem.calculateCartItemPriceWithDiscount(cartItem))
         .build();
   }
 
@@ -54,12 +59,15 @@ public class GetCartItemsUseCaseImpl implements GetCartItemsUseCase {
     return productTranslations.stream().iterator().next().name();
   }
 
-  private BigDecimal calculateTotalPrice(List<CartItem> cartItems) {
-    return calculatePriceUseCase.calculateCartTotalPrice(cartItems);
-  }
-
-  private CartResponseDto buildCartResponseDTO(List<CartItemDto> cartItemDtos, BigDecimal totalPrice) {
-    return CartResponseDto.builder().items(cartItemDtos).totalPrice(totalPrice).build();
+  private CartResponseDto buildCartResponseDTO(
+      List<CartItemDto> cartItemDtos,
+      BigDecimal totalPrice,
+      BigDecimal totalPriceWithDiscount) {
+    return CartResponseDto.builder()
+        .items(cartItemDtos)
+        .totalPrice(totalPrice)
+        .totalPriceWithDiscount(totalPriceWithDiscount)
+        .build();
   }
 
 }

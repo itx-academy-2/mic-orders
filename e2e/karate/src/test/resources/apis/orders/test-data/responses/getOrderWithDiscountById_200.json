@@ -11,7 +11,7 @@
     "lastName": "#string"
   },
   "total": "#number",
-  "totalWithDiscount": null,
+  "totalWithDiscount": "#number",
   "receiver": {
     "firstName": "#string",
     "lastName": "#string",
@@ -24,4 +24,3 @@
   },
   "orderItems": "#array"
 }
-

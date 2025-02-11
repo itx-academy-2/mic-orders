@@ -3,7 +3,6 @@ package com.academy.orders.application.order.usecase;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.cart.exception.EmptyCartException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
-import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
 import com.academy.orders.domain.order.dto.CreateOrderDto;
 import com.academy.orders.domain.order.entity.Order;
 import com.academy.orders.domain.order.entity.OrderItem;
@@ -45,9 +44,6 @@ class CreateOrderUseCaseTest {
   private CreateOrderUseCaseImpl createOrderUseCase;
 
   @Mock
-  private CalculatePriceUseCase calculatePriceUseCase;
-
-  @Mock
   private ChangeQuantityUseCase changeQuantityUseCase;
 
   @Mock
@@ -75,11 +71,10 @@ class CreateOrderUseCaseTest {
     var expectedOrderId = UUID.randomUUID();
     var order = Order.builder().receiver(getOrderReceiver()).postAddress(getPostAddress())
         .orderStatus(OrderStatus.IN_PROGRESS)
-        .orderItems(singletonList(new OrderItem(cartItem.product(), calculatedPrice, cartItem.quantity())))
+        .orderItems(singletonList(new OrderItem(cartItem.product(), calculatedPrice, null, cartItem.quantity())))
         .isPaid(false).build();
 
     when(cartItemRepository.findCartItemsByAccountId(anyLong())).thenReturn(singletonList(cartItem));
-    when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(calculatedPrice);
     doNothing().when(changeQuantityUseCase).changeQuantityOfProduct(any(Product.class), anyInt());
     when(orderRepository.save(eq(order), anyLong())).thenReturn(expectedOrderId);
     doNothing().when(cartItemRepository).deleteCartItemsByAccountId(anyLong());
@@ -89,7 +84,6 @@ class CreateOrderUseCaseTest {
     assertEquals(expectedOrderId, actualOrderId);
 
     verify(cartItemRepository).findCartItemsByAccountId(anyLong());
-    verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
     verify(changeQuantityUseCase).changeQuantityOfProduct(any(Product.class), anyInt());
     verify(orderRepository).save(any(Order.class), anyLong());
     verify(cartItemRepository).deleteCartItemsByAccountId(anyLong());
@@ -108,7 +102,6 @@ class CreateOrderUseCaseTest {
   @Test
   void createOrderThrowsInsufficientProductQuantityExceptionTest() {
     when(cartItemRepository.findCartItemsByAccountId(anyLong())).thenReturn(singletonList(cartItem));
-    when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(calculatedPrice);
     doThrow(InsufficientProductQuantityException.class).when(changeQuantityUseCase)
         .changeQuantityOfProduct(any(Product.class), anyInt());
 
@@ -116,7 +109,6 @@ class CreateOrderUseCaseTest {
         () -> createOrderUseCase.createOrder(createOrderDto, 1L));
 
     verify(cartItemRepository).findCartItemsByAccountId(anyLong());
-    verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
     verify(changeQuantityUseCase).changeQuantityOfProduct(any(Product.class), anyInt());
   }
 
