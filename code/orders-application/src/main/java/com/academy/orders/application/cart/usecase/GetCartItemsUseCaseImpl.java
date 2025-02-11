@@ -5,7 +5,6 @@ import com.academy.orders.domain.cart.dto.CartResponseDto;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.cart.repository.CartItemImageRepository;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
-import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
 import com.academy.orders.domain.cart.usecase.GetCartItemsUseCase;
 import com.academy.orders.domain.product.entity.ProductTranslation;
 import lombok.RequiredArgsConstructor;
@@ -20,16 +19,14 @@ import java.util.Set;
 public class GetCartItemsUseCaseImpl implements GetCartItemsUseCase {
   private final CartItemRepository cartItemRepository;
 
-  private final CalculatePriceUseCase calculatePriceUseCase;
-
   private final CartItemImageRepository cartItemImageRepository;
 
   @Override
   public CartResponseDto getCartItems(Long accountId, String lang) {
     var cartItems = getCartItemsByAccountIdAndLang(accountId, lang);
     var cartItemDtos = mapToCartItemsDtos(cartItems);
-    final BigDecimal totalPrice = calculatePriceUseCase.calculateCartTotalPrice(cartItems);
-    final BigDecimal totalPriceWithDiscount = calculatePriceUseCase.calculateTotalPriceWithDiscount(cartItems);
+    final BigDecimal totalPrice = CartItem.calculateCartTotalPrice(cartItems);
+    final BigDecimal totalPriceWithDiscount = CartItem.calculateTotalPriceWithDiscount(cartItems);
     return buildCartResponseDTO(cartItemDtos, totalPrice, totalPriceWithDiscount);
   }
 
@@ -53,8 +50,8 @@ public class GetCartItemsUseCaseImpl implements GetCartItemsUseCase {
         .productPriceWithDiscount(productItem.getPriceWithDiscount())
         .discount(productItem.getDiscountAmount())
         .quantity(cartItem.quantity())
-        .calculatedPrice(calculatePriceUseCase.calculateCartItemPrice(cartItem))
-        .calculatedPriceWithDiscount(calculatePriceUseCase.calculateCartItemPriceWithDiscount(cartItem))
+        .calculatedPrice(CartItem.calculateCartItemPrice(cartItem))
+        .calculatedPriceWithDiscount(CartItem.calculateCartItemPriceWithDiscount(cartItem))
         .build();
   }
 

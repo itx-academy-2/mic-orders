@@ -6,9 +6,7 @@ import com.academy.orders.domain.cart.entity.CreateCartItemDTO;
 import com.academy.orders.domain.cart.exception.CartItemNotFoundException;
 import com.academy.orders.domain.cart.exception.QuantityExceedsAvailableException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
-import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
 import com.academy.orders.domain.product.entity.Product;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,9 +18,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.academy.orders.application.ModelUtils.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static com.academy.orders.application.ModelUtils.getCartItem;
+import static com.academy.orders.application.ModelUtils.getCartItemWithDiscount;
+import static com.academy.orders.application.ModelUtils.getProductWithQuantity;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -35,9 +38,6 @@ class UpdateCartItemQuantityUseCaseTest {
 
   @Mock
   private CartItemRepository cartItemRepository;
-
-  @Mock
-  private CalculatePriceUseCase calculatePriceUseCase;
 
   @Test
   void setQuantitySuccessfulUpdateTest() {
@@ -54,10 +54,6 @@ class UpdateCartItemQuantityUseCaseTest {
     when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.of(cartItem));
     when(cartItemRepository.save(any(CreateCartItemDTO.class))).thenReturn(new CartItem(product, quantity));
     when(cartItemRepository.findCartItemsByAccountId(userId)).thenReturn(cartItems);
-    when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(BigDecimal.TEN);
-    when(calculatePriceUseCase.calculateCartTotalPrice(anyList())).thenReturn(BigDecimal.valueOf(100));
-    when(calculatePriceUseCase.calculateTotalPriceWithDiscount(anyList())).thenReturn(null);
-    when(calculatePriceUseCase.calculateCartItemPriceWithDiscount(any(CartItem.class))).thenReturn(null);
 
     UpdatedCartItemDto updatedCartItemDto = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity);
 
@@ -76,10 +72,6 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).save(any(CreateCartItemDTO.class));
     verify(cartItemRepository).findCartItemsByAccountId(userId);
-    verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
-    verify(calculatePriceUseCase).calculateCartTotalPrice(anyList());
-    verify(calculatePriceUseCase).calculateTotalPriceWithDiscount(anyList());
-    verify(calculatePriceUseCase).calculateCartItemPriceWithDiscount(any(CartItem.class));
   }
 
   @Test
@@ -97,11 +89,6 @@ class UpdateCartItemQuantityUseCaseTest {
     when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.of(cartItemBefore));
     when(cartItemRepository.save(any(CreateCartItemDTO.class))).thenReturn(cartItemAfter);
     when(cartItemRepository.findCartItemsByAccountId(userId)).thenReturn(List.of(cartItemAfter));
-    when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(sumOfAllPrices);
-    when(calculatePriceUseCase.calculateCartTotalPrice(anyList())).thenReturn(sumOfAllPrices);
-    when(calculatePriceUseCase.calculateTotalPriceWithDiscount(anyList())).thenReturn(sumOfAllDiscountedPrices);
-    when(calculatePriceUseCase.calculateCartItemPriceWithDiscount(any(CartItem.class)))
-        .thenReturn(sumOfAllDiscountedPrices);
 
     final UpdatedCartItemDto result = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity.intValue());
 
@@ -120,10 +107,6 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).save(any(CreateCartItemDTO.class));
     verify(cartItemRepository).findCartItemsByAccountId(userId);
-    verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
-    verify(calculatePriceUseCase).calculateCartTotalPrice(anyList());
-    verify(calculatePriceUseCase).calculateTotalPriceWithDiscount(anyList());
-    verify(calculatePriceUseCase).calculateCartItemPriceWithDiscount(any(CartItem.class));
   }
 
   @Test
@@ -140,10 +123,6 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
     verify(cartItemRepository, never()).findByProductIdAndUserId(any(UUID.class), anyLong());
     verify(cartItemRepository, never()).save(any(CreateCartItemDTO.class));
-    verify(calculatePriceUseCase, never()).calculateCartItemPrice(any(CartItem.class));
-    verify(calculatePriceUseCase, never()).calculateCartTotalPrice(anyList());
-    verify(calculatePriceUseCase, never()).calculateCartItemPriceWithDiscount(any(CartItem.class));
-    verify(calculatePriceUseCase, never()).calculateTotalPriceWithDiscount(anyList());
   }
 
   @Test
@@ -164,7 +143,7 @@ class UpdateCartItemQuantityUseCaseTest {
     QuantityExceedsAvailableException exception = assertThrows(QuantityExceedsAvailableException.class,
         () -> updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity));
 
-    Assertions.assertEquals(
+    assertEquals(
         String.format("Product with id: %s exceeded available quantity. Requested: %d, Available: %d",
             productId, quantity, availableQuantity),
         exception.getMessage());
@@ -172,10 +151,6 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).save(any(CreateCartItemDTO.class));
-    verify(calculatePriceUseCase, never()).calculateCartItemPrice(any(CartItem.class));
-    verify(calculatePriceUseCase, never()).calculateCartTotalPrice(anyList());
-    verify(calculatePriceUseCase, never()).calculateCartItemPriceWithDiscount(any(CartItem.class));
-    verify(calculatePriceUseCase, never()).calculateTotalPriceWithDiscount(anyList());
   }
 
   @Test
@@ -191,25 +166,19 @@ class UpdateCartItemQuantityUseCaseTest {
     when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.of(cartItem));
     when(cartItemRepository.save(any(CreateCartItemDTO.class))).thenReturn(new CartItem(product, quantity));
     when(cartItemRepository.findCartItemsByAccountId(userId)).thenReturn(cartItems);
-    when(calculatePriceUseCase.calculateCartItemPrice(any(CartItem.class))).thenReturn(BigDecimal.TEN);
-    when(calculatePriceUseCase.calculateCartTotalPrice(anyList())).thenReturn(BigDecimal.valueOf(100));
-    when(calculatePriceUseCase.calculateTotalPriceWithDiscount(anyList())).thenReturn(null);
-    when(calculatePriceUseCase.calculateCartItemPriceWithDiscount(any(CartItem.class))).thenReturn(null);
 
     UpdatedCartItemDto updatedCartItemDto = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity);
 
-    Assertions.assertEquals(productId, updatedCartItemDto.productId());
-    Assertions.assertEquals(quantity, updatedCartItemDto.quantity());
-    Assertions.assertEquals(product.getPrice(), updatedCartItemDto.productPrice());
-    Assertions.assertEquals(BigDecimal.TEN, updatedCartItemDto.calculatedPrice());
-    Assertions.assertEquals(BigDecimal.valueOf(100), updatedCartItemDto.totalPrice());
+    assertEquals(productId, updatedCartItemDto.productId());
+    assertEquals(quantity, updatedCartItemDto.quantity());
+    assertEquals(product.getPrice(), updatedCartItemDto.productPrice());
+    assertEquals(BigDecimal.TEN, updatedCartItemDto.calculatedPrice());
+    assertEquals(BigDecimal.valueOf(100), updatedCartItemDto.totalPrice());
 
     verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).save(any(CreateCartItemDTO.class));
     verify(cartItemRepository).findCartItemsByAccountId(userId);
-    verify(calculatePriceUseCase).calculateCartItemPrice(any(CartItem.class));
-    verify(calculatePriceUseCase).calculateCartTotalPrice(anyList());
   }
 
   @Test
@@ -227,9 +196,5 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
     verify(cartItemRepository, never()).save(any(CreateCartItemDTO.class));
-    verify(calculatePriceUseCase, never()).calculateCartItemPrice(any(CartItem.class));
-    verify(calculatePriceUseCase, never()).calculateCartTotalPrice(anyList());
-    verify(calculatePriceUseCase, never()).calculateCartItemPriceWithDiscount(any(CartItem.class));
-    verify(calculatePriceUseCase, never()).calculateTotalPriceWithDiscount(anyList());
   }
 }

@@ -3,7 +3,6 @@ package com.academy.orders.application.order.usecase;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.cart.exception.EmptyCartException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
-import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
 import com.academy.orders.domain.order.dto.CreateOrderDto;
 import com.academy.orders.domain.order.entity.Order;
 import com.academy.orders.domain.order.entity.OrderItem;
@@ -25,8 +24,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CreateOrderUseCaseImpl implements CreateOrderUseCase {
-  private final CalculatePriceUseCase calculatePriceUseCase;
-
   private final ChangeQuantityUseCase changeQuantityUseCase;
 
   private final OrderRepository orderRepository;
@@ -76,7 +73,7 @@ public class CreateOrderUseCaseImpl implements CreateOrderUseCase {
   }
 
   private OrderItem createItem(CartItem cartItem) {
-    final BigDecimal calculatedPrice = calculatePriceUseCase.calculateCartItemPrice(cartItem);
+    final BigDecimal calculatedPrice = CartItem.calculateCartItemPrice(cartItem);
     changeQuantityUseCase.changeQuantityOfProduct(cartItem.product(), cartItem.quantity());
     final Integer currentDiscount = cartItem.product().getDiscountAmount();
     return new OrderItem(cartItem.product(), calculatedPrice, currentDiscount, cartItem.quantity());

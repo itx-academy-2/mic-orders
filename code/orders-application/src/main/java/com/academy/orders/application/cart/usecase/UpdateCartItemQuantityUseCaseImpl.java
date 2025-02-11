@@ -6,7 +6,6 @@ import com.academy.orders.domain.cart.entity.CreateCartItemDTO;
 import com.academy.orders.domain.cart.exception.CartItemNotFoundException;
 import com.academy.orders.domain.cart.exception.QuantityExceedsAvailableException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
-import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
 import com.academy.orders.domain.cart.usecase.UpdateCartItemQuantityUseCase;
 import com.academy.orders.domain.product.entity.Product;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +19,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UpdateCartItemQuantityUseCaseImpl implements UpdateCartItemQuantityUseCase {
   private final CartItemRepository cartItemRepository;
-
-  private final CalculatePriceUseCase calculatePriceUseCase;
 
   @Override
   @Transactional
@@ -38,12 +35,11 @@ public class UpdateCartItemQuantityUseCaseImpl implements UpdateCartItemQuantity
       throw new QuantityExceedsAvailableException(productId, quantity, product.getQuantity());
     }
 
-    var cartItemPrice = calculatePriceUseCase.calculateCartItemPrice(updatedCartItem);
-    var totalPrice = calculatePriceUseCase.calculateCartTotalPrice(getAll);
+    var cartItemPrice = CartItem.calculateCartItemPrice(updatedCartItem);
+    var totalPrice = CartItem.calculateCartTotalPrice(getAll);
 
-    final BigDecimal cartItemPriceWithDiscount = calculatePriceUseCase
-        .calculateCartItemPriceWithDiscount(updatedCartItem);
-    final BigDecimal totalPriceWithDiscount = calculatePriceUseCase.calculateTotalPriceWithDiscount(getAll);
+    final BigDecimal cartItemPriceWithDiscount = CartItem.calculateCartItemPriceWithDiscount(updatedCartItem);
+    final BigDecimal totalPriceWithDiscount = CartItem.calculateTotalPriceWithDiscount(getAll);
 
     return new UpdatedCartItemDto(productId, quantity, product.getPrice(), product.getPriceWithDiscount(),
         product.getDiscountAmount(), cartItemPrice, cartItemPriceWithDiscount,
