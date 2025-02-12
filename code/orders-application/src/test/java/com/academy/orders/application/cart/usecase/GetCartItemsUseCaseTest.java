@@ -3,7 +3,6 @@ package com.academy.orders.application.cart.usecase;
 import com.academy.orders.domain.cart.dto.CartItemDto;
 import com.academy.orders.domain.cart.dto.CartResponseDto;
 import com.academy.orders.domain.cart.entity.CartItem;
-import com.academy.orders.domain.cart.repository.CartItemImageRepository;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,10 +16,8 @@ import java.util.List;
 import static com.academy.orders.application.ModelUtils.*;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,9 +28,6 @@ class GetCartItemsUseCaseTest {
 
   @Mock
   private CartItemRepository cartItemRepository;
-
-  @Mock
-  private CartItemImageRepository cartItemImageRepository;
 
   @Test
   void getCartItemsTest() {
@@ -47,7 +41,6 @@ class GetCartItemsUseCaseTest {
 
     when(cartItemRepository.findCartItemsByAccountIdAndLang(anyLong(), anyString()))
         .thenReturn(singletonList(cartItem));
-    when(cartItemImageRepository.loadImageForProductInCart(cartItem)).thenReturn(cartItem);
 
     final CartResponseDto result = getCartItemsUseCase.getCartItems(accountId, lang);
 
@@ -56,7 +49,6 @@ class GetCartItemsUseCaseTest {
     assertCartItemEquals(cartItemDto, result.items().get(0));
 
     verify(cartItemRepository).findCartItemsByAccountIdAndLang(anyLong(), anyString());
-    verify(cartItemImageRepository).loadImageForProductInCart(cartItem);
   }
 
   @Test
@@ -70,8 +62,6 @@ class GetCartItemsUseCaseTest {
         cartItem.product().getPriceWithDiscount().multiply(BigDecimal.valueOf(cartItem.quantity())));
 
     when(cartItemRepository.findCartItemsByAccountIdAndLang(accountId, lang)).thenReturn(List.of(cartItem));
-    when(cartItemImageRepository.loadImageForProductInCart(cartItem))
-        .thenAnswer(a -> a.getArgument(0));
 
     final CartResponseDto result = getCartItemsUseCase.getCartItems(accountId, lang);
 
@@ -80,7 +70,6 @@ class GetCartItemsUseCaseTest {
     assertCartItemEquals(cartItemDto, result.items().get(0));
 
     verify(cartItemRepository).findCartItemsByAccountIdAndLang(anyLong(), anyString());
-    verify(cartItemImageRepository).loadImageForProductInCart(cartItem);
   }
 
   private void assertCartItemEquals(CartItemDto expected, CartItemDto actual) {

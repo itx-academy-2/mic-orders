@@ -1,6 +1,5 @@
 package com.academy.orders.application.product.usecase;
 
-import com.academy.orders.domain.product.repository.ProductImageRepository;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,9 +23,6 @@ class GetManagerProductsUseCaseTest {
   @Mock
   private ProductRepository productRepository;
 
-  @Mock
-  private ProductImageRepository productImageRepository;
-
   @Test
   void getManagerProductsTest() {
     var product = getProductWithImageLink();
@@ -36,11 +32,9 @@ class GetManagerProductsUseCaseTest {
     var page = getPageOf(product);
 
     when(productRepository.findAllByLanguageWithFilter(lang, filter, pageable)).thenReturn(page);
-    when(productImageRepository.loadImageForProduct(product)).thenReturn(product);
     var actual = getManagerProductsUseCase.getManagerProducts(pageable, filter, lang);
 
     assertEquals(page, actual);
     verify(productRepository).findAllByLanguageWithFilter(lang, filter, pageable);
-    verify(productImageRepository).loadImageForProduct(product);
   }
 }

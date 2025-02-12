@@ -3,7 +3,6 @@ package com.academy.orders.application.order.usecase;
 import com.academy.orders.application.ModelUtils;
 import com.academy.orders.domain.order.entity.Order;
 import com.academy.orders.domain.order.exception.OrderNotFoundException;
-import com.academy.orders.domain.order.repository.OrderImageRepository;
 import com.academy.orders.domain.order.repository.OrderRepository;
 import com.academy.orders.domain.order.usecase.CalculateOrderTotalPriceUseCase;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,9 +30,6 @@ class GetOrderByIdUseCaseTest {
   @Mock
   private OrderRepository orderRepository;
 
-  @Mock
-  private OrderImageRepository orderImageRepository;
-
   @InjectMocks
   private GetOrderByIdUseCaseImpl getOrderByIdUseCase;
 
@@ -56,7 +52,6 @@ class GetOrderByIdUseCaseTest {
   @Test
   void getOrderByIdWhenOrderExistsTest() {
     when(orderRepository.findById(orderId, language)).thenReturn(Optional.of(orderWithoutTotal));
-    when(orderImageRepository.loadImageForProductInOrder(orderWithoutTotal)).thenReturn(orderWithoutTotal);
     when(calculateOrderTotalPriceUseCase.calculateTotalPriceFor(orderWithoutTotal)).thenReturn(order);
 
     Order result = getOrderByIdUseCase.getOrderById(orderId, language);
@@ -65,7 +60,6 @@ class GetOrderByIdUseCaseTest {
     assertEquals(order, result);
     verify(orderRepository).findById(orderId, language);
     verify(calculateOrderTotalPriceUseCase).calculateTotalPriceFor(orderWithoutTotal);
-    verify(orderImageRepository).loadImageForProductInOrder(orderWithoutTotal);
   }
 
   @Test
