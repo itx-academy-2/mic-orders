@@ -2,7 +2,6 @@ package com.academy.orders.application.product.usecase;
 
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.entity.Product;
-import com.academy.orders.domain.product.repository.ProductImageRepository;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,9 +18,7 @@ import static com.academy.orders.application.ModelUtils.getProductWithImageUrlAn
 import static com.academy.orders.application.TestConstants.LANGUAGE_EN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,9 +28,6 @@ public class GetProductsOnSaleUseCaseTest {
 
   @Mock
   private ProductRepository productRepository;
-
-  @Mock
-  private ProductImageRepository productImageRepository;
 
   @Test
   void getProductsOnSaleTest() {
@@ -45,8 +39,6 @@ public class GetProductsOnSaleUseCaseTest {
     var page = getPage(List.of(product), 1L, 1, 0, size);
 
     when(productRepository.findProductsWhereDiscountIsNotNull(lang, pageable)).thenReturn(page);
-    when(productImageRepository.loadImageForProduct(any(Product.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
 
     var actual = getProductsOnSaleUseCase.getProductsOnSale(pageable, lang);
 
@@ -56,7 +48,6 @@ public class GetProductsOnSaleUseCaseTest {
     assertNotNull(actual.content().get(0).getPriceWithDiscount());
 
     verify(productRepository).findProductsWhereDiscountIsNotNull(lang, pageable);
-    verify(productImageRepository).loadImageForProduct(product);
   }
 
   @Test
@@ -75,6 +66,5 @@ public class GetProductsOnSaleUseCaseTest {
     assertEquals(0, actual.content().size());
 
     verify(productRepository).findProductsWhereDiscountIsNotNull(lang, pageable);
-    verifyNoInteractions(productImageRepository);
   }
 }

@@ -4,7 +4,6 @@ import com.academy.orders.application.ModelUtils;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.entity.Product;
-import com.academy.orders.domain.product.repository.ProductImageRepository;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,9 +22,6 @@ class GetProductSearchResultsUseCaseTest {
   @Mock
   private ProductRepository productRepository;
 
-  @Mock
-  private ProductImageRepository productImageRepository;
-
   @InjectMocks
   private GetProductSearchResultsUseCaseImpl getProductSearchResultsUseCase;
 
@@ -39,7 +35,6 @@ class GetProductSearchResultsUseCaseTest {
     var productPage = ModelUtils.getPageOf(product);
 
     when(productRepository.searchProductsByName(searchQuery, lang, pageable)).thenReturn(productPage);
-    when(productImageRepository.loadImageForProduct(product)).thenReturn(product);
 
     // When
     Page<Product> products = getProductSearchResultsUseCase.findProductsBySearchQuery(searchQuery, lang, pageable);
@@ -47,7 +42,6 @@ class GetProductSearchResultsUseCaseTest {
     // Then
     assertEquals(productPage, products);
     verify(productRepository).searchProductsByName(searchQuery, lang, pageable);
-    verify(productImageRepository).loadImageForProduct(product);
   }
 
   @Test
@@ -61,7 +55,6 @@ class GetProductSearchResultsUseCaseTest {
     var productPage = ModelUtils.getPageOf(product);
 
     when(productRepository.searchProductsByName(searchQuery, lang, defaultPageable)).thenReturn(productPage);
-    when(productImageRepository.loadImageForProduct(product)).thenReturn(product);
 
     // When
     Page<Product> products = getProductSearchResultsUseCase.findProductsBySearchQuery(searchQuery, lang, pageable);
@@ -69,6 +62,5 @@ class GetProductSearchResultsUseCaseTest {
     // Then
     assertEquals(productPage, products);
     verify(productRepository).searchProductsByName(searchQuery, lang, defaultPageable);
-    verify(productImageRepository).loadImageForProduct(product);
   }
 }

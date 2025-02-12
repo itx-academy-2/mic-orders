@@ -1,7 +1,6 @@
 package com.academy.orders.application.product.usecase;
 
 import com.academy.orders.domain.product.exception.ProductNotFoundException;
-import com.academy.orders.domain.product.repository.ProductImageRepository;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static com.academy.orders.application.ModelUtils.getProductWithImageLink;
-import static com.academy.orders.application.ModelUtils.getProductWithImageName;
 import static com.academy.orders.application.TestConstants.TEST_UUID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
@@ -27,22 +25,16 @@ class GetProductByIdUseCaseTest {
   @Mock
   private ProductRepository productRepository;
 
-  @Mock
-  private ProductImageRepository productImageRepository;
-
   @Test
   void getProductByIdUseCaseTest() {
-    var productWithImageLink = getProductWithImageLink();
-    var productWithImageName = getProductWithImageName();
+    var product = getProductWithImageLink();
 
-    when(productRepository.getById(TEST_UUID)).thenReturn(Optional.of(productWithImageName));
-    when(productImageRepository.loadImageForProduct(productWithImageName)).thenReturn(productWithImageLink);
+    when(productRepository.getById(TEST_UUID)).thenReturn(Optional.of(product));
 
     var result = getProductByIdUseCase.getProductById(TEST_UUID);
-    Assertions.assertEquals(result, productWithImageLink);
+    Assertions.assertEquals(result, product);
 
     verify(productRepository).getById(TEST_UUID);
-    verify(productImageRepository).loadImageForProduct(productWithImageName);
   }
 
   @Test

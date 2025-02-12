@@ -10,7 +10,6 @@ import org.hibernate.Hibernate;
 import org.mapstruct.Condition;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 
 import java.util.Collection;
 import java.util.List;
@@ -37,8 +36,4 @@ public interface ProductMapper {
   default boolean isNotLazyLoadedTagEntity(Collection<TagEntity> source) {
     return Hibernate.isInitialized(source);
   }
-
-  @Named("mapDomainImage")
-  @Mapping(target = "image", source = "image")
-  Product mapDomainImage(Product product, String image);
 }

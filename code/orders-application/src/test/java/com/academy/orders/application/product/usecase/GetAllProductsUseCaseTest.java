@@ -2,7 +2,6 @@ package com.academy.orders.application.product.usecase;
 
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.entity.Product;
-import com.academy.orders.domain.product.repository.ProductImageRepository;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,9 +25,6 @@ class GetAllProductsUseCaseTest {
   @Mock
   private ProductRepository productRepository;
 
-  @Mock
-  private ProductImageRepository productImageRepository;
-
   @InjectMocks
   private GetAllProductsUseCaseImpl getAllProductsUseCase;
 
@@ -41,12 +37,10 @@ class GetAllProductsUseCaseTest {
     List<String> tags = Collections.emptyList();
 
     when(productRepository.findAllProducts(LANGUAGE_UK, pageable, tags)).thenReturn(expectedPage);
-    when(productImageRepository.loadImageForProduct(product)).thenReturn(product);
     var actualPage = getAllProductsUseCase.getAllProducts(LANGUAGE_UK, pageable, tags);
 
     assertEquals(expectedPage, actualPage);
     verify(productRepository).findAllProducts(LANGUAGE_UK, pageable, tags);
-    verify(productImageRepository).loadImageForProduct(product);
   }
 
   @Test
@@ -58,12 +52,10 @@ class GetAllProductsUseCaseTest {
     List<String> tags = Collections.emptyList();
 
     when(productRepository.findAllProductsWithDefaultSorting(LANGUAGE_UK, pageable, tags)).thenReturn(expectedPage);
-    when(productImageRepository.loadImageForProduct(product)).thenReturn(product);
     var actualPage = getAllProductsUseCase.getAllProducts(LANGUAGE_UK, pageable, tags);
 
     assertEquals(expectedPage, actualPage);
     verify(productRepository).findAllProductsWithDefaultSorting(LANGUAGE_UK, pageable, tags);
-    verify(productImageRepository).loadImageForProduct(product);
   }
 
   @Test
