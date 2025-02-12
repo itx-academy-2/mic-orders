@@ -20,9 +20,6 @@ public interface OrderDTOMapper {
   @Mapping(target = "totalWithDiscount", expression = "java(order.getTotalWithDiscount())")
   ManagerOrderDTO toManagerDto(Order order);
 
-  @Mapping(target = "totalWithDiscount", expression = "java(order.getTotalWithDiscount())")
-  ManagerOrderPreviewDTO toManagerOrderPreviewDto(Order order);
-
   @Mapping(target = "totalWithDiscount", expression = "java(orderManagement.getTotalWithDiscount())")
   ManagerOrderPreviewDTO toManagerOrderPreviewDTOFromOrderMana(OrderManagement orderManagement);
 

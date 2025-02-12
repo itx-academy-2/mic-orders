@@ -1,5 +1,6 @@
 package com.academy.orders.application.product.usecase;
 
+import com.academy.orders.domain.common.UrlUtils;
 import com.academy.orders.domain.common.exception.BadRequestException;
 import com.academy.orders.domain.language.exception.LanguageNotFoundException;
 import com.academy.orders.domain.language.repository.LanguageRepository;
@@ -9,7 +10,6 @@ import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
-import com.academy.orders.domain.product.repository.ProductImageRepository;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.CreateProductUseCase;
 import com.academy.orders.domain.product.usecase.ExtractNameFromUrlUseCase;
@@ -32,8 +32,6 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
 
   private final LanguageRepository languageRepository;
 
-  private final ProductImageRepository productImageRepository;
-
   private final ExtractNameFromUrlUseCase extractNameFromUrlUseCase;
 
   @Override
@@ -41,10 +39,12 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
     if (request == null) {
       throw new BadRequestException("Request cannot be null") {};
     }
-    var imageName = extractNameFromUrlUseCase.extractNameFromUrl(request.image());
+    if (!UrlUtils.isValidUri(request.image())) {
+      throw new BadRequestException("Url is not correct") {};
+    }
     var tags = tagRepository.getTagsByIds(request.tagIds());
 
-    var product = ProductManagement.builder().status(ProductStatus.valueOf(request.status())).image(imageName)
+    var product = ProductManagement.builder().status(ProductStatus.valueOf(request.status())).image(request.image())
         .createdAt(LocalDateTime.now()).quantity(request.quantity()).price(request.price()).tags(tags)
         .productTranslationManagement(Set.of()).build();
 
@@ -61,7 +61,6 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
         product.image(), product.createdAt(), product.quantity(), product.price(), product.tags(),
         productTranslations);
 
-    var savedProduct = productRepository.save(productWithTranslations);
-    return productImageRepository.loadImageForProduct(savedProduct);
+    return productRepository.save(productWithTranslations);
   }
 }

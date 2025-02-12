@@ -3,7 +3,6 @@ package com.academy.orders.application.order.usecase;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.order.entity.Order;
-import com.academy.orders.domain.order.repository.OrderImageRepository;
 import com.academy.orders.domain.order.repository.OrderRepository;
 import com.academy.orders.domain.order.usecase.CalculateOrderTotalPriceUseCase;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,6 @@ import static com.academy.orders.application.ModelUtils.getOrderWithoutTotal;
 import static com.academy.orders.application.ModelUtils.getPageOf;
 import static com.academy.orders.application.ModelUtils.getPageable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,9 +30,6 @@ class GetOrdersByUserIdUseCaseTest {
   @Mock
   private CalculateOrderTotalPriceUseCase calculateOrderTotalPriceUseCase;
 
-  @Mock
-  private OrderImageRepository orderImageRepository;
-
   @Test
   void getOrdersByUserIdTest() {
     // Given
@@ -47,7 +42,6 @@ class GetOrdersByUserIdUseCaseTest {
     Page<Order> expected = getPageOf(withTotal);
 
     when(orderRepository.findAllByUserId(userId, language, pageable)).thenReturn(orderPage);
-    when(orderImageRepository.loadImageForProductInOrder(any(Order.class))).thenReturn(withTotal);
     when(calculateOrderTotalPriceUseCase.calculateTotalPriceFor(orderPage.content()))
         .thenReturn(expected.content());
 
@@ -58,6 +52,5 @@ class GetOrdersByUserIdUseCaseTest {
     assertEquals(expected, ordersByUserId);
     verify(orderRepository).findAllByUserId(userId, language, pageable);
     verify(calculateOrderTotalPriceUseCase).calculateTotalPriceFor(orderPage.content());
-    verify(orderImageRepository).loadImageForProductInOrder(withTotal);
   }
 }
