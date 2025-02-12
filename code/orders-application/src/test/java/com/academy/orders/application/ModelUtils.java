@@ -273,14 +273,6 @@ public class ModelUtils {
         .build();
   }
 
-  public static ProductRequestDto getProductRequestWithIncorrectUrlDto() {
-    return ProductRequestDto.builder().status(String.valueOf(ProductStatus.VISIBLE)).image("htt:://image.com")
-        .quantity(TEST_QUANTITY).price(TEST_PRICE).tagIds(List.of(1L))
-        .productTranslations(Set.of(ProductTranslationDto.builder().name("Name").description("Description")
-            .languageCode("en").build()))
-        .build();
-  }
-
   public static ProductRequestDto getProductRequestWithEmptyTagsDto() {
     return ProductRequestDto.builder().status(String.valueOf(ProductStatus.VISIBLE)).image(IMAGE_URL)
         .quantity(TEST_QUANTITY).price(TEST_PRICE).tagIds(Collections.emptyList())
