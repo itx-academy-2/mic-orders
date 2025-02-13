@@ -11,10 +11,11 @@
     "lastName": "#string"
   },
   "total": "#number",
+  "totalWithDiscount": null,
   "receiver": {
-    "email": "#string",
     "firstName": "#string",
-    "lastName": "#string"
+    "lastName": "#string",
+    "email": "#string"
   },
   "postAddress": {
     "deliveryMethod": "#string",

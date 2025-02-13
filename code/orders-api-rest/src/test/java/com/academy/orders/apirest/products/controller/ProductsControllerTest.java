@@ -12,10 +12,10 @@ import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.usecase.GetAllProductsUseCase;
 import com.academy.orders.domain.product.usecase.GetProductDetailsByIdUseCase;
 import com.academy.orders.domain.product.usecase.GetProductSearchResultsUseCase;
+import com.academy.orders.domain.product.usecase.GetProductsOnSaleUseCase;
 import com.academy.orders_api_rest.generated.model.PageProductSearchResultDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +27,21 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static com.academy.orders.apirest.ModelUtils.getPageOf;
 import static com.academy.orders.apirest.ModelUtils.getPageProductsDTO;
+import static com.academy.orders.apirest.ModelUtils.getPageProductsWithDiscountDTO;
 import static com.academy.orders.apirest.ModelUtils.getPageable;
 import static com.academy.orders.apirest.ModelUtils.getPageableDTO;
 import static com.academy.orders.apirest.ModelUtils.getProduct;
 import static com.academy.orders.apirest.ModelUtils.getProductDetailsResponseDTO;
 import static com.academy.orders.apirest.ModelUtils.getProductsPage;
+import static com.academy.orders.apirest.ModelUtils.getProductsWithDiscountPage;
 import static com.academy.orders.apirest.TestConstants.GET_ALL_PRODUCTS_URL;
+import static com.academy.orders.apirest.TestConstants.GET_PRODUCTS_ON_SALES_URL;
 import static com.academy.orders.apirest.TestConstants.GET_PRODUCT_DETAILS_URL;
+import static com.academy.orders.apirest.TestConstants.LANGUAGE_EN;
 import static com.academy.orders.apirest.TestConstants.LANGUAGE_UK;
 import static com.academy.orders.apirest.TestConstants.SEARCH_PRODUCTS_URL;
 import static com.academy.orders.apirest.TestConstants.TEST_UUID;
@@ -51,95 +57,120 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {ProductsController.class})
 @Import(value = {AopAutoConfiguration.class, TestSecurityConfig.class})
 class ProductsControllerTest {
-	@Autowired
-	private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-	@Autowired
-	private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-	@MockBean
-	private GetAllProductsUseCase getAllProductsUseCase;
+  @MockBean
+  private GetAllProductsUseCase getAllProductsUseCase;
 
-	@MockBean
-	private GetProductSearchResultsUseCase getProductSearchResultsUseCase;
+  @MockBean
+  private GetProductSearchResultsUseCase getProductSearchResultsUseCase;
 
-	@MockBean
-	private GetProductDetailsByIdUseCase getProductDetailsByIdUseCase;
+  @MockBean
+  private GetProductsOnSaleUseCase getProductsOnSaleUseCase;
 
-	@MockBean
-	private ProductPreviewDTOMapper productPreviewDTOMapper;
+  @MockBean
+  private GetProductDetailsByIdUseCase getProductDetailsByIdUseCase;
 
-	@MockBean
-	private PageProductSearchResultDTOMapper pageProductSearchResultDTOMapper;
+  @MockBean
+  private ProductPreviewDTOMapper productPreviewDTOMapper;
 
-	@MockBean
-	private PageableDTOMapper pageableDTOMapper;
+  @MockBean
+  private PageProductSearchResultDTOMapper pageProductSearchResultDTOMapper;
 
-	@MockBean
-	private ProductDetailsResponseDTOMapper productDetailsResponseDTOMapper;
+  @MockBean
+  private PageableDTOMapper pageableDTOMapper;
 
-	@Test
-	void getProductsTest() throws Exception {
-		var pageableDTO = getPageableDTO();
-		var pageable = getPageable();
-		var pageProducts = getProductsPage();
-		var pageProductsDTO = getPageProductsDTO();
-		List<String> tags = emptyList();
+  @MockBean
+  private ProductDetailsResponseDTOMapper productDetailsResponseDTOMapper;
 
-		when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
-		when(getAllProductsUseCase.getAllProducts(LANGUAGE_UK, pageable, tags)).thenReturn(pageProducts);
-		when(productPreviewDTOMapper.toPageProductsDTO(pageProducts)).thenReturn(pageProductsDTO);
+  @Test
+  void getProductsTest() throws Exception {
+    var pageableDTO = getPageableDTO();
+    var pageable = getPageable();
+    var pageProducts = getProductsPage();
+    var pageProductsDTO = getPageProductsDTO();
+    List<String> tags = emptyList();
 
-		mockMvc.perform(get(GET_ALL_PRODUCTS_URL).param("lang", LANGUAGE_UK).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(content().json(objectMapper.writeValueAsString(pageProductsDTO)));
+    when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
+    when(getAllProductsUseCase.getAllProducts(LANGUAGE_UK, pageable, tags)).thenReturn(pageProducts);
+    when(productPreviewDTOMapper.toPageProductsDTO(pageProducts)).thenReturn(pageProductsDTO);
 
-		verify(pageableDTOMapper).fromDto(pageableDTO);
-		verify(getAllProductsUseCase).getAllProducts(LANGUAGE_UK, pageable, emptyList());
-		verify(productPreviewDTOMapper).toPageProductsDTO(pageProducts);
-	}
+    mockMvc.perform(get(GET_ALL_PRODUCTS_URL).param("lang", LANGUAGE_UK).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().json(objectMapper.writeValueAsString(pageProductsDTO)));
 
-	@Test
-	@SneakyThrows
-	void searchProductsTest() {
-		// Given
-		String searchQuery = "some text";
-		String lang = "en";
-		PageableDTO pageableDTO = getPageableDTO();
-		Pageable pageable = getPageable();
-		Page<Product> productPage = getPageOf(getProduct());
-		var expected = ModelUtils.getPageProductSearchResultDTO();
+    verify(pageableDTOMapper).fromDto(pageableDTO);
+    verify(getAllProductsUseCase).getAllProducts(LANGUAGE_UK, pageable, emptyList());
+    verify(productPreviewDTOMapper).toPageProductsDTO(pageProducts);
+  }
 
-		when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
-		when(getProductSearchResultsUseCase.findProductsBySearchQuery(searchQuery, lang, pageable))
-				.thenReturn(productPage);
-		when(pageProductSearchResultDTOMapper.toDto(productPage)).thenReturn(expected);
+  @Test
+  @SneakyThrows
+  void getProductsOnSaleTest() {
+    var pageableDTO = getPageableDTO();
+    var pageable = getPageable();
+    var pageProducts = getProductsWithDiscountPage();
+    var pageProductsDTO = getPageProductsWithDiscountDTO();
+    var language = LANGUAGE_EN;
 
-		// When
-		String response = mockMvc
-				.perform(get(SEARCH_PRODUCTS_URL).param("searchQuery", searchQuery).param("lang", lang)
-						.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+    when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
+    when(getProductsOnSaleUseCase.getProductsOnSale(pageable, language)).thenReturn(pageProducts);
+    when(productPreviewDTOMapper.toPageProductsDTO(pageProducts)).thenReturn(pageProductsDTO);
 
-		// Then
-		assertEquals(expected, objectMapper.readValue(response, PageProductSearchResultDTO.class));
-		verify(pageableDTOMapper).fromDto(pageableDTO);
-		verify(getProductSearchResultsUseCase).findProductsBySearchQuery(searchQuery, lang, pageable);
-		verify(pageProductSearchResultDTOMapper).toDto(productPage);
-	}
+    mockMvc.perform(get(GET_PRODUCTS_ON_SALES_URL).param("lang", language)).andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().json(objectMapper.writeValueAsString(pageProductsDTO)));
 
-	@Test
-	@SneakyThrows
-	void getProductDetailsByIdTest() {
-		var response = getProductDetailsResponseDTO();
-		var product = getProduct();
-		when(getProductDetailsByIdUseCase.getProductDetailsById(TEST_UUID, "en")).thenReturn(product);
-		when(productDetailsResponseDTOMapper.toDTO(product)).thenReturn(response);
+    verify(pageableDTOMapper).fromDto(pageableDTO);
+    verify(getProductsOnSaleUseCase).getProductsOnSale(pageable, language);
+    verify(productPreviewDTOMapper).toPageProductsDTO(pageProducts);
+  }
 
-		String result = mockMvc.perform(get(GET_PRODUCT_DETAILS_URL, TEST_UUID).param("lang", "en"))
-				.andExpect(status().isOk()).andExpect(content().json(objectMapper.writeValueAsString(response)))
-				.andReturn().getResponse().getContentAsString();
+  @Test
+  @SneakyThrows
+  void searchProductsTest() {
+    // Given
+    String searchQuery = "some text";
+    String lang = "en";
+    PageableDTO pageableDTO = getPageableDTO();
+    Pageable pageable = getPageable();
+    Page<Product> productPage = getPageOf(getProduct());
+    var expected = ModelUtils.getPageProductSearchResultDTO();
 
-		assertEquals(objectMapper.writeValueAsString(response), result);
-	}
+    when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
+    when(getProductSearchResultsUseCase.findProductsBySearchQuery(searchQuery, lang, pageable))
+        .thenReturn(productPage);
+    when(pageProductSearchResultDTOMapper.toDto(productPage)).thenReturn(expected);
+
+    // When
+    String response = mockMvc
+        .perform(get(SEARCH_PRODUCTS_URL).param("searchQuery", searchQuery).param("lang", lang)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+    // Then
+    assertEquals(expected, objectMapper.readValue(response, PageProductSearchResultDTO.class));
+    verify(pageableDTOMapper).fromDto(pageableDTO);
+    verify(getProductSearchResultsUseCase).findProductsBySearchQuery(searchQuery, lang, pageable);
+    verify(pageProductSearchResultDTOMapper).toDto(productPage);
+  }
+
+  @Test
+  @SneakyThrows
+  void getProductDetailsByIdTest() {
+    var response = getProductDetailsResponseDTO();
+    var product = getProduct();
+    when(getProductDetailsByIdUseCase.getProductDetailsById(TEST_UUID, "en")).thenReturn(product);
+    when(productDetailsResponseDTOMapper.toDTO(product)).thenReturn(response);
+
+    String result = mockMvc.perform(get(GET_PRODUCT_DETAILS_URL, TEST_UUID).param("lang", "en"))
+        .andExpect(status().isOk()).andExpect(content().json(objectMapper.writeValueAsString(response)))
+        .andReturn().getResponse().getContentAsString();
+
+    assertEquals(objectMapper.writeValueAsString(response), result);
+  }
 }

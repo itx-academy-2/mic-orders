@@ -14,43 +14,49 @@ import com.academy.orders_api_rest.generated.model.PageUserOrderDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
 import com.academy.orders_api_rest.generated.model.PlaceOrderRequestDTO;
 import com.academy.orders_api_rest.generated.model.PlaceOrderResponseDTO;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin
 public class OrdersController implements OrdersApi {
-	private final CreateOrderUseCase createOrderUseCase;
-	private final GetOrdersByUserIdUseCase getOrdersByUserIdUseCase;
-	private final CancelOrderUseCase cancelOrderUseCase;
-	private final OrderDTOMapper mapper;
-	private final PageableDTOMapper pageableDTOMapper;
-	private final PageOrderDTOMapper pageOrderDTOMapper;
+  private final CreateOrderUseCase createOrderUseCase;
 
-	@Override
-	@PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER') || (hasAnyAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
-	public PlaceOrderResponseDTO placeOrder(Long userId, PlaceOrderRequestDTO placeOrderRequestDTO) {
-		var id = createOrderUseCase.createOrder(mapper.toCreateOrderDto(placeOrderRequestDTO), userId);
-		return new PlaceOrderResponseDTO().orderId(id);
-	}
+  private final GetOrdersByUserIdUseCase getOrdersByUserIdUseCase;
 
-	@Override
-	@PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER') || (hasAnyAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
-	public PageUserOrderDTO getOrdersByUser(Long userId, String language, PageableDTO pageable) {
-		Pageable pageableDomain = pageableDTOMapper.fromDto(pageable);
-		Page<Order> ordersByUserId = getOrdersByUserIdUseCase.getOrdersByUserId(userId, language, pageableDomain);
-		return pageOrderDTOMapper.toUserDto(ordersByUserId);
-	}
+  private final CancelOrderUseCase cancelOrderUseCase;
 
-	@Override
-	@PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER') || (hasAnyAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
-	public void cancelOrder(Long userId, UUID orderId) {
-		cancelOrderUseCase.cancelOrder(userId, orderId);
-	}
+  private final OrderDTOMapper mapper;
+
+  private final PageableDTOMapper pageableDTOMapper;
+
+  private final PageOrderDTOMapper pageOrderDTOMapper;
+
+  @Override
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER') || (hasAnyAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
+  public PlaceOrderResponseDTO placeOrder(Long userId, PlaceOrderRequestDTO placeOrderRequestDTO) {
+    var id = createOrderUseCase.createOrder(mapper.toCreateOrderDto(placeOrderRequestDTO), userId);
+    return new PlaceOrderResponseDTO().orderId(id);
+  }
+
+  @Override
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER') || (hasAnyAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
+  public PageUserOrderDTO getOrdersByUser(Long userId, String language, PageableDTO pageable) {
+    Pageable pageableDomain = pageableDTOMapper.fromDto(pageable);
+    Page<Order> ordersByUserId = getOrdersByUserIdUseCase.getOrdersByUserId(userId, language, pageableDomain);
+    return pageOrderDTOMapper.toUserDto(ordersByUserId);
+  }
+
+  @Override
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER') || (hasAnyAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
+  public void cancelOrder(Long userId, UUID orderId) {
+    cancelOrderUseCase.cancelOrder(userId, orderId);
+  }
 }

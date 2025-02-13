@@ -18,39 +18,41 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ChangeAccountStatusUseCaseTest {
-	@InjectMocks
-	private ChangeAccountStatusUseCaseImpl changeAccountStatusUseCase;
-	@Mock
-	private AccountRepository accountRepository;
+  @InjectMocks
+  private ChangeAccountStatusUseCaseImpl changeAccountStatusUseCase;
 
-	private Long id;
-	private UserStatus status;
+  @Mock
+  private AccountRepository accountRepository;
 
-	@BeforeEach
-	void setUp() {
-		id = 1L;
-		status = UserStatus.ACTIVE;
-	}
+  private Long id;
 
-	@Test
-	void changeStatusThrowsNotFoundTest() {
-		var exists = false;
+  private UserStatus status;
 
-		when(accountRepository.existsById(id)).thenReturn(exists);
-		assertThrows(AccountNotFoundException.class, () -> changeAccountStatusUseCase.changeStatus(id, status));
+  @BeforeEach
+  void setUp() {
+    id = 1L;
+    status = UserStatus.ACTIVE;
+  }
 
-		verify(accountRepository).existsById(id);
-	}
+  @Test
+  void changeStatusThrowsNotFoundTest() {
+    var exists = false;
 
-	@Test
-	void changeStatusTest() {
-		var exists = true;
+    when(accountRepository.existsById(id)).thenReturn(exists);
+    assertThrows(AccountNotFoundException.class, () -> changeAccountStatusUseCase.changeStatus(id, status));
 
-		when(accountRepository.existsById(id)).thenReturn(exists);
-		doNothing().when(accountRepository).updateStatus(id, status);
+    verify(accountRepository).existsById(id);
+  }
 
-		assertDoesNotThrow(() -> changeAccountStatusUseCase.changeStatus(id, status));
-		verify(accountRepository).existsById(id);
-		verify(accountRepository).updateStatus(id, status);
-	}
+  @Test
+  void changeStatusTest() {
+    var exists = true;
+
+    when(accountRepository.existsById(id)).thenReturn(exists);
+    doNothing().when(accountRepository).updateStatus(id, status);
+
+    assertDoesNotThrow(() -> changeAccountStatusUseCase.changeStatus(id, status));
+    verify(accountRepository).existsById(id);
+    verify(accountRepository).updateStatus(id, status);
+  }
 }

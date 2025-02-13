@@ -10,5 +10,5 @@ import java.util.UUID;
 
 @Builder
 public record ProductManagement(UUID id, ProductStatus status, String image, LocalDateTime createdAt, Integer quantity,
-		BigDecimal price, Set<Tag> tags, Set<ProductTranslationManagement> productTranslationManagement) {
+    BigDecimal price, Set<Tag> tags, Set<ProductTranslationManagement> productTranslationManagement) {
 }

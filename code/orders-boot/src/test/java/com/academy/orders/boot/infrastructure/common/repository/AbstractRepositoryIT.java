@@ -10,7 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("IT")
 public abstract class AbstractRepositoryIT {
-	@MockBean
-	private SecurityFilterChain securityFilterChain;
+  @MockBean
+  private SecurityFilterChain securityFilterChain;
 
 }

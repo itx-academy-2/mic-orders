@@ -1,0 +1,2 @@
+ALTER TABLE order_items
+ADD COLUMN discount INT DEFAULT NULL;

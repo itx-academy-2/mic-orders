@@ -9,5 +9,5 @@ import org.springframework.data.domain.PageImpl;
 
 @Mapper(componentModel = "spring", uses = {OrderMapper.class, PageableMapper.class})
 public interface OrderPageMapper {
-	Page<Order> toDomain(PageImpl<OrderEntity> page);
+  Page<Order> toDomain(PageImpl<OrderEntity> page);
 }

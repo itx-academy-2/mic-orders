@@ -9,14 +9,14 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UpdateOrderStatusRequestDTOMapper {
-	@Mapping(source = "orderStatus", target = "status")
-	@Mapping(source = "isPaid", target = "isPaid")
-	UpdateOrderStatusDto fromDTO(UpdateOrderStatusRequestDTO dto);
+  @Mapping(source = "orderStatus", target = "status")
+  @Mapping(source = "isPaid", target = "isPaid")
+  UpdateOrderStatusDto fromDTO(UpdateOrderStatusRequestDTO dto);
 
-	default OrderStatus mapOrderStatusDTOToOrderStatus(OrderStatusDTO orderStatusDTO) {
-		if (orderStatusDTO == null) {
-			return null;
-		}
-		return OrderStatus.valueOf(orderStatusDTO.name());
-	}
+  default OrderStatus mapOrderStatusDTOToOrderStatus(OrderStatusDTO orderStatusDTO) {
+    if (orderStatusDTO == null) {
+      return null;
+    }
+    return OrderStatus.valueOf(orderStatusDTO.name());
+  }
 }

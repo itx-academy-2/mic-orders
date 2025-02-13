@@ -14,16 +14,16 @@ import org.mapstruct.ValueMapping;
 
 @Mapper(componentModel = "spring")
 public interface AccountDTOMapper {
-	UserStatus mapToUserStatus(AccountStatusDTO accountStatusDTO);
+  UserStatus mapToUserStatus(AccountStatusDTO accountStatusDTO);
 
-	@Mapping(target = "status", source = "status")
-	@Mapping(target = "role", source = "role")
-	AccountManagementFilterDto toDomain(AccountFilterDTO accountFilterDTO);
+  @Mapping(target = "status", source = "status")
+  @Mapping(target = "role", source = "role")
+  AccountManagementFilterDto toDomain(AccountFilterDTO accountFilterDTO);
 
-	Pageable toDomain(PageableDTO pageableDTO);
+  Pageable toDomain(PageableDTO pageableDTO);
 
-	@ValueMapping(source = "USER", target = "ROLE_USER")
-	@ValueMapping(source = "ADMIN", target = "ROLE_ADMIN")
-	@ValueMapping(source = "MANAGER", target = "ROLE_MANAGER")
-	Role mapRole(AccountManagementRolesDTO role);
+  @ValueMapping(source = "USER", target = "ROLE_USER")
+  @ValueMapping(source = "ADMIN", target = "ROLE_ADMIN")
+  @ValueMapping(source = "MANAGER", target = "ROLE_MANAGER")
+  Role mapRole(AccountManagementRolesDTO role);
 }

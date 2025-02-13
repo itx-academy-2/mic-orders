@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Optional;
 
 @Repository
@@ -23,53 +24,56 @@ import java.util.Optional;
 @Slf4j
 @Transactional(readOnly = true)
 public class AccountRepositoryImpl implements AccountRepository {
-	private final AccountJpaAdapter accountJpaAdapter;
-	private final AccountMapper accountMapper;
-	private final AccountPageMapper accountPageMapper;
-	private final PageableMapper pageableMapper;
+  private final AccountJpaAdapter accountJpaAdapter;
 
-	@Override
-	public Optional<Account> findAccountByEmail(String email) {
-		var accountEntity = accountJpaAdapter.findByEmail(email);
-		return accountEntity.map(accountMapper::fromEntity);
-	}
+  private final AccountMapper accountMapper;
 
-	@Override
-	public Boolean existsByEmail(String email) {
-		return accountJpaAdapter.existsByEmail(email);
-	}
+  private final AccountPageMapper accountPageMapper;
 
-	@Override
-	@Transactional
-	public Boolean existsById(Long id) {
-		return accountJpaAdapter.existsById(id);
-	}
+  private final PageableMapper pageableMapper;
 
-	@Override
-	@Transactional
-	public Account save(CreateAccountDTO account) {
-		log.info("Saving user {}:", account);
-		AccountEntity accountEntity = accountMapper.toEntity(account);
-		accountEntity.setRole(Role.ROLE_USER);
-		accountEntity.setStatus(UserStatus.ACTIVE);
-		AccountEntity savedAccount = accountJpaAdapter.save(accountEntity);
-		return accountMapper.fromEntity(savedAccount);
-	}
+  @Override
+  public Optional<Account> findAccountByEmail(String email) {
+    var accountEntity = accountJpaAdapter.findByEmail(email);
+    return accountEntity.map(accountMapper::fromEntity);
+  }
 
-	@Override
-	public Optional<Role> findRoleByEmail(String email) {
-		return accountJpaAdapter.findRoleByEmail(email);
-	}
+  @Override
+  public Boolean existsByEmail(String email) {
+    return accountJpaAdapter.existsByEmail(email);
+  }
 
-	@Override
-	public void updateStatus(Long id, UserStatus status) {
-		accountJpaAdapter.updateStatus(id, status);
-	}
+  @Override
+  @Transactional
+  public Boolean existsById(Long id) {
+    return accountJpaAdapter.existsById(id);
+  }
 
-	@Override
-	public Page<Account> getAccounts(AccountManagementFilterDto filter, Pageable pageableDomain) {
-		var pageable = pageableMapper.fromDomain(pageableDomain);
-		var accountPage = accountJpaAdapter.findAllByRoleAndStatus(filter, pageable);
-		return accountPageMapper.toDomain(accountPage);
-	}
+  @Override
+  @Transactional
+  public Account save(CreateAccountDTO account) {
+    log.info("Saving user {}:", account);
+    AccountEntity accountEntity = accountMapper.toEntity(account);
+    accountEntity.setRole(Role.ROLE_USER);
+    accountEntity.setStatus(UserStatus.ACTIVE);
+    AccountEntity savedAccount = accountJpaAdapter.save(accountEntity);
+    return accountMapper.fromEntity(savedAccount);
+  }
+
+  @Override
+  public Optional<Role> findRoleByEmail(String email) {
+    return accountJpaAdapter.findRoleByEmail(email);
+  }
+
+  @Override
+  public void updateStatus(Long id, UserStatus status) {
+    accountJpaAdapter.updateStatus(id, status);
+  }
+
+  @Override
+  public Page<Account> getAccounts(AccountManagementFilterDto filter, Pageable pageableDomain) {
+    var pageable = pageableMapper.fromDomain(pageableDomain);
+    var accountPage = accountJpaAdapter.findAllByRoleAndStatus(filter, pageable);
+    return accountPageMapper.toDomain(accountPage);
+  }
 }

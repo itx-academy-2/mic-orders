@@ -23,6 +23,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,156 +38,157 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @ExtendWith(MockitoExtension.class)
 class ErrorHandlerTest {
-	private static final String DEFAULT_ERROR_MESSAGE = "Something went wrong";
+  private static final String DEFAULT_ERROR_MESSAGE = "Something went wrong";
 
-	@InjectMocks
-	private ErrorHandler errorHandler;
+  @InjectMocks
+  private ErrorHandler errorHandler;
 
-	@Test
-	void handleMethodArgumentNotValidExceptionTest() {
-		var ex = mock(MethodArgumentNotValidException.class);
-		var fieldError = mock(FieldError.class);
+  @Test
+  void handleMethodArgumentNotValidExceptionTest() {
+    var ex = mock(MethodArgumentNotValidException.class);
+    var fieldError = mock(FieldError.class);
 
-		when(fieldError.getDefaultMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
-		when(ex.getFieldError()).thenReturn(fieldError);
+    when(fieldError.getDefaultMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
+    when(ex.getFieldError()).thenReturn(fieldError);
 
-		assertEquals(buildErrorObjectDTO(BAD_REQUEST), errorHandler.handleMethodArgumentNotValidException(ex));
-	}
+    assertEquals(buildErrorObjectDTO(BAD_REQUEST), errorHandler.handleMethodArgumentNotValidException(ex));
+  }
 
-	@Test
-	void handleNotFoundExceptionTest() {
-		var ex = mock(NotFoundException.class);
+  @Test
+  void handleNotFoundExceptionTest() {
+    var ex = mock(NotFoundException.class);
 
-		when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
-		assertEquals(buildErrorObjectDTO(NOT_FOUND), errorHandler.handleNotFoundException(ex));
-	}
+    when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
+    assertEquals(buildErrorObjectDTO(NOT_FOUND), errorHandler.handleNotFoundException(ex));
+  }
 
-	@Test
-	void handleAccountAlreadyExistsExceptionTest() {
-		var email = "test@mail.com";
-		var message = String.format("Account with email %s already exists", email);
-		var ex = new AccountAlreadyExistsException(email);
+  @Test
+  void handleAccountAlreadyExistsExceptionTest() {
+    var email = "test@mail.com";
+    var message = String.format("Account with email %s already exists", email);
+    var ex = new AccountAlreadyExistsException(email);
 
-		assertEquals(buildErrorObjectDTO(CONFLICT, message), errorHandler.handleAccountAlreadyExistsException(ex));
-	}
+    assertEquals(buildErrorObjectDTO(CONFLICT, message), errorHandler.handleAccountAlreadyExistsException(ex));
+  }
 
-	@Test
-	void handleAuthenticationExceptionTest() {
-		var ex = mock(AuthenticationException.class);
-		when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
+  @Test
+  void handleAuthenticationExceptionTest() {
+    var ex = mock(AuthenticationException.class);
+    when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
 
-		assertEquals(buildErrorObjectDTO(UNAUTHORIZED), errorHandler.handleUnauthorizedException(ex));
-	}
+    assertEquals(buildErrorObjectDTO(UNAUTHORIZED), errorHandler.handleUnauthorizedException(ex));
+  }
 
-	@Test
-	void handleAccessDeniedExceptionTest() {
-		var ex = new AccessDeniedException(DEFAULT_ERROR_MESSAGE);
-		assertEquals(buildErrorObjectDTO(FORBIDDEN), errorHandler.handleAccessDeniedException(ex));
-	}
+  @Test
+  void handleAccessDeniedExceptionTest() {
+    var ex = new AccessDeniedException(DEFAULT_ERROR_MESSAGE);
+    assertEquals(buildErrorObjectDTO(FORBIDDEN), errorHandler.handleAccessDeniedException(ex));
+  }
 
-	@Test
-	void handleInternalErrorTest() {
-		var ex = new Throwable(DEFAULT_ERROR_MESSAGE);
-		assertEquals(buildErrorObjectDTO(INTERNAL_SERVER_ERROR), errorHandler.handleInternalError(ex));
-	}
+  @Test
+  void handleInternalErrorTest() {
+    var ex = new Throwable(DEFAULT_ERROR_MESSAGE);
+    assertEquals(buildErrorObjectDTO(INTERNAL_SERVER_ERROR), errorHandler.handleInternalError(ex));
+  }
 
-	@Test
-	void handleBadRequestExceptionTest() {
-		var ex = mock(MethodArgumentTypeMismatchException.class);
+  @Test
+  void handleBadRequestExceptionTest() {
+    var ex = mock(MethodArgumentTypeMismatchException.class);
 
-		when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
-		assertEquals(buildErrorObjectDTO(BAD_REQUEST), errorHandler.handleBadRequestException(ex));
-	}
+    when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
+    assertEquals(buildErrorObjectDTO(BAD_REQUEST), errorHandler.handleBadRequestException(ex));
+  }
 
-	@Test
-	void handleInsufficientProductQuantityExceptionTest() {
-		var productId = UUID.randomUUID();
-		var ex = new InsufficientProductQuantityException(productId);
-		var message = "Ordered quantity exceeds available stock for product: " + productId;
+  @Test
+  void handleInsufficientProductQuantityExceptionTest() {
+    var productId = UUID.randomUUID();
+    var ex = new InsufficientProductQuantityException(productId);
+    var message = "Ordered quantity exceeds available stock for product: " + productId;
 
-		assertEquals(buildErrorObjectDTO(CONFLICT, message),
-				errorHandler.handleInsufficientProductQuantityException(ex));
-	}
+    assertEquals(buildErrorObjectDTO(CONFLICT, message),
+        errorHandler.handleInsufficientProductQuantityException(ex));
+  }
 
-	@Test
-	void handleEmptyCartExceptionTest() {
-		var ex = new EmptyCartException();
-		var message = "Cannot place an order with an empty cart.";
+  @Test
+  void handleEmptyCartExceptionTest() {
+    var ex = new EmptyCartException();
+    var message = "Cannot place an order with an empty cart.";
 
-		assertEquals(buildErrorObjectDTO(BAD_REQUEST, message), errorHandler.handleEmptyCartException(ex));
-	}
+    assertEquals(buildErrorObjectDTO(BAD_REQUEST, message), errorHandler.handleEmptyCartException(ex));
+  }
 
-	@Test
-	void handleConstraintViolationExceptionTest() {
-		var ex = mock(ConstraintViolationException.class);
+  @Test
+  void handleConstraintViolationExceptionTest() {
+    var ex = mock(ConstraintViolationException.class);
 
-		when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
-		assertEquals(buildErrorObjectDTO(BAD_REQUEST), errorHandler.handleConstraintViolationException(ex));
-	}
+    when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
+    assertEquals(buildErrorObjectDTO(BAD_REQUEST), errorHandler.handleConstraintViolationException(ex));
+  }
 
-	@Test
-	void handleExceedsAvailableExceptionTest() {
-		var productId = UUID.randomUUID();
-		var quantity = 10;
-		var availableQuantity = 5;
-		var ex = new QuantityExceedsAvailableException(productId, quantity, availableQuantity);
-		var message = "Product with id: " + productId + " exceeded available quantity. Requested: " + quantity
-				+ ", Available: " + availableQuantity;
+  @Test
+  void handleExceedsAvailableExceptionTest() {
+    var productId = UUID.randomUUID();
+    var quantity = 10;
+    var availableQuantity = 5;
+    var ex = new QuantityExceedsAvailableException(productId, quantity, availableQuantity);
+    var message = "Product with id: "
+        + productId + " exceeded available quantity. Requested: " + quantity
+        + ", Available: " + availableQuantity;
 
-		assertEquals(buildErrorObjectDTO(CONFLICT, message), errorHandler.handleExceedsAvailableException(ex));
-	}
+    assertEquals(buildErrorObjectDTO(CONFLICT, message), errorHandler.handleExceedsAvailableException(ex));
+  }
 
-	@Test
-	void handleInvalidOrderStatusTransitionExceptionTest() {
-		var currentStatus = OrderStatus.COMPLETED;
-		var newStatus = OrderStatus.SHIPPED;
-		var ex = new InvalidOrderStatusTransitionException(currentStatus, newStatus);
-		var expectedMessage = "Invalid status transition from " + currentStatus + " to " + newStatus;
+  @Test
+  void handleInvalidOrderStatusTransitionExceptionTest() {
+    var currentStatus = OrderStatus.COMPLETED;
+    var newStatus = OrderStatus.SHIPPED;
+    var ex = new InvalidOrderStatusTransitionException(currentStatus, newStatus);
+    var expectedMessage = "Invalid status transition from " + currentStatus + " to " + newStatus;
 
-		assertEquals(buildErrorObjectDTO(BAD_REQUEST, expectedMessage),
-				errorHandler.handleInvalidOrderStatusTransitionException(ex));
-	}
+    assertEquals(buildErrorObjectDTO(BAD_REQUEST, expectedMessage),
+        errorHandler.handleInvalidOrderStatusTransitionException(ex));
+  }
 
-	@Test
-	void handleOrderFinalStateExceptionTest() {
-		var errorMessage = "The order has already been completed or canceled and cannot be updated.";
-		var ex = new OrderFinalStateException();
+  @Test
+  void handleOrderFinalStateExceptionTest() {
+    var errorMessage = "The order has already been completed or canceled and cannot be updated.";
+    var ex = new OrderFinalStateException();
 
-		var expectedErrorObjectDTO = new ErrorObjectDTO().status(HttpStatus.BAD_REQUEST.value())
-				.title(HttpStatus.BAD_REQUEST.getReasonPhrase()).detail(errorMessage);
+    var expectedErrorObjectDTO = new ErrorObjectDTO().status(HttpStatus.BAD_REQUEST.value())
+        .title(HttpStatus.BAD_REQUEST.getReasonPhrase()).detail(errorMessage);
 
-		assertEquals(expectedErrorObjectDTO, errorHandler.handleOrderFinalStateException(ex));
-	}
+    assertEquals(expectedErrorObjectDTO, errorHandler.handleOrderFinalStateException(ex));
+  }
 
-	@Test
-	void handlePaidExceptionTest() {
-		var ex = mock(PaidException.class);
+  @Test
+  void handlePaidExceptionTest() {
+    var ex = mock(PaidException.class);
 
-		when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
-		assertEquals(buildErrorObjectDTO(BAD_REQUEST), errorHandler.handlePaidException(ex));
-	}
+    when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
+    assertEquals(buildErrorObjectDTO(BAD_REQUEST), errorHandler.handlePaidException(ex));
+  }
 
-	@Test
-	void handleUsernameNotFoundExceptionTest() {
-		var ex = new UsernameNotFoundException(DEFAULT_ERROR_MESSAGE);
+  @Test
+  void handleUsernameNotFoundExceptionTest() {
+    var ex = new UsernameNotFoundException(DEFAULT_ERROR_MESSAGE);
 
-		assertEquals(buildErrorObjectDTO(UNAUTHORIZED), errorHandler.handleUsernameNotFoundException(ex));
-	}
+    assertEquals(buildErrorObjectDTO(UNAUTHORIZED), errorHandler.handleUsernameNotFoundException(ex));
+  }
 
-	@Test
-	void handleAccountRoleNotFoundExceptionTest() {
-		var accountEmail = "test@mail.com";
-		var ex = new AccountRoleNotFoundException(accountEmail);
-		var message = String.format("The Role of account with email: %s is not found", accountEmail);
+  @Test
+  void handleAccountRoleNotFoundExceptionTest() {
+    var accountEmail = "test@mail.com";
+    var ex = new AccountRoleNotFoundException(accountEmail);
+    var message = String.format("The Role of account with email: %s is not found", accountEmail);
 
-		assertEquals(buildErrorObjectDTO(NOT_FOUND, message), errorHandler.handleAccountRoleNotFoundException(ex));
-	}
+    assertEquals(buildErrorObjectDTO(NOT_FOUND, message), errorHandler.handleAccountRoleNotFoundException(ex));
+  }
 
-	private ErrorObjectDTO buildErrorObjectDTO(HttpStatus status, String detail) {
-		return new ErrorObjectDTO(status.value(), status.getReasonPhrase(), detail);
-	}
+  private ErrorObjectDTO buildErrorObjectDTO(HttpStatus status, String detail) {
+    return new ErrorObjectDTO(status.value(), status.getReasonPhrase(), detail);
+  }
 
-	private ErrorObjectDTO buildErrorObjectDTO(HttpStatus status) {
-		return new ErrorObjectDTO(status.value(), status.getReasonPhrase(), DEFAULT_ERROR_MESSAGE);
-	}
+  private ErrorObjectDTO buildErrorObjectDTO(HttpStatus status) {
+    return new ErrorObjectDTO(status.value(), status.getReasonPhrase(), DEFAULT_ERROR_MESSAGE);
+  }
 }

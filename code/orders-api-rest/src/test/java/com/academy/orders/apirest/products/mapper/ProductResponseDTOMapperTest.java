@@ -1,57 +1,81 @@
 package com.academy.orders.apirest.products.mapper;
 
+import com.academy.orders.apirest.ModelUtils;
 import com.academy.orders.domain.product.entity.Language;
 import com.academy.orders.domain.product.entity.ProductTranslation;
 import com.academy.orders_api_rest.generated.model.ProductTranslationDTO;
-import org.junit.jupiter.api.Assertions;
+import com.academy.orders_api_rest.generated.model.TagDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 class ProductResponseDTOMapperTest {
-	private ProductResponseDTOMapper productResponseDTOMapper;
+  private ProductResponseDTOMapper productResponseDTOMapper;
 
-	@BeforeEach
-	void setUp() {
-		productResponseDTOMapper = Mappers.getMapper(ProductResponseDTOMapper.class);
-	}
+  @BeforeEach
+  void setUp() {
+    productResponseDTOMapper = Mappers.getMapper(ProductResponseDTOMapper.class);
+  }
 
-	@Test
-	void mapProductTranslationsTest() {
-		ProductTranslation translation = ProductTranslation.builder().name("Product").description("Description")
-				.language(new Language(1L, "en")).build();
+  @Test
+  void toDto() {
+    var product = ModelUtils.getProductWithDiscount();
+    var dto = productResponseDTOMapper.toDTO(product);
 
-		Set<ProductTranslation> productTranslations = Set.of(translation);
+    assertEquals(product.getId(), dto.getId());
+    assertEquals(product.getStatus().name(), dto.getStatus().name());
+    assertEquals(product.getImage(), dto.getImage());
+    assertEquals(product.getCreatedAt(), dto.getCreatedAt().toLocalDateTime());
+    assertEquals(product.getQuantity(), dto.getQuantity());
+    assertEquals(product.getPrice(), dto.getPrice());
+    assertEquals(product.getDiscount().getAmount(), dto.getDiscount());
+    assertEquals(product.getPriceWithDiscount(), dto.getPriceWithDiscount());
+    assertIterableEquals(product.getTags().stream().map(o -> new TagDTO().id(o.id()).name(o.name())).toList(),
+        dto.getTags());
+  }
 
-		List<ProductTranslationDTO> productTranslationDTOs = productResponseDTOMapper
-				.mapProductTranslations(productTranslations);
+  @Test
+  void mapProductTranslationsTest() {
+    ProductTranslation translation = ProductTranslation.builder().name("Product").description("Description")
+        .language(new Language(1L, "en")).build();
 
-		Assertions.assertNotNull(productTranslationDTOs);
-		Assertions.assertEquals(1, productTranslationDTOs.size());
+    Set<ProductTranslation> productTranslations = Set.of(translation);
 
-		ProductTranslationDTO translationDTO = productTranslationDTOs.get(0);
-		Assertions.assertEquals(translation.name(), translationDTO.getName());
-		Assertions.assertEquals(translation.description(), translationDTO.getDescription());
-		Assertions.assertEquals(translation.language().code(), translationDTO.getLanguageCode());
-	}
+    List<ProductTranslationDTO> productTranslationDTOs = productResponseDTOMapper
+        .mapProductTranslations(productTranslations);
 
-	@Test
-	void mapLocalDateTimeToOffsetDateTimeTest() {
-		LocalDateTime localDateTime = LocalDateTime.now();
-		OffsetDateTime offsetDateTime = productResponseDTOMapper.mapLocalDateTimeToOffsetDateTime(localDateTime);
+    assertNotNull(productTranslationDTOs);
+    assertEquals(1, productTranslationDTOs.size());
 
-		Assertions.assertEquals(localDateTime.atOffset(ZoneOffset.UTC), offsetDateTime);
-	}
+    ProductTranslationDTO translationDTO = productTranslationDTOs.get(0);
+    assertEquals(translation.name(), translationDTO.getName());
+    assertEquals(translation.description(), translationDTO.getDescription());
+    assertEquals(translation.language().code(), translationDTO.getLanguageCode());
+  }
 
-	@Test
-	void mapLocalDateTimeToOffsetDateTimeWithNullTest() {
-		OffsetDateTime offsetDateTime = productResponseDTOMapper.mapLocalDateTimeToOffsetDateTime(null);
+  @Test
+  void mapLocalDateTimeToOffsetDateTimeTest() {
+    LocalDateTime localDateTime = LocalDateTime.now();
+    OffsetDateTime offsetDateTime = productResponseDTOMapper.mapLocalDateTimeToOffsetDateTime(localDateTime);
 
-		Assertions.assertNull(offsetDateTime);
-	}
+    assertEquals(localDateTime.atOffset(ZoneOffset.UTC), offsetDateTime);
+  }
+
+  @Test
+  void mapLocalDateTimeToOffsetDateTimeWithNullTest() {
+    OffsetDateTime offsetDateTime = productResponseDTOMapper.mapLocalDateTimeToOffsetDateTime(null);
+
+    assertNull(offsetDateTime);
+  }
 }

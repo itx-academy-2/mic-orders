@@ -6,5 +6,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface ProductRequestDTOMapper {
-	ProductRequestDto fromDTO(ProductRequestDTO createProductRequestDTO);
+  ProductRequestDto fromDTO(ProductRequestDTO createProductRequestDTO);
 }

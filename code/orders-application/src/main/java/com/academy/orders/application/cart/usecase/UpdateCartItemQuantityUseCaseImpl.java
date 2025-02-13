@@ -8,51 +8,54 @@ import com.academy.orders.domain.cart.exception.QuantityExceedsAvailableExceptio
 import com.academy.orders.domain.cart.repository.CartItemRepository;
 import com.academy.orders.domain.cart.usecase.UpdateCartItemQuantityUseCase;
 import com.academy.orders.domain.product.entity.Product;
-import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UpdateCartItemQuantityUseCaseImpl implements UpdateCartItemQuantityUseCase {
-	private final CartItemRepository cartItemRepository;
-	private final CalculatePriceUseCase calculatePriceUseCase;
+  private final CartItemRepository cartItemRepository;
 
-	@Override
-	@Transactional
-	public UpdatedCartItemDto setQuantity(UUID productId, Long userId, Integer quantity) {
+  @Override
+  @Transactional
+  public UpdatedCartItemDto setQuantity(UUID productId, Long userId, Integer quantity) {
 
-		checkCartItemExists(productId, userId);
+    checkCartItemExists(productId, userId);
 
-		var updatedCartItem = updateQuantityOfCartItem(quantity, productId, userId);
-		var getAll = cartItemRepository.findCartItemsByAccountId(userId);
+    var updatedCartItem = updateQuantityOfCartItem(quantity, productId, userId);
+    var getAll = cartItemRepository.findCartItemsByAccountId(userId);
 
-		Product product = updatedCartItem.product();
+    Product product = updatedCartItem.product();
 
-		if (quantity > product.quantity()) {
-			throw new QuantityExceedsAvailableException(productId, quantity, product.quantity());
-		}
+    if (quantity > product.getQuantity()) {
+      throw new QuantityExceedsAvailableException(productId, quantity, product.getQuantity());
+    }
 
-		var cartItemPrice = calculatePriceUseCase.calculateCartItemPrice(updatedCartItem);
-		var totalPrice = calculatePriceUseCase.calculateCartTotalPrice(getAll);
+    var cartItemPrice = CartItem.calculateCartItemPrice(updatedCartItem);
+    var totalPrice = CartItem.calculateCartTotalPrice(getAll);
 
-		return new UpdatedCartItemDto(productId, quantity, product.price(), cartItemPrice, totalPrice);
-	}
+    final BigDecimal cartItemPriceWithDiscount = CartItem.calculateCartItemPriceWithDiscount(updatedCartItem);
+    final BigDecimal totalPriceWithDiscount = CartItem.calculateTotalPriceWithDiscount(getAll);
 
-	private void checkCartItemExists(UUID productId, Long userId) {
-		if (!Boolean.TRUE.equals(cartItemRepository.existsByProductIdAndUserId(productId, userId))) {
-			throw new CartItemNotFoundException(productId);
-		}
-	}
+    return new UpdatedCartItemDto(productId, quantity, product.getPrice(), product.getPriceWithDiscount(),
+        product.getDiscountAmount(), cartItemPrice, cartItemPriceWithDiscount,
+        totalPrice, totalPriceWithDiscount);
+  }
 
-	private CartItem updateQuantityOfCartItem(Integer quantity, UUID productId, Long userId) {
-		CartItem cartItem = cartItemRepository.findByProductIdAndUserId(productId, userId)
-				.orElseThrow(() -> new CartItemNotFoundException(productId));
-		CartItem updatedCartItem = new CartItem(cartItem.product(), quantity);
+  private void checkCartItemExists(UUID productId, Long userId) {
+    if (!Boolean.TRUE.equals(cartItemRepository.existsByProductIdAndUserId(productId, userId))) {
+      throw new CartItemNotFoundException(productId);
+    }
+  }
 
-		return cartItemRepository
-				.save(new CreateCartItemDTO(updatedCartItem.product().id(), userId, updatedCartItem.quantity()));
-	}
+  private CartItem updateQuantityOfCartItem(Integer quantity, UUID productId, Long userId) {
+    CartItem cartItem = cartItemRepository.findByProductIdAndUserId(productId, userId)
+        .orElseThrow(() -> new CartItemNotFoundException(productId));
+
+    return cartItemRepository.save(new CreateCartItemDTO(productId, userId, quantity));
+  }
 }

@@ -6,5 +6,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface OrderStatusInfoDTOMapper {
-	OrderStatusInfoDTO toDTO(OrderStatusInfo orderStatusInfo);
+  OrderStatusInfoDTO toDTO(OrderStatusInfo orderStatusInfo);
 }

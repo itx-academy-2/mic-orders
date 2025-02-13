@@ -27,22 +27,22 @@ import lombok.ToString;
 @EqualsAndHashCode(exclude = {"product", "language"})
 @ToString(exclude = {"product", "language"})
 public class ProductTranslationEntity {
-	@EmbeddedId
-	private ProductTranslationId productTranslationId;
+  @EmbeddedId
+  private ProductTranslationId productTranslationId;
 
-	@Column(nullable = false)
-	private String name;
+  @Column(nullable = false)
+  private String name;
 
-	@Column(length = 1000)
-	private String description;
+  @Column(length = 1000)
+  private String description;
 
-	@MapsId("productId")
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "product_id", nullable = false)
-	private ProductEntity product;
+  @MapsId("productId")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "product_id", nullable = false)
+  private ProductEntity product;
 
-	@MapsId("languageId")
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "language_id", nullable = false)
-	private LanguageEntity language;
+  @MapsId("languageId")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "language_id", nullable = false)
+  private LanguageEntity language;
 }

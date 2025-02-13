@@ -9,10 +9,10 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface ProductTranslationMapper {
-	ProductTranslation fromEntity(ProductTranslationEntity translationEntity);
+  ProductTranslation fromEntity(ProductTranslationEntity translationEntity);
 
-	@Condition
-	default boolean isNotLazyLoadedLanguageEntity(LanguageEntity source) {
-		return Hibernate.isInitialized(source);
-	}
+  @Condition
+  default boolean isNotLazyLoadedLanguageEntity(LanguageEntity source) {
+    return Hibernate.isInitialized(source);
+  }
 }
