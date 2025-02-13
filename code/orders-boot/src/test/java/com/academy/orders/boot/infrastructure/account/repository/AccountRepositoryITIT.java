@@ -6,8 +6,6 @@ import com.academy.orders.domain.account.entity.CreateAccountDTO;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
 import com.academy.orders.domain.account.repository.AccountRepository;
-import java.util.Optional;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -18,89 +16,93 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.params.provider.Arguments.*;
+import static org.junit.jupiter.params.provider.Arguments.of;
 
 class AccountRepositoryITIT extends AbstractRepositoryIT {
-	private final Long accountId = 2L;
-	private final String accountEmail = "user@mail.com";
+  private final Long accountId = 2L;
 
-	@Autowired
-	private AccountRepository accountRepository;
+  private final String accountEmail = "user@mail.com";
 
-	@Test
-	void findAccountByEmailTest() {
-		final var account = accountRepository.findAccountByEmail(accountEmail);
+  @Autowired
+  private AccountRepository accountRepository;
 
-		assertTrue(account.isPresent());
-		assertSchema(account.get(), accountEmail);
-	}
+  private static void assertSchema(Account account, String email) {
+    assertNotNull(account);
+    assertNotNull(account.id());
+    assertNotNull(account.password());
+    assertNotNull(account.firstName());
+    assertNotNull(account.lastName());
+    assertEquals(Role.ROLE_USER, account.role());
+    assertEquals(UserStatus.ACTIVE, account.status());
+    assertEquals(email, account.email());
+  }
 
-	@ParameterizedTest
-	@CsvSource({"user@mail.com, true", "unknown@mail.com, false"})
-	void existsByEmailTest(String email, boolean expected) {
-		final var actual = accountRepository.existsByEmail(email);
-		assertEquals(expected, actual);
-	}
+  static Stream<Arguments> findRoleByEmailMethodSourceProvider() {
+    return Stream.of(of("user@mail.com", Role.ROLE_USER), of("wrong@mail.com", null));
+  }
 
-	@Test
-	void saveTest() {
-		var createAccountDto = CreateAccountDTO.builder().email("new@mail.com").password("password")
-				.firstName("firstName").lastName("lastName").build();
+  @Test
+  void findAccountByEmailTest() {
+    final var account = accountRepository.findAccountByEmail(accountEmail);
 
-		final var account = accountRepository.save(createAccountDto);
-		assertSchema(account, createAccountDto.email());
-	}
+    assertTrue(account.isPresent());
+    assertSchema(account.get(), accountEmail);
+  }
 
-	@Test
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
-	void saveWithExistentEmailTest() {
-		var createAccountDto = CreateAccountDTO.builder().email(accountEmail).password("password")
-				.firstName("firstName").lastName("lastName").build();
-		assertThrows(DataIntegrityViolationException.class, () -> accountRepository.save(createAccountDto));
-	}
+  @ParameterizedTest
+  @CsvSource({"user@mail.com, true", "unknown@mail.com, false"})
+  void existsByEmailTest(String email, boolean expected) {
+    final var actual = accountRepository.existsByEmail(email);
+    assertEquals(expected, actual);
+  }
 
-	@ParameterizedTest
-	@MethodSource("findRoleByEmailMethodSourceProvider")
-	void findRoleByEmailTest(String email, Role expectedRole) {
-		final var actualRole = accountRepository.findRoleByEmail(email);
-		assertEquals(Optional.ofNullable(expectedRole), actualRole);
-	}
+  @Test
+  void saveTest() {
+    var createAccountDto = CreateAccountDTO.builder().email("new@mail.com").password("password")
+        .firstName("firstName").lastName("lastName").build();
 
-	@ParameterizedTest
-	@CsvSource({"1, true", "100, false"})
-	void existsByIdTest(Long id, boolean expected) {
-		final var actual = accountRepository.existsById(id);
-		assertEquals(expected, actual);
-	}
+    final var account = accountRepository.save(createAccountDto);
+    assertSchema(account, createAccountDto.email());
+  }
 
-	@Test
-	void updateStatusOfAccountTest() {
-		final var status = UserStatus.DEACTIVATED;
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  void saveWithExistentEmailTest() {
+    var createAccountDto = CreateAccountDTO.builder().email(accountEmail).password("password")
+        .firstName("firstName").lastName("lastName").build();
+    assertThrows(DataIntegrityViolationException.class, () -> accountRepository.save(createAccountDto));
+  }
 
-		assertDoesNotThrow(() -> accountRepository.updateStatus(accountId, status));
-		final var account = accountRepository.findAccountByEmail(accountEmail);
+  @ParameterizedTest
+  @MethodSource("findRoleByEmailMethodSourceProvider")
+  void findRoleByEmailTest(String email, Role expectedRole) {
+    final var actualRole = accountRepository.findRoleByEmail(email);
+    assertEquals(Optional.ofNullable(expectedRole), actualRole);
+  }
 
-		assertTrue(account.isPresent());
-		assertEquals(status, account.get().status());
-	}
+  @ParameterizedTest
+  @CsvSource({"1, true", "100, false"})
+  void existsByIdTest(Long id, boolean expected) {
+    final var actual = accountRepository.existsById(id);
+    assertEquals(expected, actual);
+  }
 
-	private static void assertSchema(Account account, String email) {
-		assertNotNull(account);
-		assertNotNull(account.id());
-		assertNotNull(account.password());
-		assertNotNull(account.firstName());
-		assertNotNull(account.lastName());
-		assertEquals(Role.ROLE_USER, account.role());
-		assertEquals(UserStatus.ACTIVE, account.status());
-		assertEquals(email, account.email());
-	}
+  @Test
+  void updateStatusOfAccountTest() {
+    final var status = UserStatus.DEACTIVATED;
 
-	static Stream<Arguments> findRoleByEmailMethodSourceProvider() {
-		return Stream.of(of("user@mail.com", Role.ROLE_USER), of("wrong@mail.com", null));
-	}
+    assertDoesNotThrow(() -> accountRepository.updateStatus(accountId, status));
+    final var account = accountRepository.findAccountByEmail(accountEmail);
+
+    assertTrue(account.isPresent());
+    assertEquals(status, account.get().status());
+  }
 }

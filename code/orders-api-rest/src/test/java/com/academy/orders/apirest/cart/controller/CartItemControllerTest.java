@@ -14,7 +14,6 @@ import com.academy.orders.domain.cart.usecase.GetCartItemsUseCase;
 import com.academy.orders.domain.cart.usecase.UpdateCartItemQuantityUseCase;
 import com.academy.orders.domain.product.exception.ProductNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.UUID;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.UUID;
 
 import static com.academy.orders.apirest.ModelUtils.getJwtRequest;
 import static com.academy.orders.apirest.ModelUtils.getUpdatedCartItemDTO;
@@ -41,119 +42,121 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = CartItemController.class)
 @ContextConfiguration(classes = {CartItemController.class})
 @Import(value = {AopAutoConfiguration.class, TestSecurityConfig.class, ErrorHandler.class,
-		CheckAccountIdUseCaseImpl.class})
+    CheckAccountIdUseCaseImpl.class})
 class CartItemControllerTest {
-	private final UUID productId = UUID.randomUUID();
-	private final Long userId = 1L;
+  private final UUID productId = UUID.randomUUID();
 
-	@Autowired
-	private MockMvc mockMvc;
+  private final Long userId = 1L;
 
-	@Autowired
-	private ObjectMapper objectMapper;
+  @Autowired
+  private MockMvc mockMvc;
 
-	@MockBean
-	private CreateCartItemByUserUseCase cartItemByUserUseCase;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-	@MockBean
-	private DeleteProductFromCartUseCase deleteProductFromCartUseCase;
+  @MockBean
+  private CreateCartItemByUserUseCase cartItemByUserUseCase;
 
-	@MockBean
-	private GetCartItemsUseCase getCartItemsUseCase;
+  @MockBean
+  private DeleteProductFromCartUseCase deleteProductFromCartUseCase;
 
-	@MockBean
-	private UpdateCartItemQuantityUseCase updateCartItemQuantityUseCase;
+  @MockBean
+  private GetCartItemsUseCase getCartItemsUseCase;
 
-	@MockBean
-	private CartItemDTOMapper cartItemDTOMapper;
+  @MockBean
+  private UpdateCartItemQuantityUseCase updateCartItemQuantityUseCase;
 
-	@Test
-	@SneakyThrows
-	void addProductToCartTest() {
-		doNothing().when(cartItemByUserUseCase).create(any(CreateCartItemDTO.class));
+  @MockBean
+  private CartItemDTOMapper cartItemDTOMapper;
 
-		mockMvc.perform(post("/v1/users/{userId}/cart/{productId}", userId, productId)
-				.contentType(MediaType.APPLICATION_JSON).with(getJwtRequest(userId, ROLE_USER)))
-				.andExpect(status().isCreated());
+  @Test
+  @SneakyThrows
+  void addProductToCartTest() {
+    doNothing().when(cartItemByUserUseCase).create(any(CreateCartItemDTO.class));
 
-		verify(cartItemByUserUseCase).create(any(CreateCartItemDTO.class));
-	}
+    mockMvc.perform(post("/v1/users/{userId}/cart/{productId}", userId, productId)
+        .contentType(MediaType.APPLICATION_JSON).with(getJwtRequest(userId, ROLE_USER)))
+        .andExpect(status().isCreated());
 
-	@Test
-	@SneakyThrows
-	void addProductToCartThrowsNotFoundExceptionTest() {
-		doThrow(ProductNotFoundException.class).when(cartItemByUserUseCase).create(any(CreateCartItemDTO.class));
+    verify(cartItemByUserUseCase).create(any(CreateCartItemDTO.class));
+  }
 
-		mockMvc.perform(post("/v1/users/{userId}/cart/{productId}", userId, productId)
-				.contentType(MediaType.APPLICATION_JSON).with(getJwtRequest(userId, ROLE_ADMIN)))
-				.andExpect(status().isNotFound());
+  @Test
+  @SneakyThrows
+  void addProductToCartThrowsNotFoundExceptionTest() {
+    doThrow(ProductNotFoundException.class).when(cartItemByUserUseCase).create(any(CreateCartItemDTO.class));
 
-		verify(cartItemByUserUseCase).create(any(CreateCartItemDTO.class));
-	}
+    mockMvc.perform(post("/v1/users/{userId}/cart/{productId}", userId, productId)
+        .contentType(MediaType.APPLICATION_JSON).with(getJwtRequest(userId, ROLE_ADMIN)))
+        .andExpect(status().isNotFound());
 
-	@Test
-	@SneakyThrows
-	void deleteProductFromCartTest() {
-		doNothing().when(deleteProductFromCartUseCase).deleteProductFromCart(userId, productId);
+    verify(cartItemByUserUseCase).create(any(CreateCartItemDTO.class));
+  }
 
-		mockMvc.perform(delete("/v1/users/{userId}/cart/items/{productId}", userId, productId)
-				.with(getJwtRequest(userId, ROLE_ADMIN))).andExpect(status().isNoContent());
+  @Test
+  @SneakyThrows
+  void deleteProductFromCartTest() {
+    doNothing().when(deleteProductFromCartUseCase).deleteProductFromCart(userId, productId);
 
-		verify(deleteProductFromCartUseCase).deleteProductFromCart(anyLong(), any(UUID.class));
-	}
-	@Test
-	@SneakyThrows
-	void deleteProductFromCartThrowsNotFoundExceptionTest() {
-		doThrow(CartItemNotFoundException.class).when(deleteProductFromCartUseCase).deleteProductFromCart(userId,
-				productId);
+    mockMvc.perform(delete("/v1/users/{userId}/cart/items/{productId}", userId, productId)
+        .with(getJwtRequest(userId, ROLE_ADMIN))).andExpect(status().isNoContent());
 
-		mockMvc.perform(delete("/v1/users/{userId}/cart/items/{productId}", userId, productId)
-				.with(getJwtRequest(userId, ROLE_ADMIN))).andExpect(status().isNotFound());
+    verify(deleteProductFromCartUseCase).deleteProductFromCart(anyLong(), any(UUID.class));
+  }
 
-		verify(deleteProductFromCartUseCase).deleteProductFromCart(anyLong(), any(UUID.class));
-	}
+  @Test
+  @SneakyThrows
+  void deleteProductFromCartThrowsNotFoundExceptionTest() {
+    doThrow(CartItemNotFoundException.class).when(deleteProductFromCartUseCase).deleteProductFromCart(userId,
+        productId);
 
-	@Test
-	@SneakyThrows
-	void getCartItemsTest() {
-		var lang = "uk";
-		var cartResponseDto = CartResponseDto.builder().build();
-		var cartItemsResponseDTO = ModelUtils.getCartItemResponseDto();
+    mockMvc.perform(delete("/v1/users/{userId}/cart/items/{productId}", userId, productId)
+        .with(getJwtRequest(userId, ROLE_ADMIN))).andExpect(status().isNotFound());
 
-		when(getCartItemsUseCase.getCartItems(anyLong(), anyString())).thenReturn(cartResponseDto);
-		when(cartItemDTOMapper.toCartItemsResponseDTO(any(CartResponseDto.class))).thenReturn(cartItemsResponseDTO);
+    verify(deleteProductFromCartUseCase).deleteProductFromCart(anyLong(), any(UUID.class));
+  }
 
-		mockMvc.perform(get("/v1/users/{userId}/cart/items", userId).param("lang", lang)
-				.with(getJwtRequest(userId, ROLE_ADMIN))).andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(content().json(objectMapper.writeValueAsString(cartItemsResponseDTO)));
+  @Test
+  @SneakyThrows
+  void getCartItemsTest() {
+    var lang = "uk";
+    var cartResponseDto = CartResponseDto.builder().build();
+    var cartItemsResponseDTO = ModelUtils.getCartItemResponseDto();
 
-		verify(getCartItemsUseCase).getCartItems(anyLong(), anyString());
-		verify(cartItemDTOMapper).toCartItemsResponseDTO(any(CartResponseDto.class));
-	}
+    when(getCartItemsUseCase.getCartItems(anyLong(), anyString())).thenReturn(cartResponseDto);
+    when(cartItemDTOMapper.toCartItemsResponseDTO(any(CartResponseDto.class))).thenReturn(cartItemsResponseDTO);
 
-	@Test
-	@SneakyThrows
-	void setCartItemQuantityTest() {
-		var updateCartItemDto = getUpdatedCartItemDto();
-		var updateCartItemDTO = getUpdatedCartItemDTO();
+    mockMvc.perform(get("/v1/users/{userId}/cart/items", userId).param("lang", lang)
+        .with(getJwtRequest(userId, ROLE_ADMIN))).andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().json(objectMapper.writeValueAsString(cartItemsResponseDTO)));
 
-		when(updateCartItemQuantityUseCase.setQuantity(TEST_UUID, 1L, 1)).thenReturn(updateCartItemDto);
-		when(cartItemDTOMapper.toUpdatedCartItemDTO(updateCartItemDto)).thenReturn(updateCartItemDTO);
+    verify(getCartItemsUseCase).getCartItems(anyLong(), anyString());
+    verify(cartItemDTOMapper).toCartItemsResponseDTO(any(CartResponseDto.class));
+  }
 
-		mockMvc.perform(patch("/v1/users/{userId}/cart/{productId}/setquantity", 1L, TEST_UUID).param("quantity", "1")
-				.with(getJwtRequest(1L, ROLE_ADMIN)).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-				.andExpect(content().json(objectMapper.writeValueAsString(updateCartItemDto)));
+  @Test
+  @SneakyThrows
+  void setCartItemQuantityTest() {
+    var updateCartItemDto = getUpdatedCartItemDto();
+    var updateCartItemDTO = getUpdatedCartItemDTO();
 
-		verify(updateCartItemQuantityUseCase).setQuantity(TEST_UUID, 1L, 1);
-		verify(cartItemDTOMapper).toUpdatedCartItemDTO(updateCartItemDto);
-	}
+    when(updateCartItemQuantityUseCase.setQuantity(TEST_UUID, 1L, 1)).thenReturn(updateCartItemDto);
+    when(cartItemDTOMapper.toUpdatedCartItemDTO(updateCartItemDto)).thenReturn(updateCartItemDTO);
+
+    mockMvc.perform(patch("/v1/users/{userId}/cart/{productId}/setquantity", 1L, TEST_UUID).param("quantity", "1")
+        .with(getJwtRequest(1L, ROLE_ADMIN)).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+        .andExpect(content().json(objectMapper.writeValueAsString(updateCartItemDto)));
+
+    verify(updateCartItemQuantityUseCase).setQuantity(TEST_UUID, 1L, 1);
+    verify(cartItemDTOMapper).toUpdatedCartItemDTO(updateCartItemDto);
+  }
 }

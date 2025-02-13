@@ -11,7 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.List;
+
 import static com.academy.orders.application.ModelUtils.getAccountManagementFilterDto;
 import static com.academy.orders.application.ModelUtils.getAccountPage;
 import static com.academy.orders.application.ModelUtils.getDefaultPageable;
@@ -23,42 +25,43 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GetAllUsersUseCaseTest {
-	@Mock
-	private AccountRepository accountRepository;
-	@InjectMocks
-	private GetAllUsersUseCaseImpl getAllUsersUseCase;
+  @Mock
+  private AccountRepository accountRepository;
 
-	@Test
-	void getAllUsersWithEmptySortTest() {
-		var pageable = getDefaultPageable();
-		var filter = getAccountManagementFilterDto();
-		var accountPage = getAccountPage();
+  @InjectMocks
+  private GetAllUsersUseCaseImpl getAllUsersUseCase;
 
-		when(accountRepository.getAccounts(any(AccountManagementFilterDto.class), any(Pageable.class)))
-				.thenAnswer(invocation -> {
-					Pageable pageableArgument = invocation.getArgument(1);
-					assertEquals(List.of("createdAt,desc"), pageableArgument.sort());
-					return accountPage;
-				});
+  @Test
+  void getAllUsersWithEmptySortTest() {
+    var pageable = getDefaultPageable();
+    var filter = getAccountManagementFilterDto();
+    var accountPage = getAccountPage();
 
-		Page<Account> result = getAllUsersUseCase.getAllUsers(filter, pageable);
+    when(accountRepository.getAccounts(any(AccountManagementFilterDto.class), any(Pageable.class)))
+        .thenAnswer(invocation -> {
+          Pageable pageableArgument = invocation.getArgument(1);
+          assertEquals(List.of("createdAt,desc"), pageableArgument.sort());
+          return accountPage;
+        });
 
-		assertEquals(accountPage, result);
-		verify(accountRepository).getAccounts(eq(filter), any(Pageable.class));
-	}
+    Page<Account> result = getAllUsersUseCase.getAllUsers(filter, pageable);
 
-	@Test
-	void getAllUsersWithNonEmptySortTest() {
-		var pageableWithSort = ModelUtils.getPageableWithSort();
-		var filter = getAccountManagementFilterDto();
-		var accountPage = getAccountPage();
+    assertEquals(accountPage, result);
+    verify(accountRepository).getAccounts(eq(filter), any(Pageable.class));
+  }
 
-		when(accountRepository.getAccounts(any(AccountManagementFilterDto.class), eq(pageableWithSort)))
-				.thenReturn(accountPage);
+  @Test
+  void getAllUsersWithNonEmptySortTest() {
+    var pageableWithSort = ModelUtils.getPageableWithSort();
+    var filter = getAccountManagementFilterDto();
+    var accountPage = getAccountPage();
 
-		Page<Account> result = getAllUsersUseCase.getAllUsers(filter, pageableWithSort);
+    when(accountRepository.getAccounts(any(AccountManagementFilterDto.class), eq(pageableWithSort)))
+        .thenReturn(accountPage);
 
-		assertEquals(accountPage, result);
-		verify(accountRepository).getAccounts(filter, pageableWithSort);
-	}
+    Page<Account> result = getAllUsersUseCase.getAllUsers(filter, pageableWithSort);
+
+    assertEquals(accountPage, result);
+    verify(accountRepository).getAccounts(filter, pageableWithSort);
+  }
 }

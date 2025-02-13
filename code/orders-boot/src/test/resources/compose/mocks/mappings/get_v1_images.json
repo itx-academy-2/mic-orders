@@ -16,7 +16,9 @@
         "jsonBody": {
           "imageUrl": "https://j65jb0fdkxuua0go.public.blob.vercel-storage.com/{{request.path.imageName}}"
         },
-        "transformers": ["response-template"]
+        "transformers": [
+          "response-template"
+        ]
       }
     },
     {
@@ -35,7 +37,9 @@
         "jsonBody": {
           "imageUrl": "https://j65jb0fdkxuua0go.public.blob.vercel-storage.com/{{request.path.imageName}}"
         },
-        "transformers": ["response-template"]
+        "transformers": [
+          "response-template"
+        ]
       }
     },
     {
@@ -54,7 +58,9 @@
         "jsonBody": {
           "imageUrl": "https://j65jb0fdkxuua0go.public.blob.vercel-storage.com/{{request.path.imageName}}"
         },
-        "transformers": ["response-template"]
+        "transformers": [
+          "response-template"
+        ]
       }
     },
     {
@@ -73,7 +79,9 @@
         "jsonBody": {
           "imageUrl": "https://j65jb0fdkxuua0go.public.blob.vercel-storage.com/{{request.path.imageName}}"
         },
-        "transformers": ["response-template"]
+        "transformers": [
+          "response-template"
+        ]
       }
     },
     {
@@ -104,7 +112,9 @@
         "jsonBody": {
           "imageUrl": "https://j65jb0fdkxuua0go.public.blob.vercel-storage.com/{{request.path.imageName}}"
         },
-        "transformers": ["response-template"]
+        "transformers": [
+          "response-template"
+        ]
       }
     },
     {
@@ -123,7 +133,9 @@
         "jsonBody": {
           "imageUrl": "https://j65jb0fdkxuua0go.public.blob.vercel-storage.com/{{request.path.imageName}}"
         },
-        "transformers": ["response-template"]
+        "transformers": [
+          "response-template"
+        ]
       }
     },
     {
@@ -197,7 +209,9 @@
         "jsonBody": {
           "imageUrl": "https://j65jb0fdkxuua0go.public.blob.vercel-storage.com/{{request.path.imageName}}"
         },
-        "transformers": ["response-template"]
+        "transformers": [
+          "response-template"
+        ]
       }
     }
   ]

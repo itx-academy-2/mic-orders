@@ -3,7 +3,6 @@ info:
   title: Retail API
   description: Retail service API
   version: 2.0.0
-
 servers:
   - url: http://localhost:8080/retail
 
@@ -348,6 +347,24 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFoundResponse'
+
+  /v1/products/sales:
+    get:
+      tags:
+        - Products
+      summary: Get list of products on sale
+      operationId: getProductsOnSale
+      parameters:
+        - $ref: '#/components/parameters/Pageable'
+          description: For pagination
+        - $ref: '#/components/parameters/Language'
+      responses:
+        '200':
+          description: Short information about all products which are currently on sale
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageProducts'
 
   /v1/products:
     get:
@@ -943,7 +960,16 @@ components:
           example: 10
         price:
           type: number
-          example: 999.99
+          example: 90.00
+          description: Final price
+        discount:
+          type: integer
+          example: 10
+          description: The amount of the discount applied to the original price. This field is only returned if a discount is applied.
+        priceWithDiscount:
+          type: number
+          example: 100.00
+          description: The original price before any discount is applied. This field is only returned if a discount is applied.
         tags:
           type: array
           items:
@@ -975,8 +1001,16 @@ components:
           example: 10
         price:
           type: number
-          example: 999.99
-
+          example: 90.00
+          description: Final price
+        discount:
+          type: integer
+          example: 10
+          description: The amount of the discount applied to the original price. This field is only returned if a discount is applied.
+        priceWithDiscount:
+          type: number
+          example: 100.00
+          description: The original price before any discount is applied. This field is only returned if a discount is applied.
 
     ProductSearchResult:
       type: object
@@ -997,8 +1031,8 @@ components:
       type: object
       properties:
         id:
-          type: number
-          format: id
+          type: integer
+          format: int64
           example: 1
         name:
           type: string
@@ -1099,6 +1133,10 @@ components:
           type: number
           format: decimal
           description: The total cost of the order
+        totalWithDiscount:
+          type: number
+          format: decimal
+          description: The total cost of the order including discounts. If there are no discounts, then the field is absent.
         receiver:
           $ref: '#/components/schemas/OrderReceiver'
         postAddress:
@@ -1139,6 +1177,10 @@ components:
           type: number
           format: decimal
           description: The total cost of the order
+        totalWithDiscount:
+          type: number
+          format: decimal
+          description: The total cost of the order, but at least one discount is applied. The field may not be returned.
         receiver:
           $ref: '#/components/schemas/OrderReceiver'
         postAddress:
@@ -1172,6 +1214,10 @@ components:
           type: number
           format: decimal
           description: The total cost of the order
+        totalWithDiscount:
+          type: number
+          format: decimal
+          description: The total cost of the order, but at least one discount is applied. The field may not be returned.
         receiver:
           $ref: '#/components/schemas/OrderReceiver'
         postAddress:
@@ -1188,6 +1234,13 @@ components:
           type: number
           format: decimal
           description: Price of the individual item
+        priceWithDiscount:
+          type: number
+          format: decimal
+          description: Price of the individual item if a discount is applied. The field may be absent
+        discount:
+          type: integer
+          description: Discount of the item when the user made an order. The field may be absent
         quantity:
           type: integer
           description: Quantity of the item ordered
@@ -1377,9 +1430,16 @@ components:
           description: Image URLs associated with the product.
         price:
           type: number
-          format: float
-          example: 999.99
-          description: Price of the product
+          example: 90.00
+          description: Final price
+        discount:
+          type: integer
+          example: 10
+          description: The amount of the discount applied to the original price. This field is only returned if a discount is applied.
+        priceWithDiscount:
+          type: number
+          example: 100.00
+          description: The original price before any discount is applied. This field is only returned if a discount is applied.
 
     ProductStatus:
       type: string
@@ -1452,9 +1512,14 @@ components:
             $ref: '#/components/schemas/CartItem'
         totalPrice:
           type: number
-          format: double
+          format: decimal
           example: 1000.45
-          description: total price of products in the cart
+          description: Total price of products in the cart.
+        totalPriceWithDiscount:
+          type: number
+          format: decimal
+          example: 900.00
+          description: Total price of products including discounted ones in the cart. Returns then, when any discount is applied to at least one product.
       required:
         - items
         - totalPrice
@@ -1476,18 +1541,32 @@ components:
           example: Iphone
         productPrice:
           type: number
-          format: double
+          format: decimal
           example: 100.45
-          description: price of products in the cart
+          description: The original price before any discount is applied.
+        productPriceWithDiscount:
+          type: number
+          format: decimal
+          example: 90.00
+          description: The price after discount is applied. This field is only returned if a discount is applied.
+        discount:
+          type: integer
+          example: 10
+          description: The amount of the discount applied to the original price. This field is only returned if a discount is applied.
         quantity:
           type: integer
           example: 2
           description: Quantity of the product in the cart.
         calculatedPrice:
           type: number
-          format: double
-          example: 200.90
+          format: decimal
+          example: 1000.00
           description: Price that include quantity of the product
+        calculatedPriceWithDiscount:
+          type: number
+          format: decimal
+          example: 900.00
+          description: Total price of all products with applied discounts. This field is only returned if a discount is applied at least to one product.
       required:
         - productId
         - image
@@ -1510,19 +1589,38 @@ components:
           description: Quantity of the product in the cart.
         productPrice:
           type: number
-          format: bigDecimal
-          example: 100.45
-          description: price of products in the cart
+          format: decimal
+          example: 100.00
+          description: The original price before any discount is applied.
+        productPriceWithDiscount:
+          type: number
+          format: decimal
+          example: 90.00
+          description: The price after discount is applied. This field is only returned if a discount is applied to the product.
+        discount:
+          type: integer
+          example: 10
+          description: The amount of the discount applied to the original price. This field is only returned if a discount is applied to the product.
         calculatedPrice:
           type: number
-          format: bigDecimal
-          example: 200.90
+          format: decimal
+          example: 1000.00
           description: Price that includes quantity of the product
+        calculatedPriceWithDiscount:
+          type: number
+          format: decimal
+          example: 900.00
+          description: Total price of all products with applied discounts. This field is only returned if a discount is applied at least to one product.
         totalPrice:
           type: number
-          format: bigDecimal
-          example: 1000.45
-          description: total price of products in the cart
+          format: decimal
+          example: 1000.00
+          description: Total price of products in the cart.
+        totalPriceWithDiscount:
+          type: number
+          format: decimal
+          example: 900.00
+          description: Total price of products including discounted ones in the cart. Returns then, when any discount is applied to at least one product.
       required:
         - productId
         - quantity
@@ -1643,9 +1741,18 @@ components:
           minimum: 0
         price:
           type: number
-          format: double
-          example: 100.45
+          example: 90.00
+          description: Final price
           minimum: 0
+        discount:
+          type: integer
+          example: 10
+          description: The amount of the discount applied to the original price. This field is only returned if a discount is applied.
+        priceWithDiscount:
+          type: number
+          example: 100.00
+          description: The original price before any discount is applied. This field is only returned if a discount is applied.
+
         createdAt:
           type: string
           format: date-time

@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+
 import static com.academy.orders.apirest.ModelUtils.getAccountManagementFilterDto;
 import static com.academy.orders.apirest.ModelUtils.getAccountPage;
 import static com.academy.orders.apirest.ModelUtils.getPageAccountsDTO;
@@ -39,77 +40,81 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {AccountsManagementController.class})
 @Import(value = {AopAutoConfiguration.class, TestSecurityConfig.class, ErrorHandler.class})
 class AccountsManagementControllerTest {
-	@Autowired
-	private MockMvc mockMvc;
-	@MockBean
-	private AccountDTOMapper accountDTOMapper;
-	@MockBean
-	private ChangeAccountStatusUseCase changeAccountStatusUseCase;
-	@MockBean
-	private GetAllUsersUseCase getAllUsersUseCase;
-	@MockBean
-	private AccountResponseDTOMapper accountResponseDTOMapper;
+  @Autowired
+  private MockMvc mockMvc;
 
-	@Test
-	@WithMockUser(authorities = "ROLE_ADMIN")
-	@SneakyThrows
-	void changeAccountStatusNotFoundTest() {
-		Long id = 1L;
-		UserStatus status = UserStatus.ACTIVE;
+  @MockBean
+  private AccountDTOMapper accountDTOMapper;
 
-		when(accountDTOMapper.mapToUserStatus(any(AccountStatusDTO.class))).thenReturn(status);
-		doThrow(AccountNotFoundException.class).when(changeAccountStatusUseCase).changeStatus(id, status);
+  @MockBean
+  private ChangeAccountStatusUseCase changeAccountStatusUseCase;
 
-		mockMvc.perform(patch("/v1/management/users/{userId}/status", id).queryParam("status", status.name()))
-				.andExpect(status().isNotFound());
+  @MockBean
+  private GetAllUsersUseCase getAllUsersUseCase;
 
-		verify(accountDTOMapper).mapToUserStatus(any(AccountStatusDTO.class));
-		verify(changeAccountStatusUseCase).changeStatus(id, status);
-	}
+  @MockBean
+  private AccountResponseDTOMapper accountResponseDTOMapper;
 
-	@Test
-	@WithMockUser(authorities = "ROLE_ADMIN")
-	@SneakyThrows
-	void changeAccountStatusTest() {
-		Long id = 1L;
-		UserStatus status = UserStatus.ACTIVE;
+  @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
+  @SneakyThrows
+  void changeAccountStatusNotFoundTest() {
+    Long id = 1L;
+    UserStatus status = UserStatus.ACTIVE;
 
-		when(accountDTOMapper.mapToUserStatus(any(AccountStatusDTO.class))).thenReturn(status);
-		doNothing().when(changeAccountStatusUseCase).changeStatus(id, status);
+    when(accountDTOMapper.mapToUserStatus(any(AccountStatusDTO.class))).thenReturn(status);
+    doThrow(AccountNotFoundException.class).when(changeAccountStatusUseCase).changeStatus(id, status);
 
-		mockMvc.perform(patch("/v1/management/users/{userId}/status", id).queryParam("status", status.name()))
-				.andExpect(status().isNoContent());
+    mockMvc.perform(patch("/v1/management/users/{userId}/status", id).queryParam("status", status.name()))
+        .andExpect(status().isNotFound());
 
-		verify(accountDTOMapper).mapToUserStatus(any(AccountStatusDTO.class));
-		verify(changeAccountStatusUseCase).changeStatus(id, status);
-	}
+    verify(accountDTOMapper).mapToUserStatus(any(AccountStatusDTO.class));
+    verify(changeAccountStatusUseCase).changeStatus(id, status);
+  }
 
-	@Test
-	@WithMockUser(authorities = "ROLE_ADMIN")
-	@SneakyThrows
-	void getAccountsTest() {
-		var filterDto = getAccountManagementFilterDto();
-		var pageable = getPageable();
-		var accountPage = getAccountPage();
-		var pageAccountsDTO = getPageAccountsDTO();
+  @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
+  @SneakyThrows
+  void changeAccountStatusTest() {
+    Long id = 1L;
+    UserStatus status = UserStatus.ACTIVE;
 
-		when(accountDTOMapper.toDomain(any(AccountFilterDTO.class))).thenReturn(filterDto);
-		when(accountDTOMapper.toDomain(any(PageableDTO.class))).thenReturn(pageable);
-		when(getAllUsersUseCase.getAllUsers(filterDto, pageable)).thenReturn(accountPage);
-		when(accountResponseDTOMapper.toResponse(accountPage)).thenReturn(pageAccountsDTO);
+    when(accountDTOMapper.mapToUserStatus(any(AccountStatusDTO.class))).thenReturn(status);
+    doNothing().when(changeAccountStatusUseCase).changeStatus(id, status);
 
-		var result = mockMvc.perform(get("/v1/management/users").queryParam("page", "0").queryParam("size", "5")
-				.queryParam("sort", "createdAt,desc")).andExpect(status().isOk()).andReturn();
+    mockMvc.perform(patch("/v1/management/users/{userId}/status", id).queryParam("status", status.name()))
+        .andExpect(status().isNoContent());
 
-		String responseBody = result.getResponse().getContentAsString();
-		assertThat(responseBody).isNotNull().contains("\"totalElements\":0").contains("\"totalPages\":0")
-				.contains("\"first\":true").contains("\"last\":true").contains("\"number\":0")
-				.contains("\"numberOfElements\":0").contains("\"size\":5").contains("\"empty\":true")
-				.contains("\"content\":[]");
+    verify(accountDTOMapper).mapToUserStatus(any(AccountStatusDTO.class));
+    verify(changeAccountStatusUseCase).changeStatus(id, status);
+  }
 
-		verify(accountDTOMapper).toDomain(any(AccountFilterDTO.class));
-		verify(accountDTOMapper).toDomain(any(PageableDTO.class));
-		verify(getAllUsersUseCase).getAllUsers(filterDto, pageable);
-		verify(accountResponseDTOMapper).toResponse(accountPage);
-	}
+  @Test
+  @WithMockUser(authorities = "ROLE_ADMIN")
+  @SneakyThrows
+  void getAccountsTest() {
+    var filterDto = getAccountManagementFilterDto();
+    var pageable = getPageable();
+    var accountPage = getAccountPage();
+    var pageAccountsDTO = getPageAccountsDTO();
+
+    when(accountDTOMapper.toDomain(any(AccountFilterDTO.class))).thenReturn(filterDto);
+    when(accountDTOMapper.toDomain(any(PageableDTO.class))).thenReturn(pageable);
+    when(getAllUsersUseCase.getAllUsers(filterDto, pageable)).thenReturn(accountPage);
+    when(accountResponseDTOMapper.toResponse(accountPage)).thenReturn(pageAccountsDTO);
+
+    var result = mockMvc.perform(get("/v1/management/users").queryParam("page", "0").queryParam("size", "5")
+        .queryParam("sort", "createdAt,desc")).andExpect(status().isOk()).andReturn();
+
+    String responseBody = result.getResponse().getContentAsString();
+    assertThat(responseBody).isNotNull().contains("\"totalElements\":0").contains("\"totalPages\":0")
+        .contains("\"first\":true").contains("\"last\":true").contains("\"number\":0")
+        .contains("\"numberOfElements\":0").contains("\"size\":5").contains("\"empty\":true")
+        .contains("\"content\":[]");
+
+    verify(accountDTOMapper).toDomain(any(AccountFilterDTO.class));
+    verify(accountDTOMapper).toDomain(any(PageableDTO.class));
+    verify(getAllUsersUseCase).getAllUsers(filterDto, pageable);
+    verify(accountResponseDTOMapper).toResponse(accountPage);
+  }
 }

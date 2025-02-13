@@ -7,10 +7,10 @@ import java.util.UUID;
 
 @Getter
 public class OrderAlreadyPaidException extends PaidException {
-	private final UUID orderId;
+  private final UUID orderId;
 
-	public OrderAlreadyPaidException(UUID orderId) {
-		super(String.format("Order with ID: %s is already paid.", orderId));
-		this.orderId = orderId;
-	}
+  public OrderAlreadyPaidException(UUID orderId) {
+    super(String.format("Order with ID: %s is already paid.", orderId));
+    this.orderId = orderId;
+  }
 }

@@ -6,22 +6,23 @@ import com.academy.orders.domain.order.exception.OrderFinalStateException;
 import com.academy.orders.domain.order.exception.OrderNotFoundException;
 import com.academy.orders.domain.order.repository.OrderRepository;
 import com.academy.orders.domain.order.usecase.CancelOrderUseCase;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class CancelOrderUseCaseImpl implements CancelOrderUseCase {
-	private final OrderRepository orderRepository;
+  private final OrderRepository orderRepository;
 
-	@Override
-	public void cancelOrder(Long userId, UUID orderId) {
-		Order order = orderRepository.findByIdFetchData(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
-		if (order.orderStatus().equals(OrderStatus.CANCELED) || order.orderStatus().equals(OrderStatus.COMPLETED)) {
-			throw new OrderFinalStateException();
-		}
+  @Override
+  public void cancelOrder(Long userId, UUID orderId) {
+    Order order = orderRepository.findByIdFetchData(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
+    if (order.orderStatus().equals(OrderStatus.CANCELED) || order.orderStatus().equals(OrderStatus.COMPLETED)) {
+      throw new OrderFinalStateException();
+    }
 
-		orderRepository.updateOrderStatus(orderId, OrderStatus.CANCELED);
-	}
+    orderRepository.updateOrderStatus(orderId, OrderStatus.CANCELED);
+  }
 }

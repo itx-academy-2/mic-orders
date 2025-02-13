@@ -17,20 +17,20 @@ import java.time.ZoneOffset;
 @Mapper(componentModel = "spring")
 public interface AccountResponseDTOMapper {
 
-	@Mapping(target = "content", source = "content")
-	PageAccountsDTO toResponse(Page<Account> accountPage);
+  @Mapping(target = "content", source = "content")
+  PageAccountsDTO toResponse(Page<Account> accountPage);
 
-	@Mapping(target = "role", source = "role")
-	@Mapping(source = "createdAt", target = "createdAt", qualifiedByName = "mapLocalDateTimeToOffsetDateTime")
-	AccountResponseManagementDTO toResponse(Account account);
+  @Mapping(target = "role", source = "role")
+  @Mapping(source = "createdAt", target = "createdAt", qualifiedByName = "mapLocalDateTimeToOffsetDateTime")
+  AccountResponseManagementDTO toResponse(Account account);
 
-	@ValueMapping(source = "ROLE_USER", target = "USER")
-	@ValueMapping(source = "ROLE_ADMIN", target = "ADMIN")
-	@ValueMapping(source = "ROLE_MANAGER", target = "MANAGER")
-	AccountResponseManagementDTO.RoleEnum mapRole(Role role);
+  @ValueMapping(source = "ROLE_USER", target = "USER")
+  @ValueMapping(source = "ROLE_ADMIN", target = "ADMIN")
+  @ValueMapping(source = "ROLE_MANAGER", target = "MANAGER")
+  AccountResponseManagementDTO.RoleEnum mapRole(Role role);
 
-	@Named("mapLocalDateTimeToOffsetDateTime")
-	default OffsetDateTime mapLocalDateTimeToOffsetDateTime(LocalDateTime localDateTime) {
-		return localDateTime == null ? null : localDateTime.atOffset(ZoneOffset.UTC);
-	}
+  @Named("mapLocalDateTimeToOffsetDateTime")
+  default OffsetDateTime mapLocalDateTimeToOffsetDateTime(LocalDateTime localDateTime) {
+    return localDateTime == null ? null : localDateTime.atOffset(ZoneOffset.UTC);
+  }
 }

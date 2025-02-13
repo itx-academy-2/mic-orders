@@ -11,16 +11,17 @@ import com.academy.orders.infrastructure.order.OrderPageMapper;
 import com.academy.orders.infrastructure.order.entity.OrderEntity;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.repository.ProductJpaAdapter;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 import static com.academy.orders.infrastructure.ModelUtils.getAccountEntity;
 import static com.academy.orders.infrastructure.ModelUtils.getOrder;
@@ -42,223 +43,230 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class OrderRepositoryImplTest {
-	@InjectMocks
-	private OrderRepositoryImpl orderRepository;
-	@Mock
-	private OrderJpaAdapter jpaAdapter;
-	@Mock
-	private ProductJpaAdapter productJpaAdapter;
-	@Mock
-	private AccountJpaAdapter accountJpaAdapter;
-	@Mock
-	private OrderMapper mapper;
-	@Mock
-	private PageableMapper pageableMapper;
-	@Mock
-	private OrderPageMapper pageMapper;
-	@Mock
-	private CustomOrderRepository customOrderRepository;
+  @InjectMocks
+  private OrderRepositoryImpl orderRepository;
 
-	@Test
-	void saveTest() {
-		var orderEntity = createOrderEntityWithDependencies();
-		var postAddressEntity = orderEntity.getPostAddress();
-		var accountEntity = orderEntity.getAccount();
-		var orderItemEntity = orderEntity.getOrderItems().get(0);
-		var referencedProductEntity = ProductEntity.builder().id(orderItemEntity.getProduct().getId()).build();
+  @Mock
+  private OrderJpaAdapter jpaAdapter;
 
-		when(mapper.toEntity(any(Order.class))).thenReturn(orderEntity);
-		when(accountJpaAdapter.getReferenceById(anyLong())).thenReturn(accountEntity);
-		when(productJpaAdapter.getReferenceById(any(UUID.class))).thenReturn(referencedProductEntity);
-		when(jpaAdapter.save(any())).thenReturn(orderEntity);
+  @Mock
+  private ProductJpaAdapter productJpaAdapter;
 
-		var orderId = orderRepository.save(getOrder(), 1L);
+  @Mock
+  private AccountJpaAdapter accountJpaAdapter;
 
-		assertEquals(orderEntity.getId(), orderId);
-		assertEquals(postAddressEntity.getOrder(), orderEntity);
-		assertEquals(orderEntity.getAccount(), accountEntity);
-		assertEquals(orderItemEntity.getOrder(), orderEntity);
-		assertEquals(orderItemEntity.getProduct(), referencedProductEntity);
+  @Mock
+  private OrderMapper mapper;
 
-		verify(mapper).toEntity(any(Order.class));
-		verify(accountJpaAdapter).getReferenceById(anyLong());
-		verify(productJpaAdapter).getReferenceById(any(UUID.class));
-		verify(jpaAdapter).save(any());
-	}
+  @Mock
+  private PageableMapper pageableMapper;
 
-	@Test
-	void findByIdTest() {
-		// Given
-		OrderEntity order = getOrderEntity();
-		UUID orderId = order.getId();
-		Optional<OrderEntity> optionalOrderEntity = Optional.of(order);
-		Order orderDomain = getOrder();
-		Optional<Order> optionalOrder = Optional.of(orderDomain);
+  @Mock
+  private OrderPageMapper pageMapper;
 
-		when(jpaAdapter.findById(orderId)).thenReturn(optionalOrderEntity);
-		when(mapper.fromEntity(order)).thenReturn(orderDomain);
+  @Mock
+  private CustomOrderRepository customOrderRepository;
 
-		// When
-		Optional<Order> result = orderRepository.findById(orderId);
+  @Test
+  void saveTest() {
+    var orderEntity = createOrderEntityWithDependencies();
+    var postAddressEntity = orderEntity.getPostAddress();
+    var accountEntity = orderEntity.getAccount();
+    var orderItemEntity = orderEntity.getOrderItems().get(0);
+    var referencedProductEntity = ProductEntity.builder().id(orderItemEntity.getProduct().getId()).build();
 
-		// Then
-		assertEquals(optionalOrder, result);
-		verify(jpaAdapter).findById(orderId);
-		verify(mapper).fromEntity(order);
-	}
+    when(mapper.toEntity(any(Order.class))).thenReturn(orderEntity);
+    when(accountJpaAdapter.getReferenceById(anyLong())).thenReturn(accountEntity);
+    when(productJpaAdapter.getReferenceById(any(UUID.class))).thenReturn(referencedProductEntity);
+    when(jpaAdapter.save(any())).thenReturn(orderEntity);
 
-	@Test
-	void findAllTest() {
-		// Given
-		Pageable pageable = getPageable();
-		var orderDomainPage = getPageOf(getOrder());
-		var springPageable = PageRequest.of(pageable.page(), pageable.size());
-		var orderEntityPage = getPageImplOf(getOrderEntity());
-		var filterParametersDto = getOrdersFilterParametersDto();
+    var orderId = orderRepository.save(getOrder(), 1L);
 
-		when(pageableMapper.fromDomain(pageable)).thenReturn(springPageable);
-		when(customOrderRepository.findAllByFilterParameters(filterParametersDto, springPageable))
-				.thenReturn(orderEntityPage);
-		when(pageMapper.toDomain(orderEntityPage)).thenReturn(orderDomainPage);
+    assertEquals(orderEntity.getId(), orderId);
+    assertEquals(postAddressEntity.getOrder(), orderEntity);
+    assertEquals(orderEntity.getAccount(), accountEntity);
+    assertEquals(orderItemEntity.getOrder(), orderEntity);
+    assertEquals(orderItemEntity.getProduct(), referencedProductEntity);
 
-		// When
-		Page<Order> actual = orderRepository.findAll(filterParametersDto, pageable);
+    verify(mapper).toEntity(any(Order.class));
+    verify(accountJpaAdapter).getReferenceById(anyLong());
+    verify(productJpaAdapter).getReferenceById(any(UUID.class));
+    verify(jpaAdapter).save(any());
+  }
 
-		// Then
-		assertEquals(orderDomainPage, actual);
-		verify(pageableMapper).fromDomain(pageable);
-		verify(customOrderRepository).findAllByFilterParameters(filterParametersDto, springPageable);
-		verify(pageMapper).toDomain(orderEntityPage);
-	}
+  @Test
+  void findByIdTest() {
+    // Given
+    OrderEntity order = getOrderEntity();
+    UUID orderId = order.getId();
+    Optional<OrderEntity> optionalOrderEntity = Optional.of(order);
+    Order orderDomain = getOrder();
+    Optional<Order> optionalOrder = Optional.of(orderDomain);
 
-	@Test
-	void findAllByUserIdTest() {
-		// Given
-		Long userId = 1L;
-		String language = "uk";
-		Pageable pageable = getPageable();
-		var orderDomainPage = getPageOf(getOrder());
-		var springPageable = PageRequest.of(pageable.page(), pageable.size());
-		var orderEntityPage = getPageImplOf(getOrderEntity());
+    when(jpaAdapter.findById(orderId)).thenReturn(optionalOrderEntity);
+    when(mapper.fromEntity(order)).thenReturn(orderDomain);
 
-		when(pageableMapper.fromDomain(pageable)).thenReturn(springPageable);
-		when(jpaAdapter.findAllByAccountId(userId, springPageable)).thenReturn(orderEntityPage);
-		when(jpaAdapter.findAllOrdersByOrderIdsFetchProductData(
-				orderEntityPage.getContent().stream().map(OrderEntity::getId).toList(), language))
-						.thenReturn(orderEntityPage.getContent());
-		when(pageMapper.toDomain(orderEntityPage)).thenReturn(orderDomainPage);
+    // When
+    Optional<Order> result = orderRepository.findById(orderId);
 
-		// When
-		Page<Order> actual = orderRepository.findAllByUserId(userId, language, pageable);
+    // Then
+    assertEquals(optionalOrder, result);
+    verify(jpaAdapter).findById(orderId);
+    verify(mapper).fromEntity(order);
+  }
 
-		// Then
-		assertEquals(orderDomainPage, actual);
-		verify(pageableMapper).fromDomain(pageable);
-		verify(jpaAdapter).findAllByAccountId(userId, springPageable);
-		verify(jpaAdapter).findAllOrdersByOrderIdsFetchProductData(
-				orderEntityPage.getContent().stream().map(OrderEntity::getId).toList(), language);
-		verify(pageMapper).toDomain(orderEntityPage);
-	}
+  @Test
+  void findAllTest() {
+    // Given
+    Pageable pageable = getPageable();
+    var orderDomainPage = getPageOf(getOrder());
+    var springPageable = PageRequest.of(pageable.page(), pageable.size());
+    var orderEntityPage = getPageImplOf(getOrderEntity());
+    var filterParametersDto = getOrdersFilterParametersDto();
 
-	@Test
-	void updateOrderStatusTest() {
-		UUID orderId = TEST_UUID;
-		OrderStatus status = OrderStatus.COMPLETED;
+    when(pageableMapper.fromDomain(pageable)).thenReturn(springPageable);
+    when(customOrderRepository.findAllByFilterParameters(filterParametersDto, springPageable))
+        .thenReturn(orderEntityPage);
+    when(pageMapper.toDomain(orderEntityPage)).thenReturn(orderDomainPage);
 
-		doNothing().when(jpaAdapter).updateOrderStatus(orderId, status);
+    // When
+    Page<Order> actual = orderRepository.findAll(filterParametersDto, pageable);
 
-		orderRepository.updateOrderStatus(orderId, status);
-		verify(jpaAdapter).updateOrderStatus(orderId, status);
-	}
+    // Then
+    assertEquals(orderDomainPage, actual);
+    verify(pageableMapper).fromDomain(pageable);
+    verify(customOrderRepository).findAllByFilterParameters(filterParametersDto, springPageable);
+    verify(pageMapper).toDomain(orderEntityPage);
+  }
 
-	@Test
-	void updateIsPaidStatusTest() {
-		UUID orderId = TEST_UUID;
+  @Test
+  void findAllByUserIdTest() {
+    // Given
+    Long userId = 1L;
+    String language = "uk";
+    Pageable pageable = getPageable();
+    var orderDomainPage = getPageOf(getOrder());
+    var springPageable = PageRequest.of(pageable.page(), pageable.size());
+    var orderEntityPage = getPageImplOf(getOrderEntity());
 
-		doNothing().when(jpaAdapter).updateIsPaidStatus(orderId, true);
+    when(pageableMapper.fromDomain(pageable)).thenReturn(springPageable);
+    when(jpaAdapter.findAllByAccountId(userId, springPageable)).thenReturn(orderEntityPage);
+    when(jpaAdapter.findAllOrdersByOrderIdsFetchProductData(
+        orderEntityPage.getContent().stream().map(OrderEntity::getId).toList(), language))
+            .thenReturn(orderEntityPage.getContent());
+    when(pageMapper.toDomain(orderEntityPage)).thenReturn(orderDomainPage);
 
-		orderRepository.updateIsPaidStatus(orderId, true);
-		verify(jpaAdapter).updateIsPaidStatus(orderId, true);
-	}
+    // When
+    Page<Order> actual = orderRepository.findAllByUserId(userId, language, pageable);
 
-	@Test
-	void findByIdFetchOrderItemsDataTest() {
-		// Given
-		String language = "uk";
-		OrderEntity order = getOrderEntity();
-		UUID orderId = order.getId();
-		Optional<OrderEntity> optionalOrderEntity = Optional.of(order);
-		Order orderDomain = getOrder();
-		Optional<Order> optionalOrder = Optional.of(orderDomain);
-		var productIds = Stream.of(order).flatMap(orderEntity -> orderEntity.getOrderItems().stream())
-				.map(orderItemEntity -> orderItemEntity.getProduct().getId()).toList();
-		var products = List.of(getProductEntity());
+    // Then
+    assertEquals(orderDomainPage, actual);
+    verify(pageableMapper).fromDomain(pageable);
+    verify(jpaAdapter).findAllByAccountId(userId, springPageable);
+    verify(jpaAdapter).findAllOrdersByOrderIdsFetchProductData(
+        orderEntityPage.getContent().stream().map(OrderEntity::getId).toList(), language);
+    verify(pageMapper).toDomain(orderEntityPage);
+  }
 
-		when(jpaAdapter.findByIdFetchOrderItemsData(orderId)).thenReturn(optionalOrderEntity);
-		when(productJpaAdapter.findAllByIdAndLanguageCode(productIds, language)).thenReturn(products);
-		when(mapper.fromEntity(order)).thenReturn(orderDomain);
+  @Test
+  void updateOrderStatusTest() {
+    UUID orderId = TEST_UUID;
+    OrderStatus status = OrderStatus.COMPLETED;
 
-		// When
-		Optional<Order> result = orderRepository.findById(orderId, language);
+    doNothing().when(jpaAdapter).updateOrderStatus(orderId, status);
 
-		// Then
-		assertEquals(optionalOrder, result);
-		verify(jpaAdapter).findByIdFetchOrderItemsData(orderId);
-		verify(productJpaAdapter).findAllByIdAndLanguageCode(productIds, language);
-		verify(mapper).fromEntity(order);
-	}
+    orderRepository.updateOrderStatus(orderId, status);
+    verify(jpaAdapter).updateOrderStatus(orderId, status);
+  }
 
-	@Test
-	void findByIdFetchOrderItemsDataWhenOrderNotFoundTest() {
-		// Given
-		String language = "uk";
-		UUID orderId = TEST_UUID;
-		Optional<OrderEntity> optionalOrderEntity = Optional.empty();
-		Optional<Order> optionalOrder = Optional.empty();
+  @Test
+  void updateIsPaidStatusTest() {
+    UUID orderId = TEST_UUID;
 
-		when(jpaAdapter.findByIdFetchOrderItemsData(orderId)).thenReturn(optionalOrderEntity);
+    doNothing().when(jpaAdapter).updateIsPaidStatus(orderId, true);
 
-		// When
-		Optional<Order> result = orderRepository.findById(orderId, language);
+    orderRepository.updateIsPaidStatus(orderId, true);
+    verify(jpaAdapter).updateIsPaidStatus(orderId, true);
+  }
 
-		// Then
-		assertEquals(optionalOrder, result);
-		verify(jpaAdapter).findByIdFetchOrderItemsData(orderId);
-	}
+  @Test
+  void findByIdFetchOrderItemsDataTest() {
+    // Given
+    String language = "uk";
+    OrderEntity order = getOrderEntity();
+    UUID orderId = order.getId();
+    Optional<OrderEntity> optionalOrderEntity = Optional.of(order);
+    Order orderDomain = getOrder();
+    Optional<Order> optionalOrder = Optional.of(orderDomain);
+    var productIds = Stream.of(order).flatMap(orderEntity -> orderEntity.getOrderItems().stream())
+        .map(orderItemEntity -> orderItemEntity.getProduct().getId()).toList();
+    var products = List.of(getProductEntity());
 
-	@Test
-	void findByIdFetchDataTest() {
-		// Given
-		OrderEntity order = getOrderEntity();
-		UUID orderId = order.getId();
-		Optional<OrderEntity> optionalOrderEntity = Optional.of(order);
-		Order orderDomain = getOrder();
-		Optional<Order> optionalOrder = Optional.of(orderDomain);
+    when(jpaAdapter.findByIdFetchOrderItemsData(orderId)).thenReturn(optionalOrderEntity);
+    when(productJpaAdapter.findAllByIdAndLanguageCode(productIds, language)).thenReturn(products);
+    when(mapper.fromEntity(order)).thenReturn(orderDomain);
 
-		when(jpaAdapter.findByIdFetchData(orderId)).thenReturn(optionalOrderEntity);
-		when(mapper.fromEntity(order)).thenReturn(orderDomain);
+    // When
+    Optional<Order> result = orderRepository.findById(orderId, language);
 
-		// When
-		Optional<Order> result = orderRepository.findByIdFetchData(orderId);
+    // Then
+    assertEquals(optionalOrder, result);
+    verify(jpaAdapter).findByIdFetchOrderItemsData(orderId);
+    verify(productJpaAdapter).findAllByIdAndLanguageCode(productIds, language);
+    verify(mapper).fromEntity(order);
+  }
 
-		// Then
-		assertEquals(optionalOrder, result);
-		verify(jpaAdapter).findByIdFetchData(orderId);
-		verify(mapper).fromEntity(order);
-	}
+  @Test
+  void findByIdFetchOrderItemsDataWhenOrderNotFoundTest() {
+    // Given
+    String language = "uk";
+    UUID orderId = TEST_UUID;
+    Optional<OrderEntity> optionalOrderEntity = Optional.empty();
+    Optional<Order> optionalOrder = Optional.empty();
 
-	private OrderEntity createOrderEntityWithDependencies() {
-		var orderEntity = getOrderEntity();
-		var orderItemEntity = getOrderItemEntity();
-		orderItemEntity.setProduct(getProductEntity());
-		orderEntity.getOrderItems().add(orderItemEntity);
+    when(jpaAdapter.findByIdFetchOrderItemsData(orderId)).thenReturn(optionalOrderEntity);
 
-		var postAddressEntity = getPostAddressEntity();
-		orderEntity.setPostAddress(postAddressEntity);
-		postAddressEntity.setOrder(orderEntity);
+    // When
+    Optional<Order> result = orderRepository.findById(orderId, language);
 
-		var accountEntity = getAccountEntity();
-		orderEntity.setAccount(accountEntity);
-		return orderEntity;
-	}
+    // Then
+    assertEquals(optionalOrder, result);
+    verify(jpaAdapter).findByIdFetchOrderItemsData(orderId);
+  }
+
+  @Test
+  void findByIdFetchDataTest() {
+    // Given
+    OrderEntity order = getOrderEntity();
+    UUID orderId = order.getId();
+    Optional<OrderEntity> optionalOrderEntity = Optional.of(order);
+    Order orderDomain = getOrder();
+    Optional<Order> optionalOrder = Optional.of(orderDomain);
+
+    when(jpaAdapter.findByIdFetchData(orderId)).thenReturn(optionalOrderEntity);
+    when(mapper.fromEntity(order)).thenReturn(orderDomain);
+
+    // When
+    Optional<Order> result = orderRepository.findByIdFetchData(orderId);
+
+    // Then
+    assertEquals(optionalOrder, result);
+    verify(jpaAdapter).findByIdFetchData(orderId);
+    verify(mapper).fromEntity(order);
+  }
+
+  private OrderEntity createOrderEntityWithDependencies() {
+    var orderEntity = getOrderEntity();
+    var orderItemEntity = getOrderItemEntity();
+    orderItemEntity.setProduct(getProductEntity());
+    orderEntity.getOrderItems().add(orderItemEntity);
+
+    var postAddressEntity = getPostAddressEntity();
+    orderEntity.setPostAddress(postAddressEntity);
+    postAddressEntity.setOrder(orderEntity);
+
+    var accountEntity = getAccountEntity();
+    orderEntity.setAccount(accountEntity);
+    return orderEntity;
+  }
 }

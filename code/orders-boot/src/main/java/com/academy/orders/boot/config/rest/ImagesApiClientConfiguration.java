@@ -10,13 +10,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ImagesApiClientConfiguration {
 
-	@Bean("apiClient")
-	public ApiClient colorsApiClient(@Value("${rest.client.colors.base-url}") String baseUrl) {
-		return new ApiClient().setBasePath(baseUrl);
-	}
+  @Bean("apiClient")
+  public ApiClient colorsApiClient(@Value("${rest.client.colors.base-url}") String baseUrl) {
+    return new ApiClient().setBasePath(baseUrl);
+  }
 
-	@Bean("imageApiClient")
-	public ImagesApi imagesApi(final @Qualifier("apiClient") ApiClient apiClient) {
-		return new ImagesApi(apiClient);
-	}
+  @Bean("imageApiClient")
+  public ImagesApi imagesApi(final @Qualifier("apiClient") ApiClient apiClient) {
+    return new ImagesApi(apiClient);
+  }
 }

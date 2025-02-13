@@ -10,77 +10,80 @@ import com.academy.orders.domain.order.entity.OrderReceiver;
 import com.academy.orders.domain.order.entity.PostAddress;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.order.repository.OrderRepository;
-import com.academy.orders.domain.cart.usecase.CalculatePriceUseCase;
-import com.academy.orders.domain.product.usecase.ChangeQuantityUseCase;
 import com.academy.orders.domain.order.usecase.CreateOrderUseCase;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import com.academy.orders.domain.product.usecase.ChangeQuantityUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class CreateOrderUseCaseImpl implements CreateOrderUseCase {
-	private final CalculatePriceUseCase calculatePriceUseCase;
-	private final ChangeQuantityUseCase changeQuantityUseCase;
-	private final OrderRepository orderRepository;
-	private final CartItemRepository cartItemRepository;
+  private final ChangeQuantityUseCase changeQuantityUseCase;
 
-	@Override
-	@Transactional
-	public UUID createOrder(CreateOrderDto createOrderDto, Long accountId) {
-		var bucketElements = getBucketElements(accountId);
-		checkCartIsNotEmpty(bucketElements);
-		var orderItems = createOrderItems(bucketElements);
-		var order = createOrderObject(createOrderDto, orderItems);
-		var orderId = saveOrder(order, accountId);
-		clearCart(accountId);
-		return orderId;
-	}
+  private final OrderRepository orderRepository;
 
-	private Order createOrderObject(CreateOrderDto createOrderDto, List<OrderItem> orderItems) {
-		return Order.builder().receiver(createReceiverObject(createOrderDto))
-				.postAddress(createPostAddressObject(createOrderDto)).orderStatus(OrderStatus.IN_PROGRESS).isPaid(false)
-				.orderItems(orderItems).build();
-	}
+  private final CartItemRepository cartItemRepository;
 
-	private PostAddress createPostAddressObject(CreateOrderDto createOrderDto) {
-		return PostAddress.builder().city(createOrderDto.city()).department(createOrderDto.department())
-				.deliveryMethod(createOrderDto.deliveryMethod()).build();
-	}
+  @Override
+  @Transactional
+  public UUID createOrder(CreateOrderDto createOrderDto, Long accountId) {
+    var bucketElements = getBucketElements(accountId);
+    checkCartIsNotEmpty(bucketElements);
+    var orderItems = createOrderItems(bucketElements);
+    var order = createOrderObject(createOrderDto, orderItems);
+    var orderId = saveOrder(order, accountId);
+    clearCart(accountId);
+    return orderId;
+  }
 
-	private void checkCartIsNotEmpty(List<CartItem> bucketElements) {
-		if (Objects.isNull(bucketElements) || bucketElements.isEmpty()) {
-			throw new EmptyCartException();
-		}
-	}
+  private Order createOrderObject(CreateOrderDto createOrderDto, List<OrderItem> orderItems) {
+    return Order.builder().receiver(createReceiverObject(createOrderDto))
+        .postAddress(createPostAddressObject(createOrderDto)).orderStatus(OrderStatus.IN_PROGRESS).isPaid(false)
+        .orderItems(orderItems).build();
+  }
 
-	private OrderReceiver createReceiverObject(CreateOrderDto createOrderDto) {
-		return OrderReceiver.builder().firstName(createOrderDto.firstName()).lastName(createOrderDto.lastName())
-				.email(createOrderDto.email()).build();
-	}
+  private PostAddress createPostAddressObject(CreateOrderDto createOrderDto) {
+    return PostAddress.builder().city(createOrderDto.city()).department(createOrderDto.department())
+        .deliveryMethod(createOrderDto.deliveryMethod()).build();
+  }
 
-	private List<CartItem> getBucketElements(Long accountId) {
-		return cartItemRepository.findCartItemsByAccountId(accountId);
-	}
+  private void checkCartIsNotEmpty(List<CartItem> bucketElements) {
+    if (Objects.isNull(bucketElements) || bucketElements.isEmpty()) {
+      throw new EmptyCartException();
+    }
+  }
 
-	private List<OrderItem> createOrderItems(List<CartItem> cartItems) {
-		return cartItems.stream().map(this::createItem).toList();
-	}
+  private OrderReceiver createReceiverObject(CreateOrderDto createOrderDto) {
+    return OrderReceiver.builder().firstName(createOrderDto.firstName()).lastName(createOrderDto.lastName())
+        .email(createOrderDto.email()).build();
+  }
 
-	private OrderItem createItem(CartItem cartItem) {
-		var calculatedPrice = calculatePriceUseCase.calculateCartItemPrice(cartItem);
-		changeQuantityUseCase.changeQuantityOfProduct(cartItem.product(), cartItem.quantity());
-		return new OrderItem(cartItem.product(), calculatedPrice, cartItem.quantity());
-	}
+  private List<CartItem> getBucketElements(Long accountId) {
+    return cartItemRepository.findCartItemsByAccountId(accountId);
+  }
 
-	private UUID saveOrder(Order order, Long accountId) {
-		return orderRepository.save(order, accountId);
-	}
+  private List<OrderItem> createOrderItems(List<CartItem> cartItems) {
+    return cartItems.stream().map(this::createItem).toList();
+  }
 
-	private void clearCart(Long accountId) {
-		cartItemRepository.deleteCartItemsByAccountId(accountId);
-	}
+  private OrderItem createItem(CartItem cartItem) {
+    final BigDecimal calculatedPrice = CartItem.calculateCartItemPrice(cartItem);
+    changeQuantityUseCase.changeQuantityOfProduct(cartItem.product(), cartItem.quantity());
+    final Integer currentDiscount = cartItem.product().getDiscountAmount();
+    return new OrderItem(cartItem.product(), calculatedPrice, currentDiscount, cartItem.quantity());
+  }
+
+  private UUID saveOrder(Order order, Long accountId) {
+    return orderRepository.save(order, accountId);
+  }
+
+  private void clearCart(Long accountId) {
+    cartItemRepository.deleteCartItemsByAccountId(accountId);
+  }
 }

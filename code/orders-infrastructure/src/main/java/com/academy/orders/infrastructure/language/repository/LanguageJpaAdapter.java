@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface LanguageJpaAdapter extends JpaRepository<LanguageEntity, Long> {
-	Optional<LanguageEntity> findByCode(String code);
+  Optional<LanguageEntity> findByCode(String code);
 }

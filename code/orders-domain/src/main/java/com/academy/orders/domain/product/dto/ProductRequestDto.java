@@ -8,5 +8,5 @@ import java.util.Set;
 
 @Builder
 public record ProductRequestDto(String status, String image, Integer quantity, BigDecimal price, List<Long> tagIds,
-		Set<ProductTranslationDto> productTranslations) {
+    Set<ProductTranslationDto> productTranslations) {
 }
