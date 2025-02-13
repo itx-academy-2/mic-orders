@@ -5,5 +5,5 @@ import lombok.Builder;
 
 @Builder
 public record CreateOrderDto(String firstName, String lastName, String email, DeliveryMethod deliveryMethod,
-		String city, String department) {
+    String city, String department) {
 }

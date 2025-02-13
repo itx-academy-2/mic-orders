@@ -1,0 +1,26 @@
+{
+  "id": "#string",
+  "isPaid": "#boolean",
+  "orderStatus": "#string",
+  "createdAt": "#string",
+  "editedAt": "#string",
+  "account": {
+    "id": "#number",
+    "email": "#string",
+    "firstName": "#string",
+    "lastName": "#string"
+  },
+  "total": "#number",
+  "totalWithDiscount": "#number",
+  "receiver": {
+    "firstName": "#string",
+    "lastName": "#string",
+    "email": "#string"
+  },
+  "postAddress": {
+    "deliveryMethod": "#string",
+    "city": "#string",
+    "department": "#string"
+  },
+  "orderItems": "#array"
+}

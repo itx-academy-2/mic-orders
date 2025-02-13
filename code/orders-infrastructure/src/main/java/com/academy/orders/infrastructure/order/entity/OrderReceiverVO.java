@@ -13,12 +13,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 public class OrderReceiverVO {
-	@Column(name = "first_name", nullable = false)
-	private String firstName;
+  @Column(name = "first_name", nullable = false)
+  private String firstName;
 
-	@Column(name = "last_name", nullable = false)
-	private String lastName;
+  @Column(name = "last_name", nullable = false)
+  private String lastName;
 
-	@Column(nullable = false)
-	private String email;
+  @Column(nullable = false)
+  private String email;
 }

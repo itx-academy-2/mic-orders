@@ -12,7 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.Optional;
+
 import static com.academy.orders.application.ModelUtils.getCanceledOrder;
 import static com.academy.orders.application.ModelUtils.getDeliveredOrder;
 import static com.academy.orders.application.ModelUtils.getOrder;
@@ -34,155 +36,156 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateOrderStatusUseCaseTest {
-	@InjectMocks
-	private UpdateOrderStatusUseCaseImpl updateOrderStatusUseCase;
-	@Mock
-	private OrderRepository orderRepository;
+  @InjectMocks
+  private UpdateOrderStatusUseCaseImpl updateOrderStatusUseCase;
 
-	@Test
-	void updateOrderStatusWithRoleManagerTest() {
-		var orderId = TEST_UUID;
-		var status = OrderStatus.IN_PROGRESS;
+  @Mock
+  private OrderRepository orderRepository;
 
-		var updateOrderStatusDto = getUpdateOrderStatusDto();
-		var orderStatusInfo = getOrderStatusInfo();
+  @Test
+  void updateOrderStatusWithRoleManagerTest() {
+    var orderId = TEST_UUID;
+    var status = OrderStatus.IN_PROGRESS;
 
-		when(orderRepository.findById(orderId)).thenReturn(Optional.of(getOrder()));
-		doNothing().when(orderRepository).updateOrderStatus(orderId, status);
-		doNothing().when(orderRepository).updateIsPaidStatus(orderId, false);
+    var updateOrderStatusDto = getUpdateOrderStatusDto();
+    var orderStatusInfo = getOrderStatusInfo();
 
-		var result = updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(getOrder()));
+    doNothing().when(orderRepository).updateOrderStatus(orderId, status);
+    doNothing().when(orderRepository).updateIsPaidStatus(orderId, false);
 
-		assertEquals(orderStatusInfo.isPaid(), result.isPaid());
-		assertThat(result.availableStatuses()).containsExactlyInAnyOrder(OrderStatus.SHIPPED, OrderStatus.DELIVERED,
-				OrderStatus.COMPLETED, OrderStatus.CANCELED);
+    var result = updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER);
 
-		verify(orderRepository).updateOrderStatus(orderId, status);
-		verify(orderRepository).updateOrderStatus(orderId, status);
-		verify(orderRepository).updateIsPaidStatus(orderId, false);
-	}
+    assertEquals(orderStatusInfo.isPaid(), result.isPaid());
+    assertThat(result.availableStatuses()).containsExactlyInAnyOrder(OrderStatus.SHIPPED, OrderStatus.DELIVERED,
+        OrderStatus.COMPLETED, OrderStatus.CANCELED);
 
-	@Test
-	void updateOrderStatusWithRoleAdminTest() {
-		var orderId = TEST_UUID;
-		var status = OrderStatus.IN_PROGRESS;
+    verify(orderRepository).updateOrderStatus(orderId, status);
+    verify(orderRepository).updateOrderStatus(orderId, status);
+    verify(orderRepository).updateIsPaidStatus(orderId, false);
+  }
 
-		var updateOrderStatusDto = getUpdateOrderStatusDto();
-		var orderStatusInfo = getOrderStatusInfo();
+  @Test
+  void updateOrderStatusWithRoleAdminTest() {
+    var orderId = TEST_UUID;
+    var status = OrderStatus.IN_PROGRESS;
 
-		when(orderRepository.findById(orderId)).thenReturn(Optional.of(getCanceledOrder()));
-		doNothing().when(orderRepository).updateOrderStatus(orderId, status);
-		doNothing().when(orderRepository).updateIsPaidStatus(orderId, false);
+    var updateOrderStatusDto = getUpdateOrderStatusDto();
+    var orderStatusInfo = getOrderStatusInfo();
 
-		var result = updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_ADMIN);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(getCanceledOrder()));
+    doNothing().when(orderRepository).updateOrderStatus(orderId, status);
+    doNothing().when(orderRepository).updateIsPaidStatus(orderId, false);
 
-		assertEquals(orderStatusInfo.isPaid(), result.isPaid());
-		assertThat(result.availableStatuses()).containsExactlyInAnyOrder(OrderStatus.IN_PROGRESS, OrderStatus.SHIPPED,
-				OrderStatus.DELIVERED, OrderStatus.COMPLETED, OrderStatus.CANCELED);
+    var result = updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_ADMIN);
 
-		verify(orderRepository).updateOrderStatus(orderId, status);
-		verify(orderRepository).updateOrderStatus(orderId, status);
-		verify(orderRepository).updateIsPaidStatus(orderId, false);
-	}
+    assertEquals(orderStatusInfo.isPaid(), result.isPaid());
+    assertThat(result.availableStatuses()).containsExactlyInAnyOrder(OrderStatus.IN_PROGRESS, OrderStatus.SHIPPED,
+        OrderStatus.DELIVERED, OrderStatus.COMPLETED, OrderStatus.CANCELED);
 
-	@Test
-	void updateOrderStatusThrowsOrderNotFoundExceptionTest() {
-		var orderId = TEST_UUID;
-		var updateOrderStatusDto = getUpdateOrderStatusDto();
+    verify(orderRepository).updateOrderStatus(orderId, status);
+    verify(orderRepository).updateOrderStatus(orderId, status);
+    verify(orderRepository).updateIsPaidStatus(orderId, false);
+  }
 
-		when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+  @Test
+  void updateOrderStatusThrowsOrderNotFoundExceptionTest() {
+    var orderId = TEST_UUID;
+    var updateOrderStatusDto = getUpdateOrderStatusDto();
 
-		assertThrows(OrderNotFoundException.class,
-				() -> updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER));
-		verify(orderRepository).findById(orderId);
-	}
+    when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-	@Test
-	void updateOrderStatusThrowsInvalidOrderStatusTransitionExceptionTest() {
-		var orderId = TEST_UUID;
-		var updateOrderStatusDto = getUpdateOrderStatusDto();
+    assertThrows(OrderNotFoundException.class,
+        () -> updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER));
+    verify(orderRepository).findById(orderId);
+  }
 
-		when(orderRepository.findById(orderId)).thenReturn(Optional.of(getDeliveredOrder()));
+  @Test
+  void updateOrderStatusThrowsInvalidOrderStatusTransitionExceptionTest() {
+    var orderId = TEST_UUID;
+    var updateOrderStatusDto = getUpdateOrderStatusDto();
 
-		assertThrows(InvalidOrderStatusTransitionException.class,
-				() -> updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER));
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(getDeliveredOrder()));
 
-		verify(orderRepository).findById(orderId);
-	}
+    assertThrows(InvalidOrderStatusTransitionException.class,
+        () -> updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER));
 
-	@Test
-	void updateOrderStatusThrowsOrderFinalStateExceptionTest() {
-		var orderId = TEST_UUID;
-		var updateOrderStatusDto = getUpdateOrderStatusDto();
+    verify(orderRepository).findById(orderId);
+  }
 
-		when(orderRepository.findById(orderId)).thenReturn(Optional.of(getCanceledOrder()));
+  @Test
+  void updateOrderStatusThrowsOrderFinalStateExceptionTest() {
+    var orderId = TEST_UUID;
+    var updateOrderStatusDto = getUpdateOrderStatusDto();
 
-		assertThrows(OrderFinalStateException.class,
-				() -> updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER));
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(getCanceledOrder()));
 
-		verify(orderRepository).findById(orderId);
-	}
+    assertThrows(OrderFinalStateException.class,
+        () -> updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER));
 
-	@Test
-	void updateOrderStatusThrowsOrderAlreadyPaidExceptionTest() {
-		var orderId = TEST_UUID;
-		var updateOrderStatusDto = getUpdateOrderStatusDto();
+    verify(orderRepository).findById(orderId);
+  }
 
-		when(orderRepository.findById(orderId)).thenReturn(Optional.of(getPaidOrder()));
+  @Test
+  void updateOrderStatusThrowsOrderAlreadyPaidExceptionTest() {
+    var orderId = TEST_UUID;
+    var updateOrderStatusDto = getUpdateOrderStatusDto();
 
-		assertThrows(OrderAlreadyPaidException.class,
-				() -> updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER));
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(getPaidOrder()));
 
-		verify(orderRepository).findById(orderId);
-	}
+    assertThrows(OrderAlreadyPaidException.class,
+        () -> updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER));
 
-	@Test
-	void updateOrderStatusThrowsOrderUnpaidExceptionTest() {
-		var orderId = TEST_UUID;
-		var updateOrderStatusDto = getUpdateOrderStatusDtoWithCompletedStatus();
+    verify(orderRepository).findById(orderId);
+  }
 
-		when(orderRepository.findById(orderId)).thenReturn(Optional.of(getOrder()));
+  @Test
+  void updateOrderStatusThrowsOrderUnpaidExceptionTest() {
+    var orderId = TEST_UUID;
+    var updateOrderStatusDto = getUpdateOrderStatusDtoWithCompletedStatus();
 
-		assertThrows(OrderUnpaidException.class,
-				() -> updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER));
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(getOrder()));
 
-		verify(orderRepository).findById(orderId);
-	}
+    assertThrows(OrderUnpaidException.class,
+        () -> updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER));
 
-	@Test
-	void updateOrderStatusWithNullIsPaidStatusTest() {
-		var orderId = TEST_UUID;
-		var status = OrderStatus.IN_PROGRESS;
+    verify(orderRepository).findById(orderId);
+  }
 
-		var updateOrderStatusDto = getUpdateOrderStatusDtoWithNullIsPaid();
-		var orderStatusInfo = getOrderStatusInfo();
+  @Test
+  void updateOrderStatusWithNullIsPaidStatusTest() {
+    var orderId = TEST_UUID;
+    var status = OrderStatus.IN_PROGRESS;
 
-		when(orderRepository.findById(orderId)).thenReturn(Optional.of(getOrder()));
-		doNothing().when(orderRepository).updateOrderStatus(orderId, status);
+    var updateOrderStatusDto = getUpdateOrderStatusDtoWithNullIsPaid();
+    var orderStatusInfo = getOrderStatusInfo();
 
-		var result = updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(getOrder()));
+    doNothing().when(orderRepository).updateOrderStatus(orderId, status);
 
-		assertEquals(orderStatusInfo.isPaid(), result.isPaid());
-		assertThat(result.availableStatuses()).containsExactlyInAnyOrder(OrderStatus.SHIPPED, OrderStatus.DELIVERED,
-				OrderStatus.COMPLETED, OrderStatus.CANCELED);
+    var result = updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER);
 
-		verify(orderRepository).updateOrderStatus(orderId, status);
-		verify(orderRepository).updateOrderStatus(orderId, status);
-	}
+    assertEquals(orderStatusInfo.isPaid(), result.isPaid());
+    assertThat(result.availableStatuses()).containsExactlyInAnyOrder(OrderStatus.SHIPPED, OrderStatus.DELIVERED,
+        OrderStatus.COMPLETED, OrderStatus.CANCELED);
 
-	@Test
-	void updateOrderStatusWithoutPaidStatusToCompletedTest() {
-		var orderId = TEST_UUID;
-		var status = OrderStatus.COMPLETED;
+    verify(orderRepository).updateOrderStatus(orderId, status);
+    verify(orderRepository).updateOrderStatus(orderId, status);
+  }
 
-		var updateOrderStatusDto = getUpdateOrderStatusDtoWithNullIsPaidAndStatusCompleted();
+  @Test
+  void updateOrderStatusWithoutPaidStatusToCompletedTest() {
+    var orderId = TEST_UUID;
+    var status = OrderStatus.COMPLETED;
 
-		when(orderRepository.findById(orderId)).thenReturn(Optional.of(getPaidOrder()));
-		doNothing().when(orderRepository).updateOrderStatus(orderId, status);
+    var updateOrderStatusDto = getUpdateOrderStatusDtoWithNullIsPaidAndStatusCompleted();
 
-		updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(getPaidOrder()));
+    doNothing().when(orderRepository).updateOrderStatus(orderId, status);
 
-		verify(orderRepository).updateOrderStatus(orderId, status);
-		verify(orderRepository).updateOrderStatus(orderId, status);
-	}
+    updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatusDto, ROLE_MANAGER);
+
+    verify(orderRepository).updateOrderStatus(orderId, status);
+    verify(orderRepository).updateOrderStatus(orderId, status);
+  }
 }

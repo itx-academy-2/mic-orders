@@ -9,8 +9,6 @@ import com.academy.orders.infrastructure.cart.entity.CartItemEntity;
 import com.academy.orders.infrastructure.cart.entity.CartItemId;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.repository.ProductJpaAdapter;
-import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +18,9 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.academy.orders.infrastructure.ModelUtils.getCartItem;
 import static com.academy.orders.infrastructure.ModelUtils.getCartItemEntity;
@@ -38,151 +39,156 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CartItemRepositoryTest {
-	@InjectMocks
-	private CartItemRepositoryImpl cartItemRepository;
-	@Mock
-	private CartItemJpaAdapter cartItemJpaAdapter;
-	@Mock
-	private CartItemMapper cartItemMapper;
-	@Mock
-	private AccountJpaAdapter accountJpaAdapter;
-	@Mock
-	private ProductJpaAdapter productJpaAdapter;
+  @InjectMocks
+  private CartItemRepositoryImpl cartItemRepository;
 
-	private CreateCartItemDTO createCartItemDto;
-	private CartItemEntity cartItemEntity;
+  @Mock
+  private CartItemJpaAdapter cartItemJpaAdapter;
 
-	@BeforeEach
-	void setUp() {
-		createCartItemDto = new CreateCartItemDTO(UUID.randomUUID(), 1L, 1);
-		cartItemEntity = CartItemEntity.builder().quantity(1).build();
-	}
+  @Mock
+  private CartItemMapper cartItemMapper;
 
-	@ParameterizedTest
-	@CsvSource({"true", "false"})
-	void existsByProductAndUserIdTest(Boolean response) {
+  @Mock
+  private AccountJpaAdapter accountJpaAdapter;
 
-		when(cartItemJpaAdapter.existsById(any(CartItemId.class))).thenReturn(response);
+  @Mock
+  private ProductJpaAdapter productJpaAdapter;
 
-		assertEquals(response, cartItemRepository.existsByProductIdAndUserId(UUID.randomUUID(), 1L));
-		verify(cartItemJpaAdapter).existsById(any(CartItemId.class));
-	}
+  private CreateCartItemDTO createCartItemDto;
 
-	@Test
-	void saveCartItemTest() {
-		var productEntity = getProduct();
-		var expected = CartItem.builder().product(productEntity).quantity(1).build();
+  private CartItemEntity cartItemEntity;
 
-		when(cartItemMapper.toEntity(createCartItemDto)).thenReturn(cartItemEntity);
-		when(productJpaAdapter.getReferenceById(createCartItemDto.productId())).thenReturn(new ProductEntity());
-		when(accountJpaAdapter.getReferenceById(createCartItemDto.userId())).thenReturn(new AccountEntity());
-		when(cartItemJpaAdapter.save(any(CartItemEntity.class))).thenReturn(cartItemEntity);
-		when(cartItemMapper.fromEntity(cartItemEntity)).thenReturn(expected);
+  @BeforeEach
+  void setUp() {
+    createCartItemDto = new CreateCartItemDTO(UUID.randomUUID(), 1L, 1);
+    cartItemEntity = CartItemEntity.builder().quantity(1).build();
+  }
 
-		var actualOrderItem = cartItemRepository.save(createCartItemDto);
+  @ParameterizedTest
+  @CsvSource({"true", "false"})
+  void existsByProductAndUserIdTest(Boolean response) {
 
-		assertEquals(expected, actualOrderItem);
-		assertNotNull(cartItemEntity.getAccount());
-		assertNotNull(cartItemEntity.getProduct());
+    when(cartItemJpaAdapter.existsById(any(CartItemId.class))).thenReturn(response);
 
-		verify(cartItemMapper).toEntity(any(CreateCartItemDTO.class));
-		verify(productJpaAdapter).getReferenceById(any(UUID.class));
-		verify(accountJpaAdapter).getReferenceById(anyLong());
-		verify(cartItemJpaAdapter).save(any(CartItemEntity.class));
-		verify(cartItemMapper).fromEntity(any(CartItemEntity.class));
-	}
+    assertEquals(response, cartItemRepository.existsByProductIdAndUserId(UUID.randomUUID(), 1L));
+    verify(cartItemJpaAdapter).existsById(any(CartItemId.class));
+  }
 
-	@Test
-	void saveCartItemWithExistingTest() {
-		var existingCartItemEntity = getCartItemEntity();
-		var updatedQuantity = 2;
+  @Test
+  void saveCartItemTest() {
+    var productEntity = getProduct();
+    var expected = CartItem.builder().product(productEntity).quantity(1).build();
 
-		when(cartItemJpaAdapter.findById(any(CartItemId.class))).thenReturn(Optional.of(existingCartItemEntity));
-		when(cartItemJpaAdapter.save(any(CartItemEntity.class))).thenReturn(existingCartItemEntity);
-		when(cartItemMapper.fromEntity(existingCartItemEntity)).thenReturn(getCartItem());
+    when(cartItemMapper.toEntity(createCartItemDto)).thenReturn(cartItemEntity);
+    when(productJpaAdapter.getReferenceById(createCartItemDto.productId())).thenReturn(new ProductEntity());
+    when(accountJpaAdapter.getReferenceById(createCartItemDto.userId())).thenReturn(new AccountEntity());
+    when(cartItemJpaAdapter.save(any(CartItemEntity.class))).thenReturn(cartItemEntity);
+    when(cartItemMapper.fromEntity(cartItemEntity)).thenReturn(expected);
 
-		createCartItemDto = new CreateCartItemDTO(existingCartItemEntity.getProduct().getId(),
-				existingCartItemEntity.getAccount().getId(), updatedQuantity);
+    var actualOrderItem = cartItemRepository.save(createCartItemDto);
 
-		cartItemRepository.save(createCartItemDto);
+    assertEquals(expected, actualOrderItem);
+    assertNotNull(cartItemEntity.getAccount());
+    assertNotNull(cartItemEntity.getProduct());
 
-		assertEquals(updatedQuantity, existingCartItemEntity.getQuantity());
-		verify(cartItemJpaAdapter).findById(any(CartItemId.class));
-		verify(cartItemJpaAdapter).save(existingCartItemEntity);
-		verify(cartItemMapper).fromEntity(existingCartItemEntity);
-	}
+    verify(cartItemMapper).toEntity(any(CreateCartItemDTO.class));
+    verify(productJpaAdapter).getReferenceById(any(UUID.class));
+    verify(accountJpaAdapter).getReferenceById(anyLong());
+    verify(cartItemJpaAdapter).save(any(CartItemEntity.class));
+    verify(cartItemMapper).fromEntity(any(CartItemEntity.class));
+  }
 
-	@Test
-	void findCartItemsByAccountIdTest() {
-		var cartItem = getCartItemEntity();
-		var cartItemEntities = singletonList(cartItem);
-		var cartItems = singletonList(getCartItem());
+  @Test
+  void saveCartItemWithExistingTest() {
+    var existingCartItemEntity = getCartItemEntity();
+    var updatedQuantity = 2;
 
-		when(cartItemJpaAdapter.findAllByAccountId(anyLong())).thenReturn(cartItemEntities);
-		when(cartItemMapper.fromEntities(cartItemEntities)).thenReturn(cartItems);
+    when(cartItemJpaAdapter.findById(any(CartItemId.class))).thenReturn(Optional.of(existingCartItemEntity));
+    when(cartItemJpaAdapter.save(any(CartItemEntity.class))).thenReturn(existingCartItemEntity);
+    when(cartItemMapper.fromEntity(existingCartItemEntity)).thenReturn(getCartItem());
 
-		var actualCartItems = cartItemRepository.findCartItemsByAccountId(anyLong());
+    createCartItemDto = new CreateCartItemDTO(existingCartItemEntity.getProduct().getId(),
+        existingCartItemEntity.getAccount().getId(), updatedQuantity);
 
-		assertEquals(cartItems, actualCartItems);
+    cartItemRepository.save(createCartItemDto);
 
-		verify(cartItemJpaAdapter).findAllByAccountId(anyLong());
-		verify(cartItemMapper).fromEntities(anyList());
-	}
+    assertEquals(updatedQuantity, existingCartItemEntity.getQuantity());
+    verify(cartItemJpaAdapter).findById(any(CartItemId.class));
+    verify(cartItemJpaAdapter).save(existingCartItemEntity);
+    verify(cartItemMapper).fromEntity(existingCartItemEntity);
+  }
 
-	@Test
-	void deleteCartItemsByAccountIdTest() {
-		doNothing().when(cartItemJpaAdapter).deleteAllByAccountId(anyLong());
+  @Test
+  void findCartItemsByAccountIdTest() {
+    var cartItem = getCartItemEntity();
+    var cartItemEntities = singletonList(cartItem);
+    var cartItems = singletonList(getCartItem());
 
-		assertDoesNotThrow(() -> cartItemRepository.deleteCartItemsByAccountId(1L));
-		verify(cartItemJpaAdapter).deleteAllByAccountId(anyLong());
-	}
+    when(cartItemJpaAdapter.findAllByAccountId(anyLong())).thenReturn(cartItemEntities);
+    when(cartItemMapper.fromEntities(cartItemEntities)).thenReturn(cartItems);
 
-	@Test
-	void deleteCartItemByAccountAndProductIdsTest() {
-		var productId = UUID.randomUUID();
-		var accountId = 1L;
+    var actualCartItems = cartItemRepository.findCartItemsByAccountId(anyLong());
 
-		doNothing().when(cartItemJpaAdapter).deleteByAccountIdAndProductId(accountId, productId);
+    assertEquals(cartItems, actualCartItems);
 
-		assertDoesNotThrow(() -> cartItemRepository.deleteCartItemByAccountAndProductIds(accountId, productId));
-		verify(cartItemJpaAdapter).deleteByAccountIdAndProductId(anyLong(), any(UUID.class));
-	}
+    verify(cartItemJpaAdapter).findAllByAccountId(anyLong());
+    verify(cartItemMapper).fromEntities(anyList());
+  }
 
-	@Test
-	void findCartItemsByAccountIdAndLangTest() {
-		var lang = "uk";
-		var accountId = 1L;
-		var cartItem = getCartItemEntity();
-		var cartItemEntities = singletonList(cartItem);
-		var cartItems = singletonList(getCartItem());
+  @Test
+  void deleteCartItemsByAccountIdTest() {
+    doNothing().when(cartItemJpaAdapter).deleteAllByAccountId(anyLong());
 
-		when(cartItemJpaAdapter.findAllByAccountIdAndProductLang(accountId, lang)).thenReturn(cartItemEntities);
-		when(cartItemMapper.fromEntitiesWithProductsTranslations(cartItemEntities)).thenReturn(cartItems);
-		var actualItems = cartItemRepository.findCartItemsByAccountIdAndLang(accountId, lang);
+    assertDoesNotThrow(() -> cartItemRepository.deleteCartItemsByAccountId(1L));
+    verify(cartItemJpaAdapter).deleteAllByAccountId(anyLong());
+  }
 
-		assertEquals(cartItems, actualItems);
-		verify(cartItemJpaAdapter).findAllByAccountIdAndProductLang(anyLong(), anyString());
-		verify(cartItemMapper).fromEntitiesWithProductsTranslations(any());
+  @Test
+  void deleteCartItemByAccountAndProductIdsTest() {
+    var productId = UUID.randomUUID();
+    var accountId = 1L;
 
-	}
+    doNothing().when(cartItemJpaAdapter).deleteByAccountIdAndProductId(accountId, productId);
 
-	@Test
-	void findByProductIdAndUserIdTest() {
-		var productId = UUID.randomUUID();
-		var userId = 1L;
-		var cartItem = getCartItemEntity();
-		var expectedCartItem = getCartItem();
+    assertDoesNotThrow(() -> cartItemRepository.deleteCartItemByAccountAndProductIds(accountId, productId));
+    verify(cartItemJpaAdapter).deleteByAccountIdAndProductId(anyLong(), any(UUID.class));
+  }
 
-		when(cartItemJpaAdapter.findById(new CartItemId(productId, userId))).thenReturn(Optional.of(cartItem));
-		when(cartItemMapper.fromEntity(cartItem)).thenReturn(expectedCartItem);
+  @Test
+  void findCartItemsByAccountIdAndLangTest() {
+    var lang = "uk";
+    var accountId = 1L;
+    var cartItem = getCartItemEntity();
+    var cartItemEntities = singletonList(cartItem);
+    var cartItems = singletonList(getCartItem());
 
-		var actualCartItem = cartItemRepository.findByProductIdAndUserId(productId, userId);
+    when(cartItemJpaAdapter.findAllByAccountIdAndProductLang(accountId, lang)).thenReturn(cartItemEntities);
+    when(cartItemMapper.fromEntitiesWithProductsTranslations(cartItemEntities)).thenReturn(cartItems);
+    var actualItems = cartItemRepository.findCartItemsByAccountIdAndLang(accountId, lang);
 
-		Assertions.assertTrue(actualCartItem.isPresent());
-		assertEquals(expectedCartItem, actualCartItem.get());
+    assertEquals(cartItems, actualItems);
+    verify(cartItemJpaAdapter).findAllByAccountIdAndProductLang(anyLong(), anyString());
+    verify(cartItemMapper).fromEntitiesWithProductsTranslations(any());
 
-		verify(cartItemJpaAdapter).findById(new CartItemId(productId, userId));
-		verify(cartItemMapper).fromEntity(cartItem);
+  }
 
-	}
+  @Test
+  void findByProductIdAndUserIdTest() {
+    var productId = UUID.randomUUID();
+    var userId = 1L;
+    var cartItem = getCartItemEntity();
+    var expectedCartItem = getCartItem();
+
+    when(cartItemJpaAdapter.findById(new CartItemId(productId, userId))).thenReturn(Optional.of(cartItem));
+    when(cartItemMapper.fromEntity(cartItem)).thenReturn(expectedCartItem);
+
+    var actualCartItem = cartItemRepository.findByProductIdAndUserId(productId, userId);
+
+    Assertions.assertTrue(actualCartItem.isPresent());
+    assertEquals(expectedCartItem, actualCartItem.get());
+
+    verify(cartItemJpaAdapter).findById(new CartItemId(productId, userId));
+    verify(cartItemMapper).fromEntity(cartItem);
+
+  }
 }

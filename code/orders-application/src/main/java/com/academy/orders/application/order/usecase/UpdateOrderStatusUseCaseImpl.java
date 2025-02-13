@@ -13,73 +13,75 @@ import com.academy.orders.domain.order.repository.OrderRepository;
 import com.academy.orders.domain.order.usecase.UpdateOrderStatusUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class UpdateOrderStatusUseCaseImpl implements UpdateOrderStatusUseCase {
-	private final OrderRepository orderRepository;
-	private static final String ROLE_ADMIN = "role_admin";
+  private static final String ROLE_ADMIN = "role_admin";
 
-	@Override
-	public OrderStatusInfo updateOrderStatus(UUID orderId, UpdateOrderStatusDto updateOrderStatus, String role) {
-		var currentOrder = getOrderById(orderId);
-		boolean isAdmin = isAdminRole(Role.valueOf(role));
+  private final OrderRepository orderRepository;
 
-		if (!isAdmin) {
-			validateOrderStatusUpdate(currentOrder, updateOrderStatus);
-		}
+  @Override
+  public OrderStatusInfo updateOrderStatus(UUID orderId, UpdateOrderStatusDto updateOrderStatus, String role) {
+    var currentOrder = getOrderById(orderId);
+    boolean isAdmin = isAdminRole(Role.valueOf(role));
 
-		updateOrderStatuses(orderId, updateOrderStatus);
-		var availableStatuses = getAvailableStatuses(isAdmin, updateOrderStatus);
-		return buildOrderStatusInfo(currentOrder, updateOrderStatus, availableStatuses);
-	}
+    if (!isAdmin) {
+      validateOrderStatusUpdate(currentOrder, updateOrderStatus);
+    }
 
-	private Order getOrderById(UUID orderId) {
-		return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
-	}
+    updateOrderStatuses(orderId, updateOrderStatus);
+    var availableStatuses = getAvailableStatuses(isAdmin, updateOrderStatus);
+    return buildOrderStatusInfo(currentOrder, updateOrderStatus, availableStatuses);
+  }
 
-	private boolean isAdminRole(Role accountRole) {
-		return ROLE_ADMIN.equalsIgnoreCase(String.valueOf(accountRole));
-	}
+  private Order getOrderById(UUID orderId) {
+    return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
+  }
 
-	private void validateOrderStatusUpdate(Order currentOrder, UpdateOrderStatusDto updateOrderStatus) {
-		if (updateOrderStatus.isPaid() != null && currentOrder.isPaid()) {
-			throw new OrderAlreadyPaidException(currentOrder.id());
-		}
+  private boolean isAdminRole(Role accountRole) {
+    return ROLE_ADMIN.equalsIgnoreCase(String.valueOf(accountRole));
+  }
 
-		if (currentOrder.isPaid() != null && !currentOrder.isPaid()
-				&& updateOrderStatus.status().equals(OrderStatus.COMPLETED)) {
-			throw new OrderUnpaidException(currentOrder.id(), updateOrderStatus.status().toString());
-		}
+  private void validateOrderStatusUpdate(Order currentOrder, UpdateOrderStatusDto updateOrderStatus) {
+    if (updateOrderStatus.isPaid() != null && currentOrder.isPaid()) {
+      throw new OrderAlreadyPaidException(currentOrder.id());
+    }
 
-		if (!currentOrder.orderStatus().canTransitionTo(updateOrderStatus.status())) {
-			throw new InvalidOrderStatusTransitionException(currentOrder.orderStatus(), updateOrderStatus.status());
-		}
-	}
+    if (currentOrder.isPaid() != null
+        && !currentOrder.isPaid()
+        && updateOrderStatus.status().equals(OrderStatus.COMPLETED)) {
+      throw new OrderUnpaidException(currentOrder.id(), updateOrderStatus.status().toString());
+    }
 
-	private void updateOrderStatuses(UUID orderId, UpdateOrderStatusDto updateOrderStatus) {
-		orderRepository.updateOrderStatus(orderId, updateOrderStatus.status());
+    if (!currentOrder.orderStatus().canTransitionTo(updateOrderStatus.status())) {
+      throw new InvalidOrderStatusTransitionException(currentOrder.orderStatus(), updateOrderStatus.status());
+    }
+  }
 
-		if (updateOrderStatus.isPaid() != null) {
-			orderRepository.updateIsPaidStatus(orderId, updateOrderStatus.isPaid());
-		}
-	}
+  private void updateOrderStatuses(UUID orderId, UpdateOrderStatusDto updateOrderStatus) {
+    orderRepository.updateOrderStatus(orderId, updateOrderStatus.status());
 
-	private List<OrderStatus> getAvailableStatuses(boolean isAdmin, UpdateOrderStatusDto updateOrderStatus) {
-		return isAdmin
-				? OrderStatus.getAllTransitions()
-				: OrderStatus.getAllowedTransitions(updateOrderStatus.status(), false);
-	}
+    if (updateOrderStatus.isPaid() != null) {
+      orderRepository.updateIsPaidStatus(orderId, updateOrderStatus.isPaid());
+    }
+  }
 
-	private OrderStatusInfo buildOrderStatusInfo(Order currentOrder, UpdateOrderStatusDto updateOrderStatus,
-			List<OrderStatus> availableStatuses) {
-		return OrderStatusInfo.builder().availableStatuses(availableStatuses)
-				.isPaid(updateOrderStatus.isPaid() != null ? updateOrderStatus.isPaid() : currentOrder.isPaid())
-				.build();
-	}
+  private List<OrderStatus> getAvailableStatuses(boolean isAdmin, UpdateOrderStatusDto updateOrderStatus) {
+    return isAdmin
+        ? OrderStatus.getAllTransitions()
+        : OrderStatus.getAllowedTransitions(updateOrderStatus.status(), false);
+  }
+
+  private OrderStatusInfo buildOrderStatusInfo(Order currentOrder, UpdateOrderStatusDto updateOrderStatus,
+      List<OrderStatus> availableStatuses) {
+    return OrderStatusInfo.builder().availableStatuses(availableStatuses)
+        .isPaid(updateOrderStatus.isPaid() != null ? updateOrderStatus.isPaid() : currentOrder.isPaid())
+        .build();
+  }
 }

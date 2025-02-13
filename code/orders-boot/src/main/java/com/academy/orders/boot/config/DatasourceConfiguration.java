@@ -1,8 +1,5 @@
 package com.academy.orders.boot.config;
 
-import java.util.Objects;
-
-import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
@@ -13,26 +10,30 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.sql.DataSource;
+import java.util.Objects;
+
 /**
  * The App configuration.
  */
 @Configuration(proxyBeanMethods = false)
-@EnableJpaRepositories(basePackages = "com.academy.orders.infrastructure.**.repository", entityManagerFactoryRef = "retailEntityManagerFactory", transactionManagerRef = "retailTransactionManager")
+@EnableJpaRepositories(basePackages = "com.academy.orders.infrastructure.**.repository",
+    entityManagerFactoryRef = "retailEntityManagerFactory", transactionManagerRef = "retailTransactionManager")
 public class DatasourceConfiguration {
 
-	@Primary
-	@Bean(name = "retailEntityManagerFactory")
-	public LocalContainerEntityManagerFactoryBean retailEntityManagerFactory(final EntityManagerFactoryBuilder builder,
-			final DataSource datasource) {
+  @Primary
+  @Bean(name = "retailEntityManagerFactory")
+  public LocalContainerEntityManagerFactoryBean retailEntityManagerFactory(final EntityManagerFactoryBuilder builder,
+      final DataSource datasource) {
 
-		return builder.dataSource(datasource).packages("com.academy.orders.infrastructure").build();
-	}
+    return builder.dataSource(datasource).packages("com.academy.orders.infrastructure").build();
+  }
 
-	@Bean(name = "retailTransactionManager")
-	public PlatformTransactionManager retailTransactionManager(
-			@Qualifier("retailEntityManagerFactory") final LocalContainerEntityManagerFactoryBean entityManagerFactory) {
+  @Bean(name = "retailTransactionManager")
+  public PlatformTransactionManager retailTransactionManager(
+      @Qualifier("retailEntityManagerFactory") final LocalContainerEntityManagerFactoryBean entityManagerFactory) {
 
-		return new JpaTransactionManager(Objects.requireNonNull(entityManagerFactory.getObject()));
-	}
+    return new JpaTransactionManager(Objects.requireNonNull(entityManagerFactory.getObject()));
+  }
 
 }

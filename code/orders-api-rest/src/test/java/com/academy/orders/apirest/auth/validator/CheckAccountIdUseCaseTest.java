@@ -18,51 +18,54 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CheckAccountIdUseCaseTest {
-	@InjectMocks
-	private CheckAccountIdUseCaseImpl checkAccountIdUseCase;
-	@Mock
-	private Jwt jwt;
-	@Mock
-	private SecurityContext securityContext;
-	@Mock
-	private Authentication authentication;
+  @InjectMocks
+  private CheckAccountIdUseCaseImpl checkAccountIdUseCase;
 
-	@Test
-	void isValidReturnsTrueWhenAccountIdAreSameTest() {
-		Long userId = 1L;
+  @Mock
+  private Jwt jwt;
 
-		try (var mockedStatic = mockStatic(SecurityContextHolder.class)) {
-			mockedStatic.when(SecurityContextHolder::getContext).thenReturn(securityContext);
-			when(authentication.getPrincipal()).thenReturn(jwt);
-			when(securityContext.getAuthentication()).thenReturn(authentication);
-			when(jwt.getClaim("id")).thenReturn(userId);
+  @Mock
+  private SecurityContext securityContext;
 
-			boolean valid = checkAccountIdUseCase.hasSameId(userId);
+  @Mock
+  private Authentication authentication;
 
-			assertTrue(valid);
-			verify(securityContext).getAuthentication();
-			verify(jwt).getClaim("id");
-			mockedStatic.verify(SecurityContextHolder::getContext);
-		}
-	}
+  @Test
+  void isValidReturnsTrueWhenAccountIdAreSameTest() {
+    Long userId = 1L;
 
-	@Test
-	void isValidReturnsFalseTest() {
-		Long userId = 1L;
-		Long enteredId = 2L;
+    try (var mockedStatic = mockStatic(SecurityContextHolder.class)) {
+      mockedStatic.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+      when(authentication.getPrincipal()).thenReturn(jwt);
+      when(securityContext.getAuthentication()).thenReturn(authentication);
+      when(jwt.getClaim("id")).thenReturn(userId);
 
-		try (var mockedStatic = mockStatic(SecurityContextHolder.class)) {
-			mockedStatic.when(SecurityContextHolder::getContext).thenReturn(securityContext);
-			when(authentication.getPrincipal()).thenReturn(jwt);
-			when(securityContext.getAuthentication()).thenReturn(authentication);
-			when(jwt.getClaim("id")).thenReturn(userId);
+      boolean valid = checkAccountIdUseCase.hasSameId(userId);
 
-			boolean valid = checkAccountIdUseCase.hasSameId(enteredId);
+      assertTrue(valid);
+      verify(securityContext).getAuthentication();
+      verify(jwt).getClaim("id");
+      mockedStatic.verify(SecurityContextHolder::getContext);
+    }
+  }
 
-			assertFalse(valid);
-			verify(securityContext).getAuthentication();
-			verify(jwt).getClaim("id");
-			mockedStatic.verify(SecurityContextHolder::getContext);
-		}
-	}
+  @Test
+  void isValidReturnsFalseTest() {
+    Long userId = 1L;
+    Long enteredId = 2L;
+
+    try (var mockedStatic = mockStatic(SecurityContextHolder.class)) {
+      mockedStatic.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+      when(authentication.getPrincipal()).thenReturn(jwt);
+      when(securityContext.getAuthentication()).thenReturn(authentication);
+      when(jwt.getClaim("id")).thenReturn(userId);
+
+      boolean valid = checkAccountIdUseCase.hasSameId(enteredId);
+
+      assertFalse(valid);
+      verify(securityContext).getAuthentication();
+      verify(jwt).getClaim("id");
+      mockedStatic.verify(SecurityContextHolder::getContext);
+    }
+  }
 }

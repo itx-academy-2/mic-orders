@@ -13,41 +13,40 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(MockitoExtension.class)
 class LocalDateTimeMapperTest {
-	private final LocalDateTimeMapper localDateTimeMapper = new LocalDateTimeMapper() {
-	};
+  private final LocalDateTimeMapper localDateTimeMapper = new LocalDateTimeMapper() {};
 
-	@Test
-	void mapLocalDateTimeToOffsetDateTimeTest() {
-		// Given
-		LocalDateTime localDateTime = LocalDateTime.of(2023, 7, 3, 12, 0);
-		OffsetDateTime expectedOffsetDateTime = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
+  @Test
+  void mapLocalDateTimeToOffsetDateTimeTest() {
+    // Given
+    LocalDateTime localDateTime = LocalDateTime.of(2023, 7, 3, 12, 0);
+    OffsetDateTime expectedOffsetDateTime = OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
 
-		// When
-		OffsetDateTime offsetDateTime = localDateTimeMapper.map(localDateTime);
+    // When
+    OffsetDateTime offsetDateTime = localDateTimeMapper.map(localDateTime);
 
-		// Then
-		assertEquals(expectedOffsetDateTime, offsetDateTime);
-	}
+    // Then
+    assertEquals(expectedOffsetDateTime, offsetDateTime);
+  }
 
-	@Test
-	void mapOffsetDateTimeToLocalDateTimeTest() {
-		// Given
-		OffsetDateTime offsetDateTime = OffsetDateTime.of(2023, 7, 3, 12, 1, 1, 1, ZoneOffset.UTC);
-		LocalDateTime expected = offsetDateTime.toLocalDateTime();
+  @Test
+  void mapOffsetDateTimeToLocalDateTimeTest() {
+    // Given
+    OffsetDateTime offsetDateTime = OffsetDateTime.of(2023, 7, 3, 12, 1, 1, 1, ZoneOffset.UTC);
+    LocalDateTime expected = offsetDateTime.toLocalDateTime();
 
-		// When
-		LocalDateTime localDateTime = localDateTimeMapper.map(offsetDateTime);
+    // When
+    LocalDateTime localDateTime = localDateTimeMapper.map(offsetDateTime);
 
-		// Then
-		assertEquals(expected, localDateTime);
-	}
+    // Then
+    assertEquals(expected, localDateTime);
+  }
 
-	@Test
-	void mapOffsetDateTimeToLocalDateTimeIfNullTest() {
-		// When
-		LocalDateTime localDateTime = localDateTimeMapper.map((OffsetDateTime) null);
+  @Test
+  void mapOffsetDateTimeToLocalDateTimeIfNullTest() {
+    // When
+    LocalDateTime localDateTime = localDateTimeMapper.map((OffsetDateTime) null);
 
-		// Then
-		assertNull(localDateTime);
-	}
+    // Then
+    assertNull(localDateTime);
+  }
 }
