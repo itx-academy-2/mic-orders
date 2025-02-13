@@ -1,9 +1,8 @@
 openapi: 3.0.1
 info:
   title: Retail API
-  description: API description in OpenAPI 3.0 format
-  version: 0.0.3
-
+  description: Retail service API
+  version: 2.0.0
 servers:
   - url: http://localhost:8080/retail
 
@@ -1698,7 +1697,7 @@ components:
         createdBefore:
           type: string
           format: date-time
-          description:  The date of product creation is before
+          description: The date of product creation is before
         tags:
           $ref: '#/components/schemas/ProductTags'
 
