@@ -69,7 +69,7 @@ public class ProductEntity {
   @Column(name = "price", nullable = false)
   private BigDecimal price;
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "discount_id")
   private DiscountEntity discount;
 
