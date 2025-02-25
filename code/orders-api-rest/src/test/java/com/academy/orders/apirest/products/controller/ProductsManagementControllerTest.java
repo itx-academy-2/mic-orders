@@ -213,9 +213,9 @@ class ProductsManagementControllerTest {
     when(getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts()).thenReturn(discountedProductsCount);
 
     mockMvc.perform(get("/v1/management/products/discounted/count"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$").value(discountedProductsCount));
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$").value(discountedProductsCount));
 
     verify(getCountOfDiscountedProductsUseCase).getCountOfDiscountedProducts();
   }

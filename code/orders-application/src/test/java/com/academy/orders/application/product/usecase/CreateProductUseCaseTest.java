@@ -120,9 +120,9 @@ class CreateProductUseCaseTest {
     when(getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts()).thenReturn(9);
     when(tagRepository.getTagsByIds(request.tagIds())).thenReturn(Set.of(getTag()));
     when(languageRepository.findByCode(request.productTranslations().iterator().next().languageCode()))
-            .thenReturn(Optional.ofNullable(ModelUtils.getLanguageEn()));
+        .thenReturn(Optional.ofNullable(ModelUtils.getLanguageEn()));
     when(productRepository.save(any(ProductManagement.class)))
-            .thenReturn(product);
+        .thenReturn(product);
 
     createProductUseCase.createProduct(request);
 
