@@ -43,7 +43,7 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
       throw new BadRequestException("Request cannot be null") {};
     } else if (!UrlUtils.isValidUri(request.image())) {
       throw new BadRequestException("Url is not correct") {};
-    } else if (getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts() >= 10 && request.discount() != null) {
+    } else if (request.discount() != null && getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts() >= 10) {
       throw new BadRequestException("The maximum allowed discount quantity is 10. "
           +
           "Please remove a discount from one or more products.") {};

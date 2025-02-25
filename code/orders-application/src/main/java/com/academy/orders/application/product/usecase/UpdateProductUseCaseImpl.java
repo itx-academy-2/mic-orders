@@ -43,9 +43,8 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
     var existingProduct = productRepository.getById(productId)
         .orElseThrow(() -> new ProductNotFoundException(productId));
 
-    if (getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts() >= 10
-        &&
-        request.discount() != null && existingProduct.getDiscount() == null) {
+    if (request.discount() != null && existingProduct.getDiscount() == null &&
+            getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts() >= 10) {
       throw new BadRequestException("The maximum allowed discount quantity is 10. "
           +
           "Please remove a discount from one or more products.") {};
