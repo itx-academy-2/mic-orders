@@ -25,11 +25,11 @@ public interface OrderJpaAdapter extends CrudRepository<OrderEntity, UUID> {
    * @author Denys Liubchenko
    */
   @Query("""
-      select o \
-      from OrderEntity o \
-      left join o.postAddress pa \
-      left join o.account a \
-      where a.id = :accountId \
+      select o
+      from OrderEntity o
+      left join o.postAddress pa
+      left join o.account a
+      where a.id = :accountId
       order by o.createdAt desc""")
   PageImpl<OrderEntity> findAllByAccountId(Long accountId, Pageable pageable);
 
