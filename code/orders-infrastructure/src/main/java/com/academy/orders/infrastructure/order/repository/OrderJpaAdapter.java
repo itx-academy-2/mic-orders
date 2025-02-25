@@ -24,7 +24,13 @@ public interface OrderJpaAdapter extends CrudRepository<OrderEntity, UUID> {
    * @return {@link PageImpl} containing the list of {@link OrderEntity} objects along with pagination details.
    * @author Denys Liubchenko
    */
-  @Query("select o from OrderEntity o left join o.postAddress pa " + "left join o.account a where a.id = :accountId")
+  @Query("""
+      select o \
+      from OrderEntity o \
+      left join o.postAddress pa \
+      left join o.account a \
+      where a.id = :accountId \
+      order by o.createdAt desc""")
   PageImpl<OrderEntity> findAllByAccountId(Long accountId, Pageable pageable);
 
   /**
