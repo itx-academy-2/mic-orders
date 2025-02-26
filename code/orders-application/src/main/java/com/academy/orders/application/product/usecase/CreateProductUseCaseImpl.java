@@ -2,6 +2,7 @@ package com.academy.orders.application.product.usecase;
 
 import com.academy.orders.domain.common.UrlUtils;
 import com.academy.orders.domain.common.exception.BadRequestException;
+import com.academy.orders.domain.discount.entity.Discount;
 import com.academy.orders.domain.language.exception.LanguageNotFoundException;
 import com.academy.orders.domain.language.repository.LanguageRepository;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
@@ -43,8 +44,10 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
       throw new BadRequestException("Request cannot be null") {};
     } else if (!UrlUtils.isValidUri(request.image())) {
       throw new BadRequestException("Url is not correct") {};
+    } else if (request.discount() != null && !Discount.isCorrectAmount(request.discount())) {
+      throw new BadRequestException("The provided discount amount is not valid. Please provide a valid discount.") {};
     } else if (request.discount() != null && getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts() >= 10) {
-      throw new BadRequestException("The maximum allowed discount quantity is 10. "
+      throw new BadRequestException("You cannot apply discounts to more than 10 products. "
           +
           "Please remove a discount from one or more products.") {};
     }

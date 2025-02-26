@@ -2,6 +2,7 @@ package com.academy.orders.application.product.usecase;
 
 import com.academy.orders.domain.common.UrlUtils;
 import com.academy.orders.domain.common.exception.BadRequestException;
+import com.academy.orders.domain.discount.entity.Discount;
 import com.academy.orders.domain.language.exception.LanguageNotFoundException;
 import com.academy.orders.domain.language.repository.LanguageRepository;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
@@ -43,7 +44,9 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
     var existingProduct = productRepository.getById(productId)
         .orElseThrow(() -> new ProductNotFoundException(productId));
 
-    if (request.discount() != null
+    if (request.discount() != null && !Discount.isCorrectAmount(request.discount())) {
+      throw new BadRequestException("The provided discount amount is not valid. Please provide a valid discount.") {};
+    } else if (request.discount() != null
         && existingProduct.getDiscount() == null &&
         getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts() >= 10) {
       throw new BadRequestException("The maximum allowed discount quantity is 10. "
