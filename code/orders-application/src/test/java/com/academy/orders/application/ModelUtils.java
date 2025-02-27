@@ -65,6 +65,12 @@ public class ModelUtils {
         .price(TEST_PRICE).tags(Set.of(getTag())).productTranslations(Set.of(getProductTranslation())).build();
   }
 
+  public static Product getProductWithImageLinkAndDiscount(int discount) {
+    return Product.builder().id(TEST_UUID).status(ProductStatus.VISIBLE).image(IMAGE_URL).quantity(TEST_QUANTITY)
+        .price(TEST_PRICE).discount(Discount.builder().amount(discount).build())
+        .tags(Set.of(getTag())).productTranslations(Set.of(getProductTranslation())).build();
+  }
+
   public static Product getProductWithImageName() {
     return Product.builder().id(TEST_UUID).status(ProductStatus.VISIBLE).image(IMAGE_NAME).quantity(TEST_QUANTITY)
         .price(TEST_PRICE).tags(Set.of(getTag())).productTranslations(Set.of(getProductTranslation())).build();
@@ -268,6 +274,14 @@ public class ModelUtils {
   public static ProductRequestDto getProductRequestDto() {
     return ProductRequestDto.builder().status(String.valueOf(ProductStatus.VISIBLE)).image(IMAGE_URL)
         .quantity(TEST_QUANTITY).price(TEST_PRICE).tagIds(List.of(1L))
+        .productTranslations(Set.of(ProductTranslationDto.builder().name("Name").description("Description")
+            .languageCode("en").build()))
+        .build();
+  }
+
+  public static ProductRequestDto getProductRequestDtoWithDiscount(Integer discount) {
+    return ProductRequestDto.builder().status(String.valueOf(ProductStatus.VISIBLE)).image(IMAGE_URL)
+        .quantity(TEST_QUANTITY).price(TEST_PRICE).discount(discount).tagIds(List.of(1L))
         .productTranslations(Set.of(ProductTranslationDto.builder().name("Name").description("Description")
             .languageCode("en").build()))
         .build();

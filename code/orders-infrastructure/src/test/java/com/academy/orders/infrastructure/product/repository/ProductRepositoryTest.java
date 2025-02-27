@@ -296,4 +296,16 @@ class ProductRepositoryTest {
     verify(productJpaAdapter).findProductByProductIdAndLanguageCode(TEST_UUID, LANGUAGE_EN);
     verify(productMapper).fromEntity(productEntity);
   }
+
+  @Test
+  void countByDiscountIsNotNullTest() {
+    var value = 3;
+
+    when(productJpaAdapter.countByDiscountIsNotNull()).thenReturn(value);
+
+    var result = productRepository.countByDiscountIsNotNull();
+    assertEquals(value, result);
+
+    verify(productJpaAdapter).countByDiscountIsNotNull();
+  }
 }

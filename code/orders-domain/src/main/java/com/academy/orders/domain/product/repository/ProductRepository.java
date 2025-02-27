@@ -145,4 +145,12 @@ public interface ProductRepository {
    *         provided pagination.
    */
   Page<Product> findProductsWhereDiscountIsNotNull(String language, Pageable pageable);
+
+  /**
+   * Counts the number of products that have a discount applied. This method queries the database for all products where the discount field
+   * is not null or greater than zero.
+   *
+   * @return the count of products with a discount.
+   */
+  int countByDiscountIsNotNull();
 }

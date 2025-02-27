@@ -2,6 +2,7 @@ package com.academy.orders.application.product.usecase;
 
 import com.academy.orders.domain.common.UrlUtils;
 import com.academy.orders.domain.common.exception.BadRequestException;
+import com.academy.orders.domain.discount.entity.Discount;
 import com.academy.orders.domain.language.exception.LanguageNotFoundException;
 import com.academy.orders.domain.language.repository.LanguageRepository;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
@@ -13,6 +14,7 @@ import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.CreateProductUseCase;
 import com.academy.orders.domain.product.usecase.ExtractNameFromUrlUseCase;
+import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUseCase;
 import com.academy.orders.domain.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,21 +34,28 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
 
   private final LanguageRepository languageRepository;
 
+  private final GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
+
   private final ExtractNameFromUrlUseCase extractNameFromUrlUseCase;
 
   @Override
   public Product createProduct(ProductRequestDto request) {
     if (request == null) {
       throw new BadRequestException("Request cannot be null") {};
-    }
-    if (!UrlUtils.isValidUri(request.image())) {
+    } else if (!UrlUtils.isValidUri(request.image())) {
       throw new BadRequestException("Url is not correct") {};
+    } else if (request.discount() != null && !Discount.isCorrectAmount(request.discount())) {
+      throw new BadRequestException("The provided discount amount is not valid. Please provide a valid discount.") {};
+    } else if (request.discount() != null && getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts() >= 10) {
+      throw new BadRequestException("You cannot apply discounts to more than 10 products. "
+          +
+          "Please remove a discount from one or more products.") {};
     }
     var tags = tagRepository.getTagsByIds(request.tagIds());
 
     var product = ProductManagement.builder().status(ProductStatus.valueOf(request.status())).image(request.image())
         .createdAt(LocalDateTime.now()).quantity(request.quantity()).price(request.price()).tags(tags)
-        .productTranslationManagement(Set.of()).build();
+        .discount(request.discount()).productTranslationManagement(Set.of()).build();
 
     var productWithoutTranslation = productRepository.save(product);
 
@@ -58,7 +67,7 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
     }).collect(Collectors.toSet());
 
     var productWithTranslations = new ProductManagement(productWithoutTranslation.getId(), product.status(),
-        product.image(), product.createdAt(), product.quantity(), product.price(), product.tags(),
+        product.image(), product.createdAt(), product.quantity(), product.price(), product.discount(), product.tags(),
         productTranslations);
 
     return productRepository.save(productWithTranslations);

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.0.3
+  version: 2.0.4
 servers:
   - url: http://localhost:8080/retail
 
@@ -347,6 +347,24 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFoundResponse'
+
+  /v1/management/products/discounted/count:
+    get:
+      tags:
+        - ProductsManagement
+      summary: Get the count of discounted products
+      operationId: getCountOfDiscountedProducts
+      responses:
+        '200':
+          description: Count of discounted products
+          content:
+            application/json:
+              schema:
+                type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /v1/products/sales:
     get:
@@ -929,6 +947,10 @@ components:
           format: bigDecimal
           example: 999.99
           description: Price of the product
+        discount:
+          type: integer
+          example: 10
+          description: The amount of the discount. This field is not necessary.
         tagIds:
           type: array
           description: Array of Tag IDs associated with the product

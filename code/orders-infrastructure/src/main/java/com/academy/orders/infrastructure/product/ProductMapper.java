@@ -1,6 +1,5 @@
 package com.academy.orders.infrastructure.product;
 
-import com.academy.orders.domain.product.dto.ProductRequestDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
@@ -9,7 +8,6 @@ import com.academy.orders.infrastructure.tag.entity.TagEntity;
 import org.hibernate.Hibernate;
 import org.mapstruct.Condition;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,9 +26,6 @@ public interface ProductMapper {
   List<Product> fromEntities(List<ProductEntity> productEntities);
 
   ProductEntity toEntity(Product product);
-
-  @Mapping(target = "id", ignore = true)
-  ProductEntity toEntity(ProductRequestDto dto);
 
   @Condition
   default boolean isNotLazyLoadedTagEntity(Collection<TagEntity> source) {

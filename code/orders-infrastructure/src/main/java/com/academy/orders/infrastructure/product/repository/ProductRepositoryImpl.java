@@ -9,7 +9,6 @@ import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.infrastructure.common.PageableMapper;
-import com.academy.orders.infrastructure.discount.DiscountMapper;
 import com.academy.orders.infrastructure.product.ProductManagementMapper;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.product.ProductPageMapper;
@@ -45,8 +44,6 @@ public class ProductRepositoryImpl implements ProductRepository {
   private final ProductTranslationManagementMapper productTranslationManagementMapper;
 
   private final ProductPageMapper productPageMapper;
-
-  private final DiscountMapper discountMapper;
 
   private final PageableMapper pageableMapper;
 
@@ -145,5 +142,10 @@ public class ProductRepositoryImpl implements ProductRepository {
   public Optional<Product> getByIdAndLanguageCode(UUID productId, String lang) {
     var productEntity = productJpaAdapter.findProductByProductIdAndLanguageCode(productId, lang);
     return productEntity.map(productMapper::fromEntity);
+  }
+
+  @Override
+  public int countByDiscountIsNotNull() {
+    return productJpaAdapter.countByDiscountIsNotNull();
   }
 }
