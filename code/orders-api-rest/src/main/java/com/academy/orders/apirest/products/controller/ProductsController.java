@@ -15,6 +15,8 @@ import com.academy.orders_api_rest.generated.model.PageProductsDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
 import com.academy.orders_api_rest.generated.model.ProductDetailsResponseDTO;
 import com.academy.orders_api_rest.generated.model.ProductFilterDTO;
+import com.academy.orders_api_rest.generated.model.ProductsOnSaleFilterDTO;
+import com.academy.orders_api_rest.generated.model.ProductsOnSaleResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -50,10 +52,11 @@ public class ProductsController implements ProductsApi {
   }
 
   @Override
-  public PageProductsDTO getProductsOnSale(PageableDTO pageableDTO, String lang) {
+  public ProductsOnSaleResponseDTO getProductsOnSale(ProductsOnSaleFilterDTO filter, PageableDTO pageableDTO, String lang) {
     var pageable = pageableDTOMapper.fromDto(pageableDTO);
     var productsOnSale = getProductsOnSaleUseCase.getProductsOnSale(pageable, lang);
-    return productPreviewDTOMapper.toPageProductsDTO(productsOnSale);
+    // return productPreviewDTOMapper.toPageProductsDTO(productsOnSale);
+    return null;
   }
 
   @Override
