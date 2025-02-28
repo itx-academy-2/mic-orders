@@ -191,4 +191,6 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
       + "LEFT JOIN FETCH pt.language l LEFT JOIN FETCH p.tags "
       + "WHERE p.id = :id AND l.code = :lang AND p.status = 'VISIBLE'")
   Optional<ProductEntity> findProductByProductIdAndLanguageCode(UUID id, String lang);
+
+  int countByDiscountIsNotNull();
 }

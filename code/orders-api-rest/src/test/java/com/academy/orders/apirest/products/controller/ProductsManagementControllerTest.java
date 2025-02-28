@@ -9,6 +9,7 @@ import com.academy.orders.apirest.products.mapper.ProductResponseDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductStatusDTOMapper;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.product.usecase.CreateProductUseCase;
+import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUseCase;
 import com.academy.orders.domain.product.usecase.GetManagerProductsUseCase;
 import com.academy.orders.domain.product.usecase.GetProductByIdUseCase;
 import com.academy.orders.domain.product.usecase.UpdateProductUseCase;
@@ -42,6 +43,7 @@ import static com.academy.orders.apirest.TestConstants.ROLE_MANAGER;
 import static com.academy.orders.apirest.TestConstants.TEST_UUID;
 import static com.academy.orders.apirest.TestConstants.UPDATE_PRODUCT_URL;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -50,6 +52,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductsManagementController.class)
@@ -88,6 +91,9 @@ class ProductsManagementControllerTest {
 
   @MockBean
   private GetProductByIdUseCase getProductByIdUseCase;
+
+  @MockBean
+  private GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
 
   @MockBean
   private ProductResponseDTOMapper productResponseDTOMapper;
@@ -196,5 +202,21 @@ class ProductsManagementControllerTest {
 
     verify(productResponseDTOMapper).toDTO(product);
     verify(getProductByIdUseCase).getProductById(TEST_UUID);
+  }
+
+  @Test
+  @SneakyThrows
+  @WithMockUser(authorities = {"ROLE_MANAGER"})
+  void getCountOfDiscountedProducts() {
+    var discountedProductsCount = 7;
+
+    when(getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts()).thenReturn(discountedProductsCount);
+
+    mockMvc.perform(get("/v1/management/products/discounted/count"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$").value(discountedProductsCount));
+
+    verify(getCountOfDiscountedProductsUseCase).getCountOfDiscountedProducts();
   }
 }

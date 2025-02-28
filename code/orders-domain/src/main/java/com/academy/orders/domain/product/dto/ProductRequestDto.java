@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 @Builder
-public record ProductRequestDto(String status, String image, Integer quantity, BigDecimal price, List<Long> tagIds,
-    Set<ProductTranslationDto> productTranslations) {
+public record ProductRequestDto(String status, String image, Integer quantity, BigDecimal price, Integer discount,
+    List<Long> tagIds, Set<ProductTranslationDto> productTranslations) {
 }
