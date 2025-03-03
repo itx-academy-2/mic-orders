@@ -373,8 +373,13 @@ paths:
       summary: Get list of products on sale
       operationId: getProductsOnSale
       parameters:
+        - in: query
+          description: Filter for finding products on sale
+          name: productFilter
+          schema:
+            $ref: '#/components/schemas/ProductsOnSaleFilter'
         - $ref: '#/components/parameters/Pageable'
-          description: For pagination
+          description: Sorting is available for discount/priceWithDiscount/name. For example, sort=discount,desc or sort=name,asc.
         - $ref: '#/components/parameters/Language'
       responses:
         '200':
@@ -382,7 +387,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PageProducts'
+                $ref: '#/components/schemas/ProductsOnSaleResponse'
 
   /v1/products:
     get:
@@ -929,6 +934,19 @@ components:
           description: Creation status message
           example: Resource successfully created
 
+    MinimumPriceWithDiscount:
+      type: number
+      format: decimal
+      description: "The minimum price of a product after discount to filter the products."
+      example: 100.00
+      minimum: 0
+    MaximumPriceWithDiscount:
+      type: number
+      format: decimal
+      description: "The maximum price of a product after discount to filter the products."
+      example: 140.00
+      minimum: 0
+
     ProductRequest:
       type: object
       properties:
@@ -1415,6 +1433,16 @@ components:
               items:
                 $ref: '#/components/schemas/ProductPreview'
 
+    ProductsOnSaleResponse:
+      type: object
+      properties:
+        minimumPriceWithDiscount:
+          $ref: '#/components/schemas/MinimumPriceWithDiscount'
+        maximumPriceWithDiscount:
+          $ref: '#/components/schemas/MaximumPriceWithDiscount'
+        pageProducts:
+          $ref: '#/components/schemas/PageProducts'
+
     ProductPreview:
       type: object
       properties:
@@ -1728,6 +1756,29 @@ components:
       properties:
         tags:
           $ref: '#/components/schemas/ProductTags'
+
+    ProductsOnSaleFilter:
+      type: object
+      description: No fields required.
+      properties:
+        tags:
+          $ref: '#/components/schemas/ProductTags'
+        minimumDiscount:
+          type: integer
+          description: "The minimum discount percentage (from 0 to 100) to filter the products."
+          example: 10
+          minimum: 0
+          maximum: 100
+        maximumDiscount:
+          type: integer
+          description: "The maximum discount percentage (from 0 to 100) to filter the products."
+          example: 50
+          minimum: 0
+          maximum: 100
+        minimumPriceWithDiscount:
+          $ref: '#/components/schemas/MinimumPriceWithDiscount'
+        maximumPriceWithDiscount:
+          $ref: '#/components/schemas/MaximumPriceWithDiscount'
 
     ProductManagementPage:
       allOf:

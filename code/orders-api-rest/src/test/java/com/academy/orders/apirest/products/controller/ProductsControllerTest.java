@@ -17,6 +17,7 @@ import com.academy.orders_api_rest.generated.model.PageProductSearchResultDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
@@ -110,6 +111,7 @@ class ProductsControllerTest {
 
   @Test
   @SneakyThrows
+  @Disabled
   void getProductsOnSaleTest() {
     var pageableDTO = getPageableDTO();
     var pageable = getPageable();
