@@ -3,6 +3,7 @@ package com.academy.orders.domain.product.repository;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
+import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.entity.ProductTranslationManagement;
@@ -144,7 +145,7 @@ public interface ProductRepository {
    * @return a {@link Page} of {@link Product} entities with a non-null discount, filtered by the given language and according to the
    *         provided pagination.
    */
-  Page<Product> findProductsWhereDiscountIsNotNull(String language, Pageable pageable);
+  Page<Product> findProductsWhereDiscountIsNotNull(ProductsOnSaleFilterDto filter, String language, Pageable pageable);
 
   /**
    * Counts the number of products that have a discount applied. This method queries the database for all products where the discount field

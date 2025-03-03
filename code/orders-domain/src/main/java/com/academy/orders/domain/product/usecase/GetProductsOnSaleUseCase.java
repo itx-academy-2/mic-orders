@@ -2,6 +2,8 @@ package com.academy.orders.domain.product.usecase;
 
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
+import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
+import com.academy.orders.domain.product.dto.ProductsOnSaleResponseDto;
 import com.academy.orders.domain.product.entity.Product;
 
 /**
@@ -15,5 +17,5 @@ public interface GetProductsOnSaleUseCase {
    * @param lang the language code to localize product details (e.g., "en" for English, "uk" for Ukrainian)
    * @return a {@link Page} containing the products on sale, paginated according to the provided {@link Pageable}
    */
-  Page<Product> getProductsOnSale(Pageable pageable, String lang);
+  ProductsOnSaleResponseDto getProductsOnSale(ProductsOnSaleFilterDto filter, Pageable pageable, String lang);
 }

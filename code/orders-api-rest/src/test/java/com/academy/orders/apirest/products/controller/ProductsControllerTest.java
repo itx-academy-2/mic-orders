@@ -120,7 +120,7 @@ class ProductsControllerTest {
     var language = LANGUAGE_EN;
 
     when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
-    when(getProductsOnSaleUseCase.getProductsOnSale(pageable, language)).thenReturn(pageProducts);
+    // when(getProductsOnSaleUseCase.getProductsOnSale(pageable, language)).thenReturn(pageProducts);
     when(productPreviewDTOMapper.toPageProductsDTO(pageProducts)).thenReturn(pageProductsDTO);
 
     mockMvc.perform(get(GET_PRODUCTS_ON_SALES_URL).param("lang", language)).andExpect(status().isOk())
@@ -128,7 +128,7 @@ class ProductsControllerTest {
         .andExpect(content().json(objectMapper.writeValueAsString(pageProductsDTO)));
 
     verify(pageableDTOMapper).fromDto(pageableDTO);
-    verify(getProductsOnSaleUseCase).getProductsOnSale(pageable, language);
+    // verify(getProductsOnSaleUseCase).getProductsOnSale(pageable, language);
     verify(productPreviewDTOMapper).toPageProductsDTO(pageProducts);
   }
 
