@@ -9,6 +9,8 @@ import com.academy.orders.infrastructure.product.ProductManagementMapper;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.product.ProductPageMapper;
 import com.academy.orders.infrastructure.product.ProductTranslationManagementMapper;
+import jakarta.persistence.Tuple;
+import org.hibernate.sql.results.internal.TupleImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,6 +24,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -51,6 +54,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -307,5 +311,31 @@ class ProductRepositoryTest {
     assertEquals(value, result);
 
     verify(productJpaAdapter).countByDiscountIsNotNull();
+  }
+
+  @Test
+  void findDiscountAndPriceWithDiscountRangeTest() {
+    final BigDecimal minimumPriceWithDiscount = BigDecimal.valueOf(100.00);
+    final BigDecimal maximumPriceWithDiscount = BigDecimal.valueOf(955.50);
+    final Integer minimumDiscount = 10;
+    final Integer maximumDiscount = 30;
+
+    final Tuple tuple = mock(Tuple.class);
+    when(tuple.get(0, BigDecimal.class)).thenReturn(minimumPriceWithDiscount);
+    when(tuple.get(1, BigDecimal.class)).thenReturn(maximumPriceWithDiscount);
+    when(tuple.get(2, Integer.class)).thenReturn(minimumDiscount);
+    when(tuple.get(3, Integer.class)).thenReturn(maximumDiscount);
+
+    when(productJpaAdapter.findDiscountAndPriceWithDiscountRange()).thenReturn(tuple);
+
+    var result = productRepository.findDiscountAndPriceWithDiscountRange();
+
+    assertNotNull(result);
+    assertEquals(minimumPriceWithDiscount, result.minimumPriceWithDiscount());
+    assertEquals(maximumPriceWithDiscount, result.maximumPriceWithDiscount());
+    assertEquals(minimumDiscount, result.minimumDiscount());
+    assertEquals(maximumDiscount, result.maximumDiscount());
+
+    verify(productJpaAdapter).findDiscountAndPriceWithDiscountRange();
   }
 }

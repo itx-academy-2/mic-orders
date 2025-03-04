@@ -21,6 +21,7 @@ import com.academy.orders.domain.order.entity.OrderReceiver;
 import com.academy.orders.domain.order.entity.PostAddress;
 import com.academy.orders.domain.order.entity.enumerated.DeliveryMethod;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
+import com.academy.orders.domain.product.dto.DiscountAndPriceWithDiscountRangeDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
 import com.academy.orders.domain.product.dto.ProductTranslationDto;
@@ -80,6 +81,16 @@ public class ModelUtils {
     return Product.builder().id(TEST_UUID).status(ProductStatus.VISIBLE).image(IMAGE_NAME).quantity(TEST_QUANTITY)
         .price(TEST_PRICE).discount(getDiscount()).tags(Set.of(getTag()))
         .productTranslations(Set.of(getProductTranslation())).build();
+  }
+
+  public static DiscountAndPriceWithDiscountRangeDto getDiscountAndPriceWithDiscountRangeDto() {
+    return DiscountAndPriceWithDiscountRangeDto.builder()
+        .minimumPriceWithDiscount(BigDecimal.ONE)
+        .maximumPriceWithDiscount(BigDecimal.valueOf(400))
+        .minimumDiscount(2)
+        .maximumDiscount(20)
+        .build();
+
   }
 
   public static Product getProductWithImageUrlAndAppliedDiscount() {

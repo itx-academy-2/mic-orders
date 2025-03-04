@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.0.4
+  version: 2.0.5
 servers:
   - url: http://localhost:8080/retail
 
@@ -946,6 +946,9 @@ components:
       description: "The maximum price of a product after discount to filter the products."
       example: 140.00
       minimum: 0
+    Discount:
+      type: integer
+      example: 10
 
     ProductRequest:
       type: object
@@ -966,8 +969,7 @@ components:
           example: 999.99
           description: Price of the product
         discount:
-          type: integer
-          example: 10
+          $ref: '#/components/schemas/Discount'
           description: The amount of the discount. This field is not necessary.
         tagIds:
           type: array
@@ -1003,8 +1005,7 @@ components:
           example: 90.00
           description: Final price
         discount:
-          type: integer
-          example: 10
+          $ref: '#/components/schemas/Discount'
           description: The amount of the discount applied to the original price. This field is only returned if a discount is applied.
         priceWithDiscount:
           type: number
@@ -1044,8 +1045,7 @@ components:
           example: 90.00
           description: Final price
         discount:
-          type: integer
-          example: 10
+          $ref: '#/components/schemas/Discount'
           description: The amount of the discount applied to the original price. This field is only returned if a discount is applied.
         priceWithDiscount:
           type: number
@@ -1279,7 +1279,7 @@ components:
           format: decimal
           description: Price of the individual item if a discount is applied. The field may be absent
         discount:
-          type: integer
+          $ref: '#/components/schemas/Discount'
           description: Discount of the item when the user made an order. The field may be absent
         quantity:
           type: integer
@@ -1438,8 +1438,16 @@ components:
       properties:
         minimumPriceWithDiscount:
           $ref: '#/components/schemas/MinimumPriceWithDiscount'
+          description: The lowest price after applying the discount to all products.
         maximumPriceWithDiscount:
           $ref: '#/components/schemas/MaximumPriceWithDiscount'
+          description: The highest price after applying the discount to all products.
+        minimumDiscount:
+          $ref: '#/components/schemas/Discount'
+          description: The lowest discount percentage applied to any product.
+        maximumDiscount:
+          $ref: '#/components/schemas/Discount'
+          description: The highest discount percentage applied to any product.
         pageProducts:
           $ref: '#/components/schemas/PageProducts'
 

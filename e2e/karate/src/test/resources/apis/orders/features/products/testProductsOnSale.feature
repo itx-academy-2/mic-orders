@@ -9,19 +9,25 @@ Feature: Get products on sale
     Then status 200
     And match response ==
     """
-      {
-        totalElements: '#number',
-        totalPages: '#number',
-        first: '#boolean',
-        last: '#boolean',
-        number: '#number',
-        numberOfElements: '#number',
-        size: '#number',
-        empty: '#boolean',
-        content: '##array'
+    {
+      "minimumPriceWithDiscount": "#number",
+      "maximumPriceWithDiscount": "#number",
+      "minimumDiscount": "#number",
+      "maximumDiscount": "#number",
+      "pageProducts": {
+        "totalElements": "#number",
+        "totalPages": "#number",
+        "first": "#boolean",
+        "last": "#boolean",
+        "number": "#number",
+        "numberOfElements": "#number",
+        "size": "#number",
+        "empty": "#boolean",
+        "content": "##array"
       }
+    }
     """
-    And match each response.content ==
+    And match each response.pageProducts.content ==
     """
       {
         id: '#string? _.length > 0',
