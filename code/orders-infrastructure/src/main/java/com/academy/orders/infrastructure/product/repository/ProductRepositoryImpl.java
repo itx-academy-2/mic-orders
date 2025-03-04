@@ -2,6 +2,7 @@ package com.academy.orders.infrastructure.product.repository;
 
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
+import com.academy.orders.domain.product.dto.DiscountAndPriceWithDiscountRangeDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
 import com.academy.orders.domain.product.entity.Product;
@@ -24,6 +25,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -152,5 +154,16 @@ public class ProductRepositoryImpl implements ProductRepository {
   @Override
   public int countByDiscountIsNotNull() {
     return productJpaAdapter.countByDiscountIsNotNull();
+  }
+
+  @Override
+  public DiscountAndPriceWithDiscountRangeDto findDiscountAndPriceWithDiscountRange() {
+    var tuple = productJpaAdapter.findDiscountAndPriceWithDiscountRange();
+    return DiscountAndPriceWithDiscountRangeDto.builder()
+        .minimumPriceWithDiscount(tuple.get(0, BigDecimal.class))
+        .maximumPriceWithDiscount(tuple.get(1, BigDecimal.class))
+        .minimumDiscount(tuple.get(2, Integer.class))
+        .maximumDiscount(tuple.get(3, Integer.class))
+        .build();
   }
 }

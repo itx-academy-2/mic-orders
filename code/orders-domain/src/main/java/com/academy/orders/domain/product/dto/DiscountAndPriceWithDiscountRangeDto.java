@@ -1,16 +1,14 @@
 package com.academy.orders.domain.product.dto;
 
-import com.academy.orders.domain.common.Page;
-import com.academy.orders.domain.product.entity.Product;
 import lombok.Builder;
 
 import java.math.BigDecimal;
 
 @Builder
-public record ProductsOnSaleResponseDto(
+public record DiscountAndPriceWithDiscountRangeDto(
     BigDecimal minimumPriceWithDiscount,
     BigDecimal maximumPriceWithDiscount,
     Integer minimumDiscount,
-    Integer maximumDiscount,
-    Page<Product> pageProducts) {
+    Integer maximumDiscount) {
+
 }

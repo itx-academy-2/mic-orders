@@ -76,34 +76,28 @@ public class ProductTranslationSpecification implements Specification<ProductTra
     return predicates.stream().reduce(cb.conjunction(), cb::and);
   }
 
-  private List<String> combinePairs() {
-    final List<String> pairs = new ArrayList<>();
-    for (int i = 0; i < sort.size(); i += 2) {
-      pairs.add(sort.get(i) + "," + sort.get(i + 1));
-    }
-    return pairs;
-  }
-
   private void setSort(final Root<ProductTranslationEntity> root, final CriteriaQuery<?> query, final CriteriaBuilder cb,
       final Join<ProductEntity, DiscountEntity> discountJoin,
       final Join<ProductTranslationEntity, ProductEntity> productJoin,
       final Expression<Number> priceWithDiscount) {
     if (Objects.nonNull(sort) && !sort.isEmpty()) {
       final List<Order> orders = new ArrayList<>();
-      for (final String s : combinePairs()) {
-        if (s.equals("discount,asc")) {
+      for (int i = 0; i < sort.size(); i += 2) {
+        final String field = sort.get(i);
+        final String order = sort.get(i + 1);
+        if (field.equals("discount") && order.equals("asc")) {
           orders.add(cb.asc(discountJoin.get("amount")));
-        } else if (s.equals("discount,desc")) {
+        } else if (field.equals("discount") && order.equals("desc")) {
           orders.add(cb.desc(discountJoin.get("amount")));
         }
-        if (s.equals("priceWithDiscount,asc")) {
+        if (field.equals("priceWithDiscount") && order.equals("asc")) {
           orders.add(cb.asc(priceWithDiscount));
-        } else if (s.equals("priceWithDiscount,desc")) {
+        } else if (field.equals("priceWithDiscount") && order.equals("desc")) {
           orders.add(cb.desc(priceWithDiscount));
         }
-        if (s.equals("name,asc")) {
+        if (field.equals("name") && order.equals("asc")) {
           orders.add(cb.asc(root.get("name")));
-        } else if (s.equals("name,desc")) {
+        } else if (field.equals("name") && order.equals("desc")) {
           orders.add(cb.desc(root.get("name")));
         }
 
