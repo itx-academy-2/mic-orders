@@ -21,6 +21,8 @@ import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
 import com.academy.orders.domain.product.dto.ProductTranslationDto;
+import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
+import com.academy.orders.domain.product.dto.ProductsOnSaleResponseDto;
 import com.academy.orders.domain.product.entity.Language;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductTranslation;
@@ -53,6 +55,8 @@ import com.academy.orders_api_rest.generated.model.ProductResponseDTO;
 import com.academy.orders_api_rest.generated.model.ProductSearchResultDTO;
 import com.academy.orders_api_rest.generated.model.ProductStatusDTO;
 import com.academy.orders_api_rest.generated.model.ProductTranslationDTO;
+import com.academy.orders_api_rest.generated.model.ProductsOnSaleFilterDTO;
+import com.academy.orders_api_rest.generated.model.ProductsOnSaleResponseDTO;
 import com.academy.orders_api_rest.generated.model.TagDTO;
 import com.academy.orders_api_rest.generated.model.UpdateOrderStatusRequestDTO;
 import com.academy.orders_api_rest.generated.model.UpdatedCartItemDTO;
@@ -76,6 +80,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.academy.orders.apirest.ModelUtils.getProductsWithDiscountPage;
 import static com.academy.orders.apirest.TestConstants.IMAGE_URL;
 import static com.academy.orders.apirest.TestConstants.LANGUAGE_UK;
 import static com.academy.orders.apirest.TestConstants.PRODUCT_DESCRIPTION;
@@ -559,6 +564,31 @@ public class ModelUtils {
     pageProductsDTO.size(1);
     pageProductsDTO.empty(false);
     return pageProductsDTO;
+  }
+
+  public static ProductsOnSaleResponseDto getProductsOnSaleResponseDto() {
+    return ProductsOnSaleResponseDto.builder()
+        .minimumDiscount(5)
+        .maximumDiscount(20)
+        .minimumPriceWithDiscount(BigDecimal.valueOf(400))
+        .maximumPriceWithDiscount(BigDecimal.valueOf(1045))
+        .pageProducts(getProductsWithDiscountPage())
+        .build();
+  }
+
+  public static ProductsOnSaleResponseDTO getProductsOnSaleResponseDTO() {
+    return new ProductsOnSaleResponseDTO()
+        .minimumDiscount(5)
+        .maximumDiscount(20)
+        .minimumPriceWithDiscount(BigDecimal.valueOf(400))
+        .maximumPriceWithDiscount(BigDecimal.valueOf(1045))
+        .pageProducts(getPageProductsWithDiscountDTO());
+  }
+
+  public static ProductsOnSaleFilterDto getProductsOnSaleFilterDto() {
+    return ProductsOnSaleFilterDto.builder()
+        .minimumDiscount(10)
+        .build();
   }
 
   public static PageProductsDTO getPageProductsDTO() {

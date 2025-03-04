@@ -2,6 +2,7 @@ package com.academy.orders.application.product.usecase;
 
 import com.academy.orders.domain.common.UrlUtils;
 import com.academy.orders.domain.common.exception.BadRequestException;
+import com.academy.orders.domain.discount.entity.Discount;
 import com.academy.orders.domain.language.exception.LanguageNotFoundException;
 import com.academy.orders.domain.language.repository.LanguageRepository;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
@@ -12,6 +13,7 @@ import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.product.exception.ProductNotFoundException;
 import com.academy.orders.domain.product.repository.ProductRepository;
+import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUseCase;
 import com.academy.orders.domain.product.usecase.UpdateProductUseCase;
 import com.academy.orders.domain.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,8 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
 
   private final LanguageRepository languageRepository;
 
+  private final GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
+
   @Transactional
   @Override
   public void updateProduct(UUID productId, ProductRequestDto request) {
@@ -39,6 +43,16 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
     }
     var existingProduct = productRepository.getById(productId)
         .orElseThrow(() -> new ProductNotFoundException(productId));
+
+    if (request.discount() != null && !Discount.isCorrectAmount(request.discount())) {
+      throw new BadRequestException("The provided discount amount is not valid. Please provide a valid discount.") {};
+    } else if (request.discount() != null
+        && existingProduct.getDiscount() == null &&
+        getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts() >= 10) {
+      throw new BadRequestException("The maximum allowed discount quantity is 10. "
+          +
+          "Please remove a discount from one or more products.") {};
+    }
 
     var existingTranslations = productRepository.findTranslationsByProductId(productId);
 
@@ -61,7 +75,7 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
         ProductStatus.valueOf(getValue(request.status(), String.valueOf(existingProduct.getStatus()))),
         getValue(request.image(), existingProduct.getImage()), existingProduct.getCreatedAt(),
         getValue(request.quantity(), existingProduct.getQuantity()),
-        getValue(request.price(), existingProduct.getPrice()), tags, updatedTranslations);
+        getValue(request.price(), existingProduct.getPrice()), request.discount(), tags, updatedTranslations);
 
     productRepository.update(updatedProduct);
   }

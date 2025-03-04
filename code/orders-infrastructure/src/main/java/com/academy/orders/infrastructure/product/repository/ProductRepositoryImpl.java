@@ -2,14 +2,15 @@ package com.academy.orders.infrastructure.product.repository;
 
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
+import com.academy.orders.domain.product.dto.DiscountAndPriceWithDiscountRangeDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
+import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.infrastructure.common.PageableMapper;
-import com.academy.orders.infrastructure.discount.DiscountMapper;
 import com.academy.orders.infrastructure.product.ProductManagementMapper;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.product.ProductPageMapper;
@@ -19,10 +20,12 @@ import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -44,9 +47,9 @@ public class ProductRepositoryImpl implements ProductRepository {
 
   private final ProductTranslationManagementMapper productTranslationManagementMapper;
 
-  private final ProductPageMapper productPageMapper;
+  private final ProductTranslationJpaAdapter productTranslationJpaAdapter;
 
-  private final DiscountMapper discountMapper;
+  private final ProductPageMapper productPageMapper;
 
   private final PageableMapper pageableMapper;
 
@@ -63,10 +66,11 @@ public class ProductRepositoryImpl implements ProductRepository {
   }
 
   @Override
-  public Page<Product> findProductsWhereDiscountIsNotNull(String language, Pageable pageable) {
-    var pageableSpring = pageableMapper.fromDomain(pageable);
-    var translations = productJpaAdapter.findAllByLanguageCodeAndStatusVisibleAndDiscountNotNull(language,
-        pageableSpring);
+  public Page<Product> findProductsWhereDiscountIsNotNull(ProductsOnSaleFilterDto filter, String language,
+      Pageable pageable) {
+    var pageableSpring = pageableMapper.fromDomain(pageable).withSort(Sort.unsorted());
+    var translations = productTranslationJpaAdapter.findAll(new ProductTranslationSpecification(filter, pageable.sort(),
+        language), pageableSpring);
     return productPageMapper.fromProductTranslationEntity(translations);
   }
 
@@ -145,5 +149,21 @@ public class ProductRepositoryImpl implements ProductRepository {
   public Optional<Product> getByIdAndLanguageCode(UUID productId, String lang) {
     var productEntity = productJpaAdapter.findProductByProductIdAndLanguageCode(productId, lang);
     return productEntity.map(productMapper::fromEntity);
+  }
+
+  @Override
+  public int countByDiscountIsNotNull() {
+    return productJpaAdapter.countByDiscountIsNotNull();
+  }
+
+  @Override
+  public DiscountAndPriceWithDiscountRangeDto findDiscountAndPriceWithDiscountRange() {
+    var tuple = productJpaAdapter.findDiscountAndPriceWithDiscountRange();
+    return DiscountAndPriceWithDiscountRangeDto.builder()
+        .minimumPriceWithDiscount(tuple.get(0, BigDecimal.class))
+        .maximumPriceWithDiscount(tuple.get(1, BigDecimal.class))
+        .minimumDiscount(tuple.get(2, Integer.class))
+        .maximumDiscount(tuple.get(3, Integer.class))
+        .build();
   }
 }

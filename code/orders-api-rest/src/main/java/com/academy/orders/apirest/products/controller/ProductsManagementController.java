@@ -8,6 +8,7 @@ import com.academy.orders.apirest.products.mapper.ProductStatusDTOMapper;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.product.usecase.CreateProductUseCase;
+import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUseCase;
 import com.academy.orders.domain.product.usecase.GetManagerProductsUseCase;
 import com.academy.orders.domain.product.usecase.GetProductByIdUseCase;
 import com.academy.orders.domain.product.usecase.UpdateProductUseCase;
@@ -39,6 +40,8 @@ public class ProductsManagementController implements ProductsManagementApi {
   private final CreateProductUseCase createProductUseCase;
 
   private final GetProductByIdUseCase getProductByIdUseCase;
+
+  private final GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
 
   private final ProductStatusDTOMapper productStatusDTOMapper;
 
@@ -87,5 +90,11 @@ public class ProductsManagementController implements ProductsManagementApi {
   public ProductResponseDTO getProductById(UUID productId) {
     var product = getProductByIdUseCase.getProductById(productId);
     return productResponseDTOMapper.toDTO(product);
+  }
+
+  @Override
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
+  public Integer getCountOfDiscountedProducts() {
+    return getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts();
   }
 }

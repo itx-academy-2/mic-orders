@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.0.3
+  version: 2.0.5
 servers:
   - url: http://localhost:8080/retail
 
@@ -348,6 +348,24 @@ paths:
         '404':
           $ref: '#/components/responses/NotFoundResponse'
 
+  /v1/management/products/discounted/count:
+    get:
+      tags:
+        - ProductsManagement
+      summary: Get the count of discounted products
+      operationId: getCountOfDiscountedProducts
+      responses:
+        '200':
+          description: Count of discounted products
+          content:
+            application/json:
+              schema:
+                type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /v1/products/sales:
     get:
       tags:
@@ -355,8 +373,13 @@ paths:
       summary: Get list of products on sale
       operationId: getProductsOnSale
       parameters:
+        - in: query
+          description: Filter for finding products on sale
+          name: productFilter
+          schema:
+            $ref: '#/components/schemas/ProductsOnSaleFilter'
         - $ref: '#/components/parameters/Pageable'
-          description: For pagination
+          description: Sorting is available for discount/priceWithDiscount/name. For example, sort=discount,desc or sort=name,asc.
         - $ref: '#/components/parameters/Language'
       responses:
         '200':
@@ -364,7 +387,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PageProducts'
+                $ref: '#/components/schemas/ProductsOnSaleResponse'
 
   /v1/products:
     get:
@@ -911,6 +934,22 @@ components:
           description: Creation status message
           example: Resource successfully created
 
+    MinimumPriceWithDiscount:
+      type: number
+      format: decimal
+      description: "The minimum price of a product after discount to filter the products."
+      example: 100.00
+      minimum: 0
+    MaximumPriceWithDiscount:
+      type: number
+      format: decimal
+      description: "The maximum price of a product after discount to filter the products."
+      example: 140.00
+      minimum: 0
+    Discount:
+      type: integer
+      example: 10
+
     ProductRequest:
       type: object
       properties:
@@ -929,6 +968,9 @@ components:
           format: bigDecimal
           example: 999.99
           description: Price of the product
+        discount:
+          $ref: '#/components/schemas/Discount'
+          description: The amount of the discount. This field is not necessary.
         tagIds:
           type: array
           description: Array of Tag IDs associated with the product
@@ -963,8 +1005,7 @@ components:
           example: 90.00
           description: Final price
         discount:
-          type: integer
-          example: 10
+          $ref: '#/components/schemas/Discount'
           description: The amount of the discount applied to the original price. This field is only returned if a discount is applied.
         priceWithDiscount:
           type: number
@@ -1004,8 +1045,7 @@ components:
           example: 90.00
           description: Final price
         discount:
-          type: integer
-          example: 10
+          $ref: '#/components/schemas/Discount'
           description: The amount of the discount applied to the original price. This field is only returned if a discount is applied.
         priceWithDiscount:
           type: number
@@ -1239,7 +1279,7 @@ components:
           format: decimal
           description: Price of the individual item if a discount is applied. The field may be absent
         discount:
-          type: integer
+          $ref: '#/components/schemas/Discount'
           description: Discount of the item when the user made an order. The field may be absent
         quantity:
           type: integer
@@ -1392,6 +1432,24 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/ProductPreview'
+
+    ProductsOnSaleResponse:
+      type: object
+      properties:
+        minimumPriceWithDiscount:
+          $ref: '#/components/schemas/MinimumPriceWithDiscount'
+          description: The lowest price after applying the discount to all products.
+        maximumPriceWithDiscount:
+          $ref: '#/components/schemas/MaximumPriceWithDiscount'
+          description: The highest price after applying the discount to all products.
+        minimumDiscount:
+          $ref: '#/components/schemas/Discount'
+          description: The lowest discount percentage applied to any product.
+        maximumDiscount:
+          $ref: '#/components/schemas/Discount'
+          description: The highest discount percentage applied to any product.
+        pageProducts:
+          $ref: '#/components/schemas/PageProducts'
 
     ProductPreview:
       type: object
@@ -1706,6 +1764,29 @@ components:
       properties:
         tags:
           $ref: '#/components/schemas/ProductTags'
+
+    ProductsOnSaleFilter:
+      type: object
+      description: No fields required.
+      properties:
+        tags:
+          $ref: '#/components/schemas/ProductTags'
+        minimumDiscount:
+          type: integer
+          description: "The minimum discount percentage (from 0 to 100) to filter the products."
+          example: 10
+          minimum: 0
+          maximum: 100
+        maximumDiscount:
+          type: integer
+          description: "The maximum discount percentage (from 0 to 100) to filter the products."
+          example: 50
+          minimum: 0
+          maximum: 100
+        minimumPriceWithDiscount:
+          $ref: '#/components/schemas/MinimumPriceWithDiscount'
+        maximumPriceWithDiscount:
+          $ref: '#/components/schemas/MaximumPriceWithDiscount'
 
     ProductManagementPage:
       allOf:

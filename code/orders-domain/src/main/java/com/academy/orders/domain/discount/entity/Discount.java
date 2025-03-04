@@ -24,4 +24,8 @@ public class Discount {
   private LocalDateTime startDate;
 
   private LocalDateTime endDate;
+
+  public static boolean isCorrectAmount(final int amount) {
+    return amount >= 0 && amount <= 100;
+  }
 }
