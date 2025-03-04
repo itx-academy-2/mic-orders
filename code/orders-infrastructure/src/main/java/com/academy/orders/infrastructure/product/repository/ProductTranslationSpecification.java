@@ -51,16 +51,20 @@ public class ProductTranslationSpecification implements Specification<ProductTra
       predicates.add(cb.lessThanOrEqualTo(discountJoin.get("amount"), filter.maximumDiscount()));
     }
 
-    final Expression<Number> discount = cb.quot(discountJoin.get("amount"), cb.literal(100));
-    final Expression<Number> discountMultiplier = cb.diff(cb.literal(BigDecimal.ONE), discount);
-    final Expression<Number> priceWithDiscount = cb.prod(productJoin.get("price"), discountMultiplier);
+    final Expression<BigDecimal> discountInPercentage = cb.quot(
+        discountJoin.get("amount"), cb.literal(100).as(BigDecimal.class))
+        .as(BigDecimal.class);
+    final Expression<BigDecimal> discountMultiplier = cb.diff(
+        cb.literal(BigDecimal.ONE), discountInPercentage);
+    final Expression<BigDecimal> priceWithDiscount = cb.prod(
+        productJoin.get("price"), discountMultiplier);
 
     if (Objects.nonNull(filter.minimumPriceWithDiscount())) {
-      predicates.add(cb.greaterThanOrEqualTo(priceWithDiscount.as(BigDecimal.class),
+      predicates.add(cb.greaterThanOrEqualTo(priceWithDiscount,
           filter.minimumPriceWithDiscount()));
     }
     if (Objects.nonNull(filter.maximumPriceWithDiscount())) {
-      predicates.add(cb.lessThanOrEqualTo(priceWithDiscount.as(BigDecimal.class),
+      predicates.add(cb.lessThanOrEqualTo(priceWithDiscount,
           filter.maximumPriceWithDiscount()));
     }
 
@@ -79,7 +83,7 @@ public class ProductTranslationSpecification implements Specification<ProductTra
   private void setSort(final Root<ProductTranslationEntity> root, final CriteriaQuery<?> query, final CriteriaBuilder cb,
       final Join<ProductEntity, DiscountEntity> discountJoin,
       final Join<ProductTranslationEntity, ProductEntity> productJoin,
-      final Expression<Number> priceWithDiscount) {
+      final Expression<BigDecimal> priceWithDiscount) {
     if (Objects.nonNull(sort) && !sort.isEmpty()) {
       final List<Order> orders = new ArrayList<>();
       for (int i = 0; i < sort.size(); i += 2) {
