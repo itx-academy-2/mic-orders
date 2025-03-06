@@ -4,7 +4,10 @@ import com.academy.orders.apirest.common.mapper.PageableDTOMapper;
 import com.academy.orders.apirest.products.mapper.PageProductSearchResultDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductDetailsResponseDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductPreviewDTOMapper;
+import com.academy.orders.apirest.products.mapper.ProductsOnSaleFilterMapper;
+import com.academy.orders.apirest.products.mapper.ProductsOnSaleResponseDTOMapper;
 import com.academy.orders.domain.common.Pageable;
+import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
 import com.academy.orders.domain.product.usecase.GetAllProductsUseCase;
 import com.academy.orders.domain.product.usecase.GetProductDetailsByIdUseCase;
 import com.academy.orders.domain.product.usecase.GetProductSearchResultsUseCase;
@@ -15,6 +18,8 @@ import com.academy.orders_api_rest.generated.model.PageProductsDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
 import com.academy.orders_api_rest.generated.model.ProductDetailsResponseDTO;
 import com.academy.orders_api_rest.generated.model.ProductFilterDTO;
+import com.academy.orders_api_rest.generated.model.ProductsOnSaleFilterDTO;
+import com.academy.orders_api_rest.generated.model.ProductsOnSaleResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -41,6 +46,10 @@ public class ProductsController implements ProductsApi {
 
   private final PageProductSearchResultDTOMapper pageProductSearchResultDTOMapper;
 
+  private final ProductsOnSaleFilterMapper productsOnSaleFilterMapper;
+
+  private final ProductsOnSaleResponseDTOMapper productsOnSaleResponseDTOMapper;
+
   private final ProductDetailsResponseDTOMapper productDetailsResponseDTOMapper;
 
   @Override
@@ -50,10 +59,11 @@ public class ProductsController implements ProductsApi {
   }
 
   @Override
-  public PageProductsDTO getProductsOnSale(PageableDTO pageableDTO, String lang) {
+  public ProductsOnSaleResponseDTO getProductsOnSale(ProductsOnSaleFilterDTO filter, PageableDTO pageableDTO, String lang) {
+    final ProductsOnSaleFilterDto productsOnSaleFilterDto = productsOnSaleFilterMapper.fromDto(filter);
     var pageable = pageableDTOMapper.fromDto(pageableDTO);
-    var productsOnSale = getProductsOnSaleUseCase.getProductsOnSale(pageable, lang);
-    return productPreviewDTOMapper.toPageProductsDTO(productsOnSale);
+    var productsOnSale = getProductsOnSaleUseCase.getProductsOnSale(productsOnSaleFilterDto, pageable, lang);
+    return productsOnSaleResponseDTOMapper.toProductsOnSaleResponseDTO(productsOnSale);
   }
 
   @Override

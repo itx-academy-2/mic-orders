@@ -6,6 +6,8 @@ import com.academy.orders.apirest.common.mapper.PageableDTOMapper;
 import com.academy.orders.apirest.products.mapper.PageProductSearchResultDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductDetailsResponseDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductPreviewDTOMapper;
+import com.academy.orders.apirest.products.mapper.ProductsOnSaleFilterMapper;
+import com.academy.orders.apirest.products.mapper.ProductsOnSaleResponseDTOMapper;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.entity.Product;
@@ -17,6 +19,7 @@ import com.academy.orders_api_rest.generated.model.PageProductSearchResultDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
@@ -36,6 +39,9 @@ import static com.academy.orders.apirest.ModelUtils.getPageable;
 import static com.academy.orders.apirest.ModelUtils.getPageableDTO;
 import static com.academy.orders.apirest.ModelUtils.getProduct;
 import static com.academy.orders.apirest.ModelUtils.getProductDetailsResponseDTO;
+import static com.academy.orders.apirest.ModelUtils.getProductsOnSaleFilterDto;
+import static com.academy.orders.apirest.ModelUtils.getProductsOnSaleResponseDTO;
+import static com.academy.orders.apirest.ModelUtils.getProductsOnSaleResponseDto;
 import static com.academy.orders.apirest.ModelUtils.getProductsPage;
 import static com.academy.orders.apirest.ModelUtils.getProductsWithDiscountPage;
 import static com.academy.orders.apirest.TestConstants.GET_ALL_PRODUCTS_URL;
@@ -47,6 +53,7 @@ import static com.academy.orders.apirest.TestConstants.SEARCH_PRODUCTS_URL;
 import static com.academy.orders.apirest.TestConstants.TEST_UUID;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -70,7 +77,10 @@ class ProductsControllerTest {
   private GetProductSearchResultsUseCase getProductSearchResultsUseCase;
 
   @MockBean
-  private GetProductsOnSaleUseCase getProductsOnSaleUseCase;
+  private ProductsOnSaleFilterMapper productsOnSaleFilterMapper;
+
+  @MockBean
+  private ProductsOnSaleResponseDTOMapper productsOnSaleResponseDTOMapper;
 
   @MockBean
   private GetProductDetailsByIdUseCase getProductDetailsByIdUseCase;
@@ -83,6 +93,9 @@ class ProductsControllerTest {
 
   @MockBean
   private PageableDTOMapper pageableDTOMapper;
+
+  @MockBean
+  private GetProductsOnSaleUseCase getProductsOnSaleUseCase;
 
   @MockBean
   private ProductDetailsResponseDTOMapper productDetailsResponseDTOMapper;
@@ -113,21 +126,28 @@ class ProductsControllerTest {
   void getProductsOnSaleTest() {
     var pageableDTO = getPageableDTO();
     var pageable = getPageable();
-    var pageProducts = getProductsWithDiscountPage();
-    var pageProductsDTO = getPageProductsWithDiscountDTO();
+    var productsOnSaleFilterDto = getProductsOnSaleFilterDto();
+    var productsOnSaleResponseDto = getProductsOnSaleResponseDto();
+    var productsOnSaleResponseDTO = getProductsOnSaleResponseDTO();
     var language = LANGUAGE_EN;
 
     when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
-    when(getProductsOnSaleUseCase.getProductsOnSale(pageable, language)).thenReturn(pageProducts);
-    when(productPreviewDTOMapper.toPageProductsDTO(pageProducts)).thenReturn(pageProductsDTO);
+    when(productsOnSaleFilterMapper.fromDto(any())).thenReturn(productsOnSaleFilterDto);
+    when(getProductsOnSaleUseCase.getProductsOnSale(productsOnSaleFilterDto, pageable, language))
+        .thenReturn(productsOnSaleResponseDto);
+    when(productsOnSaleResponseDTOMapper.toProductsOnSaleResponseDTO(productsOnSaleResponseDto))
+        .thenReturn(productsOnSaleResponseDTO);
 
-    mockMvc.perform(get(GET_PRODUCTS_ON_SALES_URL).param("lang", language)).andExpect(status().isOk())
+    mockMvc.perform(get(GET_PRODUCTS_ON_SALES_URL).param("lang", language)
+        .param("minimumDiscount", String.valueOf(productsOnSaleFilterDto.minimumDiscount())))
+        .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(content().json(objectMapper.writeValueAsString(pageProductsDTO)));
+        .andExpect(content().json(objectMapper.writeValueAsString(productsOnSaleResponseDTO)));
 
+    verify(productsOnSaleFilterMapper).fromDto(any());
     verify(pageableDTOMapper).fromDto(pageableDTO);
-    verify(getProductsOnSaleUseCase).getProductsOnSale(pageable, language);
-    verify(productPreviewDTOMapper).toPageProductsDTO(pageProducts);
+    verify(getProductsOnSaleUseCase).getProductsOnSale(productsOnSaleFilterDto, pageable, language);
+    verify(productsOnSaleResponseDTOMapper).toProductsOnSaleResponseDTO(productsOnSaleResponseDto);
   }
 
   @Test

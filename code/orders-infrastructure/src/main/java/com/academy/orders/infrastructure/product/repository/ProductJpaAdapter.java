@@ -4,6 +4,7 @@ import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
+import jakarta.persistence.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -191,4 +192,20 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
       + "LEFT JOIN FETCH pt.language l LEFT JOIN FETCH p.tags "
       + "WHERE p.id = :id AND l.code = :lang AND p.status = 'VISIBLE'")
   Optional<ProductEntity> findProductByProductIdAndLanguageCode(UUID id, String lang);
+
+  int countByDiscountIsNotNull();
+
+  /**
+   * Retrieves the minimum and maximum price after applying discounts, as well as the minimum and maximum discount percentages for
+   * discounted products that are currently visible.
+   */
+  @Query("""
+      SELECT CAST(min(p.price * (1 - CAST(d.amount AS double) / 100)) AS java.math.BigDecimal),
+            CAST(max(p.price * (1 - CAST(d.amount AS double) / 100)) AS java.math.BigDecimal),
+                min(d.amount), max(d.amount)
+      FROM ProductEntity AS p
+      INNER JOIN p.discount AS d
+      WHERE p.status = 'VISIBLE'
+      """)
+  Tuple findDiscountAndPriceWithDiscountRange();
 }
