@@ -13,10 +13,10 @@ import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.CreateProductUseCase;
-import com.academy.orders.domain.product.usecase.ExtractNameFromUrlUseCase;
 import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUseCase;
 import com.academy.orders.domain.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,13 +36,14 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
 
   private final GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
 
-  private final ExtractNameFromUrlUseCase extractNameFromUrlUseCase;
+  @Value("${images.product}")
+  private String defaultImageUrl;
 
   @Override
   public Product createProduct(ProductRequestDto request) {
     if (request == null) {
       throw new BadRequestException("Request cannot be null") {};
-    } else if (!UrlUtils.isValidUri(request.image())) {
+    } else if (request.image() != null && !UrlUtils.isValidUri(request.image())) {
       throw new BadRequestException("Url is not correct") {};
     } else if (request.discount() != null && !Discount.isCorrectAmount(request.discount())) {
       throw new BadRequestException("The provided discount amount is not valid. Please provide a valid discount.") {};
@@ -53,7 +54,9 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
     }
     var tags = tagRepository.getTagsByIds(request.tagIds());
 
-    var product = ProductManagement.builder().status(ProductStatus.valueOf(request.status())).image(request.image())
+    final String imageUrl = (request.image() != null) ? request.image() : defaultImageUrl;
+
+    var product = ProductManagement.builder().status(ProductStatus.valueOf(request.status())).image(imageUrl)
         .createdAt(LocalDateTime.now()).quantity(request.quantity()).price(request.price()).tags(tags)
         .discount(request.discount()).productTranslationManagement(Set.of()).build();
 

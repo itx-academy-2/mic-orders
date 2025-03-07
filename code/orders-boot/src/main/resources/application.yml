@@ -56,5 +56,4 @@ resilience4j:
         fail-after-max-attempts: true
 
 images:
-  default:
-    url: https://www.demyhealth.com/storage/media/2/default-product-image.png
+  product: https://www.demyhealth.com/storage/media/2/default-product-image.png

@@ -17,6 +17,7 @@ import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUse
 import com.academy.orders.domain.product.usecase.UpdateProductUseCase;
 import com.academy.orders.domain.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,10 +36,13 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
 
   private final GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
 
+  @Value("${images.product}")
+  private String defaultImageUrl;
+
   @Transactional
   @Override
   public void updateProduct(UUID productId, ProductRequestDto request) {
-    if (!UrlUtils.isValidUri(request.image())) {
+    if (request.image() != null && !UrlUtils.isValidUri(request.image())) {
       throw new BadRequestException("Url is not correct") {};
     }
     var existingProduct = productRepository.getById(productId)
@@ -71,9 +75,11 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
           getValue(dto.description(), existingTranslation.description()), existingTranslation.language());
     }).collect(Collectors.toSet());
 
+    final String imageUrl = (request.image() != null) ? request.image() : defaultImageUrl;
+
     var updatedProduct = new ProductManagement(existingProduct.getId(),
         ProductStatus.valueOf(getValue(request.status(), String.valueOf(existingProduct.getStatus()))),
-        getValue(request.image(), existingProduct.getImage()), existingProduct.getCreatedAt(),
+        getValue(imageUrl, existingProduct.getImage()), existingProduct.getCreatedAt(),
         getValue(request.quantity(), existingProduct.getQuantity()),
         getValue(request.price(), existingProduct.getPrice()), request.discount(), tags, updatedTranslations);
 

@@ -9,10 +9,12 @@ import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUseCase;
 import com.academy.orders.domain.tag.repository.TagRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.Optional;
 import java.util.Set;
@@ -20,12 +22,14 @@ import java.util.Set;
 import static com.academy.orders.application.ModelUtils.getProductRequestDto;
 import static com.academy.orders.application.ModelUtils.getProductRequestDtoWithDiscount;
 import static com.academy.orders.application.ModelUtils.getProductRequestDtoWithInvalidLanguageCode;
+import static com.academy.orders.application.ModelUtils.getProductRequestDtoWithoutImage;
 import static com.academy.orders.application.ModelUtils.getProductRequestWithIncorrectUrlDto;
 import static com.academy.orders.application.ModelUtils.getProductWithImageLink;
 import static com.academy.orders.application.ModelUtils.getTag;
 import static com.academy.orders.application.TestConstants.TEST_QUANTITY;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -33,22 +37,26 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = CreateProductUseCaseImpl.class)
+@TestPropertySource(properties = "images.product=https://samples-files.com/samples/images/jpg/1920-1080-sample.jpg")
 class CreateProductUseCaseTest {
-  @InjectMocks
+  @Autowired
   private CreateProductUseCaseImpl createProductUseCase;
 
-  @Mock
+  @MockBean
   private GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
 
-  @Mock
+  @MockBean
   private ProductRepository productRepository;
 
-  @Mock
+  @MockBean
   private TagRepository tagRepository;
 
-  @Mock
+  @MockBean
   private LanguageRepository languageRepository;
+
+  @Captor
+  private ArgumentCaptor<ProductManagement> productManagementArgumentCaptor;
 
   @Test
   void createProductTest() {
@@ -130,5 +138,27 @@ class CreateProductUseCaseTest {
     verify(tagRepository).getTagsByIds(any());
     verify(productRepository, times(2)).save(any(ProductManagement.class));
     verify(languageRepository).findByCode(anyString());
+  }
+
+  @Test
+  void createProductWithoutImageLinkTest() {
+    var request = getProductRequestDtoWithoutImage();
+    var product = getProductWithImageLink();
+
+    when(tagRepository.getTagsByIds(request.tagIds())).thenReturn(Set.of(getTag()));
+    when(languageRepository.findByCode(request.productTranslations().iterator().next().languageCode()))
+        .thenReturn(Optional.ofNullable(ModelUtils.getLanguageEn()));
+    when(productRepository.save(any(ProductManagement.class))).thenReturn(product);
+    var result = createProductUseCase.createProduct(request);
+
+    assertEquals(result, product);
+
+    verify(getCountOfDiscountedProductsUseCase, never()).getCountOfDiscountedProducts();
+    verify(tagRepository).getTagsByIds(request.tagIds());
+    verify(languageRepository).findByCode(request.productTranslations().iterator().next().languageCode());
+    verify(productRepository, times(2)).save(productManagementArgumentCaptor.capture());
+
+    var imageLink = productManagementArgumentCaptor.getAllValues().get(0).image();
+    assertNotNull(imageLink);
   }
 }
