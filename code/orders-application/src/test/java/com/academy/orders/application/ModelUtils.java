@@ -290,6 +290,14 @@ public class ModelUtils {
         .build();
   }
 
+  public static ProductRequestDto getProductRequestDtoWithoutImage() {
+    return ProductRequestDto.builder().status(String.valueOf(ProductStatus.VISIBLE)).image(null)
+        .quantity(TEST_QUANTITY).price(TEST_PRICE).tagIds(List.of(1L))
+        .productTranslations(Set.of(ProductTranslationDto.builder().name("Name").description("Description")
+            .languageCode("en").build()))
+        .build();
+  }
+
   public static ProductRequestDto getProductRequestDtoWithDiscount(Integer discount) {
     return ProductRequestDto.builder().status(String.valueOf(ProductStatus.VISIBLE)).image(IMAGE_URL)
         .quantity(TEST_QUANTITY).price(TEST_PRICE).discount(discount).tagIds(List.of(1L))
