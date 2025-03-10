@@ -17,6 +17,7 @@ import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUse
 import com.academy.orders.domain.product.usecase.UpdateProductUseCase;
 import com.academy.orders.domain.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +39,7 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
   @Transactional
   @Override
   public void updateProduct(UUID productId, ProductRequestDto request) {
-    if (!UrlUtils.isValidUri(request.image())) {
+    if (request.image() != null && !UrlUtils.isValidUri(request.image())) {
       throw new BadRequestException("Url is not correct") {};
     }
     var existingProduct = productRepository.getById(productId)
