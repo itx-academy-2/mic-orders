@@ -442,6 +442,25 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequestResponse'
 
+  /v1/products/bestsellers:
+    get:
+      summary: Get the top bestselling products
+      tags:
+        - Products
+      operationId: findBestsellers
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+          required: true
+        - $ref: '#/components/parameters/Language'
+      responses:
+        '200':
+          description: Successfully retrieved the bestsellers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageProducts'
+
   /v1/products/{productId}:
     get:
       tags:
@@ -720,6 +739,19 @@ components:
         nullable: false
         example: uk
       description: The language code for the product information (e.g., 'uk' for Ukrainian).
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    Size:
+      in: query
+      name: size
+      schema:
+        type: integer
+        minimum: 1
   securitySchemes:
     bearerAuth:
       type: http
@@ -794,6 +826,11 @@ components:
   #SCHEMAS
   #=======================================================================================================================
   schemas:
+    PercentageOfTotalOrders:
+      type: number
+      format: double
+      example: 43.75
+      description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
     Pageable:
       type: object
       properties:
@@ -1019,7 +1056,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProductTranslation'
-
+        percentageOfTotalOrders:
+          $ref: '#/components/schemas/PercentageOfTotalOrders'
     ProductDetailsResponse:
       type: object
       properties:
@@ -1051,7 +1089,8 @@ components:
           type: number
           example: 100.00
           description: The original price before any discount is applied. This field is only returned if a discount is applied.
-
+        percentageOfTotalOrders:
+          $ref: '#/components/schemas/PercentageOfTotalOrders'
     ProductSearchResult:
       type: object
       properties:
@@ -1498,7 +1537,8 @@ components:
           type: number
           example: 100.00
           description: The original price before any discount is applied. This field is only returned if a discount is applied.
-
+        percentageOfTotalOrders:
+          $ref: '#/components/schemas/PercentageOfTotalOrders'
     ProductStatus:
       type: string
       enum:
@@ -1833,7 +1873,6 @@ components:
           type: number
           example: 100.00
           description: The original price before any discount is applied. This field is only returned if a discount is applied.
-
         createdAt:
           type: string
           format: date-time
@@ -1841,6 +1880,8 @@ components:
           $ref: '#/components/schemas/ProductManagementStatus'
         tags:
           $ref: '#/components/schemas/ProductTags'
+        percentageOfTotalOrders:
+          $ref: '#/components/schemas/PercentageOfTotalOrders'
       required:
         - id
         - name
