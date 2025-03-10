@@ -826,11 +826,10 @@ components:
   #SCHEMAS
   #=======================================================================================================================
   schemas:
-    PercentageOfTotalOrders:
+    Percentage:
       type: number
       format: double
       example: 43.75
-      description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
     Pageable:
       type: object
       properties:
@@ -1057,7 +1056,9 @@ components:
           items:
             $ref: '#/components/schemas/ProductTranslation'
         percentageOfTotalOrders:
-          $ref: '#/components/schemas/PercentageOfTotalOrders'
+          description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
+          $ref: '#/components/schemas/Percentage'
+
     ProductDetailsResponse:
       type: object
       properties:
@@ -1090,7 +1091,8 @@ components:
           example: 100.00
           description: The original price before any discount is applied. This field is only returned if a discount is applied.
         percentageOfTotalOrders:
-          $ref: '#/components/schemas/PercentageOfTotalOrders'
+          description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
+          $ref: '#/components/schemas/Percentage'
     ProductSearchResult:
       type: object
       properties:
@@ -1538,7 +1540,8 @@ components:
           example: 100.00
           description: The original price before any discount is applied. This field is only returned if a discount is applied.
         percentageOfTotalOrders:
-          $ref: '#/components/schemas/PercentageOfTotalOrders'
+          description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
+          $ref: '#/components/schemas/Percentage'
     ProductStatus:
       type: string
       enum:
@@ -1881,7 +1884,8 @@ components:
         tags:
           $ref: '#/components/schemas/ProductTags'
         percentageOfTotalOrders:
-          $ref: '#/components/schemas/PercentageOfTotalOrders'
+          description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
+          $ref: '#/components/schemas/Percentage'
       required:
         - id
         - name
