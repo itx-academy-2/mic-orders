@@ -36,9 +36,6 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
 
   private final GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
 
-  @Value("${images.product}")
-  private String defaultImageUrl;
-
   @Transactional
   @Override
   public void updateProduct(UUID productId, ProductRequestDto request) {
@@ -75,11 +72,9 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
           getValue(dto.description(), existingTranslation.description()), existingTranslation.language());
     }).collect(Collectors.toSet());
 
-    final String imageUrl = (request.image() != null) ? request.image() : defaultImageUrl;
-
     var updatedProduct = new ProductManagement(existingProduct.getId(),
         ProductStatus.valueOf(getValue(request.status(), String.valueOf(existingProduct.getStatus()))),
-        getValue(imageUrl, existingProduct.getImage()), existingProduct.getCreatedAt(),
+        getValue(request.image(), existingProduct.getImage()), existingProduct.getCreatedAt(),
         getValue(request.quantity(), existingProduct.getQuantity()),
         getValue(request.price(), existingProduct.getPrice()), request.discount(), tags, updatedTranslations);
 

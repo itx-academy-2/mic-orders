@@ -8,13 +8,14 @@ import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUseCase;
 import com.academy.orders.domain.tag.repository.TagRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.TestPropertySource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 import java.util.Set;
@@ -37,26 +38,33 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest(classes = CreateProductUseCaseImpl.class)
-@TestPropertySource(properties = "images.product=https://samples-files.com/samples/images/jpg/1920-1080-sample.jpg")
+@ExtendWith(MockitoExtension.class)
 class CreateProductUseCaseTest {
-  @Autowired
+  @InjectMocks
   private CreateProductUseCaseImpl createProductUseCase;
 
-  @MockBean
+  @Mock
   private GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
 
-  @MockBean
+  @Mock
   private ProductRepository productRepository;
 
-  @MockBean
+  @Mock
   private TagRepository tagRepository;
 
-  @MockBean
+  @Mock
   private LanguageRepository languageRepository;
+
+  private String defaultImageUrl = "http://default.image.url";
 
   @Captor
   private ArgumentCaptor<ProductManagement> productManagementArgumentCaptor;
+
+  @BeforeEach
+  void setUp() {
+    createProductUseCase = new CreateProductUseCaseImpl(productRepository,
+        tagRepository, languageRepository, getCountOfDiscountedProductsUseCase, defaultImageUrl);
+  }
 
   @Test
   void createProductTest() {
@@ -160,5 +168,6 @@ class CreateProductUseCaseTest {
 
     var imageLink = productManagementArgumentCaptor.getAllValues().get(0).image();
     assertNotNull(imageLink);
+    assertEquals(defaultImageUrl, imageLink);
   }
 }

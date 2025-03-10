@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class CreateProductUseCaseImpl implements CreateProductUseCase {
   private final ProductRepository productRepository;
@@ -36,8 +35,19 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
 
   private final GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
 
-  @Value("${images.product}")
-  private String defaultImageUrl;
+  private final String defaultImageUrl;
+
+  public CreateProductUseCaseImpl(ProductRepository productRepository,
+      TagRepository tagRepository,
+      LanguageRepository languageRepository,
+      GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase,
+      @Value("${images.product}") String defaultImageUrl) {
+    this.productRepository = productRepository;
+    this.tagRepository = tagRepository;
+    this.languageRepository = languageRepository;
+    this.getCountOfDiscountedProductsUseCase = getCountOfDiscountedProductsUseCase;
+    this.defaultImageUrl = defaultImageUrl;
+  }
 
   @Override
   public Product createProduct(ProductRequestDto request) {
