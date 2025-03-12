@@ -6,8 +6,11 @@ import com.academy.orders.apirest.products.mapper.ProductDetailsResponseDTOMappe
 import com.academy.orders.apirest.products.mapper.ProductPreviewDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductsOnSaleFilterMapper;
 import com.academy.orders.apirest.products.mapper.ProductsOnSaleResponseDTOMapper;
+import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
+import com.academy.orders.domain.product.entity.Product;
+import com.academy.orders.domain.product.usecase.FindProductsBestsellersUseCase;
 import com.academy.orders.domain.product.usecase.GetAllProductsUseCase;
 import com.academy.orders.domain.product.usecase.GetProductDetailsByIdUseCase;
 import com.academy.orders.domain.product.usecase.GetProductSearchResultsUseCase;
@@ -52,6 +55,8 @@ public class ProductsController implements ProductsApi {
 
   private final ProductDetailsResponseDTOMapper productDetailsResponseDTOMapper;
 
+  private final FindProductsBestsellersUseCase findProductsBestsellersUseCase;
+
   @Override
   public ProductDetailsResponseDTO getProductDetailsById(UUID productId, String lang) {
     var product = getProductDetailsByIdUseCase.getProductDetailsById(productId, lang);
@@ -79,5 +84,15 @@ public class ProductsController implements ProductsApi {
     Pageable pageableDomain = pageableDTOMapper.fromDto(pageable);
     var products = getProductSearchResultsUseCase.findProductsBySearchQuery(searchQuery, lang, pageableDomain);
     return pageProductSearchResultDTOMapper.toDto(products);
+  }
+
+  @Override
+  public PageProductsDTO findBestsellers(Integer page, Integer size, String lang) {
+    final Pageable pageable = Pageable.builder() // fixme
+        .size(size)
+        .page(page)
+        .build();
+    final Page<Product> products = findProductsBestsellersUseCase.findProductsBestsellers(pageable, lang);
+    return productPreviewDTOMapper.toPageProductsDTO(products);
   }
 }

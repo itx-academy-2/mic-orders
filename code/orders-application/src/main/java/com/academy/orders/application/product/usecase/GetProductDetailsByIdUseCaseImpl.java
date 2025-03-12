@@ -6,9 +6,11 @@ import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.exception.ProductNotFoundException;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.GetProductDetailsByIdUseCase;
+import com.academy.orders.domain.product.usecase.SetPercentageOfTotalOrdersUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -18,10 +20,16 @@ public class GetProductDetailsByIdUseCaseImpl implements GetProductDetailsByIdUs
 
   private final LanguageRepository languageRepository;
 
+  private final SetPercentageOfTotalOrdersUseCase setPercentageOfTotalOrdersUseCase;
+
   @Override
   public Product getProductDetailsById(UUID productId, String lang) {
     var language = languageRepository.findByCode(lang).orElseThrow(() -> new LanguageNotFoundException(lang));
-    return productRepository.getByIdAndLanguageCode(productId, language.code())
+
+    final Product product = productRepository.getByIdAndLanguageCode(productId, language.code())
         .orElseThrow(() -> new ProductNotFoundException(productId));
+    setPercentageOfTotalOrdersUseCase.setPercentOfTotalOrders(product);
+
+    return product;
   }
 }
