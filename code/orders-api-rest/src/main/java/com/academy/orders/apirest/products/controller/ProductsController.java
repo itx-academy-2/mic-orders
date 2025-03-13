@@ -88,7 +88,7 @@ public class ProductsController implements ProductsApi {
 
   @Override
   public PageProductsDTO findBestsellers(Integer page, Integer size, String lang) {
-    final Pageable pageable = Pageable.builder() // fixme
+    final Pageable pageable = Pageable.builder()
         .size(size)
         .page(page)
         .build();

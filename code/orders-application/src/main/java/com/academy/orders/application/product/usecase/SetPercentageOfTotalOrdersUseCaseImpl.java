@@ -19,7 +19,9 @@ public class SetPercentageOfTotalOrdersUseCaseImpl implements SetPercentageOfTot
 
   @Override
   public void setPercentOfTotalOrders(final List<Product> list) {
-
+    if (list == null || list.isEmpty()) {
+      return;
+    }
     final Map<UUID, Double> bestsellersMap = getProductBestsellersUseCase.getProductBestsellers(30, 5)
         .stream()
         .collect(Collectors.toMap(ProductBestsellersDto::productId, ProductBestsellersDto::percentageOfTotalOrders));
@@ -29,6 +31,9 @@ public class SetPercentageOfTotalOrdersUseCaseImpl implements SetPercentageOfTot
 
   @Override
   public void setPercentOfTotalOrders(final Product product) {
+    if (product == null) {
+      return;
+    }
     getProductBestsellersUseCase.getProductBestsellers(30, 5).stream()
         .filter(o -> o.productId().equals(product.getId()))
         .findFirst()

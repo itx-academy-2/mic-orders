@@ -166,7 +166,13 @@ public interface ProductRepository {
    */
   DiscountAndPriceWithDiscountRangeDto findDiscountAndPriceWithDiscountRange();
 
-  Page<Product> findMostSoldProducts(Pageable pageableDomain, String language, LocalDateTime fromDate, LocalDateTime endDate, int quantity);
+  /**
+   * Retrieves a paginated list of products that match the specified language and product IDs.
+   */
+  Page<Product> findProductsByLanguageAndIds(Pageable pageableDomain, String language, List<UUID> ids);
 
+  /**
+   * Retrieves a list of the most sold products within the specified date range and quantity.
+   */
   List<ProductBestsellersDto> getIdsOfMostSoldProducts(LocalDateTime fromDate, LocalDateTime endDate, int quantity);
 }

@@ -171,16 +171,10 @@ public class ProductRepositoryImpl implements ProductRepository {
   }
 
   @Override
-  public Page<Product> findMostSoldProducts(Pageable pageableDomain, String language, LocalDateTime fromDate, LocalDateTime toDate,
-      int quantity) {
+  public Page<Product> findProductsByLanguageAndIds(Pageable pageableDomain, String language, List<UUID> ids) {
     var pageable = pageableMapper.fromDomain(pageableDomain);
-
-    final List<UUID> ids = productJpaAdapter.findMostSoldProducts(fromDate, toDate, quantity).stream()
-        .map(o -> o.get(0, UUID.class))
-        .toList();
-
-    var productPage = productJpaAdapter.findMostSoldProductsByDateRangeAndLanguageCode(pageable, language, ids);
-    return productPageMapper.toDomain(productPage);
+    var products = productJpaAdapter.findProductsByLanguageAndIds(pageable, language, ids);
+    return productPageMapper.toDomain(products);
   }
 
   @Override

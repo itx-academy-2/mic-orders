@@ -13,7 +13,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
@@ -211,19 +210,24 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
       """)
   Tuple findDiscountAndPriceWithDiscountRange();
 
-  @Query(value = """
-      SELECT p1
-      FROM ProductEntity p1
-      LEFT JOIN p1.orderItems oi
-      LEFT JOIN p1.productTranslations pt
-      LEFT JOIN oi.order o
-      LEFT JOIN pt.language l
-      LEFT JOIN FETCH p1.discount
-      WHERE l.code = :language AND p1.status = 'VISIBLE'
-      AND p1.id IN :ids
+  /**
+   * Retrieves a paginated list of products that match the specified language and product IDs, including product translations and tags.
+   */
+  @Query("""
+        SELECT p
+        FROM ProductEntity p
+        INNER JOIN FETCH p.productTranslations pt
+        INNER JOIN FETCH pt.language l
+        LEFT JOIN FETCH p.tags t
+        WHERE p.id IN :ids AND l.code = :lang
       """)
-  Page<ProductEntity> findMostSoldProductsByDateRangeAndLanguageCode(Pageable pageable, String language, List<UUID> ids);
+  Page<ProductEntity> findProductsByLanguageAndIds(Pageable pageable, String lang, List<UUID> ids);
 
+  /**
+   * Retrieves a list of ids of the most sold products within the specified date range, along with their percentage of the total orders for
+   * that period.
+   *
+   */
   @Query(value = """
       SELECT oi.product_id AS product_id, CAST(SUM(oi.quantity) AS DOUBLE PRECISION) /
       NULLIF((
@@ -233,12 +237,11 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
              WHERE o_inner.created_at BETWEEN ?1 AND ?2), 0
       ) * 100 AS percentage_of_total_orders
       FROM order_items oi
-      INNER JOIN orders o ON o.id = oi.order_id
+      JOIN orders o ON o.id = oi.order_id
       WHERE o.created_at BETWEEN ?1 AND ?2
       GROUP BY oi.product_id
       ORDER BY SUM(oi.quantity) DESC
       LIMIT ?3
       """, nativeQuery = true)
-  List<Tuple> findMostSoldProducts(@Param("startDate") LocalDateTime fromDate,
-      @Param("endDate") LocalDateTime endDate, int quantity);
+  List<Tuple> findMostSoldProducts(LocalDateTime startDate, LocalDateTime endDate, int quantity);
 }
