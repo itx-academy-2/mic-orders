@@ -11,11 +11,13 @@ import com.academy.orders.apirest.products.mapper.ProductsOnSaleResponseDTOMappe
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.entity.Product;
+import com.academy.orders.domain.product.usecase.FindProductsBestsellersUseCase;
 import com.academy.orders.domain.product.usecase.GetAllProductsUseCase;
 import com.academy.orders.domain.product.usecase.GetProductDetailsByIdUseCase;
 import com.academy.orders.domain.product.usecase.GetProductSearchResultsUseCase;
 import com.academy.orders.domain.product.usecase.GetProductsOnSaleUseCase;
 import com.academy.orders_api_rest.generated.model.PageProductSearchResultDTO;
+import com.academy.orders_api_rest.generated.model.PageProductsDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -29,6 +31,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
 
@@ -44,6 +47,7 @@ import static com.academy.orders.apirest.ModelUtils.getProductsOnSaleResponseDTO
 import static com.academy.orders.apirest.ModelUtils.getProductsOnSaleResponseDto;
 import static com.academy.orders.apirest.ModelUtils.getProductsPage;
 import static com.academy.orders.apirest.ModelUtils.getProductsWithDiscountPage;
+import static com.academy.orders.apirest.TestConstants.FIND_BESTSELLERS_URL;
 import static com.academy.orders.apirest.TestConstants.GET_ALL_PRODUCTS_URL;
 import static com.academy.orders.apirest.TestConstants.GET_PRODUCTS_ON_SALES_URL;
 import static com.academy.orders.apirest.TestConstants.GET_PRODUCT_DETAILS_URL;
@@ -54,6 +58,7 @@ import static com.academy.orders.apirest.TestConstants.TEST_UUID;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -96,6 +101,9 @@ class ProductsControllerTest {
 
   @MockBean
   private GetProductsOnSaleUseCase getProductsOnSaleUseCase;
+
+  @MockBean
+  private FindProductsBestsellersUseCase findProductsBestsellersUseCase;
 
   @MockBean
   private ProductDetailsResponseDTOMapper productDetailsResponseDTOMapper;
@@ -192,5 +200,27 @@ class ProductsControllerTest {
         .andReturn().getResponse().getContentAsString();
 
     assertEquals(objectMapper.writeValueAsString(response), result);
+  }
+
+  @Test
+  @SneakyThrows
+  void findBestsellersTest() {
+    final String language = LANGUAGE_EN;
+    final Page<Product> productPage = getPageOf(getProduct());
+    final PageProductsDTO result = getPageProductsDTO();
+
+    when(findProductsBestsellersUseCase.findProductsBestsellers(any(Pageable.class), eq(language)))
+        .thenReturn(productPage);
+    when(productPreviewDTOMapper.toPageProductsDTO(productPage)).thenReturn(result);
+    final MvcResult mvcResult = mockMvc.perform(get(FIND_BESTSELLERS_URL)
+        .param("lang", language)
+        .param("size", "1")
+        .param("page", "0")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk()).andReturn();
+
+    verify(findProductsBestsellersUseCase).findProductsBestsellers(any(Pageable.class), eq(language));
+    verify(productPreviewDTOMapper).toPageProductsDTO(productPage);
+    assertEquals(objectMapper.writeValueAsString(result), mvcResult.getResponse().getContentAsString());
   }
 }

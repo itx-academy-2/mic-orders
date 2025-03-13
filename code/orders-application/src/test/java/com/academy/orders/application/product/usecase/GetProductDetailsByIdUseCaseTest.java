@@ -2,6 +2,7 @@ package com.academy.orders.application.product.usecase;
 
 import com.academy.orders.domain.language.exception.LanguageNotFoundException;
 import com.academy.orders.domain.language.repository.LanguageRepository;
+import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.exception.ProductNotFoundException;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import org.junit.jupiter.api.Assertions;
@@ -19,6 +20,10 @@ import static com.academy.orders.application.TestConstants.LANGUAGE_EN;
 import static com.academy.orders.application.TestConstants.LANGUAGE_UK;
 import static com.academy.orders.application.TestConstants.TEST_UUID;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,6 +31,9 @@ import static org.mockito.Mockito.when;
 class GetProductDetailsByIdUseCaseTest {
   @InjectMocks
   private GetProductDetailsByIdUseCaseImpl getProductDetailsByIdUseCase;
+
+  @Mock
+  private SetPercentageOfTotalOrdersUseCaseImpl setPercentageOfTotalOrdersUseCase;
 
   @Mock
   private ProductRepository productRepository;
@@ -41,12 +49,14 @@ class GetProductDetailsByIdUseCaseTest {
     when(languageRepository.findByCode(LANGUAGE_UK)).thenReturn(Optional.of(language));
     when(productRepository.getByIdAndLanguageCode(TEST_UUID, LANGUAGE_UK))
         .thenReturn(Optional.of(product));
+    doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(any(Product.class));
 
     var result = getProductDetailsByIdUseCase.getProductDetailsById(TEST_UUID, LANGUAGE_UK);
     Assertions.assertEquals(result, product);
 
     verify(languageRepository).findByCode(LANGUAGE_UK);
     verify(productRepository).getByIdAndLanguageCode(TEST_UUID, LANGUAGE_UK);
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(any(Product.class));
   }
 
   @Test
@@ -57,6 +67,7 @@ class GetProductDetailsByIdUseCaseTest {
         () -> getProductDetailsByIdUseCase.getProductDetailsById(TEST_UUID, LANGUAGE_EN));
 
     verify(languageRepository).findByCode(LANGUAGE_EN);
+    verify(setPercentageOfTotalOrdersUseCase, never()).setPercentOfTotalOrders(any(Product.class));
   }
 
   @Test
@@ -71,5 +82,6 @@ class GetProductDetailsByIdUseCaseTest {
 
     verify(languageRepository).findByCode(LANGUAGE_UK);
     verify(productRepository).getByIdAndLanguageCode(TEST_UUID, LANGUAGE_UK);
+    verify(setPercentageOfTotalOrdersUseCase, never()).setPercentOfTotalOrders(any(Product.class));
   }
 }

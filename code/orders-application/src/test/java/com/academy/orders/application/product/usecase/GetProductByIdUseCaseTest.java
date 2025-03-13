@@ -2,6 +2,7 @@ package com.academy.orders.application.product.usecase;
 
 import com.academy.orders.domain.product.exception.ProductNotFoundException;
 import com.academy.orders.domain.product.repository.ProductRepository;
+import com.academy.orders.domain.product.usecase.SetPercentageOfTotalOrdersUseCase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +22,9 @@ import static org.mockito.Mockito.when;
 class GetProductByIdUseCaseTest {
   @InjectMocks
   private GetProductByIdUseCaseImpl getProductByIdUseCase;
+
+  @Mock
+  private SetPercentageOfTotalOrdersUseCase setPercentageOfTotalOrdersUseCase;
 
   @Mock
   private ProductRepository productRepository;
