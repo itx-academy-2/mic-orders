@@ -43,6 +43,6 @@ class GetManagerProductsUseCaseTest {
 
     assertEquals(page, actual);
     verify(productRepository).findAllByLanguageWithFilter(lang, filter, pageable);
-    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(page.content());
   }
 }

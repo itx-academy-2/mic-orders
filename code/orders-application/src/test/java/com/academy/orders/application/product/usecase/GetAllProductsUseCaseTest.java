@@ -48,7 +48,7 @@ class GetAllProductsUseCaseTest {
 
     assertEquals(expectedPage, actualPage);
     verify(productRepository).findAllProducts(LANGUAGE_UK, pageable, tags);
-    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(expectedProducts);
   }
 
   @Test
@@ -65,7 +65,7 @@ class GetAllProductsUseCaseTest {
 
     assertEquals(expectedPage, actualPage);
     verify(productRepository).findAllProductsWithDefaultSorting(LANGUAGE_UK, pageable, tags);
-    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(expectedProducts);
   }
 
   @Test
@@ -80,6 +80,6 @@ class GetAllProductsUseCaseTest {
 
     assertEquals(expectedPage, actualPage);
     verify(productRepository).findAllProducts(LANGUAGE_UK, pageable, tags);
-    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(expectedPage.content());
   }
 }

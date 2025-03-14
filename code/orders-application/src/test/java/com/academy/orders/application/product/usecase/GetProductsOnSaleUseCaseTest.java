@@ -71,7 +71,7 @@ public class GetProductsOnSaleUseCaseTest {
     verify(productRepository).findProductsWhereDiscountIsNotNull(filter, lang, pageable);
     verify(productRepository).findDiscountAndPriceWithDiscountRange();
     verify(productFilterUsageMetricsUseCase).addMetrics(filter);
-    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(page.content());
   }
 
   @Test
@@ -101,6 +101,6 @@ public class GetProductsOnSaleUseCaseTest {
     verify(productRepository).findProductsWhereDiscountIsNotNull(filter, lang, pageable);
     verify(productRepository).findDiscountAndPriceWithDiscountRange();
     verify(productFilterUsageMetricsUseCase).addMetrics(filter);
-    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(page.content());
   }
 }

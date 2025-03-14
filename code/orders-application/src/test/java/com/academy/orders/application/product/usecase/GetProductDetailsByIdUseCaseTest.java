@@ -21,7 +21,6 @@ import static com.academy.orders.application.TestConstants.LANGUAGE_UK;
 import static com.academy.orders.application.TestConstants.TEST_UUID;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -56,7 +55,7 @@ class GetProductDetailsByIdUseCaseTest {
 
     verify(languageRepository).findByCode(LANGUAGE_UK);
     verify(productRepository).getByIdAndLanguageCode(TEST_UUID, LANGUAGE_UK);
-    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(any(Product.class));
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(product);
   }
 
   @Test
