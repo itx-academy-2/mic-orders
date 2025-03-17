@@ -6,6 +6,7 @@ import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
 import com.academy.orders.domain.cart.usecase.GetCartItemsUseCase;
 import com.academy.orders.domain.product.entity.ProductTranslation;
+import com.academy.orders.domain.product.usecase.SetPercentageOfTotalOrdersUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +19,13 @@ import java.util.Set;
 public class GetCartItemsUseCaseImpl implements GetCartItemsUseCase {
   private final CartItemRepository cartItemRepository;
 
+  private final SetPercentageOfTotalOrdersUseCase setPercentageOfTotalOrdersUseCase;
+
   @Override
   public CartResponseDto getCartItems(Long accountId, String lang) {
     var cartItems = getCartItemsByAccountIdAndLang(accountId, lang);
+    cartItems.stream().map(CartItem::product)
+        .forEach(setPercentageOfTotalOrdersUseCase::setPercentOfTotalOrders);
     var cartItemDtos = mapToCartItemsDtos(cartItems);
     final BigDecimal totalPrice = CartItem.calculateCartTotalPrice(cartItems);
     final BigDecimal totalPriceWithDiscount = CartItem.calculateTotalPriceWithDiscount(cartItems);
@@ -44,6 +49,7 @@ public class GetCartItemsUseCaseImpl implements GetCartItemsUseCase {
         .name(mapName(productItem.getProductTranslations()))
         .productPrice(productItem.getPrice())
         .productPriceWithDiscount(productItem.getPriceWithDiscount())
+        .percentageOfTotalOrders(cartItem.product().getPercentageOfTotalOrders())
         .discount(productItem.getDiscountAmount())
         .quantity(cartItem.quantity())
         .calculatedPrice(CartItem.calculateCartItemPrice(cartItem))

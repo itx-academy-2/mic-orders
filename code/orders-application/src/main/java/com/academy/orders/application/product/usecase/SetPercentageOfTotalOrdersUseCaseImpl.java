@@ -1,5 +1,7 @@
 package com.academy.orders.application.product.usecase;
 
+import com.academy.orders.domain.cart.dto.CartItemDto;
+import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.product.dto.ProductBestsellersDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.usecase.GetProductBestsellersUseCase;
