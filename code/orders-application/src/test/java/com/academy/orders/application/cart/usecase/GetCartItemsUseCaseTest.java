@@ -4,6 +4,7 @@ import com.academy.orders.domain.cart.dto.CartItemDto;
 import com.academy.orders.domain.cart.dto.CartResponseDto;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
+import com.academy.orders.domain.product.usecase.SetPercentageOfTotalOrdersUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,6 +29,9 @@ class GetCartItemsUseCaseTest {
 
   @Mock
   private CartItemRepository cartItemRepository;
+
+  @Mock
+  private SetPercentageOfTotalOrdersUseCase setPercentageOfTotalOrdersUseCase;
 
   @Test
   void getCartItemsTest() {

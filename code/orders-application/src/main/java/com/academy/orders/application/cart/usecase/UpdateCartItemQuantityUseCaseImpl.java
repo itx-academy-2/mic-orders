@@ -33,11 +33,11 @@ public class UpdateCartItemQuantityUseCaseImpl implements UpdateCartItemQuantity
     var getAll = cartItemRepository.findCartItemsByAccountId(userId);
 
     Product product = updatedCartItem.product();
-    setPercentageOfTotalOrdersUseCase.setPercentOfTotalOrders(product);
 
     if (quantity > product.getQuantity()) {
       throw new QuantityExceedsAvailableException(productId, quantity, product.getQuantity());
     }
+    setPercentageOfTotalOrdersUseCase.setPercentOfTotalOrders(product);
 
     var cartItemPrice = CartItem.calculateCartItemPrice(updatedCartItem);
     var totalPrice = CartItem.calculateCartTotalPrice(getAll);
