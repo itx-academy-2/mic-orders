@@ -8,6 +8,7 @@ import com.academy.orders.domain.cart.exception.QuantityExceedsAvailableExceptio
 import com.academy.orders.domain.cart.repository.CartItemRepository;
 import com.academy.orders.domain.cart.usecase.UpdateCartItemQuantityUseCase;
 import com.academy.orders.domain.product.entity.Product;
+import com.academy.orders.domain.product.usecase.SetPercentageOfTotalOrdersUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UpdateCartItemQuantityUseCaseImpl implements UpdateCartItemQuantityUseCase {
   private final CartItemRepository cartItemRepository;
+
+  private final SetPercentageOfTotalOrdersUseCase setPercentageOfTotalOrdersUseCase;
 
   @Override
   @Transactional
@@ -34,6 +37,7 @@ public class UpdateCartItemQuantityUseCaseImpl implements UpdateCartItemQuantity
     if (quantity > product.getQuantity()) {
       throw new QuantityExceedsAvailableException(productId, quantity, product.getQuantity());
     }
+    setPercentageOfTotalOrdersUseCase.setPercentOfTotalOrders(product);
 
     var cartItemPrice = CartItem.calculateCartItemPrice(updatedCartItem);
     var totalPrice = CartItem.calculateCartTotalPrice(getAll);
@@ -42,7 +46,7 @@ public class UpdateCartItemQuantityUseCaseImpl implements UpdateCartItemQuantity
     final BigDecimal totalPriceWithDiscount = CartItem.calculateTotalPriceWithDiscount(getAll);
 
     return new UpdatedCartItemDto(productId, quantity, product.getPrice(), product.getPriceWithDiscount(),
-        product.getDiscountAmount(), cartItemPrice, cartItemPriceWithDiscount,
+        product.getDiscountAmount(), cartItemPrice, product.getPercentageOfTotalOrders(), cartItemPriceWithDiscount,
         totalPrice, totalPriceWithDiscount);
   }
 

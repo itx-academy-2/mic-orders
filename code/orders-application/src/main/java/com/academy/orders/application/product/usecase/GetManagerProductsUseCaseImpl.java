@@ -6,6 +6,7 @@ import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.GetManagerProductsUseCase;
+import com.academy.orders.domain.product.usecase.SetPercentageOfTotalOrdersUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +15,12 @@ import org.springframework.stereotype.Service;
 public class GetManagerProductsUseCaseImpl implements GetManagerProductsUseCase {
   private final ProductRepository productRepository;
 
+  private final SetPercentageOfTotalOrdersUseCase setPercentageOfTotalOrdersUseCase;
+
   @Override
   public Page<Product> getManagerProducts(Pageable pageable, ProductManagementFilterDto filter, String lang) {
-    return productRepository.findAllByLanguageWithFilter(lang, filter, pageable);
+    final Page<Product> page = productRepository.findAllByLanguageWithFilter(lang, filter, pageable);
+    setPercentageOfTotalOrdersUseCase.setPercentOfTotalOrders(page.content());
+    return page;
   }
 }

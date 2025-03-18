@@ -1708,6 +1708,9 @@ components:
           format: decimal
           example: 900.00
           description: Total price of all products with applied discounts. This field is only returned if a discount is applied at least to one product.
+        percentageOfTotalOrders:
+          description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
+          $ref: '#/components/schemas/Percentage'
       required:
         - productId
         - image
@@ -1752,6 +1755,9 @@ components:
           format: decimal
           example: 900.00
           description: Total price of all products with applied discounts. This field is only returned if a discount is applied at least to one product.
+        percentageOfTotalOrders:
+          description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
+          $ref: '#/components/schemas/Percentage'
         totalPrice:
           type: number
           format: decimal

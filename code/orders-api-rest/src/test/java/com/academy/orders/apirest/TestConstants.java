@@ -23,6 +23,8 @@ public class TestConstants {
 
   public static final String GET_PRODUCTS_ON_SALES_URL = "/v1/products/sales";
 
+  public static final String FIND_BESTSELLERS_URL = "/v1/products/bestsellers";
+
   public static final String LANGUAGE_UK = "uk";
 
   public static final String LANGUAGE_EN = "en";
@@ -52,6 +54,8 @@ public class TestConstants {
   public static final String PRODUCT_NAME = "IPhone";
 
   public static final String PRODUCT_DESCRIPTION = "Phone";
+
+  public static final Double PERCENTAGE_OF_TOTAL_ORDERS = 25.5;
 
   public static final String TEST_FIRST_NAME = "mockedFirstName";
 

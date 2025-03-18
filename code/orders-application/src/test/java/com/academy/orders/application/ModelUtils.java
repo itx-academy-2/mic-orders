@@ -44,6 +44,7 @@ import static com.academy.orders.application.TestConstants.IMAGE_NAME;
 import static com.academy.orders.application.TestConstants.IMAGE_URL;
 import static com.academy.orders.application.TestConstants.LANGUAGE_EN;
 import static com.academy.orders.application.TestConstants.LANGUAGE_UK;
+import static com.academy.orders.application.TestConstants.PERCENTAGE_OF_TOTAL_ORDERS;
 import static com.academy.orders.application.TestConstants.PRODUCT_DESCRIPTION;
 import static com.academy.orders.application.TestConstants.PRODUCT_NAME;
 import static com.academy.orders.application.TestConstants.TAG_NAME;
@@ -71,7 +72,8 @@ public class ModelUtils {
   public static Product getProductWithImageLinkAndDiscount(int discount) {
     return Product.builder().id(TEST_UUID).status(ProductStatus.VISIBLE).image(IMAGE_URL).quantity(TEST_QUANTITY)
         .price(TEST_PRICE).discount(Discount.builder().amount(discount).build())
-        .tags(Set.of(getTag())).productTranslations(Set.of(getProductTranslation())).build();
+        .tags(Set.of(getTag())).productTranslations(Set.of(getProductTranslation()))
+        .percentageOfTotalOrders(PERCENTAGE_OF_TOTAL_ORDERS).build();
   }
 
   public static Product getProductWithImageName() {
