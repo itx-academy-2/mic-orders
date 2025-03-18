@@ -3,6 +3,7 @@ package com.academy.orders.domain.product.repository;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.dto.DiscountAndPriceWithDiscountRangeDto;
+import com.academy.orders.domain.product.dto.ProductBestsellersDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
 import com.academy.orders.domain.product.entity.Product;
@@ -11,6 +12,7 @@ import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import org.springframework.lang.NonNull;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -163,4 +165,14 @@ public interface ProductRepository {
    * highest discount percentage applied to any product.
    */
   DiscountAndPriceWithDiscountRangeDto findDiscountAndPriceWithDiscountRange();
+
+  /**
+   * Retrieves a paginated list of products that match the specified language and product IDs.
+   */
+  Page<Product> findProductsByLanguageAndIds(Pageable pageableDomain, String language, List<UUID> ids);
+
+  /**
+   * Retrieves a list of the most sold products within the specified date range and quantity.
+   */
+  List<ProductBestsellersDto> getIdsOfMostSoldProducts(LocalDateTime fromDate, LocalDateTime endDate, int quantity);
 }

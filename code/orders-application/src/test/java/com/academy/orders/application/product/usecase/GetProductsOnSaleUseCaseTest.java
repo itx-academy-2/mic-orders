@@ -5,6 +5,7 @@ import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.ProductFilterUsageMetricsUseCase;
+import com.academy.orders.domain.product.usecase.SetPercentageOfTotalOrdersUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +23,7 @@ import static com.academy.orders.application.ModelUtils.getProductWithImageUrlAn
 import static com.academy.orders.application.TestConstants.LANGUAGE_EN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,6 +35,9 @@ public class GetProductsOnSaleUseCaseTest {
 
   @Mock
   private ProductRepository productRepository;
+
+  @Mock
+  private SetPercentageOfTotalOrdersUseCase setPercentageOfTotalOrdersUseCase;
 
   @Mock
   private ProductFilterUsageMetricsUseCase productFilterUsageMetricsUseCase;
@@ -50,6 +55,7 @@ public class GetProductsOnSaleUseCaseTest {
 
     when(productRepository.findProductsWhereDiscountIsNotNull(filter, lang, pageable)).thenReturn(page);
     when(productRepository.findDiscountAndPriceWithDiscountRange()).thenReturn(range);
+    doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
     doNothing().when(productFilterUsageMetricsUseCase).addMetrics(filter);
 
     var actual = getProductsOnSaleUseCase.getProductsOnSale(filter, pageable, lang);
@@ -65,6 +71,7 @@ public class GetProductsOnSaleUseCaseTest {
     verify(productRepository).findProductsWhereDiscountIsNotNull(filter, lang, pageable);
     verify(productRepository).findDiscountAndPriceWithDiscountRange();
     verify(productFilterUsageMetricsUseCase).addMetrics(filter);
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(page.content());
   }
 
   @Test
@@ -79,6 +86,7 @@ public class GetProductsOnSaleUseCaseTest {
 
     when(productRepository.findProductsWhereDiscountIsNotNull(filter, lang, pageable)).thenReturn(page);
     when(productRepository.findDiscountAndPriceWithDiscountRange()).thenReturn(range);
+    doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
     doNothing().when(productFilterUsageMetricsUseCase).addMetrics(filter);
 
     var actual = getProductsOnSaleUseCase.getProductsOnSale(filter, pageable, lang);
@@ -93,5 +101,6 @@ public class GetProductsOnSaleUseCaseTest {
     verify(productRepository).findProductsWhereDiscountIsNotNull(filter, lang, pageable);
     verify(productRepository).findDiscountAndPriceWithDiscountRange();
     verify(productFilterUsageMetricsUseCase).addMetrics(filter);
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(page.content());
   }
 }

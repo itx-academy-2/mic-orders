@@ -83,6 +83,7 @@ import java.util.stream.Collectors;
 import static com.academy.orders.apirest.ModelUtils.getProductsWithDiscountPage;
 import static com.academy.orders.apirest.TestConstants.IMAGE_URL;
 import static com.academy.orders.apirest.TestConstants.LANGUAGE_UK;
+import static com.academy.orders.apirest.TestConstants.PERCENTAGE_OF_TOTAL_ORDERS;
 import static com.academy.orders.apirest.TestConstants.PRODUCT_DESCRIPTION;
 import static com.academy.orders.apirest.TestConstants.PRODUCT_NAME;
 import static com.academy.orders.apirest.TestConstants.TAG_NAME;
@@ -117,7 +118,8 @@ public class ModelUtils {
   public static Product getProduct() {
     return Product.builder().id(TEST_UUID).status(ProductStatus.VISIBLE).image(IMAGE_URL).createdAt(DATE_TIME)
         .quantity(TEST_QUANTITY).price(TEST_PRICE).tags(Set.of(getTag()))
-        .productTranslations(Set.of(getProductTranslation())).build();
+        .productTranslations(Set.of(getProductTranslation())).percentageOfTotalOrders(PERCENTAGE_OF_TOTAL_ORDERS)
+        .build();
   }
 
   public static Product getProductWithDiscount() {
@@ -176,6 +178,7 @@ public class ModelUtils {
     productDTO.setPrice(TEST_PRICE);
     productDTO.setTags(List.of(TAG_NAME));
     productDTO.setStatus(ProductPreviewDTO.StatusEnum.AVAILABLE);
+    productDTO.setPercentageOfTotalOrders(PERCENTAGE_OF_TOTAL_ORDERS);
 
     return productDTO;
   }

@@ -44,6 +44,9 @@ public class Product {
 
   private Set<ProductTranslation> productTranslations;
 
+  @Setter
+  private Double percentageOfTotalOrders;
+
   public BigDecimal getPriceWithDiscount() {
     if (discount == null) {
       return null;

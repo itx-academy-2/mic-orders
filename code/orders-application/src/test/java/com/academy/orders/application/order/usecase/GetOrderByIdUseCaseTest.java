@@ -5,6 +5,8 @@ import com.academy.orders.domain.order.entity.Order;
 import com.academy.orders.domain.order.exception.OrderNotFoundException;
 import com.academy.orders.domain.order.repository.OrderRepository;
 import com.academy.orders.domain.order.usecase.CalculateOrderTotalPriceUseCase;
+import com.academy.orders.domain.product.entity.Product;
+import com.academy.orders.domain.product.usecase.SetPercentageOfTotalOrdersUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +20,9 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -29,6 +34,9 @@ class GetOrderByIdUseCaseTest {
 
   @Mock
   private OrderRepository orderRepository;
+
+  @Mock
+  private SetPercentageOfTotalOrdersUseCase setPercentageOfTotalOrdersUseCase;
 
   @InjectMocks
   private GetOrderByIdUseCaseImpl getOrderByIdUseCase;
@@ -53,6 +61,7 @@ class GetOrderByIdUseCaseTest {
   void getOrderByIdWhenOrderExistsTest() {
     when(orderRepository.findById(orderId, language)).thenReturn(Optional.of(orderWithoutTotal));
     when(calculateOrderTotalPriceUseCase.calculateTotalPriceFor(orderWithoutTotal)).thenReturn(order);
+    doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(any(Product.class));
 
     Order result = getOrderByIdUseCase.getOrderById(orderId, language);
 
@@ -60,6 +69,7 @@ class GetOrderByIdUseCaseTest {
     assertEquals(order, result);
     verify(orderRepository).findById(orderId, language);
     verify(calculateOrderTotalPriceUseCase).calculateTotalPriceFor(orderWithoutTotal);
+    verify(setPercentageOfTotalOrdersUseCase, times(result.orderItems().size())).setPercentOfTotalOrders(any(Product.class));
   }
 
   @Test

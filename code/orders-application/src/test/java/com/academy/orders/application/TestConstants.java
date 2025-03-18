@@ -17,6 +17,8 @@ public class TestConstants {
 
   public static final UUID TEST_UUID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
+  public static final Double PERCENTAGE_OF_TOTAL_ORDERS = 20.8;
+
   public static final int TEST_QUANTITY = 10;
 
   public static final int TEST_AMOUNT = 50;

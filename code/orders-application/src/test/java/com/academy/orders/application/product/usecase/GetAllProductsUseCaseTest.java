@@ -17,6 +17,8 @@ import static com.academy.orders.application.ModelUtils.getProductWithImageLink;
 import static com.academy.orders.application.TestConstants.LANGUAGE_UK;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +26,9 @@ import static org.mockito.Mockito.when;
 class GetAllProductsUseCaseTest {
   @Mock
   private ProductRepository productRepository;
+
+  @Mock
+  private SetPercentageOfTotalOrdersUseCaseImpl setPercentageOfTotalOrdersUseCase;
 
   @InjectMocks
   private GetAllProductsUseCaseImpl getAllProductsUseCase;
@@ -37,10 +42,13 @@ class GetAllProductsUseCaseTest {
     List<String> tags = Collections.emptyList();
 
     when(productRepository.findAllProducts(LANGUAGE_UK, pageable, tags)).thenReturn(expectedPage);
+    doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
+
     var actualPage = getAllProductsUseCase.getAllProducts(LANGUAGE_UK, pageable, tags);
 
     assertEquals(expectedPage, actualPage);
     verify(productRepository).findAllProducts(LANGUAGE_UK, pageable, tags);
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(expectedProducts);
   }
 
   @Test
@@ -52,10 +60,12 @@ class GetAllProductsUseCaseTest {
     List<String> tags = Collections.emptyList();
 
     when(productRepository.findAllProductsWithDefaultSorting(LANGUAGE_UK, pageable, tags)).thenReturn(expectedPage);
+    doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
     var actualPage = getAllProductsUseCase.getAllProducts(LANGUAGE_UK, pageable, tags);
 
     assertEquals(expectedPage, actualPage);
     verify(productRepository).findAllProductsWithDefaultSorting(LANGUAGE_UK, pageable, tags);
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(expectedProducts);
   }
 
   @Test
@@ -65,9 +75,11 @@ class GetAllProductsUseCaseTest {
     List<String> tags = Collections.emptyList();
 
     when(productRepository.findAllProducts(LANGUAGE_UK, pageable, tags)).thenReturn(expectedPage);
+    doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
     var actualPage = getAllProductsUseCase.getAllProducts(LANGUAGE_UK, pageable, tags);
 
     assertEquals(expectedPage, actualPage);
     verify(productRepository).findAllProducts(LANGUAGE_UK, pageable, tags);
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(expectedPage.content());
   }
 }

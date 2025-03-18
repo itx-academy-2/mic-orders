@@ -1,6 +1,8 @@
 package com.academy.orders.infrastructure.product.repository;
 
 import com.academy.orders.domain.common.Page;
+import com.academy.orders.domain.common.Pageable;
+import com.academy.orders.domain.product.dto.ProductBestsellersDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.infrastructure.ModelUtils;
@@ -9,8 +11,8 @@ import com.academy.orders.infrastructure.product.ProductManagementMapper;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.product.ProductPageMapper;
 import com.academy.orders.infrastructure.product.ProductTranslationManagementMapper;
+import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import jakarta.persistence.Tuple;
-import org.hibernate.sql.results.internal.TupleImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -337,5 +340,46 @@ class ProductRepositoryTest {
     assertEquals(maximumDiscount, result.maximumDiscount());
 
     verify(productJpaAdapter).findDiscountAndPriceWithDiscountRange();
+  }
+
+  @Test
+  void findProductsByLanguageAndIds() {
+    final Pageable pageableDomain = Pageable.builder().page(1).size(1).build();
+    final PageRequest pageable = PageRequest.of(1, 1);
+    final ProductEntity productEntity = getProductEntity();
+    final List<UUID> ids = List.of(productEntity.getId());
+    var productPage = getPageImplOf(productEntity);
+
+    when(pageableMapper.fromDomain(pageableDomain)).thenReturn(pageable);
+    when(productJpaAdapter.findProductsByLanguageAndIds(pageable, LANGUAGE_EN, ids)).thenReturn(productPage);
+
+    productRepository.findProductsByLanguageAndIds(pageableDomain, LANGUAGE_EN, ids);
+
+    verify(pageableMapper).fromDomain(pageableDomain);
+    verify(productJpaAdapter).findProductsByLanguageAndIds(pageable, LANGUAGE_EN, ids);
+  }
+
+  @Test
+  void getIdsOfMostSoldProducts() {
+    final LocalDateTime now = LocalDateTime.now();
+    final LocalDateTime before = now.minusDays(1);
+    final Double percentageOfTotalOrders = 40.0;
+    final Tuple tuple = mock(Tuple.class);
+    final List<Tuple> tuples = List.of(tuple);
+
+    when(tuple.get(0, UUID.class)).thenReturn(UUID.randomUUID());
+    when(tuple.get(1, Double.class)).thenReturn(percentageOfTotalOrders);
+    when(productJpaAdapter.findMostSoldProducts(before, now, tuples.size())).thenReturn(tuples);
+
+    final List<ProductBestsellersDto> result = productRepository.getIdsOfMostSoldProducts(before, now, tuples.size());
+
+    verify(productJpaAdapter).findMostSoldProducts(before, now, tuples.size());
+    verify(tuple).get(0, UUID.class);
+    verify(tuple).get(1, Double.class);
+
+    result.forEach(dto -> {
+      assertEquals(tuple.get(0, UUID.class), dto.productId());
+      assertEquals(tuple.get(1, Double.class), dto.percentageOfTotalOrders());
+    });
   }
 }
