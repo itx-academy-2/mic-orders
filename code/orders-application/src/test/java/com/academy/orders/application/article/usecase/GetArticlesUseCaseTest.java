@@ -27,7 +27,7 @@ public class GetArticlesUseCaseTest {
   private ArticleRepository articleRepository;
 
   @InjectMocks
-  private GetArticlesUseCase getArticlesUseCase;
+  private GetArticlesUseCaseImpl getArticlesUseCase;
 
   @Test
   public void getArticlesTest() {

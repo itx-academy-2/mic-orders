@@ -9,7 +9,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.util.List;
-import java.util.Set;
 
 @Mapper(componentModel = "spring", uses = {LocalDateTimeMapper.class})
 public interface ArticleDTOResponseMapper {
