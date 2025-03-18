@@ -5,6 +5,8 @@ import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.account.entity.CreateAccountDTO;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
+import com.academy.orders.domain.article.entity.Article;
+import com.academy.orders.domain.article.entity.ArticleContent;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
@@ -24,6 +26,8 @@ import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.infrastructure.account.entity.AccountEntity;
+import com.academy.orders.infrastructure.article.entity.ArticleContentEntity;
+import com.academy.orders.infrastructure.article.entity.ArticleEntity;
 import com.academy.orders.infrastructure.cart.entity.CartItemEntity;
 import com.academy.orders.infrastructure.cart.entity.CartItemId;
 import com.academy.orders.infrastructure.discount.entity.DiscountEntity;
@@ -238,5 +242,40 @@ public class ModelUtils {
 
   public static PageRequest getPageRequest() {
     return PageRequest.of(0, 10, org.springframework.data.domain.Sort.by("id").ascending());
+  }
+
+  public static ArticleContentEntity getArticleContentEntity() {
+    final ArticleContentEntity articleContentEntity = new ArticleContentEntity();
+    articleContentEntity.setTitle("Title");
+    articleContentEntity.setContent("Content");
+    articleContentEntity.setLanguage(getLanguageEntity());
+    return articleContentEntity;
+  }
+
+  public static ArticleEntity getArticleEntity() {
+    final ArticleEntity articleEntity = new ArticleEntity();
+    articleEntity.setId(TEST_ID);
+    articleEntity.setCreatedAt(TEST_START_DATE);
+    articleEntity.setUpdatedAt(TEST_END_DATE);
+    articleEntity.setContents(List.of(getArticleContentEntity()));
+    return articleEntity;
+  }
+
+  public static ArticleContent getArticleContent() {
+    return ArticleContent.builder()
+            .title("Title")
+            .content("Content")
+            .language(getLanguage())
+            .build();
+  }
+
+  public static Article getArticle() {
+    final Article article = Article.builder()
+            .id(TEST_ID)
+            .createdAt(TEST_START_DATE)
+            .updatedAt(TEST_END_DATE)
+            .contents(List.of(getArticleContent()))
+            .build();
+    return article;
   }
 }

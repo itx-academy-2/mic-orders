@@ -15,7 +15,6 @@ public class GetArticlesUseCaseImpl implements GetArticlesUseCase {
 
   @Override
   public Page<Article> getArticles(String language, Pageable pageable) {
-
     return articleRepository.findAllArticlesByLanguage(language, pageable);
   }
 }

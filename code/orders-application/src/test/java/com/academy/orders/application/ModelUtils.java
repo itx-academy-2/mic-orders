@@ -392,8 +392,8 @@ public class ModelUtils {
         .numberOfElements(1).size(5).empty(false).content(Collections.singletonList(getAccount())).build();
   }
 
-  public static Set<ArticleContent> getArticleContents() {
-    return Set.of(
+  public static List<ArticleContent> getArticleContents() {
+    return List.of(
         new ArticleContent("Title", "Description", getLanguage()));
   }
 

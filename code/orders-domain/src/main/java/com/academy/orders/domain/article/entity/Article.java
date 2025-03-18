@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,5 +19,5 @@ public class Article {
 
   private LocalDateTime updatedAt;
 
-  private Set<ArticleContent> contents;
+  private List<ArticleContent> contents;
 }
