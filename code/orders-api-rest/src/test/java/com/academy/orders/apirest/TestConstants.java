@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class TestConstants {
+  public static final String GET_ARTICLE_BY_ID_URL = "/v1/articles/{articleId}";
+
   public static final String GET_ALL_PRODUCTS_URL = "/v1/products";
 
   public static final String SEARCH_PRODUCTS_URL = "/v1/products/search";

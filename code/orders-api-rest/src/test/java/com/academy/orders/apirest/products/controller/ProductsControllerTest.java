@@ -34,7 +34,6 @@ import java.util.List;
 
 import static com.academy.orders.apirest.ModelUtils.getPageOf;
 import static com.academy.orders.apirest.ModelUtils.getPageProductsDTO;
-import static com.academy.orders.apirest.ModelUtils.getPageProductsWithDiscountDTO;
 import static com.academy.orders.apirest.ModelUtils.getPageable;
 import static com.academy.orders.apirest.ModelUtils.getPageableDTO;
 import static com.academy.orders.apirest.ModelUtils.getProduct;
@@ -43,7 +42,6 @@ import static com.academy.orders.apirest.ModelUtils.getProductsOnSaleFilterDto;
 import static com.academy.orders.apirest.ModelUtils.getProductsOnSaleResponseDTO;
 import static com.academy.orders.apirest.ModelUtils.getProductsOnSaleResponseDto;
 import static com.academy.orders.apirest.ModelUtils.getProductsPage;
-import static com.academy.orders.apirest.ModelUtils.getProductsWithDiscountPage;
 import static com.academy.orders.apirest.TestConstants.GET_ALL_PRODUCTS_URL;
 import static com.academy.orders.apirest.TestConstants.GET_PRODUCTS_ON_SALES_URL;
 import static com.academy.orders.apirest.TestConstants.GET_PRODUCT_DETAILS_URL;
