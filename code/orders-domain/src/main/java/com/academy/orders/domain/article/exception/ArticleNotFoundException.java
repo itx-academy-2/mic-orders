@@ -5,10 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class ArticleNotFoundException extends NotFoundException {
-    private final long articleId;
+  private final long articleId;
 
-    public ArticleNotFoundException(final long articleId) {
-        super(String.format("Cannot find article with id %d", articleId));
-        this.articleId = articleId;
-    }
+  public ArticleNotFoundException(final long articleId) {
+    super(String.format("Cannot find article with id %d", articleId));
+    this.articleId = articleId;
+  }
 }
