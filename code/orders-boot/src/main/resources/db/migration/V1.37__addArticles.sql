@@ -34,17 +34,17 @@ VALUES (2, 1, 'What are your shipping options and costs?',
 
 <img class="center-img" src="https://lucent-cannoli-79beba.netlify.app/delivery-methods.jpg"/>
 
-We are delighted to offer free shipping for all our amazing users. That''s right – no matter the size or cost of your order, you won''t have to pay a dime for shipping. We believe in providing exceptional value and convenience to our customers, and free shipping is just one way we do that.
+We are delighted to offer <span style="color: red; font-weight: bold;">free shipping</span> for all our amazing users. That''s right – no matter the size or cost of your order, you won''t have to pay a dime for shipping. We believe in providing exceptional value and convenience to our customers, and free shipping is just one way we do that.
 
 Our shipping process is designed to be hassle-free and transparent. Once your order is placed, you can track it with our partners: Ukr Post and Nova Post, allowing you to monitor your package''s journey from our warehouse to your doorstep. Enjoy the peace of mind that comes with knowing your gadgets are on their way, without any additional shipping costs. ');
 
 INSERT INTO article_contents (article_id, language_id, title, content)
-VALUES (2, 2, 'What are your shipping options and costs?',
+VALUES (2, 2, 'Які у вас варіанти доставки та їх вартість?',
         'У нашому магазині гаджетів ми пропонуємо два надійні варіанти доставки, щоб ваші покупки швидко і безпечно дісталися до вас. Ви можете вибрати між Укрпоштою та Новою Поштою, обидві з яких забезпечують ефективні та безпечні послуги доставки. Незалежно від того, чи ви віддаєте перевагу національній поштовій службі або приватному кур''єру, ми подбали про це.
 
 <img class="center-img" src="https://lucent-cannoli-79beba.netlify.app/delivery-methods.jpg"/>
 
-Ми раді запропонувати безкоштовну доставку для всіх наших чудових користувачів. Так, це правильно – незалежно від розміру або вартості вашого замовлення, вам не доведеться платити за доставку. Ми віримо в надання виняткової цінності та зручності нашим клієнтам, і безкоштовна доставка – це один зі способів, яким ми це робимо.
+Ми раді запропонувати <span style="color: red; font-weight: bold;">безкоштовну доставку</span> для всіх наших чудових користувачів. Так, це правильно – незалежно від розміру або вартості вашого замовлення, вам не доведеться платити за доставку. Ми віримо в надання виняткової цінності та зручності нашим клієнтам, і безкоштовна доставка – це один зі способів, яким ми це робимо.
 
 Наш процес доставки розроблений, щоб бути безпроблемним і прозорим. Після оформлення замовлення ви зможете відстежувати його за допомогою наших партнерів: Укрпошти та Нової Пошти, що дозволяє вам стежити за подорожжю вашого пакунка від нашого складу до вашого порогу. Насолоджуйтесь спокоєм, знаючи, що ваші гаджети вже в дорозі, без додаткових витрат на доставку. ');
 
@@ -57,7 +57,7 @@ You can reach out to us via email or phone to initiate the modification or cance
 Please note that there may be a limited window of time to modify or cancel your order, especially if it has already been processed for shipping. However, we will do our utmost to assist you and ensure that your shopping experience with us is a positive one. ');
 
 INSERT INTO article_contents (article_id, language_id, title, content)
-VALUES (3, 2, 'Can I modify or cancel my order after it has been placed? ',
+VALUES (3, 2, 'Чи можу я змінити або скасувати своє замовлення після його оформлення? ',
         'Ми розуміємо, що іноді вам може знадобитися внести зміни до вашого замовлення після його оформлення. Якщо вам потрібно змінити або скасувати замовлення, будь ласка, зв''яжіться з нами якомога швидше. Наш відданий менеджер магазину готовий допомогти вам і зробить усе можливе, щоб задовольнити ваш запит.
 
 Ви можете зв''язатися з нами електронною поштою або телефоном, щоб ініціювати процес зміни або скасування замовлення. Надішліть нам номер вашого замовлення та деталі змін, які ви бажаєте внести, і наша команда займеться цим питанням. Ми прагнемо швидко реагувати, щоб забезпечити ефективне виконання вашого запиту.
@@ -116,7 +116,7 @@ VALUES (6, 2, 'Як ви захищаєте мою особисту інформ
 
 INSERT INTO article_contents (article_id, language_id, title, content)
 VALUES (7, 1, 'How do I apply a discount code to my order?',
-        'We are excited to announce that the feature to apply discount codes to your order is currently under preparation. We understand the importance of providing our customers with opportunities to save, and we are working diligently to implement this feature. We anticipate that it will be available by summer.
+        'We are excited to announce that the feature to apply discount codes to your order is currently under preparation. We understand the importance of providing our customers with opportunities to save, and we are working diligently to implement this feature. We anticipate that it <span style="font-weight: bold;">will be available by summer.</span>
 
 Once the discount code feature is live, you will be able to enter your code during the checkout process. The discount will be applied to your total purchase amount, allowing you to enjoy savings on your favorite gadgets. We will provide detailed instructions on how to use this feature once it is available.
 
@@ -124,16 +124,16 @@ In the meantime, keep an eye on our website and newsletter for updates on this a
 
 INSERT INTO article_contents (article_id, language_id, title, content)
 VALUES (7, 2, 'Як застосувати промокод до мого замовлення? ',
-        'Ми раді повідомити, що функція застосування промокодів до вашого замовлення наразі готується. Ми розуміємо важливість надання нашим клієнтам можливостей для заощадження, і ми наполегливо працюємо над впровадженням цієї функції. Ми очікуємо, що вона буде доступна до літа.
+        'Ми раді повідомити, що функція застосування промокодів до вашого замовлення наразі готується. Ми розуміємо важливість надання нашим клієнтам можливостей для заощадження, і <span style="font-weight: bold;">ми наполегливо працюємо над впровадженням цієї функції. Ми очікуємо, що вона буде доступна до літа.</span>
 
 Як тільки функція промокодів буде запущена, ви зможете ввести свій код під час процесу оформлення замовлення. Знижка буде застосована до загальної суми вашої покупки, дозволяючи вам насолоджуватися заощадженнями на ваших улюблених гаджетах. Ми надамо детальні інструкції щодо використання цієї функції, як тільки вона стане доступною.
 
-Тим часом слідкуйте за оновленнями на нашому веб-сайті та в нашій розсилці для отримання інформації про цю та інші захоплюючі функції. Ми цінуємо ваше терпіння і з нетерпінням чекаємо можливості запропонувати вам ще більше цінності в найближчому майбутньому. ');
+Тим часом слідкуйте за оновленнями на нашому веб-сайті та в нашій розсилці для отримання інформації про цю та інші захоплюючі функції. Ми цінуємо ваше терпіння і з нетерпінням чекаємо можливості запропонувати вам ще більше цінності в найближчому майбутньому.');
 
 
 INSERT INTO article_contents (article_id, language_id, title, content)
 VALUES (8, 1, 'How do I leave a review for a product I purchased? ',
-        'We are currently working on implementing a feature that will allow you to leave reviews for products you have purchased. Customer feedback is incredibly important to us, as it helps us improve our products and services. We expect this feature to be available by summer.
+        'We are currently working on implementing a feature that will allow you to leave reviews for products you have purchased. Customer feedback is incredibly important to us, as it helps us improve our products and services. <span style="font-weight: bold;">We expect this feature to be available by summer.</span>
 
 Once the review feature is live, you will be able to share your experiences and opinions about the gadgets you have purchased. This will not only help other customers make informed decisions but also provide valuable insights to our team. We will provide clear instructions on how to leave a review once the feature is available.
 
@@ -141,7 +141,7 @@ In the meantime, we encourage you to reach out to us directly with any feedback 
 
 INSERT INTO article_contents (article_id, language_id, title, content)
 VALUES (8, 2, 'Як залишити відгук про придбаний товар?',
-        'Ми наразі працюємо над впровадженням функції, яка дозволить вам залишати відгуки про придбані товари. Відгуки клієнтів надзвичайно важливі для нас, оскільки вони допомагають нам покращувати наші продукти та послуги. Ми очікуємо, що ця функція буде доступна до літа.
+        'Ми наразі працюємо над впровадженням функції, яка дозволить вам залишати відгуки про придбані товари. Відгуки клієнтів надзвичайно важливі для нас, оскільки вони допомагають нам покращувати наші продукти та послуги. Ми очікуємо, що <span style="font-weight: bold;">ця функція буде доступна до літа.</span>
 
 Як тільки функція відгуків стане доступною, ви зможете ділитися своїми враженнями та думками про придбані гаджети. Це не лише допоможе іншим клієнтам приймати обґрунтовані рішення, але й надасть цінні інсайти нашій команді. Ми надамо чіткі інструкції щодо залишення відгуків, як тільки ця функція стане доступною.
 
@@ -149,7 +149,7 @@ VALUES (8, 2, 'Як залишити відгук про придбаний то
 
 INSERT INTO article_contents (article_id, language_id, title, content)
 VALUES (9, 1, 'Do you offer gift cards?',
-        'We are excited to announce that we are currently preparing to offer gift cards as a convenient option for our customers. Gift cards make for perfect presents, allowing recipients to choose their favorite gadgets from our store. We anticipate that this feature will be available by summer.
+        'We are excited to announce that we are currently preparing to offer gift cards as a convenient option for our customers. Gift cards make for perfect presents, allowing recipients to choose their favorite gadgets from our store. <span style="font-weight: bold;">We anticipate that this feature will be available by summer.</span>
 
 Once the gift card feature is live, you will be able to purchase and redeem gift cards directly on our website. Gift cards will be available in various denominations, making them suitable for any occasion. We will provide detailed information on how to buy and use gift cards once the feature is launched.
 
@@ -157,7 +157,7 @@ In the meantime, stay tuned for updates on this and other exciting features. We 
 
 INSERT INTO article_contents (article_id, language_id, title, content)
 VALUES (9, 2, 'Чи пропонуєте ви подарункові картки? ',
-        'Ми раді повідомити, що наразі готуємося запропонувати подарункові картки як зручний варіант для наших клієнтів. Подарункові картки є ідеальним подарунком, дозволяючи отримувачам вибирати свої улюблені гаджети з нашого магазину. Ми очікуємо, що ця функція буде доступна до літа.
+        'Ми раді повідомити, що наразі готуємося запропонувати подарункові картки як зручний варіант для наших клієнтів. Подарункові картки є ідеальним подарунком, дозволяючи отримувачам вибирати свої улюблені гаджети з нашого магазину. Ми очікуємо, що <span style="font-weight: bold;">ця функція буде доступна до літа.</span>
 
 Як тільки функція подарункових карток стане доступною, ви зможете купувати та використовувати подарункові картки безпосередньо на нашому веб-сайті. Подарункові картки будуть доступні в різних номіналах, що робить їх підходящими для будь-якої нагоди. Ми надамо детальну інформацію про те, як купувати та використовувати подарункові картки, як тільки ця функція буде запущена.
 

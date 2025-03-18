@@ -3,7 +3,6 @@ package com.academy.orders.domain.article.repository;
 import com.academy.orders.domain.article.entity.Article;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
-import com.academy.orders.domain.product.entity.Product;
 
 import java.util.Optional;
 
