@@ -263,19 +263,19 @@ public class ModelUtils {
 
   public static ArticleContent getArticleContent() {
     return ArticleContent.builder()
-            .title("Title")
-            .content("Content")
-            .language(getLanguage())
-            .build();
+        .title("Title")
+        .content("Content")
+        .language(getLanguage())
+        .build();
   }
 
   public static Article getArticle() {
     final Article article = Article.builder()
-            .id(TEST_ID)
-            .createdAt(TEST_START_DATE)
-            .updatedAt(TEST_END_DATE)
-            .contents(List.of(getArticleContent()))
-            .build();
+        .id(TEST_ID)
+        .createdAt(TEST_START_DATE)
+        .updatedAt(TEST_END_DATE)
+        .contents(List.of(getArticleContent()))
+        .build();
     return article;
   }
 }

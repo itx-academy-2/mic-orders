@@ -23,24 +23,24 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GetArticlesUseCaseTest {
-    @Mock
-    private ArticleRepository articleRepository;
+  @Mock
+  private ArticleRepository articleRepository;
 
-    @InjectMocks
-    private GetArticlesUseCase getArticlesUseCase;
+  @InjectMocks
+  private GetArticlesUseCase getArticlesUseCase;
 
-    @Test
-    public void getArticlesTest() {
-        final String language = LANGUAGE_EN;
-        final Pageable pageable = getPageable();
-        final Page<Article> page = getPage(List.of(getArticle()), 1,1, 1, 1);
+  @Test
+  public void getArticlesTest() {
+    final String language = LANGUAGE_EN;
+    final Pageable pageable = getPageable();
+    final Page<Article> page = getPage(List.of(getArticle()), 1, 1, 1, 1);
 
-        when(articleRepository.findAllArticlesByLanguage(language, pageable))
-                .thenReturn(page);
+    when(articleRepository.findAllArticlesByLanguage(language, pageable))
+        .thenReturn(page);
 
-        final Page<Article> result = getArticlesUseCase.getArticles(language, pageable);
+    final Page<Article> result = getArticlesUseCase.getArticles(language, pageable);
 
-        assertEquals(page, result);
-        verify(articleRepository).findAllArticlesByLanguage(language, pageable);
-    }
+    assertEquals(page, result);
+    verify(articleRepository).findAllArticlesByLanguage(language, pageable);
+  }
 }

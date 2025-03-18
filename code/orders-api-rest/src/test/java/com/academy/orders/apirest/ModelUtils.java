@@ -663,8 +663,8 @@ public class ModelUtils {
     return new Article(TEST_ID, TEST_START_DATE, TEST_END_DATE, getArticleContents());
   }
 
-  public static Set<ArticleContent> getArticleContents() {
-    return Set.of(
+  public static List<ArticleContent> getArticleContents() {
+    return List.of(
         new ArticleContent("Назва", "Опис", getLanguage()),
         new ArticleContent("Title", "Description", getEnglishLanguage()));
   }

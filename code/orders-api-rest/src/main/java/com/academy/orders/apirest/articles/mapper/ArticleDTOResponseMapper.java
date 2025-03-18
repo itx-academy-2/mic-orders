@@ -8,6 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import java.util.List;
 import java.util.Set;
 
 @Mapper(componentModel = "spring", uses = {LocalDateTimeMapper.class})
@@ -17,14 +18,14 @@ public interface ArticleDTOResponseMapper {
   ArticleResponseDTO toDto(Article article);
 
   @Named("mapTitle")
-  default String mapTitle(final Set<ArticleContent> contents) {
+  default String mapTitle(final List<ArticleContent> contents) {
     return contents.stream().map(ArticleContent::title)
         .findFirst()
         .orElse(null);
   }
 
   @Named("mapContent")
-  default String mapContent(final Set<ArticleContent> contents) {
+  default String mapContent(final List<ArticleContent> contents) {
     return contents.stream().map(ArticleContent::content)
         .findFirst()
         .orElse(null);
