@@ -4,6 +4,8 @@ import com.academy.orders.domain.account.dto.AccountManagementFilterDto;
 import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
+import com.academy.orders.domain.article.entity.Article;
+import com.academy.orders.domain.article.entity.ArticleContent;
 import com.academy.orders.domain.cart.dto.CartItemDto;
 import com.academy.orders.domain.cart.dto.CartResponseDto;
 import com.academy.orders.domain.cart.entity.CartItem;
@@ -390,5 +392,18 @@ public class ModelUtils {
   public static Page<Account> getAccountPage() {
     return Page.<Account>builder().totalElements(1L).totalPages(1).first(true).last(true).number(0)
         .numberOfElements(1).size(5).empty(false).content(Collections.singletonList(getAccount())).build();
+  }
+
+  public static List<ArticleContent> getArticleContents() {
+    return List.of(
+        new ArticleContent("Title", "Description", getLanguage()));
+  }
+
+  public static Article getArticle() {
+    return Article.builder()
+        .id(TEST_ID)
+        .createdAt(TEST_START_DATE)
+        .contents(getArticleContents())
+        .build();
   }
 }

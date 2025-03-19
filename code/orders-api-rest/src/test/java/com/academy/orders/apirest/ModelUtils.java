@@ -4,6 +4,8 @@ import com.academy.orders.domain.account.dto.AccountManagementFilterDto;
 import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
+import com.academy.orders.domain.article.entity.Article;
+import com.academy.orders.domain.article.entity.ArticleContent;
 import com.academy.orders.domain.cart.dto.UpdatedCartItemDto;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
@@ -29,6 +31,8 @@ import com.academy.orders.domain.product.entity.ProductTranslation;
 import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders_api_rest.generated.model.AccountResponseDTO;
+import com.academy.orders_api_rest.generated.model.ArticleDetailsDTO;
+import com.academy.orders_api_rest.generated.model.ArticleResponseDTO;
 import com.academy.orders_api_rest.generated.model.CartItemDTO;
 import com.academy.orders_api_rest.generated.model.CartItemsResponseDTO;
 import com.academy.orders_api_rest.generated.model.ManagerOrderDTO;
@@ -38,6 +42,7 @@ import com.academy.orders_api_rest.generated.model.OrderStatusDTO;
 import com.academy.orders_api_rest.generated.model.OrderStatusInfoDTO;
 import com.academy.orders_api_rest.generated.model.OrdersFilterParametersDTO;
 import com.academy.orders_api_rest.generated.model.PageAccountsDTO;
+import com.academy.orders_api_rest.generated.model.PageArticleDetailsDTO;
 import com.academy.orders_api_rest.generated.model.PageManagerOrderPreviewDTO;
 import com.academy.orders_api_rest.generated.model.PageProductSearchResultDTO;
 import com.academy.orders_api_rest.generated.model.PageProductsDTO;
@@ -82,6 +87,7 @@ import java.util.stream.Collectors;
 
 import static com.academy.orders.apirest.ModelUtils.getProductsWithDiscountPage;
 import static com.academy.orders.apirest.TestConstants.IMAGE_URL;
+import static com.academy.orders.apirest.TestConstants.LANGUAGE_EN;
 import static com.academy.orders.apirest.TestConstants.LANGUAGE_UK;
 import static com.academy.orders.apirest.TestConstants.PERCENTAGE_OF_TOTAL_ORDERS;
 import static com.academy.orders.apirest.TestConstants.PRODUCT_DESCRIPTION;
@@ -131,6 +137,11 @@ public class ModelUtils {
   public static Page<Product> getProductsPage() {
     List<Product> productList = List.of(getProduct());
     return new Page<>(1L, 1, true, true, 1, productList.size(), productList.size(), false, productList);
+  }
+
+  public static Page<Article> getArticlesPage() {
+    final List<Article> articleList = List.of(getArticle());
+    return new Page<>(1L, 1, true, true, 1, articleList.size(), articleList.size(), false, articleList);
   }
 
   public static Page<Product> getProductsWithDiscountPage() {
@@ -645,5 +656,39 @@ public class ModelUtils {
 
   public static AccountManagementFilterDto getAccountManagementFilterDto() {
     return AccountManagementFilterDto.builder().status(UserStatus.ACTIVE).role(Role.ROLE_USER).build();
+  }
+
+  public static Language getEnglishLanguage() {
+    return Language.builder().id(TEST_ID).code(LANGUAGE_EN).build();
+  }
+
+  public static Article getArticle() {
+    return new Article(TEST_ID, TEST_START_DATE, TEST_END_DATE, getArticleContents());
+  }
+
+  public static List<ArticleContent> getArticleContents() {
+    return List.of(
+        new ArticleContent("Назва", "Опис", getLanguage()),
+        new ArticleContent("Title", "Description", getEnglishLanguage()));
+  }
+
+  public static ArticleResponseDTO getArticleResponseDTOInEnglish() {
+    final ArticleResponseDTO articleResponseDTO = new ArticleResponseDTO();
+    articleResponseDTO.setTitle("Title");
+    articleResponseDTO.setContent("Description");
+    articleResponseDTO.setCreatedAt(OffsetDateTime.of(TEST_START_DATE, ZoneOffset.UTC));
+    return articleResponseDTO;
+  }
+
+  public static ArticleDetailsDTO getArticleDetailsDTOInEnglish() {
+    final ArticleDetailsDTO articleDetailsDTO = new ArticleDetailsDTO();
+    articleDetailsDTO.setId(TEST_ID);
+    articleDetailsDTO.setTitle("Title");
+    return articleDetailsDTO;
+  }
+
+  public static PageArticleDetailsDTO getPageArticleDetailsDTOInEnglish() {
+    return new PageArticleDetailsDTO().totalElements(1L).totalPages(0).first(true).last(true).number(1).numberOfElements(1).size(1)
+        .empty(false).content(List.of(getArticleDetailsDTOInEnglish()));
   }
 }

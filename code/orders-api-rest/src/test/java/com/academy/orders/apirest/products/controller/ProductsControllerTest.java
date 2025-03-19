@@ -21,7 +21,6 @@ import com.academy.orders_api_rest.generated.model.PageProductsDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
@@ -37,7 +36,6 @@ import java.util.List;
 
 import static com.academy.orders.apirest.ModelUtils.getPageOf;
 import static com.academy.orders.apirest.ModelUtils.getPageProductsDTO;
-import static com.academy.orders.apirest.ModelUtils.getPageProductsWithDiscountDTO;
 import static com.academy.orders.apirest.ModelUtils.getPageable;
 import static com.academy.orders.apirest.ModelUtils.getPageableDTO;
 import static com.academy.orders.apirest.ModelUtils.getProduct;
