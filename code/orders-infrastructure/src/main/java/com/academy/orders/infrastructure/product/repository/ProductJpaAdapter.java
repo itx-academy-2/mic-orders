@@ -238,7 +238,8 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
       ) * 100 AS percentage_of_total_orders
       FROM order_items oi
       JOIN orders o ON o.id = oi.order_id
-      WHERE o.created_at BETWEEN ?1 AND ?2
+      JOIN products p ON p.id = oi.product_id
+      WHERE o.created_at BETWEEN ?1 AND ?2 AND p.status='VISIBLE'
       GROUP BY oi.product_id
       ORDER BY SUM(oi.quantity) DESC
       LIMIT ?3
