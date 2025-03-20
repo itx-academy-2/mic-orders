@@ -3,6 +3,7 @@ package com.academy.orders.infrastructure.product.repository;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.dto.DiscountAndPriceWithDiscountRangeDto;
+import com.academy.orders.domain.product.dto.ProductBestsellersDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
 import com.academy.orders.domain.product.entity.Product;
@@ -17,6 +18,7 @@ import com.academy.orders.infrastructure.product.ProductPageMapper;
 import com.academy.orders.infrastructure.product.ProductTranslationManagementMapper;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
+import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageImpl;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -165,5 +168,23 @@ public class ProductRepositoryImpl implements ProductRepository {
         .minimumDiscount(tuple.get(2, Integer.class))
         .maximumDiscount(tuple.get(3, Integer.class))
         .build();
+  }
+
+  @Override
+  public Page<Product> findProductsByLanguageAndIds(Pageable pageableDomain, String language, List<UUID> ids) {
+    var pageable = pageableMapper.fromDomain(pageableDomain);
+    var products = productJpaAdapter.findProductsByLanguageAndIds(pageable, language, ids);
+    return productPageMapper.toDomain(products);
+  }
+
+  @Override
+  public List<ProductBestsellersDto> getIdsOfMostSoldProducts(LocalDateTime fromDate, LocalDateTime endDate, int quantity) {
+    List<Tuple> tuple = productJpaAdapter.findMostSoldProducts(fromDate, endDate, quantity);
+    return tuple.stream()
+        .map(o -> {
+          final UUID productId = o.get(0, UUID.class);
+          final Double percentageOfTotalOrders = o.get(1, Double.class);
+          return new ProductBestsellersDto(productId, percentageOfTotalOrders);
+        }).toList();
   }
 }

@@ -5,6 +5,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class TestConstants {
+  public static final String GET_ARTICLE_BY_ID_URL = "/v1/articles/{articleId}";
+
+  public static final String GET_ARTICLES_DETAILS_URL = "/v1/articles/details";
+
   public static final String GET_ALL_PRODUCTS_URL = "/v1/products";
 
   public static final String SEARCH_PRODUCTS_URL = "/v1/products/search";
@@ -18,6 +22,8 @@ public class TestConstants {
   public static final String GET_PRODUCT_DETAILS_URL = "/v1/products/{productId}";
 
   public static final String GET_PRODUCTS_ON_SALES_URL = "/v1/products/sales";
+
+  public static final String FIND_BESTSELLERS_URL = "/v1/products/bestsellers";
 
   public static final String LANGUAGE_UK = "uk";
 
@@ -48,6 +54,8 @@ public class TestConstants {
   public static final String PRODUCT_NAME = "IPhone";
 
   public static final String PRODUCT_DESCRIPTION = "Phone";
+
+  public static final Double PERCENTAGE_OF_TOTAL_ORDERS = 25.5;
 
   public static final String TEST_FIRST_NAME = "mockedFirstName";
 

@@ -16,6 +16,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -208,4 +209,40 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
       WHERE p.status = 'VISIBLE'
       """)
   Tuple findDiscountAndPriceWithDiscountRange();
+
+  /**
+   * Retrieves a paginated list of products that match the specified language and product IDs, including product translations and tags.
+   */
+  @Query("""
+        SELECT p
+        FROM ProductEntity p
+        INNER JOIN FETCH p.productTranslations pt
+        INNER JOIN FETCH pt.language l
+        LEFT JOIN FETCH p.tags t
+        WHERE p.id IN :ids AND l.code = :lang
+      """)
+  Page<ProductEntity> findProductsByLanguageAndIds(Pageable pageable, String lang, List<UUID> ids);
+
+  /**
+   * Retrieves a list of ids of the most sold products within the specified date range, along with their percentage of the total orders for
+   * that period.
+   *
+   */
+  @Query(value = """
+      SELECT oi.product_id AS product_id, CAST(SUM(oi.quantity) AS DOUBLE PRECISION) /
+      NULLIF((
+             SELECT CAST(SUM(oi_inner.quantity) AS DOUBLE PRECISION)
+             FROM order_items oi_inner
+             INNER JOIN orders o_inner ON o_inner.id = oi_inner.order_id
+             WHERE o_inner.created_at BETWEEN ?1 AND ?2), 0
+      ) * 100 AS percentage_of_total_orders
+      FROM order_items oi
+      JOIN orders o ON o.id = oi.order_id
+      JOIN products p ON p.id = oi.product_id
+      WHERE o.created_at BETWEEN ?1 AND ?2 AND p.status='VISIBLE'
+      GROUP BY oi.product_id
+      ORDER BY SUM(oi.quantity) DESC
+      LIMIT ?3
+      """, nativeQuery = true)
+  List<Tuple> findMostSoldProducts(LocalDateTime startDate, LocalDateTime endDate, int quantity);
 }

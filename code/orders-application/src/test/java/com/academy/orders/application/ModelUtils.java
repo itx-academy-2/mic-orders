@@ -4,6 +4,8 @@ import com.academy.orders.domain.account.dto.AccountManagementFilterDto;
 import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
+import com.academy.orders.domain.article.entity.Article;
+import com.academy.orders.domain.article.entity.ArticleContent;
 import com.academy.orders.domain.cart.dto.CartItemDto;
 import com.academy.orders.domain.cart.dto.CartResponseDto;
 import com.academy.orders.domain.cart.entity.CartItem;
@@ -42,6 +44,7 @@ import static com.academy.orders.application.TestConstants.IMAGE_NAME;
 import static com.academy.orders.application.TestConstants.IMAGE_URL;
 import static com.academy.orders.application.TestConstants.LANGUAGE_EN;
 import static com.academy.orders.application.TestConstants.LANGUAGE_UK;
+import static com.academy.orders.application.TestConstants.PERCENTAGE_OF_TOTAL_ORDERS;
 import static com.academy.orders.application.TestConstants.PRODUCT_DESCRIPTION;
 import static com.academy.orders.application.TestConstants.PRODUCT_NAME;
 import static com.academy.orders.application.TestConstants.TAG_NAME;
@@ -69,7 +72,8 @@ public class ModelUtils {
   public static Product getProductWithImageLinkAndDiscount(int discount) {
     return Product.builder().id(TEST_UUID).status(ProductStatus.VISIBLE).image(IMAGE_URL).quantity(TEST_QUANTITY)
         .price(TEST_PRICE).discount(Discount.builder().amount(discount).build())
-        .tags(Set.of(getTag())).productTranslations(Set.of(getProductTranslation())).build();
+        .tags(Set.of(getTag())).productTranslations(Set.of(getProductTranslation()))
+        .percentageOfTotalOrders(PERCENTAGE_OF_TOTAL_ORDERS).build();
   }
 
   public static Product getProductWithImageName() {
@@ -290,6 +294,14 @@ public class ModelUtils {
         .build();
   }
 
+  public static ProductRequestDto getProductRequestDtoWithoutImage() {
+    return ProductRequestDto.builder().status(String.valueOf(ProductStatus.VISIBLE)).image(null)
+        .quantity(TEST_QUANTITY).price(TEST_PRICE).tagIds(List.of(1L))
+        .productTranslations(Set.of(ProductTranslationDto.builder().name("Name").description("Description")
+            .languageCode("en").build()))
+        .build();
+  }
+
   public static ProductRequestDto getProductRequestDtoWithDiscount(Integer discount) {
     return ProductRequestDto.builder().status(String.valueOf(ProductStatus.VISIBLE)).image(IMAGE_URL)
         .quantity(TEST_QUANTITY).price(TEST_PRICE).discount(discount).tagIds(List.of(1L))
@@ -380,5 +392,18 @@ public class ModelUtils {
   public static Page<Account> getAccountPage() {
     return Page.<Account>builder().totalElements(1L).totalPages(1).first(true).last(true).number(0)
         .numberOfElements(1).size(5).empty(false).content(Collections.singletonList(getAccount())).build();
+  }
+
+  public static List<ArticleContent> getArticleContents() {
+    return List.of(
+        new ArticleContent("Title", "Description", getLanguage()));
+  }
+
+  public static Article getArticle() {
+    return Article.builder()
+        .id(TEST_ID)
+        .createdAt(TEST_START_DATE)
+        .contents(getArticleContents())
+        .build();
   }
 }

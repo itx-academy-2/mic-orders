@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.0.5
+  version: 2.0.6
 servers:
   - url: http://localhost:8080/retail
 
@@ -442,6 +442,25 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequestResponse'
 
+  /v1/products/bestsellers:
+    get:
+      summary: Get the top bestselling products
+      tags:
+        - Products
+      operationId: findBestsellers
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+          required: true
+        - $ref: '#/components/parameters/Language'
+      responses:
+        '200':
+          description: Successfully retrieved the bestsellers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageProducts'
+
   /v1/products/{productId}:
     get:
       tags:
@@ -677,7 +696,39 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+  /v1/articles/details:
+    get:
+      tags:
+        - Article
+      summary: Get details of articles
+      operationId: getArticlesDetails
+      parameters:
+        - $ref: '#/components/parameters/Language'
+        - $ref: '#/components/parameters/Pageable'
+      responses:
+        '200':
+          description: Short information about articles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageArticleDetails'
 
+  /v1/articles/{articleId}:
+    get:
+      tags:
+        - Article
+      summary: Get an article by its id
+      operationId: getArticleById
+      parameters:
+        - $ref: '#/components/parameters/Language'
+        - $ref: '#/components/parameters/ArticleId'
+      responses:
+        '200':
+          description: Article in the specific language
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleResponse'
 
 #COMPONENTS
 #=======================================================================================================================
@@ -701,6 +752,14 @@ components:
         type: integer
         format: int64
       example: '1'
+    ArticleId:
+      in: path
+      name: articleId
+      required: true
+      description: Id of the article
+      schema:
+        type: integer
+        format: int64
     ProductId:
       in: path
       name: productId
@@ -720,6 +779,19 @@ components:
         nullable: false
         example: uk
       description: The language code for the product information (e.g., 'uk' for Ukrainian).
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    Size:
+      in: query
+      name: size
+      schema:
+        type: integer
+        minimum: 1
   securitySchemes:
     bearerAuth:
       type: http
@@ -794,6 +866,10 @@ components:
   #SCHEMAS
   #=======================================================================================================================
   schemas:
+    Percentage:
+      type: number
+      format: double
+      example: 43.75
     Pageable:
       type: object
       properties:
@@ -1019,6 +1095,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProductTranslation'
+        percentageOfTotalOrders:
+          description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
+          $ref: '#/components/schemas/Percentage'
 
     ProductDetailsResponse:
       type: object
@@ -1051,7 +1130,9 @@ components:
           type: number
           example: 100.00
           description: The original price before any discount is applied. This field is only returned if a discount is applied.
-
+        percentageOfTotalOrders:
+          description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
+          $ref: '#/components/schemas/Percentage'
     ProductSearchResult:
       type: object
       properties:
@@ -1498,7 +1579,9 @@ components:
           type: number
           example: 100.00
           description: The original price before any discount is applied. This field is only returned if a discount is applied.
-
+        percentageOfTotalOrders:
+          description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
+          $ref: '#/components/schemas/Percentage'
     ProductStatus:
       type: string
       enum:
@@ -1625,6 +1708,9 @@ components:
           format: decimal
           example: 900.00
           description: Total price of all products with applied discounts. This field is only returned if a discount is applied at least to one product.
+        percentageOfTotalOrders:
+          description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
+          $ref: '#/components/schemas/Percentage'
       required:
         - productId
         - image
@@ -1669,6 +1755,9 @@ components:
           format: decimal
           example: 900.00
           description: Total price of all products with applied discounts. This field is only returned if a discount is applied at least to one product.
+        percentageOfTotalOrders:
+          description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
+          $ref: '#/components/schemas/Percentage'
         totalPrice:
           type: number
           format: decimal
@@ -1833,7 +1922,6 @@ components:
           type: number
           example: 100.00
           description: The original price before any discount is applied. This field is only returned if a discount is applied.
-
         createdAt:
           type: string
           format: date-time
@@ -1841,6 +1929,9 @@ components:
           $ref: '#/components/schemas/ProductManagementStatus'
         tags:
           $ref: '#/components/schemas/ProductTags'
+        percentageOfTotalOrders:
+          description: The percentage of total orders for this product for a period of the last 30 days. The field can be absent.
+          $ref: '#/components/schemas/Percentage'
       required:
         - id
         - name
@@ -1929,3 +2020,46 @@ components:
         - ADMIN
         - MANAGER
       description: Role of the account
+
+    ArticleResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+          example: How to reset your smart watch?
+          description: Title of the article.
+        content:
+          type: string
+          example: "Follow these steps to reset your smart watch: 1. Press and hold the power button..."
+          description: Full content of the article in the specific language.
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ArticleDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+          example: How to reset your smart watch?
+          description: Title of the article.
+
+    PageArticleDetails:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/ArticleDetails'

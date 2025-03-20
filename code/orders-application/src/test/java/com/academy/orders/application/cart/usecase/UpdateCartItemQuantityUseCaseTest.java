@@ -7,6 +7,7 @@ import com.academy.orders.domain.cart.exception.CartItemNotFoundException;
 import com.academy.orders.domain.cart.exception.QuantityExceedsAvailableException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
 import com.academy.orders.domain.product.entity.Product;
+import com.academy.orders.domain.product.usecase.SetPercentageOfTotalOrdersUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,6 +40,9 @@ class UpdateCartItemQuantityUseCaseTest {
 
   @Mock
   private CartItemRepository cartItemRepository;
+
+  @Mock
+  private SetPercentageOfTotalOrdersUseCase setPercentageOfTotalOrdersUseCase;
 
   @Test
   void setQuantitySuccessfulUpdateTest() {
@@ -54,6 +59,7 @@ class UpdateCartItemQuantityUseCaseTest {
     when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.of(cartItem));
     when(cartItemRepository.save(any(CreateCartItemDTO.class))).thenReturn(new CartItem(product, quantity));
     when(cartItemRepository.findCartItemsByAccountId(userId)).thenReturn(cartItems);
+    doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(cartItem.product());
 
     UpdatedCartItemDto updatedCartItemDto = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity);
 
@@ -72,6 +78,7 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).save(any(CreateCartItemDTO.class));
     verify(cartItemRepository).findCartItemsByAccountId(userId);
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(product);
   }
 
   @Test
@@ -89,6 +96,7 @@ class UpdateCartItemQuantityUseCaseTest {
     when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.of(cartItemBefore));
     when(cartItemRepository.save(any(CreateCartItemDTO.class))).thenReturn(cartItemAfter);
     when(cartItemRepository.findCartItemsByAccountId(userId)).thenReturn(List.of(cartItemAfter));
+    doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(cartItemBefore.product());
 
     final UpdatedCartItemDto result = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity.intValue());
 
@@ -107,6 +115,7 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).save(any(CreateCartItemDTO.class));
     verify(cartItemRepository).findCartItemsByAccountId(userId);
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(product);
   }
 
   @Test
@@ -123,6 +132,7 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
     verify(cartItemRepository, never()).findByProductIdAndUserId(any(UUID.class), anyLong());
     verify(cartItemRepository, never()).save(any(CreateCartItemDTO.class));
+    verify(setPercentageOfTotalOrdersUseCase, never()).setPercentOfTotalOrders(any(Product.class));
   }
 
   @Test
@@ -151,6 +161,7 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).save(any(CreateCartItemDTO.class));
+    verify(setPercentageOfTotalOrdersUseCase, never()).setPercentOfTotalOrders(product);
   }
 
   @Test
@@ -166,6 +177,7 @@ class UpdateCartItemQuantityUseCaseTest {
     when(cartItemRepository.findByProductIdAndUserId(productId, userId)).thenReturn(Optional.of(cartItem));
     when(cartItemRepository.save(any(CreateCartItemDTO.class))).thenReturn(new CartItem(product, quantity));
     when(cartItemRepository.findCartItemsByAccountId(userId)).thenReturn(cartItems);
+    doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(product);
 
     UpdatedCartItemDto updatedCartItemDto = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity);
 
@@ -179,6 +191,7 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).save(any(CreateCartItemDTO.class));
     verify(cartItemRepository).findCartItemsByAccountId(userId);
+    verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(product);
   }
 
   @Test
@@ -196,5 +209,6 @@ class UpdateCartItemQuantityUseCaseTest {
     verify(cartItemRepository).existsByProductIdAndUserId(productId, userId);
     verify(cartItemRepository).findByProductIdAndUserId(productId, userId);
     verify(cartItemRepository, never()).save(any(CreateCartItemDTO.class));
+    verify(setPercentageOfTotalOrdersUseCase, never()).setPercentOfTotalOrders(any(Product.class));
   }
 }
