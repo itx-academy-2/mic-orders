@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -19,11 +20,11 @@
     <module>jacoco-report-aggregate</module>
     <module>orders-api-rest</module>
     <module>orders-api-rest-clients</module>
-    <module>orders-api-rest-clients/prometheus-api</module>
     <module>orders-application</module>
     <module>orders-boot</module>
     <module>orders-domain</module>
     <module>orders-infrastructure</module>
+    <module>orders-api-rest-clients/prometheus-api</module>
   </modules>
 
   <properties>
@@ -60,6 +61,11 @@
     <dependencies>
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>prometheus-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>orders-api-rest</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -79,11 +85,6 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>orders-infrastructure</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>prometheus-api</artifactId>
         <version>${project.version}</version>
       </dependency>
 

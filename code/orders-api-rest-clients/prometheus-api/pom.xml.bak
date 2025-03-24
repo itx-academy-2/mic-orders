@@ -7,7 +7,7 @@
     <version>2.2</version>
     <relativePath>..</relativePath>
   </parent>
-    <artifactId>images-api</artifactId>
+    <artifactId>prometheus-api</artifactId>
 
     <build>
         <plugins>

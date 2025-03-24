@@ -13,12 +13,12 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>orders-domain</artifactId>
+      <artifactId>prometheus-api</artifactId>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>prometheus-api</artifactId>
+      <artifactId>orders-domain</artifactId>
     </dependency>
 
     <dependency>
