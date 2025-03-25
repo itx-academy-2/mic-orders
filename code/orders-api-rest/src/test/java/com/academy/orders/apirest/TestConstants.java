@@ -74,4 +74,6 @@ public class TestConstants {
   public static final String ROLE_MANAGER = "ROLE_MANAGER";
 
   public static final String TEST_PASSWORD = "123Qyz!";
+
+  public static final int TEST_COUNT = 10;
 }

@@ -1,6 +1,7 @@
 package com.academy.orders.domain.filter.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Setter
 @Getter
+@Builder
 public class PeriodFilterUsageDto {
   private LocalDate startDate;
 

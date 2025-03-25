@@ -57,3 +57,6 @@ resilience4j:
 
 images:
   product: https://www.demyhealth.com/storage/media/2/default-product-image.png
+
+prometheus:
+  stage: ${PROMETHEUS_STAGE}

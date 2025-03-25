@@ -5,8 +5,8 @@ import com.academy.orders.domain.filter.FilterAnalyticsRepository;
 import com.academy.orders.domain.filter.dto.FilterUsageReportDto;
 import com.academy.orders.domain.filter.dto.FilterUsageStatisticsDto;
 import com.academy.orders.domain.filter.dto.PeriodFilterUsageDto;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -19,10 +19,17 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class ProductsOnSaleFilterAnalyticsUseCaseImpl implements ProductsOnSaleFilterWeeklyAnalyticsUseCase {
+public class ProductsOnSaleFilterWeeklyAnalyticsUseCaseImpl implements ProductsOnSaleFilterWeeklyAnalyticsUseCase {
   private final FilterAnalyticsRepository filterAnalyticsRepository;
+
+  private final String prometheusPart;
+
+  public ProductsOnSaleFilterWeeklyAnalyticsUseCaseImpl(FilterAnalyticsRepository filterAnalyticsRepository,
+      @Value("${prometheus.stage}") String prometheusStage) {
+    this.filterAnalyticsRepository = filterAnalyticsRepository;
+    this.prometheusPart = "{application=\"" + prometheusStage + "\"}";
+  }
 
   @Override
   public FilterUsageReportDto getWeeklyStatistics(int amount) {
@@ -53,12 +60,12 @@ public class ProductsOnSaleFilterAnalyticsUseCaseImpl implements ProductsOnSaleF
       PeriodFilterUsageDto periodFilterUsageDto = new PeriodFilterUsageDto();
 
       if (i == 0) {
-        query = "increase(" + filterName + "[" + difference + "m" + "])";
+        query = "increase(" + filterName + prometheusPart + "[" + difference + "m" + "])";
 
         periodFilterUsageDto.setStartDate(mondayOfCurrentWeek.toLocalDate());
         periodFilterUsageDto.setEndDate(now.toLocalDate());
       } else {
-        query = "increase(" + filterName + "[1w] offset " + (difference + (10080L * (i - 1))) + "m)";
+        query = "increase(" + filterName + prometheusPart + "[1w] offset " + (difference + (10080L * (i - 1))) + "m)";
 
         final LocalDate from = mondayOfCurrentWeek.toLocalDate().minusWeeks(i);
         periodFilterUsageDto.setStartDate(from);

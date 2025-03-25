@@ -10,6 +10,9 @@ import com.academy.orders.domain.cart.dto.UpdatedCartItemDto;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.discount.entity.Discount;
+import com.academy.orders.domain.filter.dto.FilterUsageReportDto;
+import com.academy.orders.domain.filter.dto.FilterUsageStatisticsDto;
+import com.academy.orders.domain.filter.dto.PeriodFilterUsageDto;
 import com.academy.orders.domain.order.dto.OrderStatusInfo;
 import com.academy.orders.domain.order.dto.OrdersFilterParametersDto;
 import com.academy.orders.domain.order.dto.UpdateOrderStatusDto;
@@ -35,6 +38,8 @@ import com.academy.orders_api_rest.generated.model.ArticleDetailsDTO;
 import com.academy.orders_api_rest.generated.model.ArticleResponseDTO;
 import com.academy.orders_api_rest.generated.model.CartItemDTO;
 import com.academy.orders_api_rest.generated.model.CartItemsResponseDTO;
+import com.academy.orders_api_rest.generated.model.FilterUsageReportDTO;
+import com.academy.orders_api_rest.generated.model.FilterUsageStatisticsDTO;
 import com.academy.orders_api_rest.generated.model.ManagerOrderDTO;
 import com.academy.orders_api_rest.generated.model.OrderItemDTO;
 import com.academy.orders_api_rest.generated.model.OrderReceiverDTO;
@@ -48,6 +53,7 @@ import com.academy.orders_api_rest.generated.model.PageProductSearchResultDTO;
 import com.academy.orders_api_rest.generated.model.PageProductsDTO;
 import com.academy.orders_api_rest.generated.model.PageUserOrderDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
+import com.academy.orders_api_rest.generated.model.PeriodFilterUsageDTO;
 import com.academy.orders_api_rest.generated.model.PlaceOrderRequestDTO;
 import com.academy.orders_api_rest.generated.model.PostAddressDTO;
 import com.academy.orders_api_rest.generated.model.ProductDetailsResponseDTO;
@@ -95,6 +101,7 @@ import static com.academy.orders.apirest.TestConstants.PRODUCT_NAME;
 import static com.academy.orders.apirest.TestConstants.TAG_NAME;
 import static com.academy.orders.apirest.TestConstants.TEST_AMOUNT;
 import static com.academy.orders.apirest.TestConstants.TEST_CITY;
+import static com.academy.orders.apirest.TestConstants.TEST_COUNT;
 import static com.academy.orders.apirest.TestConstants.TEST_DEPARTMENT;
 import static com.academy.orders.apirest.TestConstants.TEST_EMAIL;
 import static com.academy.orders.apirest.TestConstants.TEST_END_DATE;
@@ -690,5 +697,46 @@ public class ModelUtils {
   public static PageArticleDetailsDTO getPageArticleDetailsDTOInEnglish() {
     return new PageArticleDetailsDTO().totalElements(1L).totalPages(0).first(true).last(true).number(1).numberOfElements(1).size(1)
         .empty(false).content(List.of(getArticleDetailsDTOInEnglish()));
+  }
+
+  public static PeriodFilterUsageDto getPeriodFilterUsageDto() {
+    return PeriodFilterUsageDto.builder()
+        .startDate(TEST_START_DATE.toLocalDate())
+        .endDate(TEST_END_DATE.toLocalDate())
+        .count(TEST_COUNT)
+        .build();
+  }
+
+  public static FilterUsageStatisticsDto getFilterUsageStatisticsDto() {
+    return FilterUsageStatisticsDto.builder()
+        .filterName("filterName")
+        .sumOfAllCounts(TEST_COUNT)
+        .metrics(List.of(getPeriodFilterUsageDto()))
+        .build();
+  }
+
+  public static FilterUsageReportDto getFilterUsageReportDto() {
+    return FilterUsageReportDto.builder()
+        .filterMetrics(List.of(getFilterUsageStatisticsDto()))
+        .build();
+  }
+
+  public static PeriodFilterUsageDTO getPeriodFilterUsageDTO() {
+    return new PeriodFilterUsageDTO()
+        .startDate(TEST_START_DATE.toLocalDate())
+        .endDate(TEST_END_DATE.toLocalDate())
+        .count(TEST_COUNT);
+  }
+
+  public static FilterUsageStatisticsDTO getFilterUsageStatisticsDTO() {
+    return new FilterUsageStatisticsDTO()
+        .filterName("filterName")
+        .sumOfAllCounts(TEST_COUNT)
+        .metrics(List.of(getPeriodFilterUsageDTO()));
+  }
+
+  public static FilterUsageReportDTO getFilterUsageReportDTO() {
+    return new FilterUsageReportDTO()
+        .filterMetrics(List.of(getFilterUsageStatisticsDTO()));
   }
 }
