@@ -44,36 +44,38 @@ public class ProductsOnSaleFilterAnalyticsUseCaseTest {
     final int differenceBetweenStartAndEndOfWeek = DayOfWeek.SUNDAY.getValue() - DayOfWeek.MONDAY.getValue();
 
     when(filterAnalyticsRepository
-        .getFirstCounter(matches("increase\\(tag_filter_usage_total{application=\"" + stage + "\"}\\[\\d+m\\]\\)")))
+        .getFirstCounter(matches("increase\\(tag_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+m\\]\\)")))
             .thenReturn(Optional.of(1));
     when(filterAnalyticsRepository
-        .getFirstCounter(matches("increase\\(minimum_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+m\\]\\)")))
+        .getFirstCounter(matches("increase\\(minimum_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+m\\]\\)")))
             .thenReturn(Optional.of(2));
     when(filterAnalyticsRepository
-        .getFirstCounter(matches("increase\\(maximum_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+m\\]\\)")))
+        .getFirstCounter(matches("increase\\(maximum_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+m\\]\\)")))
             .thenReturn(Optional.of(3));
     when(filterAnalyticsRepository
-        .getFirstCounter(matches("increase\\(minimum_price_with_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+m\\]\\)")))
-            .thenReturn(Optional.of(4));
+        .getFirstCounter(
+            matches("increase\\(minimum_price_with_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+m\\]\\)")))
+                .thenReturn(Optional.of(4));
     when(filterAnalyticsRepository
-        .getFirstCounter(matches("increase\\(maximum_price_with_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+m\\]\\)")))
-            .thenReturn(Optional.of(5));
+        .getFirstCounter(
+            matches("increase\\(maximum_price_with_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+m\\]\\)")))
+                .thenReturn(Optional.of(5));
     when(filterAnalyticsRepository
-        .getFirstCounter(matches("increase\\(tag_filter_usage_total{application=\"" + stage + "\"}\\[\\d+w\\] offset\\s*\\d+m\\)")))
+        .getFirstCounter(matches("increase\\(tag_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+w\\] offset\\s*\\d+m\\)")))
             .thenReturn(Optional.of(1));
     when(filterAnalyticsRepository.getFirstCounter(
-        matches("increase\\(minimum_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+w\\] offset\\s*\\d+m\\)")))
+        matches("increase\\(minimum_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+w\\] offset\\s*\\d+m\\)")))
             .thenReturn(Optional.of(2));
     when(filterAnalyticsRepository.getFirstCounter(
-        matches("increase\\(maximum_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+w\\] offset\\s*\\d+m\\)")))
+        matches("increase\\(maximum_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+w\\] offset\\s*\\d+m\\)")))
             .thenReturn(Optional.of(3));
     when(filterAnalyticsRepository
         .getFirstCounter(matches(
-            "increase\\(minimum_price_with_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+w\\] offset\\s*\\d+m\\)")))
+            "increase\\(minimum_price_with_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+w\\] offset\\s*\\d+m\\)")))
                 .thenReturn(Optional.of(4));
     when(filterAnalyticsRepository
         .getFirstCounter(matches(
-            "increase\\(maximum_price_with_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+w\\] offset\\s*\\d+m\\)")))
+            "increase\\(maximum_price_with_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+w\\] offset\\s*\\d+m\\)")))
                 .thenReturn(Optional.of(5));
 
     final FilterUsageReportDto result = productsOnSaleFilterWeeklyAnalyticsUseCase.getWeeklyStatistics(amount);
@@ -107,25 +109,31 @@ public class ProductsOnSaleFilterAnalyticsUseCaseTest {
     }
 
     verify(filterAnalyticsRepository)
-        .getFirstCounter(matches("increase\\(tag_filter_usage_total{application=\"" + stage + "\"}\\[\\d+m\\]\\)"));
+        .getFirstCounter(matches("increase\\(tag_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+m\\]\\)"));
     verify(filterAnalyticsRepository)
-        .getFirstCounter(matches("increase\\(minimum_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+m\\]\\)"));
+        .getFirstCounter(matches("increase\\(minimum_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+m\\]\\)"));
     verify(filterAnalyticsRepository)
-        .getFirstCounter(matches("increase\\(maximum_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+m\\]\\)"));
+        .getFirstCounter(matches("increase\\(maximum_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+m\\]\\)"));
     verify(filterAnalyticsRepository)
-        .getFirstCounter(matches("increase\\(minimum_price_with_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+m\\]\\)"));
+        .getFirstCounter(
+            matches("increase\\(minimum_price_with_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+m\\]\\)"));
     verify(filterAnalyticsRepository)
-        .getFirstCounter(matches("increase\\(maximum_price_with_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+m\\]\\)"));
+        .getFirstCounter(
+            matches("increase\\(maximum_price_with_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+m\\]\\)"));
     verify(filterAnalyticsRepository, times(2))
-        .getFirstCounter(matches("increase\\(tag_filter_usage_total{application=\"" + stage + "\"}\\[\\d+w\\] offset\\s*\\d+m\\)"));
-    verify(filterAnalyticsRepository, times(2)).getFirstCounter(
-        matches("increase\\(minimum_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+w\\] offset\\s*\\d+m\\)"));
-    verify(filterAnalyticsRepository, times(2)).getFirstCounter(
-        matches("increase\\(maximum_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+w\\] offset\\s*\\d+m\\)"));
-    verify(filterAnalyticsRepository, times(2)).getFirstCounter(
-        matches("increase\\(minimum_price_with_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+w\\] offset\\s*\\d+m\\)"));
-    verify(filterAnalyticsRepository, times(2)).getFirstCounter(
-        matches("increase\\(maximum_price_with_discount_filter_usage_total{application=\"" + stage + "\"}\\[\\d+w\\] offset\\s*\\d+m\\)"));
+        .getFirstCounter(matches("increase\\(tag_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+w\\] offset\\s*\\d+m\\)"));
+    verify(filterAnalyticsRepository, times(2))
+        .getFirstCounter(
+            matches("increase\\(minimum_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+w\\] offset\\s*\\d+m\\)"));
+    verify(filterAnalyticsRepository, times(2))
+        .getFirstCounter(
+            matches("increase\\(maximum_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+w\\] offset\\s*\\d+m\\)"));
+    verify(filterAnalyticsRepository, times(2))
+        .getFirstCounter(matches(
+            "increase\\(minimum_price_with_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+w\\] offset\\s*\\d+m\\)"));
+    verify(filterAnalyticsRepository, times(2))
+        .getFirstCounter(matches(
+            "increase\\(maximum_price_with_discount_filter_usage_total\\{application=\"" + stage + "\"\\}\\[\\d+w\\] offset\\s*\\d+m\\)"));
   }
 
 }

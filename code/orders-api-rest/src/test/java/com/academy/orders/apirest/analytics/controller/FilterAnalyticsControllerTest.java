@@ -13,11 +13,14 @@ import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static com.academy.orders.apirest.ModelUtils.getFilterUsageReportDTO;
 import static com.academy.orders.apirest.ModelUtils.getFilterUsageReportDto;
+import static com.academy.orders.apirest.TestConstants.ROLE_MANAGER;
+import static com.academy.orders.apirest.TestConstants.ROLE_USER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -40,6 +43,7 @@ public class FilterAnalyticsControllerTest {
 
   @SneakyThrows
   @Test
+  @WithMockUser(authorities = ROLE_MANAGER)
   public void getWeeklyProductOnSaleFilterUsageStatisticsTest() {
     final int amount = 4;
     final FilterUsageReportDto filterUsageReportDto = getFilterUsageReportDto();
@@ -58,12 +62,27 @@ public class FilterAnalyticsControllerTest {
 
   @SneakyThrows
   @Test
+  @WithMockUser(authorities = ROLE_MANAGER)
   public void getWeeklyProductOnSaleFilterUsageStatisticsWhenAmountWrongTest() {
     final int amount = 0;
 
     mockMvc.perform(get("/v1/filter-analytics/products-on-sale/weekly")
         .param("amount", String.valueOf(amount)))
         .andExpect(status().isBadRequest());
+
+    verify(productsOnSaleFilterWeeklyAnalyticsUseCase, never()).getWeeklyStatistics(amount);
+    verify(filterUsageReportDTOMapper, never()).fromModel(any());
+  }
+
+  @SneakyThrows
+  @Test
+  @WithMockUser(authorities = ROLE_USER)
+  public void getWeeklyProductOnSaleFilterUsageStatisticsWhenRoleUserTest() {
+    final int amount = 0;
+
+    mockMvc.perform(get("/v1/filter-analytics/products-on-sale/weekly")
+        .param("amount", String.valueOf(amount)))
+        .andExpect(status().isForbidden());
 
     verify(productsOnSaleFilterWeeklyAnalyticsUseCase, never()).getWeeklyStatistics(amount);
     verify(filterUsageReportDTOMapper, never()).fromModel(any());
