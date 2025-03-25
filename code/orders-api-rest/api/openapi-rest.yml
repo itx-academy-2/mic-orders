@@ -379,7 +379,7 @@ paths:
           schema:
             $ref: '#/components/schemas/ProductsOnSaleFilter'
         - $ref: '#/components/parameters/Pageable'
-          description: Sorting is available for discount/priceWithDiscount/name. For example, sort=discount,desc or sort=name,asc.
+          description: Sorting is available for discount/priceWithDiscount/name/percentageOfTotalOrders. The field 'percentageOfTotalOrders' represents the bestsellers. For example, sort=discount,desc or sort=name,asc.
         - $ref: '#/components/parameters/Language'
       responses:
         '200':
