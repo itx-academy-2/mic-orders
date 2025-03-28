@@ -69,11 +69,20 @@ public class ProductRepositoryImpl implements ProductRepository {
   }
 
   @Override
+  public Page<Product> findAllProducts(String language, Pageable pageable, List<String> tags, List<UUID> bestsellersIds) {
+    var pageableSpring = pageableMapper.fromDomain(pageable).withSort(Sort.unsorted());
+    var translations =
+        productTranslationJpaAdapter.findAll(new ProductSpecification(language, pageable.sort(), tags, bestsellersIds), pageableSpring);
+
+    return productPageMapper.fromProductTranslationEntity(translations);
+  }
+
+  @Override
   public Page<Product> findProductsWhereDiscountIsNotNull(ProductsOnSaleFilterDto filter, String language,
-      Pageable pageable) {
+      Pageable pageable, List<UUID> bestsellersIds) {
     var pageableSpring = pageableMapper.fromDomain(pageable).withSort(Sort.unsorted());
     var translations = productTranslationJpaAdapter.findAll(new ProductTranslationSpecification(filter, pageable.sort(),
-        language), pageableSpring);
+        language, bestsellersIds), pageableSpring);
     return productPageMapper.fromProductTranslationEntity(translations);
   }
 
