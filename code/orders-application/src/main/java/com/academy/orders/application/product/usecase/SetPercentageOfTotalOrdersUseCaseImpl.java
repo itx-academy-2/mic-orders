@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.academy.orders.domain.filter.FilterMetricsConstants.AMOUNT_OF_MOST_SOLD_ITEMS;
+import static com.academy.orders.domain.filter.FilterMetricsConstants.DAYS;
+
 @Service
 @RequiredArgsConstructor
 public class SetPercentageOfTotalOrdersUseCaseImpl implements SetPercentageOfTotalOrdersUseCase {
@@ -24,7 +27,7 @@ public class SetPercentageOfTotalOrdersUseCaseImpl implements SetPercentageOfTot
     if (list == null || list.isEmpty()) {
       return;
     }
-    final Map<UUID, Double> bestsellersMap = getProductBestsellersUseCase.getProductBestsellers(30, 5)
+    final Map<UUID, Double> bestsellersMap = getProductBestsellersUseCase.getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS)
         .stream()
         .collect(Collectors.toMap(ProductBestsellersDto::productId, ProductBestsellersDto::percentageOfTotalOrders));
 
@@ -36,7 +39,7 @@ public class SetPercentageOfTotalOrdersUseCaseImpl implements SetPercentageOfTot
     if (product == null) {
       return;
     }
-    getProductBestsellersUseCase.getProductBestsellers(30, 5).stream()
+    getProductBestsellersUseCase.getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS).stream()
         .filter(o -> o.productId().equals(product.getId()))
         .findFirst()
         .ifPresent(o -> product.setPercentageOfTotalOrders(o.percentageOfTotalOrders()));
