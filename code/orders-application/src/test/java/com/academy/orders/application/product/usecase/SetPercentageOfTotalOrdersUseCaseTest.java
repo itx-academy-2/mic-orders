@@ -11,6 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static com.academy.orders.application.ModelUtils.getProductWithImageLink;
+import static com.academy.orders.domain.filter.FilterMetricsConstants.AMOUNT_OF_MOST_SOLD_ITEMS;
+import static com.academy.orders.domain.filter.FilterMetricsConstants.DAYS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -30,13 +32,13 @@ public class SetPercentageOfTotalOrdersUseCaseTest {
     final ProductBestsellersDto productBestsellersDto = new ProductBestsellersDto(product.getId(), 20.0);
     final List<ProductBestsellersDto> list = List.of(productBestsellersDto);
 
-    when(getProductBestsellersUseCase.getProductBestsellers(30, 5)).thenReturn(list);
+    when(getProductBestsellersUseCase.getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS)).thenReturn(list);
 
     setPercentageOfTotalOrdersUseCase.setPercentOfTotalOrders(product);
 
     assertEquals(productBestsellersDto.percentageOfTotalOrders(), product.getPercentageOfTotalOrders());
 
-    verify(getProductBestsellersUseCase).getProductBestsellers(30, 5);
+    verify(getProductBestsellersUseCase).getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS);
   }
 
   @Test
@@ -46,13 +48,13 @@ public class SetPercentageOfTotalOrdersUseCaseTest {
     final ProductBestsellersDto productBestsellersDto = new ProductBestsellersDto(product.getId(), 20.0);
     final List<ProductBestsellersDto> list = List.of(productBestsellersDto);
 
-    when(getProductBestsellersUseCase.getProductBestsellers(30, 5)).thenReturn(list);
+    when(getProductBestsellersUseCase.getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS)).thenReturn(list);
 
     setPercentageOfTotalOrdersUseCase.setPercentOfTotalOrders(productsList);
 
     assertEquals(productBestsellersDto.percentageOfTotalOrders(), product.getPercentageOfTotalOrders());
 
-    verify(getProductBestsellersUseCase).getProductBestsellers(30, 5);
+    verify(getProductBestsellersUseCase).getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS);
   }
 
   @Test
@@ -61,7 +63,7 @@ public class SetPercentageOfTotalOrdersUseCaseTest {
 
     setPercentageOfTotalOrdersUseCase.setPercentOfTotalOrders(product);
 
-    verify(getProductBestsellersUseCase, never()).getProductBestsellers(30, 5);
+    verify(getProductBestsellersUseCase, never()).getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS);
   }
 
   @Test
@@ -70,6 +72,6 @@ public class SetPercentageOfTotalOrdersUseCaseTest {
 
     setPercentageOfTotalOrdersUseCase.setPercentOfTotalOrders(list);
 
-    verify(getProductBestsellersUseCase, never()).getProductBestsellers(30, 5);
+    verify(getProductBestsellersUseCase, never()).getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS);
   }
 }

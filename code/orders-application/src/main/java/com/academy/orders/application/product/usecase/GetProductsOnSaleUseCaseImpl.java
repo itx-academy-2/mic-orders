@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+import static com.academy.orders.domain.filter.FilterMetricsConstants.AMOUNT_OF_MOST_SOLD_ITEMS;
+import static com.academy.orders.domain.filter.FilterMetricsConstants.DAYS;
+
 @Service
 @RequiredArgsConstructor
 public class GetProductsOnSaleUseCaseImpl implements GetProductsOnSaleUseCase {
@@ -30,7 +33,7 @@ public class GetProductsOnSaleUseCaseImpl implements GetProductsOnSaleUseCase {
 
   @Override
   public ProductsOnSaleResponseDto getProductsOnSale(ProductsOnSaleFilterDto filter, Pageable pageable, String lang) {
-    final List<UUID> bestsellersId = getProductBestsellersUseCase.getProductBestsellers(30, 5)
+    final List<UUID> bestsellersId = getProductBestsellersUseCase.getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS)
         .stream().map(ProductBestsellersDto::productId)
         .toList();
 

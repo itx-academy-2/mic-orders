@@ -20,6 +20,8 @@ import java.util.UUID;
 import static com.academy.orders.application.ModelUtils.getPage;
 import static com.academy.orders.application.ModelUtils.getProductWithImageLink;
 import static com.academy.orders.application.TestConstants.LANGUAGE_UK;
+import static com.academy.orders.domain.filter.FilterMetricsConstants.AMOUNT_OF_MOST_SOLD_ITEMS;
+import static com.academy.orders.domain.filter.FilterMetricsConstants.DAYS;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -56,7 +58,7 @@ class GetAllProductsUseCaseTest {
     List<String> tags = Collections.emptyList();
     var productBestsellersDtos = List.of(new ProductBestsellersDto(UUID.fromString("f3786b85-0d0e-4bff-92f8-6f9d0b3dc6f5"), 45.68));
 
-    when(getProductBestsellersUseCase.getProductBestsellers(30, 5)).thenReturn(productBestsellersDtos);
+    when(getProductBestsellersUseCase.getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS)).thenReturn(productBestsellersDtos);
     when(productRepository.findAllProducts(eq(LANGUAGE_UK), eq(pageable), eq(tags), anyList())).thenReturn(expectedPage);
     doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
 
@@ -65,7 +67,7 @@ class GetAllProductsUseCaseTest {
     assertEquals(expectedPage, actualPage);
     verify(productRepository).findAllProducts(eq(LANGUAGE_UK), eq(pageable), eq(tags), bestsellersIdsCaptor.capture());
     verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(expectedProducts);
-    verify(getProductBestsellersUseCase).getProductBestsellers(30, 5);
+    verify(getProductBestsellersUseCase).getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS);
 
     final List<UUID> bestsellersIds = bestsellersIdsCaptor.getValue();
     assertNotNull(bestsellersIds);
@@ -91,7 +93,7 @@ class GetAllProductsUseCaseTest {
     assertEquals(expectedPage, actualPage);
     verify(productRepository).findAllProductsWithDefaultSorting(LANGUAGE_UK, pageable, tags);
     verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(expectedProducts);
-    verify(getProductBestsellersUseCase, never()).getProductBestsellers(30, 5);
+    verify(getProductBestsellersUseCase, never()).getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS);
   }
 
   @Test
@@ -101,7 +103,7 @@ class GetAllProductsUseCaseTest {
     List<String> tags = Collections.emptyList();
     var productBestsellersDtos = List.of(new ProductBestsellersDto(UUID.fromString("f3786b85-0d0e-4bff-92f8-6f9d0b3dc6f5"), 45.68));
 
-    when(getProductBestsellersUseCase.getProductBestsellers(30, 5)).thenReturn(productBestsellersDtos);
+    when(getProductBestsellersUseCase.getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS)).thenReturn(productBestsellersDtos);
     when(productRepository.findAllProducts(eq(LANGUAGE_UK), eq(pageable), eq(tags), anyList())).thenReturn(expectedPage);
     doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
 
@@ -110,7 +112,7 @@ class GetAllProductsUseCaseTest {
     assertEquals(expectedPage, actualPage);
     verify(productRepository).findAllProducts(eq(LANGUAGE_UK), eq(pageable), eq(tags), bestsellersIdsCaptor.capture());
     verify(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(expectedPage.content());
-    verify(getProductBestsellersUseCase).getProductBestsellers(30, 5);
+    verify(getProductBestsellersUseCase).getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS);
 
     final List<UUID> bestsellersIds = bestsellersIdsCaptor.getValue();
     assertNotNull(bestsellersIds);

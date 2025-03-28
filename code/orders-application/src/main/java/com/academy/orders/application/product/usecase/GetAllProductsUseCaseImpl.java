@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+import static com.academy.orders.domain.filter.FilterMetricsConstants.AMOUNT_OF_MOST_SOLD_ITEMS;
+import static com.academy.orders.domain.filter.FilterMetricsConstants.DAYS;
+
 @Service
 @RequiredArgsConstructor
 public class GetAllProductsUseCaseImpl implements GetAllProductsUseCase {
@@ -29,7 +32,7 @@ public class GetAllProductsUseCaseImpl implements GetAllProductsUseCase {
     if (pageable.sort().isEmpty()) {
       products = productRepository.findAllProductsWithDefaultSorting(language, pageable, tags);
     } else {
-      final List<UUID> bestsellersId = getProductBestsellersUseCase.getProductBestsellers(30, 5).stream()
+      final List<UUID> bestsellersId = getProductBestsellersUseCase.getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS).stream()
           .map(ProductBestsellersDto::productId)
           .toList();
       products = productRepository.findAllProducts(language, pageable, tags, bestsellersId);

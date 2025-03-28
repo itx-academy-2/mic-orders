@@ -26,9 +26,10 @@ import static com.academy.orders.application.ModelUtils.getPage;
 import static com.academy.orders.application.ModelUtils.getProductWithImageUrlAndAppliedDiscount;
 import static com.academy.orders.application.ModelUtils.getProductWithImageUrlAndDiscount;
 import static com.academy.orders.application.TestConstants.LANGUAGE_EN;
+import static com.academy.orders.domain.filter.FilterMetricsConstants.AMOUNT_OF_MOST_SOLD_ITEMS;
+import static com.academy.orders.domain.filter.FilterMetricsConstants.DAYS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -67,7 +68,7 @@ public class GetProductsOnSaleUseCaseTest {
     var page = getPage(List.of(product), 1L, 1, 0, size);
     var productBestsellersDtos = List.of(new ProductBestsellersDto(UUID.fromString("f3786b85-0d0e-4bff-92f8-6f9d0b3dc6f5"), 45.68));
 
-    when(getProductBestsellersUseCase.getProductBestsellers(30, 5)).thenReturn(productBestsellersDtos);
+    when(getProductBestsellersUseCase.getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS)).thenReturn(productBestsellersDtos);
     when(productRepository.findProductsWhereDiscountIsNotNull(eq(filter), eq(lang), eq(pageable), anyList())).thenReturn(page);
     when(productRepository.findDiscountAndPriceWithDiscountRange()).thenReturn(range);
     doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());
@@ -109,7 +110,7 @@ public class GetProductsOnSaleUseCaseTest {
         new ProductBestsellersDto(UUID.fromString("f3786b85-0d0e-4bff-92f8-6f5d0b3dc6f5"), 42.68));
     var page = getPage(new ArrayList<Product>(), 0L, 0, 0, size);
 
-    when(getProductBestsellersUseCase.getProductBestsellers(30, 5)).thenReturn(productBestsellersDtos);
+    when(getProductBestsellersUseCase.getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS)).thenReturn(productBestsellersDtos);
     when(productRepository.findProductsWhereDiscountIsNotNull(eq(filter), eq(lang), eq(pageable), anyList())).thenReturn(page);
     when(productRepository.findDiscountAndPriceWithDiscountRange()).thenReturn(range);
     doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(anyList());

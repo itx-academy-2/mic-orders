@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+import static com.academy.orders.domain.filter.FilterMetricsConstants.AMOUNT_OF_MOST_SOLD_ITEMS;
+import static com.academy.orders.domain.filter.FilterMetricsConstants.DAYS;
+
 @Service
 @RequiredArgsConstructor
 public class FindProductsBestsellersUseCaseImpl implements FindProductsBestsellersUseCase {
@@ -31,7 +34,7 @@ public class FindProductsBestsellersUseCaseImpl implements FindProductsBestselle
   public Page<Product> findProductsBestsellers(Pageable pageable, final String language) {
     languageRepository.findByCode(language).orElseThrow(() -> new LanguageNotFoundException(language));
 
-    final List<UUID> ids = getProductBestsellersUseCase.getProductBestsellers(30, 5).stream()
+    final List<UUID> ids = getProductBestsellersUseCase.getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS).stream()
         .map(ProductBestsellersDto::productId)
         .toList();
     final Page<Product> products = productRepository.findProductsByLanguageAndIds(pageable, language, ids);
