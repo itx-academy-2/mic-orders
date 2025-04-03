@@ -3,6 +3,7 @@ package com.academy.orders.infrastructure.product.repository;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.dto.ProductBestsellersDto;
+import com.academy.orders.domain.product.dto.ProductLanguageDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.infrastructure.ModelUtils;
@@ -11,7 +12,9 @@ import com.academy.orders.infrastructure.product.ProductManagementMapper;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.product.ProductPageMapper;
 import com.academy.orders.infrastructure.product.ProductTranslationManagementMapper;
+import com.academy.orders.infrastructure.product.ProductTranslationMapper;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
+import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
 import jakarta.persistence.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,6 +58,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.params.provider.Arguments.of;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -77,6 +81,9 @@ class ProductRepositoryTest {
 
   @Mock
   private PageableMapper pageableMapper;
+
+  @Mock
+  private ProductTranslationJpaAdapter productTranslationJpaAdapter;
 
   @Mock
   private ProductTranslationManagementMapper productTranslationManagementMapper;
@@ -343,20 +350,50 @@ class ProductRepositoryTest {
   }
 
   @Test
-  void findProductsByLanguageAndIds() {
+  void findProductsByLanguageAndIdsTest() {
     final Pageable pageableDomain = Pageable.builder().page(1).size(1).build();
     final PageRequest pageable = PageRequest.of(1, 1);
     final ProductEntity productEntity = getProductEntity();
+    final ProductTranslationEntity productTranslationEntity = getProductTranslationEntity();
     final List<UUID> ids = List.of(productEntity.getId());
-    var productPage = getPageImplOf(productEntity);
+    final List<ProductLanguageDto> languageDtos = List.of(new ProductLanguageDto(TEST_UUID, LANGUAGE_EN));
+    var productPage = getPageImplOf(productTranslationEntity);
 
     when(pageableMapper.fromDomain(pageableDomain)).thenReturn(pageable);
-    when(productJpaAdapter.findProductsByLanguageAndIds(pageable, LANGUAGE_EN, ids)).thenReturn(productPage);
+    when(productTranslationJpaAdapter.findAll(any(ProductLanguageSpecification.class), eq(pageable)))
+        .thenReturn(productPage);
 
-    productRepository.findProductsByLanguageAndIds(pageableDomain, LANGUAGE_EN, ids);
+    productRepository.findProductsByLanguageAndIds(pageableDomain, LANGUAGE_EN, ids, languageDtos);
 
     verify(pageableMapper).fromDomain(pageableDomain);
-    verify(productJpaAdapter).findProductsByLanguageAndIds(pageable, LANGUAGE_EN, ids);
+    verify(productTranslationJpaAdapter).findAll(any(ProductLanguageSpecification.class), eq(pageable));
+    verify(productPageMapper).fromProductTranslationEntity(productPage);
+  }
+
+  @Test
+  void getProductLanguagesDtoTest() {
+    final UUID uuid = TEST_UUID;
+    final String language = LANGUAGE_EN;
+    final List<UUID> ids = List.of(uuid);
+    final Tuple tuple = mock(Tuple.class);
+    final List<Tuple> tuples = List.of(tuple);
+    final ProductLanguageDto expected = new ProductLanguageDto(uuid, language);
+
+    when(tuple.get(0, UUID.class)).thenReturn(uuid);
+    when(tuple.get(1, String.class)).thenReturn(language);
+    when(productJpaAdapter.getProductLanguagesDto(language, ids))
+        .thenReturn(tuples);
+
+    final List<ProductLanguageDto> result = productRepository.getProductLanguagesDto(language, ids);
+
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    assertEquals(expected.id(), result.get(0).id());
+    assertEquals(expected.code(), result.get(0).code());
+
+    verify(productJpaAdapter).getProductLanguagesDto(language, ids);
+    verify(tuple).get(0, UUID.class);
+    verify(tuple).get(1, String.class);
   }
 
   @Test

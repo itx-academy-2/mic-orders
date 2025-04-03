@@ -5,6 +5,7 @@ import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.language.exception.LanguageNotFoundException;
 import com.academy.orders.domain.language.repository.LanguageRepository;
 import com.academy.orders.domain.product.dto.ProductBestsellersDto;
+import com.academy.orders.domain.product.dto.ProductLanguageDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.FindProductsBestsellersUseCase;
@@ -37,7 +38,11 @@ public class FindProductsBestsellersUseCaseImpl implements FindProductsBestselle
     final List<UUID> ids = getProductBestsellersUseCase.getProductBestsellers(DAYS, AMOUNT_OF_MOST_SOLD_ITEMS).stream()
         .map(ProductBestsellersDto::productId)
         .toList();
-    final Page<Product> products = productRepository.findProductsByLanguageAndIds(pageable, language, ids);
+    final List<ProductLanguageDto> productLanguageDtos = productRepository.getProductLanguagesDto(language, ids).stream()
+        .filter(o -> !o.code().equals(language))
+        .toList();
+
+    final Page<Product> products = productRepository.findProductsByLanguageAndIds(pageable, language, ids, productLanguageDtos);
 
     setPercentageOfTotalOrdersUseCase.setPercentOfTotalOrders(products.content());
     return products;

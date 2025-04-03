@@ -4,6 +4,7 @@ import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.dto.DiscountAndPriceWithDiscountRangeDto;
 import com.academy.orders.domain.product.dto.ProductBestsellersDto;
+import com.academy.orders.domain.product.dto.ProductLanguageDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
 import com.academy.orders.domain.product.entity.Product;
@@ -180,10 +181,11 @@ public class ProductRepositoryImpl implements ProductRepository {
   }
 
   @Override
-  public Page<Product> findProductsByLanguageAndIds(Pageable pageableDomain, String language, List<UUID> ids) {
+  public Page<Product> findProductsByLanguageAndIds(Pageable pageableDomain, String language, List<UUID> ids,
+      List<ProductLanguageDto> languageDtos) {
     var pageable = pageableMapper.fromDomain(pageableDomain);
-    var products = productJpaAdapter.findProductsByLanguageAndIds(pageable, language, ids);
-    return productPageMapper.toDomain(products);
+    var translations = productTranslationJpaAdapter.findAll(new ProductLanguageSpecification(language, ids, languageDtos), pageable);
+    return productPageMapper.fromProductTranslationEntity(translations);
   }
 
   @Override
@@ -194,6 +196,17 @@ public class ProductRepositoryImpl implements ProductRepository {
           final UUID productId = o.get(0, UUID.class);
           final Double percentageOfTotalOrders = o.get(1, Double.class);
           return new ProductBestsellersDto(productId, percentageOfTotalOrders);
+        }).toList();
+  }
+
+  @Override
+  public List<ProductLanguageDto> getProductLanguagesDto(String lang, List<UUID> ids) {
+    final List<Tuple> tuples = productJpaAdapter.getProductLanguagesDto(lang, ids);
+    return tuples.stream()
+        .map(o -> {
+          final UUID productId = o.get(0, UUID.class);
+          final String language = o.get(1, String.class);
+          return new ProductLanguageDto(productId, language);
         }).toList();
   }
 }

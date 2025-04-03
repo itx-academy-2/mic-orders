@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
@@ -211,19 +212,6 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
   Tuple findDiscountAndPriceWithDiscountRange();
 
   /**
-   * Retrieves a paginated list of products that match the specified language and product IDs, including product translations and tags.
-   */
-  @Query("""
-        SELECT p
-        FROM ProductEntity p
-        INNER JOIN FETCH p.productTranslations pt
-        INNER JOIN FETCH pt.language l
-        LEFT JOIN FETCH p.tags t
-        WHERE p.id IN :ids AND l.code = :lang
-      """)
-  Page<ProductEntity> findProductsByLanguageAndIds(Pageable pageable, String lang, List<UUID> ids);
-
-  /**
    * Retrieves a list of ids of the most sold products within the specified date range, along with their percentage of the total orders for
    * that period.
    *
@@ -245,4 +233,24 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
       LIMIT ?3
       """, nativeQuery = true)
   List<Tuple> findMostSoldProducts(LocalDateTime startDate, LocalDateTime endDate, int quantity);
+
+  @Query(value = """
+          SELECT p.id, (
+                  SELECT il.code
+                  FROM products_translations AS ipt
+                  INNER JOIN languages il on il.id = ipt.language_id
+                  WHERE ipt.product_id = p.id
+                  ORDER BY
+                      CASE
+                          WHEN il.code = :lang THEN 1
+                          ELSE 2
+                      END
+                  LIMIT 1
+              )
+          FROM products AS p
+          WHERE p.id IN :ids
+      """, nativeQuery = true)
+  List<Tuple> getProductLanguagesDto(@Param("lang") String lang, @Param("ids") List<UUID> ids);
+
+  Object findProductsByLanguageAndIds(PageRequest pageable, String languageEn, List<UUID> ids);
 }
