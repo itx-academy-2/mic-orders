@@ -251,6 +251,4 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
           WHERE p.id IN :ids
       """, nativeQuery = true)
   List<Tuple> getProductLanguagesDto(@Param("lang") String lang, @Param("ids") List<UUID> ids);
-
-  Object findProductsByLanguageAndIds(PageRequest pageable, String languageEn, List<UUID> ids);
 }
