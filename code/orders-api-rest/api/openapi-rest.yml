@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.0.6
+  version: 2.0.7
 servers:
   - url: http://localhost:8080/retail
 
@@ -379,7 +379,7 @@ paths:
           schema:
             $ref: '#/components/schemas/ProductsOnSaleFilter'
         - $ref: '#/components/parameters/Pageable'
-          description: Sorting is available for discount/priceWithDiscount/name. For example, sort=discount,desc or sort=name,asc.
+          description: Sorting is available for discount/priceWithDiscount/name/percentageOfTotalOrders. The field 'percentageOfTotalOrders' represents the bestsellers. For example, sort=discount,desc or sort=name,asc.
         - $ref: '#/components/parameters/Language'
       responses:
         '200':
@@ -729,6 +729,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ArticleResponse'
+
+  /v1/filter-analytics/products-on-sale/weekly:
+    get:
+      tags:
+        - FilterAnalytics
+      summary: Get weekly usage statistics for products-on-sale filters
+      description: Returns usage statistics for filters applied to products on sale, grouped by weeks. Data includes usage counts for each filter across the specified number of previous weeks.
+      operationId: getWeeklyProductOnSaleFilterUsageStatistics
+      parameters:
+        - in: query
+          name: amount
+          description: Number of previous weeks to include in the statistics (e.g., 4 for past 4 weeks)
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            default: 5
+      responses:
+        '200':
+          description: Statistic for usage of filters on products on sale
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterUsageReport'
+        '400':
+          description: Bad request - invalid parameters
+        '401':
+          description: Unauthorized - authentication required
+
 
 #COMPONENTS
 #=======================================================================================================================
@@ -2063,3 +2092,43 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/ArticleDetails'
+
+    PeriodFilterUsage:
+      type: object
+      description: Contains filter usage metrics for a specific time period.
+      properties:
+        startDate:
+          type: string
+          format: date
+          description: Start date of the period.
+        endDate:
+          type: string
+          format: date
+          description: End date of the period.
+        count:
+          type: integer
+          description: The number of times the filter was used during the specified period.
+
+    FilterUsageStatistics:
+      type: object
+      description: Aggregated statistics for a single filter across multiple time periods.
+      properties:
+        filterName:
+          type: string
+          description: Name of the filter.
+        sumOfAllCounts:
+          type: integer
+          description: Sum of all filter usage per these periods.
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/PeriodFilterUsage'
+
+    FilterUsageReport:
+      type: object
+      description: Complete report containing usage statistics for multiple filters.
+      properties:
+        filterMetrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilterUsageStatistics'

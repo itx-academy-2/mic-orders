@@ -1,0 +1,82 @@
+openapi: 3.0.1
+info:
+  title: Prometheus API
+  description: API description in OpenAPI 3.0 format
+  version: 0.0.1
+
+tags:
+  - name: Prometheus
+    description: Prometheus endpoints
+paths:
+  /api/v1/query:
+    get:
+      tags:
+        - FilterStatistics
+      summary: Fetch tag filter usage metrics
+      description: This endpoint returns the metrics for tag filter usage.
+      operationId: getMetrics
+      parameters:
+        - name: query
+          in: query
+          description: The job to filter metrics by
+          required: false
+          schema:
+            type: string
+            example: "RetailsDev"
+      responses:
+        '200':
+          description: A successful response containing tag filter usage data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+
+components:
+  schemas:
+    MetricsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/MetricsData'
+
+    MetricsData:
+      type: object
+      properties:
+        resultType:
+          type: string
+          example: vector
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricResult'
+
+    MetricResult:
+      type: object
+      properties:
+        metric:
+          $ref: '#/components/schemas/Metric'
+        value:
+          type: array
+          items:
+            type: string
+            example: "159"
+          description: The timestamp and the metric value
+
+    Metric:
+      type: object
+      properties:
+        __name__:
+          type: string
+          example: tag_filter_usage
+        application:
+          type: string
+          example: dev
+        instance:
+          type: string
+          example: 127.0.0.1:8080
+        job:
+          type: string
+          example: RetailsDev

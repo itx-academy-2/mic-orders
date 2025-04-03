@@ -34,6 +34,21 @@ public interface ProductRepository {
   Page<Product> findAllProducts(String language, Pageable pageable, List<String> tags);
 
   /**
+   * Retrieves a paginated list of products based on the provided language, tags, and bestsellers IDs.
+   *
+   * <p>This method filters products by language, tags, and may prioritize bestsellers, if the sorting option is given. It returns the
+   * result in a paginated format.</p>
+   *
+   * @param language The language code to filter products by.
+   * @param pageable The pagination information (page number, size, sorting).
+   * @param tags A list of tags to filter products by. If empty, no filtering is applied.
+   * @param bestsellersIds A list of product IDs
+   *
+   * @return A paginated list of products matching the specified criteria.
+   */
+  Page<Product> findAllProducts(String language, Pageable pageable, List<String> tags, List<UUID> bestsellersIds);
+
+  /**
    * Retrieves a paginated list of products based on the provided language and pageable information sorted by default. Sorting in pageable
    * will be ignored.
    *
@@ -145,10 +160,12 @@ public interface ProductRepository {
    *
    * @param language the language code to filter the products (e.g., "en", "uk").
    * @param pageable the pagination information that includes the page number, size, and sorting.
+   * @param bestsellersIds if the necessary filter option is given, then it will be sorted by this.
    * @return a {@link Page} of {@link Product} entities with a non-null discount, filtered by the given language and according to the
    *         provided pagination.
    */
-  Page<Product> findProductsWhereDiscountIsNotNull(ProductsOnSaleFilterDto filter, String language, Pageable pageable);
+  Page<Product> findProductsWhereDiscountIsNotNull(ProductsOnSaleFilterDto filter, String language, Pageable pageable,
+      List<UUID> bestsellersIds);
 
   /**
    * Counts the number of products that have a discount applied. This method queries the database for all products where the discount field

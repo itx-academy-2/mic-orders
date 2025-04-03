@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @AllArgsConstructor
 public class ProductTranslationSpecification implements Specification<ProductTranslationEntity> {
@@ -28,7 +29,9 @@ public class ProductTranslationSpecification implements Specification<ProductTra
 
   private final List<String> sort;
 
-  private String language;
+  private final String language;
+
+  private final List<UUID> bestsellersIds;
 
   @Override
   public Predicate toPredicate(final Root<ProductTranslationEntity> root, final CriteriaQuery<?> query,
@@ -103,6 +106,28 @@ public class ProductTranslationSpecification implements Specification<ProductTra
           orders.add(cb.asc(root.get("name")));
         } else if (field.equals("name") && order.equals("desc")) {
           orders.add(cb.desc(root.get("name")));
+        }
+
+        if (field.equals("percentageOfTotalOrders") && order.equals("asc")) {
+
+          final CriteriaBuilder.Case<Integer> uuidExpression = cb.selectCase();
+
+          for (int j = 0; j < bestsellersIds.size(); j++) {
+            Expression<Integer> exp =
+                uuidExpression.when(cb.equal(root.get("product").get("id"), bestsellersIds.get(j)),
+                    bestsellersIds.size() - j).otherwise(Integer.MAX_VALUE);
+            orders.add(cb.asc(exp));
+          }
+        } else if (field.equals("percentageOfTotalOrders") && order.equals("desc")) {
+
+          final CriteriaBuilder.Case<Integer> uuidExpression = cb.selectCase();
+
+          for (int j = 0; j < bestsellersIds.size(); j++) {
+            Expression<Integer> exp =
+                uuidExpression.when(cb.equal(root.get("product").get("id"), bestsellersIds.get(j)),
+                    j).otherwise(Integer.MAX_VALUE);
+            orders.add(cb.asc(exp));
+          }
         }
 
         if (!orders.isEmpty()) {
