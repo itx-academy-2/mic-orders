@@ -4,6 +4,7 @@ import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.dto.DiscountAndPriceWithDiscountRangeDto;
 import com.academy.orders.domain.product.dto.ProductBestsellersDto;
+import com.academy.orders.domain.product.dto.ProductLanguageDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
 import com.academy.orders.domain.product.entity.Product;
@@ -184,12 +185,30 @@ public interface ProductRepository {
   DiscountAndPriceWithDiscountRangeDto findDiscountAndPriceWithDiscountRange();
 
   /**
-   * Retrieves a paginated list of products that match the specified language and product IDs.
-   */
-  Page<Product> findProductsByLanguageAndIds(Pageable pageableDomain, String language, List<UUID> ids);
-
-  /**
    * Retrieves a list of the most sold products within the specified date range and quantity.
    */
   List<ProductBestsellersDto> getIdsOfMostSoldProducts(LocalDateTime fromDate, LocalDateTime endDate, int quantity);
+
+  /**
+   * Retrieves a list of ProductLanguageDto for the given product IDs, prioritizing the provided language. If the language is not available,
+   * then another will be chosen.
+   *
+   * @param lang The preferred language code
+   * @param ids The list of product IDs to retrieve language-specific data for.
+   * @return A list of ProductLanguageDto objects, each containing language-specific product details.
+   */
+  List<ProductLanguageDto> getProductLanguagesDto(String lang, List<UUID> ids);
+
+  /**
+   * Finds products by their IDs and language. If the requested language is not found, the method will attempt to find products using the
+   * provided list of ProductLanguageDto.
+   *
+   * @param pageableDomain The pagination information.
+   * @param language The language code to search for (e.g., "en", "es").
+   * @param ids A list of product IDs to search for.
+   * @param productLanguageDtos A list of ProductLanguageDto objects that contain product language data.
+   * @return A paginated list of products matching the criteria.
+   */
+  Page<Product> findProductsByLanguageAndIds(Pageable pageableDomain, String language, List<UUID> ids,
+      List<ProductLanguageDto> productLanguageDtos);
 }
