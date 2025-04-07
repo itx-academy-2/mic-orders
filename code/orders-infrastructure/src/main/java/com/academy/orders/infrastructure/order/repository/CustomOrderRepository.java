@@ -105,20 +105,20 @@ public class CustomOrderRepository {
 
     pageableSort.forEach(order -> {
       if (order.getProperty().equals("total")) {
-        Path<BigDecimal> pricePath = orderItemJoin.get(PRICE);
-        Path<BigDecimal> discount = orderItemJoin.get("discount");
+        final Path<BigDecimal> pricePath = orderItemJoin.get(PRICE);
+        final Path<BigDecimal> discountPath = orderItemJoin.get("discount");
 
-        final Expression<BigDecimal> discountInPercentage = cb.quot(orderItemJoin.get("discount").as(BigDecimal.class),
+        final Expression<BigDecimal> discountInPercentage = cb.quot(discountPath,
             cb.literal(100).as(BigDecimal.class)).as(BigDecimal.class);
         final Expression<BigDecimal> discountMultiplier = cb.diff(
             cb.literal(BigDecimal.ONE), discountInPercentage);
 
-        Expression<BigDecimal> finalPrice = cb.selectCase()
-            .when(cb.isNotNull(discount), cb.prod(pricePath, discountMultiplier))
+        final Expression<BigDecimal> finalPrice = cb.selectCase()
+            .when(cb.isNotNull(discountPath), cb.prod(pricePath, discountMultiplier))
             .otherwise(pricePath).as(BigDecimal.class);
 
-        var sum = cb.sum(finalPrice);
-        Order totalOrder = order.getDirection().isAscending() ? cb.asc(sum) : cb.desc(sum);
+        final Expression<BigDecimal> sum = cb.sum(finalPrice);
+        final Order totalOrder = order.getDirection().isAscending() ? cb.asc(sum) : cb.desc(sum);
         orders.add(totalOrder);
       } else {
         orders.addAll(QueryUtils.toOrders(Sort.by(order), countTotalRoot, cb));
