@@ -10,6 +10,7 @@ import com.academy.orders.domain.article.entity.Article;
 import com.academy.orders.domain.article.exception.ArticleNotFoundException;
 import com.academy.orders.domain.article.usecase.GetArticleByIdUseCase;
 import com.academy.orders.domain.article.usecase.GetArticlesUseCase;
+import com.academy.orders.domain.article.usecase.SearchArticlesUseCase;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders_api_rest.generated.model.ArticleResponseDTO;
@@ -27,16 +28,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static com.academy.orders.apirest.ModelUtils.getArticle;
-import static com.academy.orders.apirest.ModelUtils.getArticleResponseDTOInEnglish;
-import static com.academy.orders.apirest.ModelUtils.getArticlesPage;
-import static com.academy.orders.apirest.ModelUtils.getPageArticleDetailsDTOInEnglish;
-import static com.academy.orders.apirest.ModelUtils.getPageable;
-import static com.academy.orders.apirest.ModelUtils.getPageableDTO;
-import static com.academy.orders.apirest.TestConstants.GET_ARTICLES_DETAILS_URL;
-import static com.academy.orders.apirest.TestConstants.GET_ARTICLE_BY_ID_URL;
-import static com.academy.orders.apirest.TestConstants.LANGUAGE_EN;
-import static com.academy.orders.apirest.TestConstants.LANGUAGE_UK;
+import java.util.List;
+
+import static com.academy.orders.apirest.ModelUtils.*;
+import static com.academy.orders.apirest.TestConstants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -49,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = ArticleController.class)
 @ContextConfiguration(classes = {ArticleController.class})
 @Import({TestSecurityConfig.class, ErrorHandler.class, AopAutoConfiguration.class})
-public class ArticleControllerTest {
+class ArticleControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
@@ -74,9 +69,12 @@ public class ArticleControllerTest {
   @MockBean
   private PageableDTOMapper pageableDTOMapper;
 
+  @MockBean
+  private SearchArticlesUseCase searchArticlesUseCase;
+
   @Test
   @SneakyThrows
-  public void getArticleByIdWhenArticleDoesNotExistTest() {
+  void getArticleByIdWhenArticleDoesNotExistTest() {
     final long articleId = 1L;
 
     when(getArticleByIdUseCase.getArticleById(articleId, LANGUAGE_UK))
@@ -93,7 +91,7 @@ public class ArticleControllerTest {
 
   @Test
   @SneakyThrows
-  public void getArticleByIdTest() {
+  void getArticleByIdTest() {
     final long articleId = 1L;
     final Article article = getArticle();
     final ArticleResponseDTO articleResponseDTO = getArticleResponseDTOInEnglish();
@@ -116,7 +114,7 @@ public class ArticleControllerTest {
 
   @Test
   @SneakyThrows
-  public void getArticlesTest() {
+  void getArticlesTest() {
     final PageableDTO pageableDTO = getPageableDTO();
     final Pageable pageable = getPageable();
     final Page<Article> articles = getArticlesPage();
@@ -134,5 +132,25 @@ public class ArticleControllerTest {
     verify(pageArticleDetailsMapper).fromModel(articles);
     verify(getArticlesUseCase).getArticles(LANGUAGE_EN, pageable);
     verify(pageArticleDetailsMapper).fromModel(articles);
+  }
+
+  @Test
+  @SneakyThrows
+  void searchArticlesTest() {
+    final String query = "how";
+    final String lang = LANGUAGE_EN;
+    final List<Article> list = List.of(getArticle());
+
+    when(searchArticlesUseCase.searchArticles(query, lang))
+            .thenReturn(list);
+//    when('')
+
+    mockMvc.perform(get(SEARCH_ARTICLES_URL)
+            .param("lang", lang)
+                    .param("query", query)
+            .contentType(APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+    verify(searchArticlesUseCase).searchArticles(query, lang);
   }
 }
