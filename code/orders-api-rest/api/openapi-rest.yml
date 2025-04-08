@@ -730,6 +730,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/ArticleResponse'
 
+  /v1/articles/search:
+    get:
+      tags:
+        - Article
+      summary: Find articles by its title or text
+      operationId: searchArticles
+      parameters:
+        - name: query
+          in: query
+          description: Text to search for in the article's title or content
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Language'
+      responses:
+        '200':
+          description: A list of articles matching the search query.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArticleDetails'
+
   /v1/filter-analytics/products-on-sale/weekly:
     get:
       tags:
