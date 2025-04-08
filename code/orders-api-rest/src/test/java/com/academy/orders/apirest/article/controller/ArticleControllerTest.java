@@ -13,6 +13,7 @@ import com.academy.orders.domain.article.usecase.GetArticlesUseCase;
 import com.academy.orders.domain.article.usecase.SearchArticlesUseCase;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
+import com.academy.orders_api_rest.generated.model.ArticleDetailsDTO;
 import com.academy.orders_api_rest.generated.model.ArticleResponseDTO;
 import com.academy.orders_api_rest.generated.model.PageArticleDetailsDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
@@ -139,18 +140,24 @@ class ArticleControllerTest {
   void searchArticlesTest() {
     final String query = "how";
     final String lang = LANGUAGE_EN;
-    final List<Article> list = List.of(getArticle());
+    final Article article = getArticle();
+    final List<Article> list = List.of(article);
+    final ArticleDetailsDTO articleDetailsDTO = getArticleDetailsDTO();
 
     when(searchArticlesUseCase.searchArticles(query, lang))
-            .thenReturn(list);
-//    when('')
+        .thenReturn(list);
+    when(pageArticleDetailsMapper.toArticleDetailsDTO(article)).thenReturn(articleDetailsDTO);
 
-    mockMvc.perform(get(SEARCH_ARTICLES_URL)
-            .param("lang", lang)
-                    .param("query", query)
-            .contentType(APPLICATION_JSON))
-            .andExpect(status().isOk());
+    final MvcResult mvcResult = mockMvc.perform(get(SEARCH_ARTICLES_URL)
+        .param("lang", lang)
+        .param("query", query)
+        .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
+
+    assertEquals(objectMapper.writeValueAsString(List.of(articleDetailsDTO)), mvcResult.getResponse().getContentAsString());
 
     verify(searchArticlesUseCase).searchArticles(query, lang);
+    verify(pageArticleDetailsMapper).toArticleDetailsDTO(article);
   }
 }

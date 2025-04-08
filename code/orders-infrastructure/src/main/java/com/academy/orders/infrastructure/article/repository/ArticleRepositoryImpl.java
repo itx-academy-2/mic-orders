@@ -44,7 +44,7 @@ public class ArticleRepositoryImpl implements ArticleRepository {
 
   @Override
   public List<Article> findByTitleOrContentIgnoreCase(String query, String language) {
-    List<ArticleEntity> list = articleJpaAdapter.findAllByTitleOrContentIgnoreCase(query, language);
+    final List<ArticleEntity> list = articleJpaAdapter.findAllByTitleOrContentIgnoreCase(query, language);
     return list.stream()
         .map(articleMapper::fromEntity)
         .toList();

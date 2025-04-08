@@ -672,6 +672,12 @@ public class ModelUtils {
     return new Article(TEST_ID, TEST_START_DATE, TEST_END_DATE, getArticleContents());
   }
 
+  public static ArticleDetailsDTO getArticleDetailsDTO() {
+    return new ArticleDetailsDTO()
+        .id(TEST_ID)
+        .title("Title");
+  }
+
   public static List<ArticleContent> getArticleContents() {
     return List.of(
         new ArticleContent("Назва", "Опис", getLanguage()),
