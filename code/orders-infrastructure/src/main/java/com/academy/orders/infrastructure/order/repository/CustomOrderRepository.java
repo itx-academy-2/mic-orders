@@ -7,13 +7,7 @@ import com.academy.orders.infrastructure.order.entity.OrderItemEntity;
 import com.academy.orders.infrastructure.order.entity.PostAddressEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Order;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
@@ -22,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -110,10 +105,20 @@ public class CustomOrderRepository {
 
     pageableSort.forEach(order -> {
       if (order.getProperty().equals("total")) {
-        var totalPriceExpression = cb.sum(orderItemJoin.get(PRICE));
-        Order totalOrder = order.getDirection().isAscending()
-            ? cb.asc(totalPriceExpression)
-            : cb.desc(totalPriceExpression);
+        final Path<BigDecimal> pricePath = orderItemJoin.get(PRICE);
+        final Path<BigDecimal> discountPath = orderItemJoin.get("discount");
+
+        final Expression<BigDecimal> discountInPercentage = cb.quot(discountPath,
+            cb.literal(100).as(BigDecimal.class)).as(BigDecimal.class);
+        final Expression<BigDecimal> discountMultiplier = cb.diff(
+            cb.literal(BigDecimal.ONE), discountInPercentage);
+
+        final Expression<BigDecimal> finalPrice = cb.selectCase()
+            .when(cb.isNotNull(discountPath), cb.prod(pricePath, discountMultiplier))
+            .otherwise(pricePath).as(BigDecimal.class);
+
+        final Expression<BigDecimal> sum = cb.sum(finalPrice);
+        final Order totalOrder = order.getDirection().isAscending() ? cb.asc(sum) : cb.desc(sum);
         orders.add(totalOrder);
       } else {
         orders.addAll(QueryUtils.toOrders(Sort.by(order), countTotalRoot, cb));
