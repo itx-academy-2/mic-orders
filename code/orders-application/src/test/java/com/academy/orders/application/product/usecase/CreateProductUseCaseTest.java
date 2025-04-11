@@ -34,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -82,7 +81,7 @@ class CreateProductUseCaseTest {
     verify(getCountOfDiscountedProductsUseCase, never()).getCountOfDiscountedProducts();
     verify(tagRepository).getTagsByIds(request.tagIds());
     verify(languageRepository).findByCode(request.productTranslations().iterator().next().languageCode());
-    verify(productRepository, times(2)).save(any(ProductManagement.class));
+    verify(productRepository).save(any(ProductManagement.class));
   }
 
   @Test
@@ -96,14 +95,13 @@ class CreateProductUseCaseTest {
     var product = getProductWithImageLink();
 
     when(tagRepository.getTagsByIds(request.tagIds())).thenReturn(Set.of(getTag()));
-    when(productRepository.save(any(ProductManagement.class))).thenReturn(product);
     when(languageRepository.findByCode("invalid")).thenThrow(new LanguageNotFoundException("invalid"));
 
     assertThrows(LanguageNotFoundException.class, () -> createProductUseCase.createProduct(request));
 
     verify(getCountOfDiscountedProductsUseCase, never()).getCountOfDiscountedProducts();
     verify(tagRepository).getTagsByIds(request.tagIds());
-    verify(productRepository).save(any(ProductManagement.class));
+    verify(productRepository, never()).save(any(ProductManagement.class));
     verify(languageRepository).findByCode("invalid");
   }
 
@@ -144,7 +142,7 @@ class CreateProductUseCaseTest {
 
     verify(getCountOfDiscountedProductsUseCase).getCountOfDiscountedProducts();
     verify(tagRepository).getTagsByIds(any());
-    verify(productRepository, times(2)).save(any(ProductManagement.class));
+    verify(productRepository).save(any(ProductManagement.class));
     verify(languageRepository).findByCode(anyString());
   }
 
@@ -164,7 +162,7 @@ class CreateProductUseCaseTest {
     verify(getCountOfDiscountedProductsUseCase, never()).getCountOfDiscountedProducts();
     verify(tagRepository).getTagsByIds(request.tagIds());
     verify(languageRepository).findByCode(request.productTranslations().iterator().next().languageCode());
-    verify(productRepository, times(2)).save(productManagementArgumentCaptor.capture());
+    verify(productRepository).save(productManagementArgumentCaptor.capture());
 
     var imageLink = productManagementArgumentCaptor.getAllValues().get(0).image();
     assertNotNull(imageLink);
