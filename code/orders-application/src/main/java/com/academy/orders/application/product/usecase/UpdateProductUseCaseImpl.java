@@ -82,8 +82,13 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
         existingProduct.getVersion());
 
     try {
+      try {
+        Thread.sleep(4000); // fixme: remove after
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
       productRepository.update(updatedProduct);
-    } catch (OptimisticLockingFailureException e) {
+    } catch (OptimisticLockingFailureException e) { // It is a Spring exception.
       throw new ConcurrentUpdateException("This product was being modified by someone else at the same time. Try again!", e);
     }
   }

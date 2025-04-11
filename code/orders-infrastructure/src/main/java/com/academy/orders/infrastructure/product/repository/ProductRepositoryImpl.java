@@ -129,7 +129,7 @@ public class ProductRepositoryImpl implements ProductRepository {
   @Transactional
   public void update(ProductManagement product) {
     var productEntity = productManagementMapper.toEntity(product);
-    productJpaAdapter.saveAndFlush(productEntity);
+    productJpaAdapter.save(productEntity);
   }
 
   @Override
