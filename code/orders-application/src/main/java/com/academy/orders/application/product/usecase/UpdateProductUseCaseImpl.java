@@ -1,5 +1,6 @@
 package com.academy.orders.application.product.usecase;
 
+import com.academy.orders.domain.account.exception.ConcurrentUpdateException;
 import com.academy.orders.domain.common.UrlUtils;
 import com.academy.orders.domain.common.exception.BadRequestException;
 import com.academy.orders.domain.discount.entity.Discount;
@@ -17,7 +18,7 @@ import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUse
 import com.academy.orders.domain.product.usecase.UpdateProductUseCase;
 import com.academy.orders.domain.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,9 +77,15 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
         ProductStatus.valueOf(getValue(request.status(), String.valueOf(existingProduct.getStatus()))),
         getValue(request.image(), existingProduct.getImage()), existingProduct.getCreatedAt(),
         getValue(request.quantity(), existingProduct.getQuantity()),
-        getValue(request.price(), existingProduct.getPrice()), request.discount(), tags, updatedTranslations);
+        getValue(request.price(), existingProduct.getPrice()), getValue(request.discount(), existingProduct.getDiscountAmount()), tags,
+        updatedTranslations,
+        existingProduct.getVersion());
 
-    productRepository.update(updatedProduct);
+    try {
+      productRepository.update(updatedProduct);
+    } catch (OptimisticLockingFailureException e) {
+      throw new ConcurrentUpdateException("This product was being modified by someone else at the same time. Try again!", e);
+    }
   }
 
   /**

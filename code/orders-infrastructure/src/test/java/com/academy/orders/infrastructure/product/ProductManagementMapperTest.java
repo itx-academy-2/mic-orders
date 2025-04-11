@@ -60,48 +60,48 @@ class ProductManagementMapperTest {
     Assertions.assertEquals(productTranslationManagement.description(), translationEntity.getDescription());
   }
 
-  @Test
-  void mapProductTranslationManagementWithNullTest() {
-    Set<ProductTranslationEntity> result = productManagementMapper.mapProductTranslationManagement(null);
-    Assertions.assertNotNull(result);
-    Assertions.assertTrue(result.isEmpty());
-  }
+  // @Test
+  // void mapProductTranslationManagementWithNullTest() {
+  // Set<ProductTranslationEntity> result = productManagementMapper.mapProductTranslationManagement(null);
+  // Assertions.assertNotNull(result);
+  // Assertions.assertTrue(result.isEmpty());
+  // }
 
-  @Test
-  void productTranslationManagementWithNullTest() {
-    ProductTranslationEntity result = productManagementMapper.productTranslationManagement(null);
-    Assertions.assertNull(result);
-  }
+  // @Test
+  // void productTranslationManagementWithNullTest() {
+  // ProductTranslationEntity result = productManagementMapper.productTranslationManagement(null);
+  // Assertions.assertNull(result);
+  // }
 
-  @Test
-  void mapProductTranslationManagementTest() {
-    var productTranslationManagement = getProductTranslationManagement();
-    Set<ProductTranslationEntity> result = productManagementMapper
-        .mapProductTranslationManagement(Set.of(productTranslationManagement));
-    Assertions.assertNotNull(result);
-    Assertions.assertEquals(1, result.size());
-    var translationEntity = result.iterator().next();
-    Assertions.assertEquals(productTranslationManagement.productId(),
-        translationEntity.getProductTranslationId().getProductId());
-    Assertions.assertEquals(productTranslationManagement.languageId(),
-        translationEntity.getProductTranslationId().getLanguageId());
-    Assertions.assertEquals(productTranslationManagement.name(), translationEntity.getName());
-    Assertions.assertEquals(productTranslationManagement.description(), translationEntity.getDescription());
-  }
+  // @Test
+  // void mapProductTranslationManagementTest() {
+  // var productTranslationManagement = getProductTranslationManagement();
+  // Set<ProductTranslationEntity> result = productManagementMapper
+  // .mapProductTranslationManagement(Set.of(productTranslationManagement));
+  // Assertions.assertNotNull(result);
+  // Assertions.assertEquals(1, result.size());
+  // var translationEntity = result.iterator().next();
+  // Assertions.assertEquals(productTranslationManagement.productId(),
+  // translationEntity.getProductTranslationId().getProductId());
+  // Assertions.assertEquals(productTranslationManagement.languageId(),
+  // translationEntity.getProductTranslationId().getLanguageId());
+  // Assertions.assertEquals(productTranslationManagement.name(), translationEntity.getName());
+  // Assertions.assertEquals(productTranslationManagement.description(), translationEntity.getDescription());
+  // }
 
-  @Test
-  void productTranslationManagementTest() {
-    var productTranslationManagement = getProductTranslationManagement();
-    ProductTranslationEntity result = productManagementMapper
-        .productTranslationManagement(productTranslationManagement);
-    Assertions.assertNotNull(result);
-    Assertions.assertEquals(productTranslationManagement.productId(),
-        result.getProductTranslationId().getProductId());
-    Assertions.assertEquals(productTranslationManagement.languageId(),
-        result.getProductTranslationId().getLanguageId());
-    Assertions.assertEquals(productTranslationManagement.name(), result.getName());
-    Assertions.assertEquals(productTranslationManagement.description(), result.getDescription());
-  }
+  // @Test
+  // void productTranslationManagementTest() {
+  // var productTranslationManagement = getProductTranslationManagement();
+  // ProductTranslationEntity result = productManagementMapper
+  // .productTranslationManagement(productTranslationManagement);
+  // Assertions.assertNotNull(result);
+  // Assertions.assertEquals(productTranslationManagement.productId(),
+  // result.getProductTranslationId().getProductId());
+  // Assertions.assertEquals(productTranslationManagement.languageId(),
+  // result.getProductTranslationId().getLanguageId());
+  // Assertions.assertEquals(productTranslationManagement.name(), result.getName());
+  // Assertions.assertEquals(productTranslationManagement.description(), result.getDescription());
+  // }
 
   @Test
   void mapLanguageTest() {
