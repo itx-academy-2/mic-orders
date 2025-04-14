@@ -1,6 +1,5 @@
 package com.academy.orders.application.product.usecase;
 
-import com.academy.orders.domain.account.exception.ConcurrentUpdateException;
 import com.academy.orders.domain.common.UrlUtils;
 import com.academy.orders.domain.common.exception.BadRequestException;
 import com.academy.orders.domain.discount.entity.Discount;
@@ -18,7 +17,6 @@ import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUse
 import com.academy.orders.domain.product.usecase.UpdateProductUseCase;
 import com.academy.orders.domain.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
   private final ProductRepository productRepository;
 
@@ -37,7 +36,9 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
 
   private final GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
 
-  @Transactional
+  /**
+   * Updates an existing product with the given product details using optimistic locking.
+   */
   @Override
   public void updateProduct(UUID productId, ProductRequestDto request) {
     if (request.image() != null && !UrlUtils.isValidUri(request.image())) {
@@ -80,17 +81,7 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
         getValue(request.price(), existingProduct.getPrice()), getValue(request.discount(), existingProduct.getDiscountAmount()), tags,
         updatedTranslations,
         existingProduct.getVersion());
-
-    try {
-      try {
-        Thread.sleep(4000); // fixme: remove after
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      }
-      productRepository.update(updatedProduct);
-    } catch (OptimisticLockingFailureException e) { // It is a Spring exception.
-      throw new ConcurrentUpdateException("This product was being modified by someone else at the same time. Try again!", e);
-    }
+    productRepository.update(updatedProduct);
   }
 
   /**

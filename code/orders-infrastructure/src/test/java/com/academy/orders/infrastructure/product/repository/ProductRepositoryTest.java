@@ -2,7 +2,6 @@ package com.academy.orders.infrastructure.product.repository;
 
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
-import com.academy.orders.domain.language.repository.LanguageRepository;
 import com.academy.orders.domain.product.dto.ProductBestsellersDto;
 import com.academy.orders.domain.product.dto.ProductLanguageDto;
 import com.academy.orders.domain.product.entity.Product;
@@ -14,7 +13,6 @@ import com.academy.orders.infrastructure.product.ProductManagementMapper;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.product.ProductPageMapper;
 import com.academy.orders.infrastructure.product.ProductTranslationManagementMapper;
-import com.academy.orders.infrastructure.product.ProductTranslationMapper;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
 import jakarta.persistence.Tuple;
@@ -37,7 +35,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.academy.orders.infrastructure.ModelUtils.*;
@@ -195,12 +192,12 @@ class ProductRepositoryTest {
     var productEntity = getProductEntity();
 
     when(productManagementMapper.toEntity(productManagement)).thenReturn(productEntity);
-    doAnswer(invocation -> null).when(productJpaAdapter).saveAndFlush(productEntity);
+    doAnswer(invocation -> null).when(productJpaAdapter).save(productEntity);
 
     productRepository.update(productManagement);
 
     verify(productManagementMapper).toEntity(productManagement);
-    verify(productJpaAdapter).saveAndFlush(productEntity);
+    verify(productJpaAdapter).save(productEntity);
   }
 
   @Test

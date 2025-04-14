@@ -14,7 +14,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.Context;
 
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -55,15 +54,8 @@ public interface ProductManagementMapper {
       return null;
     }
     return ProductTranslationEntity.builder()
-        .productTranslationId(new ProductTranslationId(mapProductId(dto.productId()), dto.languageId())).name(dto.name())
+        .productTranslationId(new ProductTranslationId(dto.productId(), dto.languageId())).name(dto.name())
         .description(dto.description()).product(productEntity).language(mapLanguage(dto.language())).build();
-  }
-
-  default UUID mapProductId(UUID productId) {
-    if (Objects.isNull(productId)) {
-      return null;
-    }
-    return productId;
   }
 
   default LanguageEntity mapLanguage(Language language) {
