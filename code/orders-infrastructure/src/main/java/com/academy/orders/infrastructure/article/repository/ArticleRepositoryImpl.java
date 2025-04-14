@@ -13,7 +13,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -38,5 +40,13 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     final PageRequest pageRequest = pageableMapper.fromDomain(pageable);
     var articles = articleJpaAdapter.findAllByLanguageCode(language, pageRequest);
     return articlePageMapper.toDomain(articles);
+  }
+
+  @Override
+  public List<Article> findByTitleOrContentIgnoreCase(String query, String language) {
+    final List<ArticleEntity> list = articleJpaAdapter.findAllByTitleOrContentIgnoreCase(query, language);
+    return list.stream()
+        .map(articleMapper::fromEntity)
+        .toList();
   }
 }

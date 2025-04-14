@@ -91,7 +91,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.academy.orders.apirest.ModelUtils.getProductsWithDiscountPage;
 import static com.academy.orders.apirest.TestConstants.IMAGE_URL;
 import static com.academy.orders.apirest.TestConstants.LANGUAGE_EN;
 import static com.academy.orders.apirest.TestConstants.LANGUAGE_UK;
@@ -671,6 +670,12 @@ public class ModelUtils {
 
   public static Article getArticle() {
     return new Article(TEST_ID, TEST_START_DATE, TEST_END_DATE, getArticleContents());
+  }
+
+  public static ArticleDetailsDTO getArticleDetailsDTO() {
+    return new ArticleDetailsDTO()
+        .id(TEST_ID)
+        .title("Title");
   }
 
   public static List<ArticleContent> getArticleContents() {
