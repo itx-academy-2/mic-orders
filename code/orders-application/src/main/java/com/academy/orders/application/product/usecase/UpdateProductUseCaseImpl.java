@@ -17,7 +17,6 @@ import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUse
 import com.academy.orders.domain.product.usecase.UpdateProductUseCase;
 import com.academy.orders.domain.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
   private final ProductRepository productRepository;
 
@@ -36,7 +36,9 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
 
   private final GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
 
-  @Transactional
+  /**
+   * Updates an existing product with the given product details using optimistic locking.
+   */
   @Override
   public void updateProduct(UUID productId, ProductRequestDto request) {
     if (request.image() != null && !UrlUtils.isValidUri(request.image())) {
@@ -76,8 +78,9 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
         ProductStatus.valueOf(getValue(request.status(), String.valueOf(existingProduct.getStatus()))),
         getValue(request.image(), existingProduct.getImage()), existingProduct.getCreatedAt(),
         getValue(request.quantity(), existingProduct.getQuantity()),
-        getValue(request.price(), existingProduct.getPrice()), request.discount(), tags, updatedTranslations);
-
+        getValue(request.price(), existingProduct.getPrice()), getValue(request.discount(), existingProduct.getDiscountAmount()), tags,
+        updatedTranslations,
+        existingProduct.getVersion());
     productRepository.update(updatedProduct);
   }
 

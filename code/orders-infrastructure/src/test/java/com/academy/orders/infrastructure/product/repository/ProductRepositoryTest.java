@@ -8,11 +8,11 @@ import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.infrastructure.ModelUtils;
 import com.academy.orders.infrastructure.common.PageableMapper;
+import com.academy.orders.infrastructure.language.repository.LanguageJpaAdapter;
 import com.academy.orders.infrastructure.product.ProductManagementMapper;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.product.ProductPageMapper;
 import com.academy.orders.infrastructure.product.ProductTranslationManagementMapper;
-import com.academy.orders.infrastructure.product.ProductTranslationMapper;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
 import jakarta.persistence.Tuple;
@@ -37,17 +37,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static com.academy.orders.infrastructure.ModelUtils.getManagementFilterDto;
-import static com.academy.orders.infrastructure.ModelUtils.getPageImplOf;
-import static com.academy.orders.infrastructure.ModelUtils.getPageOf;
-import static com.academy.orders.infrastructure.ModelUtils.getPageRequest;
-import static com.academy.orders.infrastructure.ModelUtils.getPageable;
-import static com.academy.orders.infrastructure.ModelUtils.getProduct;
-import static com.academy.orders.infrastructure.ModelUtils.getProductEntity;
-import static com.academy.orders.infrastructure.ModelUtils.getProductEntityWithTranslation;
-import static com.academy.orders.infrastructure.ModelUtils.getProductManagement;
-import static com.academy.orders.infrastructure.ModelUtils.getProductTranslationEntity;
-import static com.academy.orders.infrastructure.ModelUtils.getProductTranslationManagement;
+import static com.academy.orders.infrastructure.ModelUtils.*;
 import static com.academy.orders.infrastructure.TestConstants.LANGUAGE_EN;
 import static com.academy.orders.infrastructure.TestConstants.TEST_UUID;
 import static java.util.Collections.emptyList;
@@ -81,6 +71,9 @@ class ProductRepositoryTest {
 
   @Mock
   private PageableMapper pageableMapper;
+
+  @Mock
+  private LanguageJpaAdapter languageJpaAdapter;
 
   @Mock
   private ProductTranslationJpaAdapter productTranslationJpaAdapter;
@@ -239,12 +232,17 @@ class ProductRepositoryTest {
   @Test
   void saveTest() {
     var productManagement = getProductManagement();
-    var productEntity = getProductEntity();
+    var productEntity = getProductEntityWithProductTranslations();
     var product = getProduct();
+    final List<String> languageCodes = productEntity.getProductTranslations().stream()
+        .map(o -> o.getLanguage().getCode())
+        .toList();
 
     when(productManagementMapper.toEntity(productManagement)).thenReturn(productEntity);
     when(productJpaAdapter.save(productEntity)).thenReturn(productEntity);
     when(productMapper.fromEntity(productEntity)).thenReturn(product);
+    languageCodes
+        .forEach(code -> when(languageJpaAdapter.findByCode(code)).thenReturn(Optional.of(getLanguageEntity(code))));
 
     var result = productRepository.save(productManagement);
 
@@ -254,6 +252,8 @@ class ProductRepositoryTest {
     verify(productManagementMapper).toEntity(productManagement);
     verify(productJpaAdapter).save(productEntity);
     verify(productMapper).fromEntity(productEntity);
+    languageCodes
+        .forEach(code -> verify(languageJpaAdapter).findByCode(code));
   }
 
   @Test

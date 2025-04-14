@@ -1,6 +1,7 @@
 package com.academy.orders.apirest.common;
 
 import com.academy.orders.domain.account.exception.AccountRoleNotFoundException;
+import com.academy.orders.domain.account.exception.ConcurrentUpdateException;
 import com.academy.orders.domain.cart.exception.EmptyCartException;
 import com.academy.orders.domain.cart.exception.QuantityExceedsAvailableException;
 import com.academy.orders.domain.common.exception.AlreadyExistsException;
@@ -153,5 +154,11 @@ public class ErrorHandler {
     log.warn("Account role not found", ex);
     return new ErrorObjectDTO().status(HttpStatus.NOT_FOUND.value()).title(HttpStatus.NOT_FOUND.getReasonPhrase())
         .detail(ex.getMessage());
+  }
+
+  @ExceptionHandler(ConcurrentUpdateException.class)
+  @ResponseStatus(value = HttpStatus.CONFLICT)
+  public ErrorObjectDTO handleConcurrentUpdateException(final ConcurrentUpdateException ex) {
+    return new ErrorObjectDTO().status(HttpStatus.CONFLICT.value()).detail(ex.getMessage());
   }
 }

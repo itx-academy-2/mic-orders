@@ -13,6 +13,7 @@ import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.infrastructure.common.PageableMapper;
+import com.academy.orders.infrastructure.language.repository.LanguageJpaAdapter;
 import com.academy.orders.infrastructure.product.ProductManagementMapper;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.product.ProductPageMapper;
@@ -56,6 +57,8 @@ public class ProductRepositoryImpl implements ProductRepository {
   private final ProductPageMapper productPageMapper;
 
   private final PageableMapper pageableMapper;
+
+  private final LanguageJpaAdapter languageJpaAdapter;
 
   @Override
   public Page<Product> findAllProducts(String language, Pageable pageable, List<String> tags) {
@@ -148,6 +151,7 @@ public class ProductRepositoryImpl implements ProductRepository {
   @Override
   public Product save(ProductManagement product) {
     var entity = productManagementMapper.toEntity(product);
+    entity.getProductTranslations().forEach(o -> o.setLanguage(languageJpaAdapter.findByCode(o.getLanguage().getCode()).get()));
     return productMapper.fromEntity(productJpaAdapter.save(entity));
   }
 

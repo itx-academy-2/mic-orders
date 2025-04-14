@@ -15,13 +15,10 @@ import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.CreateProductUseCase;
 import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUseCase;
 import com.academy.orders.domain.tag.repository.TagRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,23 +63,17 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
 
     final String imageUrl = (request.image() != null) ? request.image() : defaultImageUrl;
 
-    var product = ProductManagement.builder().status(ProductStatus.valueOf(request.status())).image(imageUrl)
-        .createdAt(LocalDateTime.now()).quantity(request.quantity()).price(request.price()).tags(tags)
-        .discount(request.discount()).productTranslationManagement(Set.of()).build();
-
-    var productWithoutTranslation = productRepository.save(product);
-
     var productTranslations = request.productTranslations().stream().map(dto -> {
       var language = languageRepository.findByCode(dto.languageCode())
           .orElseThrow(() -> new LanguageNotFoundException(dto.languageCode()));
-      return new ProductTranslationManagement(productWithoutTranslation.getId(), language.id(), dto.name(),
+      return new ProductTranslationManagement(null, language.id(), dto.name(),
           dto.description(), new Language(language.id(), dto.languageCode()));
     }).collect(Collectors.toSet());
 
-    var productWithTranslations = new ProductManagement(productWithoutTranslation.getId(), product.status(),
-        product.image(), product.createdAt(), product.quantity(), product.price(), product.discount(), product.tags(),
-        productTranslations);
+    var product = ProductManagement.builder().status(ProductStatus.valueOf(request.status())).image(imageUrl)
+        .quantity(request.quantity()).price(request.price()).tags(tags)
+        .discount(request.discount()).productTranslationManagement(productTranslations).build();
 
-    return productRepository.save(productWithTranslations);
+    return productRepository.save(product);
   }
 }
