@@ -95,6 +95,20 @@ public class ModelUtils {
         .price(BigDecimal.valueOf(100.00)).build();
   }
 
+  public static ProductEntity getProductEntityWithProductTranslations() {
+    final ProductEntity productEntity = ProductEntity.builder().id(TEST_UUID)
+        .status(ProductStatus.VISIBLE).image(TEST_IMAGE_NAME).createdAt(DATE_TIME).quantity(100)
+        .price(BigDecimal.valueOf(100.00)).build();
+    productEntity.setProductTranslations(Set.of(getProductTranslationEntity(productEntity)));
+    return productEntity;
+  }
+
+  public static ProductTranslationEntity getProductTranslationEntity(final ProductEntity productEntity) {
+    return ProductTranslationEntity.builder().productTranslationId(new ProductTranslationId(productEntity.getId(), 1L))
+        .name("Name").description("Description").product(productEntity).language(getLanguageEntity())
+        .build();
+  }
+
   public static ProductEntity getProductEntityWithDiscount() {
     return ProductEntity.builder().id(UUID.fromString("c39314ce-b659-4776-86b9-8201b05bb339"))
         .status(ProductStatus.VISIBLE).image(TEST_IMAGE_NAME).createdAt(DATE_TIME).quantity(100)
@@ -222,6 +236,10 @@ public class ModelUtils {
 
   public static LanguageEntity getLanguageEntity() {
     return LanguageEntity.builder().id(1L).code("en").build();
+  }
+
+  public static LanguageEntity getLanguageEntity(String code) {
+    return LanguageEntity.builder().id(1L).code(code).build();
   }
 
   public static Language getLanguage() {

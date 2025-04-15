@@ -9,6 +9,8 @@ public class TestConstants {
 
   public static final String GET_ARTICLES_DETAILS_URL = "/v1/articles/details";
 
+  public static final String SEARCH_ARTICLES_URL = "/v1/articles/search";
+
   public static final String GET_ALL_PRODUCTS_URL = "/v1/products";
 
   public static final String SEARCH_PRODUCTS_URL = "/v1/products/search";
