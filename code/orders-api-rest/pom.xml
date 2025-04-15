@@ -104,7 +104,7 @@
                 <useTags>true</useTags>
                 <interfaceOnly>true</interfaceOnly>
                 <useJakartaEe>true</useJakartaEe>
-                <useResponseEntity>false</useResponseEntity>
+                <useResponseEntity>true</useResponseEntity>
               </configOptions>
             </configuration>
           </execution>

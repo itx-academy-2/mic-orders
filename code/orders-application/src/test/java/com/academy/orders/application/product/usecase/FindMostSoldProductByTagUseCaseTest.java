@@ -19,12 +19,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.Optional;
 
 import static com.academy.orders.application.ModelUtils.*;
 import static com.academy.orders.application.TestConstants.LANGUAGE_EN;
 import static com.academy.orders.domain.filter.FilterMetricsConstants.DAYS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -56,7 +56,10 @@ class FindMostSoldProductByTagUseCaseTest {
         any(LocalDateTime.class), eq(tag)))
             .thenReturn(page);
 
-    assertThrows(ProductNotFoundException.class, () -> findMostSoldProductByTagUseCase.findMostSoldProductByTag(lang, tag));
+    final Optional<Product> result = findMostSoldProductByTagUseCase.findMostSoldProductByTag(lang, tag);
+
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
 
     verify(productRepository).findMostSoldProductsByTagAndPeriod(any(Pageable.class), eq(lang), startDateCaptor.capture(),
         endDateCaptor.capture(), eq(tag));
@@ -76,9 +79,11 @@ class FindMostSoldProductByTagUseCaseTest {
             .thenReturn(page);
     doNothing().when(setPercentageOfTotalOrdersUseCase).setPercentOfTotalOrders(product);
 
-    final Product result = findMostSoldProductByTagUseCase.findMostSoldProductByTag(lang, tag);
+    final Optional<Product> result = findMostSoldProductByTagUseCase.findMostSoldProductByTag(lang, tag);
 
-    assertEquals(product, result);
+    assertNotNull(result);
+    assertTrue(result.isPresent());
+    assertEquals(Optional.of(product), result);
 
     verify(productRepository).findMostSoldProductsByTagAndPeriod(any(Pageable.class), eq(lang), startDateCaptor.capture(),
         endDateCaptor.capture(), eq(tag));

@@ -23,6 +23,7 @@ import com.academy.orders_api_rest.generated.model.PageableDTO;
 import com.academy.orders_api_rest.generated.model.UpdateOrderStatusRequestDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -54,28 +55,31 @@ public class OrdersManagementController implements OrdersManagementApi {
 
   @Override
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
-  public PageManagerOrderPreviewDTO getAllOrders(OrdersFilterParametersDTO ordersFilter, String lang,
+  public ResponseEntity<PageManagerOrderPreviewDTO> getAllOrders(OrdersFilterParametersDTO ordersFilter, String lang,
       PageableDTO pageable) {
     Pageable pageableDomain = pageableDTOMapper.fromDto(pageable);
     OrdersFilterParametersDto filterParametersDto = orderFilterParametersDTOMapper.fromDTO(ordersFilter);
     Page<OrderManagement> ordersByUserId = getAllOrdersUseCase.getAllOrders(filterParametersDto, pageableDomain,
         getRole());
-    return pageOrderDTOMapper.toManagerDto(ordersByUserId);
+    return ResponseEntity.ok(pageOrderDTOMapper.toManagerDto(ordersByUserId));
   }
 
   @Override
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
-  public OrderStatusInfoDTO updateOrderStatus(UUID orderId, UpdateOrderStatusRequestDTO updateOrderStatusRequestDTO) {
+  public ResponseEntity<OrderStatusInfoDTO> updateOrderStatus(UUID orderId,
+      UpdateOrderStatusRequestDTO updateOrderStatusRequestDTO) {
     var updateOrderStatus = updateOrderStatusRequestDTOMapper.fromDTO(updateOrderStatusRequestDTO);
     var result = updateOrderStatusUseCase.updateOrderStatus(orderId, updateOrderStatus, getRole());
-    return orderStatusInfoDTOMapper.toDTO(result);
+    OrderStatusInfoDTO orderStatusInfoDTO = orderStatusInfoDTOMapper.toDTO(result);
+    return ResponseEntity.ok(orderStatusInfoDTO);
   }
 
   @Override
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
-  public ManagerOrderDTO getOrderById(UUID id, String lang) {
+  public ResponseEntity<ManagerOrderDTO> getOrderById(UUID id, String lang) {
     Order order = getOrderByIdUseCase.getOrderById(id, lang);
-    return orderDTOMapper.toManagerDto(order);
+    ManagerOrderDTO managerOrderDTO = orderDTOMapper.toManagerDto(order);
+    return ResponseEntity.ok(managerOrderDTO);
   }
 
   private String getRole() {

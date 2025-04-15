@@ -14,6 +14,7 @@ import com.academy.orders_api_rest.generated.model.ArticleResponseDTO;
 import com.academy.orders_api_rest.generated.model.PageArticleDetailsDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -30,15 +31,17 @@ public class ArticleController implements ArticleApi {
   private final PageableDTOMapper pageableDTOMapper;
 
   @Override
-  public ArticleResponseDTO getArticleById(Long articleId, String lang) {
+  public ResponseEntity<ArticleResponseDTO> getArticleById(Long articleId, String lang) {
     final Article article = getArticleByIdUseCase.getArticleById(articleId, lang);
-    return articleDTOResponseMapper.toDto(article);
+    ArticleResponseDTO articleResponseDTO = articleDTOResponseMapper.toDto(article);
+    return ResponseEntity.ok(articleResponseDTO);
   }
 
   @Override
-  public PageArticleDetailsDTO getArticlesDetails(String lang, PageableDTO pageableDto) {
+  public ResponseEntity<PageArticleDetailsDTO> getArticlesDetails(String lang, PageableDTO pageableDto) {
     final Pageable pageable = pageableDTOMapper.fromDto(pageableDto);
     Page<Article> page = getArticlesUseCase.getArticles(lang, pageable);
-    return pageArticleDetailsMapper.fromModel(page);
+    PageArticleDetailsDTO pageArticleDetailsDTO = pageArticleDetailsMapper.fromModel(page);
+    return ResponseEntity.ok(pageArticleDetailsDTO);
   }
 }

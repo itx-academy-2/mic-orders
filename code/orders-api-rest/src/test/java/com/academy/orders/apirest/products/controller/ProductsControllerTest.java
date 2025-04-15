@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.academy.orders.apirest.ModelUtils.*;
 import static com.academy.orders.apirest.TestConstants.*;
@@ -37,8 +38,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -213,7 +213,7 @@ class ProductsControllerTest {
     final Product product = getProduct();
     final ProductPreviewDTO productPreviewDTO = getProductPreviewDTO();
 
-    when(findMostSoldProductByTagUseCase.findMostSoldProductByTag(lang, tag)).thenReturn(product);
+    when(findMostSoldProductByTagUseCase.findMostSoldProductByTag(lang, tag)).thenReturn(Optional.of(product));
     when(productPreviewDTOMapper.toDto(product)).thenReturn(productPreviewDTO);
 
     final MvcResult mvcResult = mockMvc.perform(get(FIND_BESTSELLER_URL)
@@ -226,5 +226,26 @@ class ProductsControllerTest {
 
     verify(findMostSoldProductByTagUseCase).findMostSoldProductByTag(lang, tag);
     verify(productPreviewDTOMapper).toDto(product);
+  }
+
+  @SneakyThrows
+  @Test
+  void findMostSoldProductByTagWhenNoContentTest() {
+    final String lang = LANGUAGE_EN;
+    final String tag = "tag";
+    final Product product = getProduct();
+    final ProductPreviewDTO productPreviewDTO = getProductPreviewDTO();
+
+    when(findMostSoldProductByTagUseCase.findMostSoldProductByTag(lang, tag)).thenReturn(Optional.empty());
+    when(productPreviewDTOMapper.toDto(product)).thenReturn(productPreviewDTO);
+
+    mockMvc.perform(get(FIND_BESTSELLER_URL)
+        .param("tag", tag)
+        .param("lang", lang)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNoContent()).andReturn();
+
+    verify(findMostSoldProductByTagUseCase).findMostSoldProductByTag(lang, tag);
+    verify(productPreviewDTOMapper, never()).toDto(product);
   }
 }

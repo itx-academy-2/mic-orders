@@ -467,6 +467,8 @@ paths:
       tags:
         - Products
       operationId: findMostSoldProductByTag
+      x-spring-extras:
+        responseType: ResponseEntity
       parameters:
         - $ref: '#/components/parameters/Language'
         - $ref: '#/components/parameters/Tag'
@@ -477,8 +479,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProductPreview'
-        '404':
-          $ref: '#/components/responses/BadRequestResponse'
+        '204':
+          description: User deleted successfully. No content returned.
 
   /v1/products/{productId}:
     get:
