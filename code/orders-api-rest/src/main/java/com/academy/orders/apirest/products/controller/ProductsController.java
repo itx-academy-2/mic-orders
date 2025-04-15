@@ -10,19 +10,9 @@ import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
 import com.academy.orders.domain.product.entity.Product;
-import com.academy.orders.domain.product.usecase.FindProductsBestsellersUseCase;
-import com.academy.orders.domain.product.usecase.GetAllProductsUseCase;
-import com.academy.orders.domain.product.usecase.GetProductDetailsByIdUseCase;
-import com.academy.orders.domain.product.usecase.GetProductSearchResultsUseCase;
-import com.academy.orders.domain.product.usecase.GetProductsOnSaleUseCase;
+import com.academy.orders.domain.product.usecase.*;
 import com.academy.orders_api_rest.generated.api.ProductsApi;
-import com.academy.orders_api_rest.generated.model.PageProductSearchResultDTO;
-import com.academy.orders_api_rest.generated.model.PageProductsDTO;
-import com.academy.orders_api_rest.generated.model.PageableDTO;
-import com.academy.orders_api_rest.generated.model.ProductDetailsResponseDTO;
-import com.academy.orders_api_rest.generated.model.ProductFilterDTO;
-import com.academy.orders_api_rest.generated.model.ProductsOnSaleFilterDTO;
-import com.academy.orders_api_rest.generated.model.ProductsOnSaleResponseDTO;
+import com.academy.orders_api_rest.generated.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -56,6 +46,8 @@ public class ProductsController implements ProductsApi {
   private final ProductDetailsResponseDTOMapper productDetailsResponseDTOMapper;
 
   private final FindProductsBestsellersUseCase findProductsBestsellersUseCase;
+
+  private final FindMostSoldProductByTagUseCase findMostSoldProductByTagUseCase;
 
   @Override
   public ProductDetailsResponseDTO getProductDetailsById(UUID productId, String lang) {
@@ -94,5 +86,10 @@ public class ProductsController implements ProductsApi {
         .build();
     final Page<Product> products = findProductsBestsellersUseCase.findProductsBestsellers(pageable, lang);
     return productPreviewDTOMapper.toPageProductsDTO(products);
+  }
+
+  @Override
+  public ProductPreviewDTO findMostSoldProductByTag(final String tag, final String lang) {
+    return productPreviewDTOMapper.toDto(findMostSoldProductByTagUseCase.findMostSoldProductByTag(lang, tag));
   }
 }

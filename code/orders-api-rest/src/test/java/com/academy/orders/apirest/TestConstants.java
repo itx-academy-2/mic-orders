@@ -25,6 +25,8 @@ public class TestConstants {
 
   public static final String FIND_BESTSELLERS_URL = "/v1/products/bestsellers";
 
+  public static final String FIND_BESTSELLER_URL = "/v1/products/bestseller";
+
   public static final String LANGUAGE_UK = "uk";
 
   public static final String LANGUAGE_EN = "en";

@@ -211,4 +211,7 @@ public interface ProductRepository {
    */
   Page<Product> findProductsByLanguageAndIds(Pageable pageableDomain, String language, List<UUID> ids,
       List<ProductLanguageDto> productLanguageDtos);
+
+  Page<Product> findMostSoldProductsByTagAndPeriod(Pageable pageable, String language, LocalDateTime startDate, LocalDateTime endDate,
+      String tag);
 }

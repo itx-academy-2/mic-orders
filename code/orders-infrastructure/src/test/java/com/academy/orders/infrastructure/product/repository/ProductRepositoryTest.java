@@ -12,7 +12,6 @@ import com.academy.orders.infrastructure.product.ProductManagementMapper;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.product.ProductPageMapper;
 import com.academy.orders.infrastructure.product.ProductTranslationManagementMapper;
-import com.academy.orders.infrastructure.product.ProductTranslationMapper;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
 import jakarta.persistence.Tuple;
@@ -418,5 +417,30 @@ class ProductRepositoryTest {
       assertEquals(tuple.get(0, UUID.class), dto.productId());
       assertEquals(tuple.get(1, Double.class), dto.percentageOfTotalOrders());
     });
+  }
+
+  @Test
+  void findMostSoldProductsByTagAndPeriodTest() {
+    final String lang = LANGUAGE_EN;
+    final LocalDateTime from = LocalDateTime.of(2022, 12, 6, 3, 7, 14);
+    final LocalDateTime to = from.plusDays(14);
+    final String tag = "tag";
+    final Pageable pageableDomain = Pageable.builder().page(1).size(1).build();
+    final PageRequest pageable = PageRequest.of(1, 1);
+    var page = ModelUtils.getPageImplOf(getProductTranslationEntity());
+    var pageDomain = ModelUtils.getPageOf(getProduct());
+
+    when(pageableMapper.fromDomain(pageableDomain)).thenReturn(pageable);
+    when(productJpaAdapter.findMostSoldProductsByTagAndPeriod(pageable, lang, from, to, tag)).thenReturn(page);
+    when(productPageMapper.fromProductTranslationEntity(page)).thenReturn(pageDomain);
+
+    var result = productRepository.findMostSoldProductsByTagAndPeriod(pageableDomain, lang, from, to, tag);
+
+    assertNotNull(result);
+    assertEquals(pageDomain, result);
+
+    verify(pageableMapper).fromDomain(pageableDomain);
+    verify(productJpaAdapter).findMostSoldProductsByTagAndPeriod(pageable, lang, from, to, tag);
+    verify(productPageMapper).fromProductTranslationEntity(page);
   }
 }

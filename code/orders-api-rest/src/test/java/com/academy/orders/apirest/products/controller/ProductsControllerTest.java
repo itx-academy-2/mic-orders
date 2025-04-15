@@ -11,14 +11,11 @@ import com.academy.orders.apirest.products.mapper.ProductsOnSaleResponseDTOMappe
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.entity.Product;
-import com.academy.orders.domain.product.usecase.FindProductsBestsellersUseCase;
-import com.academy.orders.domain.product.usecase.GetAllProductsUseCase;
-import com.academy.orders.domain.product.usecase.GetProductDetailsByIdUseCase;
-import com.academy.orders.domain.product.usecase.GetProductSearchResultsUseCase;
-import com.academy.orders.domain.product.usecase.GetProductsOnSaleUseCase;
+import com.academy.orders.domain.product.usecase.*;
 import com.academy.orders_api_rest.generated.model.PageProductSearchResultDTO;
 import com.academy.orders_api_rest.generated.model.PageProductsDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
+import com.academy.orders_api_rest.generated.model.ProductPreviewDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -34,25 +31,8 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
 
-import static com.academy.orders.apirest.ModelUtils.getPageOf;
-import static com.academy.orders.apirest.ModelUtils.getPageProductsDTO;
-import static com.academy.orders.apirest.ModelUtils.getPageable;
-import static com.academy.orders.apirest.ModelUtils.getPageableDTO;
-import static com.academy.orders.apirest.ModelUtils.getProduct;
-import static com.academy.orders.apirest.ModelUtils.getProductDetailsResponseDTO;
-import static com.academy.orders.apirest.ModelUtils.getProductsOnSaleFilterDto;
-import static com.academy.orders.apirest.ModelUtils.getProductsOnSaleResponseDTO;
-import static com.academy.orders.apirest.ModelUtils.getProductsOnSaleResponseDto;
-import static com.academy.orders.apirest.ModelUtils.getProductsPage;
-import static com.academy.orders.apirest.ModelUtils.getProductsWithDiscountPage;
-import static com.academy.orders.apirest.TestConstants.FIND_BESTSELLERS_URL;
-import static com.academy.orders.apirest.TestConstants.GET_ALL_PRODUCTS_URL;
-import static com.academy.orders.apirest.TestConstants.GET_PRODUCTS_ON_SALES_URL;
-import static com.academy.orders.apirest.TestConstants.GET_PRODUCT_DETAILS_URL;
-import static com.academy.orders.apirest.TestConstants.LANGUAGE_EN;
-import static com.academy.orders.apirest.TestConstants.LANGUAGE_UK;
-import static com.academy.orders.apirest.TestConstants.SEARCH_PRODUCTS_URL;
-import static com.academy.orders.apirest.TestConstants.TEST_UUID;
+import static com.academy.orders.apirest.ModelUtils.*;
+import static com.academy.orders.apirest.TestConstants.*;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -105,6 +85,9 @@ class ProductsControllerTest {
 
   @MockBean
   private ProductDetailsResponseDTOMapper productDetailsResponseDTOMapper;
+
+  @MockBean
+  private FindMostSoldProductByTagUseCase findMostSoldProductByTagUseCase;
 
   @Test
   void getProductsTest() throws Exception {
@@ -220,5 +203,28 @@ class ProductsControllerTest {
     verify(findProductsBestsellersUseCase).findProductsBestsellers(any(Pageable.class), eq(language));
     verify(productPreviewDTOMapper).toPageProductsDTO(productPage);
     assertEquals(objectMapper.writeValueAsString(result), mvcResult.getResponse().getContentAsString());
+  }
+
+  @SneakyThrows
+  @Test
+  void findMostSoldProductByTagTest() {
+    final String lang = LANGUAGE_EN;
+    final String tag = "tag";
+    final Product product = getProduct();
+    final ProductPreviewDTO productPreviewDTO = getProductPreviewDTO();
+
+    when(findMostSoldProductByTagUseCase.findMostSoldProductByTag(lang, tag)).thenReturn(product);
+    when(productPreviewDTOMapper.toDto(product)).thenReturn(productPreviewDTO);
+
+    final MvcResult mvcResult = mockMvc.perform(get(FIND_BESTSELLER_URL)
+        .param("tag", tag)
+        .param("lang", lang)
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk()).andReturn();
+
+    assertEquals(objectMapper.writeValueAsString(productPreviewDTO), mvcResult.getResponse().getContentAsString());
+
+    verify(findMostSoldProductByTagUseCase).findMostSoldProductByTag(lang, tag);
+    verify(productPreviewDTOMapper).toDto(product);
   }
 }

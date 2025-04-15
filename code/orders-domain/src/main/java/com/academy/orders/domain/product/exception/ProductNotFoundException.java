@@ -7,10 +7,15 @@ import java.util.UUID;
 
 @Getter
 public class ProductNotFoundException extends NotFoundException {
-  private final UUID product;
+  private UUID product;
+
+  public ProductNotFoundException() {
+    super("Product is not found");
+  }
 
   public ProductNotFoundException(UUID product) {
     super(String.format("Product %s is not found", product));
     this.product = product;
   }
+
 }
