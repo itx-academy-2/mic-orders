@@ -81,6 +81,12 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
         getValue(request.price(), existingProduct.getPrice()), getValue(request.discount(), existingProduct.getDiscountAmount()), tags,
         updatedTranslations,
         existingProduct.getVersion());
+
+    try {
+      Thread.sleep(4000);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
     productRepository.update(updatedProduct);
   }
 
