@@ -478,7 +478,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductPreview'
         '204':
-          description: User not found.
+          description: Product not found.
 
   /v1/products/{productId}:
     get:
