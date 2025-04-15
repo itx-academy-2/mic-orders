@@ -51,9 +51,10 @@ public class ArticleController implements ArticleApi {
   }
 
   @Override
-  public List<ArticleDetailsDTO> searchArticles(String query, String lang) {
-    return searchArticlesUseCase.searchArticles(query, lang).stream()
+  public ResponseEntity<List<ArticleDetailsDTO>> searchArticles(String query, String lang) {
+    final List<ArticleDetailsDTO> list = searchArticlesUseCase.searchArticles(query, lang).stream()
         .map(pageArticleDetailsMapper::toArticleDetailsDTO)
         .toList();
+    return ResponseEntity.ok(list);
   }
 }
