@@ -8,6 +8,8 @@ import com.academy.orders_api_rest.generated.model.AuthTokenResponseDTO;
 import com.academy.orders_api_rest.generated.model.SignInRequestDTO;
 import com.academy.orders_api_rest.generated.model.SignUpRequestDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,20 +39,23 @@ public class AuthTokenController implements SecurityApi {
   private final SignUpRequestDTOMapper signUpRequestDTOMapper;
 
   @Override
-  public AuthTokenResponseDTO signUp(SignUpRequestDTO signUpRequestDTO) {
+  public ResponseEntity<AuthTokenResponseDTO> signUp(SignUpRequestDTO signUpRequestDTO) {
     SignInRequestDTO signInRequestDto = signUpRequestDTOMapper.toSignInRequestDto(signUpRequestDTO);
     signUpRequestDTO.setPassword(passwordEncoder.encode(signUpRequestDTO.getPassword()));
     createUserAccountUseCase.create(signUpRequestDTOMapper.fromDto(signUpRequestDTO));
-    return signIn(signInRequestDto);
+
+    final AuthTokenResponseDTO authTokenResponseDTO = signIn(signInRequestDto).getBody();
+    return ResponseEntity.status(HttpStatus.CREATED).body(authTokenResponseDTO);
   }
 
   @Override
-  public AuthTokenResponseDTO signIn(SignInRequestDTO credentials) {
+  public ResponseEntity<AuthTokenResponseDTO> signIn(SignInRequestDTO credentials) {
     var authentication = authenticate(credentials);
     var claims = buildClaims(authentication);
     var token = this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
-    return new AuthTokenResponseDTO(token);
+    AuthTokenResponseDTO authTokenResponseDTO = new AuthTokenResponseDTO(token);
+    return ResponseEntity.ok(authTokenResponseDTO);
   }
 
   private Authentication authenticate(SignInRequestDTO credentials) {

@@ -213,4 +213,12 @@ public class ProductRepositoryImpl implements ProductRepository {
           return new ProductLanguageDto(productId, language);
         }).toList();
   }
+
+  @Override
+  public Page<Product> findMostSoldProductsByTagAndPeriod(Pageable pageableDomain, String language, LocalDateTime startDate,
+      LocalDateTime endDate, String tag) {
+    var pageable = pageableMapper.fromDomain(pageableDomain);
+    var translations = productJpaAdapter.findMostSoldProductsByTagAndPeriod(pageable, language, startDate, endDate, tag);
+    return productPageMapper.fromProductTranslationEntity(translations);
+  }
 }

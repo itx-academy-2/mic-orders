@@ -11,6 +11,8 @@ import com.academy.orders_api_rest.generated.model.CartItemsResponseDTO;
 import com.academy.orders_api_rest.generated.model.UpdatedCartItemDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,27 +35,31 @@ public class CartItemController implements CartApi {
   @Override
   @PreAuthorize("hasAuthority('ROLE_ADMIN') || "
       + "(hasAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
-  public void addProductToCart(UUID productId, Long userId) {
+  public ResponseEntity<Void> addProductToCart(UUID productId, Long userId) {
     cartItemByUserUseCase.create(new CreateCartItemDTO(productId, userId, 1));
+    return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
   @Override
   @PreAuthorize("hasAuthority('ROLE_ADMIN') || "
       + "(hasAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
-  public void deleteProductFromCart(Long userId, UUID productId) {
+  public ResponseEntity<Void> deleteProductFromCart(Long userId, UUID productId) {
     deleteProductFromCartUseCase.deleteProductFromCart(userId, productId);
+    return ResponseEntity.noContent().build();
   }
 
   @Override
   @PreAuthorize("hasAuthority('ROLE_ADMIN') || (hasAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
-  public CartItemsResponseDTO getCartItems(Long userId, String lang) {
-    return cartItemDTOMapper.toCartItemsResponseDTO(getCartItemsUseCase.getCartItems(userId, lang));
+  public ResponseEntity<CartItemsResponseDTO> getCartItems(Long userId, String lang) {
+    CartItemsResponseDTO cartItemsResponseDTO = cartItemDTOMapper.toCartItemsResponseDTO(getCartItemsUseCase.getCartItems(userId, lang));
+    return ResponseEntity.ok(cartItemsResponseDTO);
   }
 
   @Override
   @PreAuthorize("hasAuthority('ROLE_ADMIN') || (hasAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
-  public UpdatedCartItemDTO setCartItemQuantity(Long userId, UUID productId, Integer quantity) {
+  public ResponseEntity<UpdatedCartItemDTO> setCartItemQuantity(Long userId, UUID productId, Integer quantity) {
     var updatedCartItemDto = updateCartItemQuantityUseCase.setQuantity(productId, userId, quantity);
-    return cartItemDTOMapper.toUpdatedCartItemDTO(updatedCartItemDto);
+    UpdatedCartItemDTO updatedCartItemDTO = cartItemDTOMapper.toUpdatedCartItemDTO(updatedCartItemDto);
+    return ResponseEntity.ok(updatedCartItemDTO);
   }
 }

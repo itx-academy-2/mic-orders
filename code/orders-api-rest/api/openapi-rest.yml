@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.0.7
+  version: 2.0.8
 servers:
   - url: http://localhost:8080/retail
 
@@ -461,6 +461,25 @@ paths:
               schema:
                 $ref: '#/components/schemas/PageProducts'
 
+  /v1/products/bestseller:
+    get:
+      summary: Get a bestseller for a category in a period of time
+      tags:
+        - Products
+      operationId: findMostSoldProductByTag
+      parameters:
+        - $ref: '#/components/parameters/Language'
+        - $ref: '#/components/parameters/Tag'
+      responses:
+        '200':
+          description:  Returns the top-selling item in a given category. The response may optionally include a field indicating the percentage of sales over a specific time period.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPreview'
+        '204':
+          description: Product not found.
+
   /v1/products/{productId}:
     get:
       tags:
@@ -845,6 +864,12 @@ components:
       schema:
         type: integer
         minimum: 1
+    Tag:
+      in: query
+      name: tag
+      required: true
+      schema:
+        type: string
   securitySchemes:
     bearerAuth:
       type: http

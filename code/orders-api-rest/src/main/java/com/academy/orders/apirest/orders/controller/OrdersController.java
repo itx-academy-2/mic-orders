@@ -16,6 +16,8 @@ import com.academy.orders_api_rest.generated.model.PlaceOrderRequestDTO;
 import com.academy.orders_api_rest.generated.model.PlaceOrderResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,22 +43,25 @@ public class OrdersController implements OrdersApi {
 
   @Override
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER') || (hasAnyAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
-  public PlaceOrderResponseDTO placeOrder(Long userId, PlaceOrderRequestDTO placeOrderRequestDTO) {
+  public ResponseEntity<PlaceOrderResponseDTO> placeOrder(Long userId, PlaceOrderRequestDTO placeOrderRequestDTO) {
     var id = createOrderUseCase.createOrder(mapper.toCreateOrderDto(placeOrderRequestDTO), userId);
-    return new PlaceOrderResponseDTO().orderId(id);
+    PlaceOrderResponseDTO responseDTO = new PlaceOrderResponseDTO().orderId(id);
+    return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO); // Return 201 Created with PlaceOrderResponseDTO
   }
 
   @Override
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER') || (hasAnyAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
-  public PageUserOrderDTO getOrdersByUser(Long userId, String language, PageableDTO pageable) {
+  public ResponseEntity<PageUserOrderDTO> getOrdersByUser(Long userId, String language, PageableDTO pageable) {
     Pageable pageableDomain = pageableDTOMapper.fromDto(pageable);
     Page<Order> ordersByUserId = getOrdersByUserIdUseCase.getOrdersByUserId(userId, language, pageableDomain);
-    return pageOrderDTOMapper.toUserDto(ordersByUserId);
+    PageUserOrderDTO pageUserOrderDTO = pageOrderDTOMapper.toUserDto(ordersByUserId);
+    return ResponseEntity.ok(pageUserOrderDTO);
   }
 
   @Override
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER') || (hasAnyAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
-  public void cancelOrder(Long userId, UUID orderId) {
+  public ResponseEntity<Void> cancelOrder(Long userId, UUID orderId) {
     cancelOrderUseCase.cancelOrder(userId, orderId);
+    return ResponseEntity.ok().build();
   }
 }
