@@ -28,7 +28,7 @@ import lombok.ToString;
 @ToString(exclude = {"product", "language"})
 public class ProductTranslationEntity {
   @EmbeddedId
-  private ProductTranslationId productTranslationId;
+  private ProductTranslationId productTranslationId = new ProductTranslationId();
 
   @Column(nullable = false)
   private String name;

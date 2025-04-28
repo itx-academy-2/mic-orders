@@ -235,6 +235,21 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
   List<Tuple> findMostSoldProducts(LocalDateTime startDate, LocalDateTime endDate, int quantity);
 
   @Query(value = """
+      SELECT pt
+      FROM ProductTranslationEntity pt
+      JOIN pt.product p
+      JOIN p.orderItems oi
+      JOIN oi.order o
+      JOIN  p.tags t
+      JOIN pt.language l
+      WHERE l.code = :lang AND t.name = :tag AND p.status='VISIBLE' AND o.createdAt BETWEEN :from AND :to
+      GROUP BY pt
+      ORDER BY SUM(oi.quantity) DESC
+      """)
+  Page<ProductTranslationEntity> findMostSoldProductsByTagAndPeriod(Pageable pageable, String lang, LocalDateTime from, LocalDateTime to,
+      String tag);
+
+  @Query(value = """
           SELECT p.id, (
                   SELECT il.code
                   FROM products_translations AS ipt

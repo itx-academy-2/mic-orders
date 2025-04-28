@@ -9,6 +9,8 @@ public class TestConstants {
 
   public static final String GET_ARTICLES_DETAILS_URL = "/v1/articles/details";
 
+  public static final String SEARCH_ARTICLES_URL = "/v1/articles/search";
+
   public static final String GET_ALL_PRODUCTS_URL = "/v1/products";
 
   public static final String SEARCH_PRODUCTS_URL = "/v1/products/search";
@@ -24,6 +26,8 @@ public class TestConstants {
   public static final String GET_PRODUCTS_ON_SALES_URL = "/v1/products/sales";
 
   public static final String FIND_BESTSELLERS_URL = "/v1/products/bestsellers";
+
+  public static final String FIND_BESTSELLER_URL = "/v1/products/bestseller";
 
   public static final String LANGUAGE_UK = "uk";
 

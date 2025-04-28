@@ -44,6 +44,8 @@ public class Product {
 
   private Set<ProductTranslation> productTranslations;
 
+  private Integer version;
+
   @Setter
   private Double percentageOfTotalOrders;
 

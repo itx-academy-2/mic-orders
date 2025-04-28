@@ -19,6 +19,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,7 +59,6 @@ public class ProductEntity {
   @Column(name = "image_link", nullable = false)
   private String image;
 
-  @Setter(AccessLevel.PRIVATE)
   @CreationTimestamp
   @Column(name = "created_at")
   private LocalDateTime createdAt;
@@ -84,4 +84,7 @@ public class ProductEntity {
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @Builder.Default
   private List<OrderItemEntity> orderItems = new ArrayList<>();
+
+  @Version
+  private Integer version;
 }

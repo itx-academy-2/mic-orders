@@ -26,11 +26,9 @@ import static com.academy.orders.infrastructure.ModelUtils.getPageOf;
 import static com.academy.orders.infrastructure.ModelUtils.getPageRequest;
 import static com.academy.orders.infrastructure.ModelUtils.getPageable;
 import static com.academy.orders.infrastructure.TestConstants.LANGUAGE_EN;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ArticleRepositoryTest {
@@ -99,5 +97,26 @@ public class ArticleRepositoryTest {
     verify(pageableMapper).fromDomain(pageable);
     verify(articleJpaAdapter).findAllByLanguageCode(languageCode, pageRequest);
     verify(articlePageMapper).toDomain(articlePage);
+  }
+
+  @Test
+  void findByTitleOrContentIgnoreCaseTest() {
+    final String query = "how";
+    final String lang = LANGUAGE_EN;
+    final ArticleEntity articleEntity = getArticleEntity();
+    final List<ArticleEntity> articleEntities = List.of(articleEntity);
+    final Article article = getArticle();
+
+    when(articleJpaAdapter.findAllByTitleOrContentIgnoreCase(query, lang))
+        .thenReturn(articleEntities);
+    when(articleMapper.fromEntity(articleEntity)).thenReturn(article);
+
+    final List<Article> result = articleRepository.findByTitleOrContentIgnoreCase(query, lang);
+
+    assertNotNull(result);
+    assertIterableEquals(List.of(article), result);
+
+    verify(articleJpaAdapter).findAllByTitleOrContentIgnoreCase(query, lang);
+    verify(articleMapper, times(articleEntities.size())).fromEntity(articleEntity);
   }
 }

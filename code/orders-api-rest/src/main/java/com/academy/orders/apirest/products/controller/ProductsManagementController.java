@@ -22,6 +22,8 @@ import com.academy.orders_api_rest.generated.model.ProductResponseDTO;
 import com.academy.orders_api_rest.generated.model.ProductStatusDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -55,46 +57,51 @@ public class ProductsManagementController implements ProductsManagementApi {
 
   @Override
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
-  public void updateStatus(UUID productId, ProductStatusDTO status) {
+  public ResponseEntity<Void> updateStatus(UUID productId, ProductStatusDTO status) {
     ProductStatus productStatus = productStatusDTOMapper.fromDTO(status);
     updateStatusUseCase.updateStatus(productId, productStatus);
+    return ResponseEntity.ok().build();
   }
 
   @Override
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
-  public void updateProduct(UUID productId, ProductRequestDTO productRequestDTO) {
+  public ResponseEntity<Void> updateProduct(UUID productId, ProductRequestDTO productRequestDTO) {
     var updateProduct = productRequestDTOMapper.fromDTO(productRequestDTO);
     updateProductUseCase.updateProduct(productId, updateProduct);
+    return ResponseEntity.ok().build();
   }
 
   @Override
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
-  public ProductManagementPageDTO getProductsForManager(ProductManagementFilterDTO productFilter, String lang,
-      PageableDTO pageable) {
+  public ResponseEntity<ProductManagementPageDTO> getProductsForManager(ProductManagementFilterDTO productFilter,
+      String lang, PageableDTO pageable) {
     var pageableDomain = pageableDTOMapper.fromDto(pageable);
     var filter = managementProductMapper.fromProductManagementFilterDTO(productFilter);
     var productTranslationPage = managerProductsUseCase.getManagerProducts(pageableDomain, filter, lang);
-    return managementProductMapper.fromProductPage(productTranslationPage);
+    ProductManagementPageDTO pageDTO = managementProductMapper.fromProductPage(productTranslationPage);
+    return ResponseEntity.ok(pageDTO);
   }
 
   @Override
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
-  public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
+  public ResponseEntity<ProductResponseDTO> createProduct(ProductRequestDTO productRequestDTO) {
     var createProductRequest = productRequestDTOMapper.fromDTO(productRequestDTO);
     Product product = createProductUseCase.createProduct(createProductRequest);
-    return productResponseDTOMapper.toDTO(product);
+    return new ResponseEntity<>(productResponseDTOMapper.toDTO(product), HttpStatus.CREATED);
   }
 
   @Override
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
-  public ProductResponseDTO getProductById(UUID productId) {
+  public ResponseEntity<ProductResponseDTO> getProductById(UUID productId) {
     var product = getProductByIdUseCase.getProductById(productId);
-    return productResponseDTOMapper.toDTO(product);
+    ProductResponseDTO responseDTO = productResponseDTOMapper.toDTO(product);
+    return ResponseEntity.ok(responseDTO);
   }
 
   @Override
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
-  public Integer getCountOfDiscountedProducts() {
-    return getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts();
+  public ResponseEntity<Integer> getCountOfDiscountedProducts() {
+    Integer discountedProductCount = getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts();
+    return ResponseEntity.ok(discountedProductCount);
   }
 }
