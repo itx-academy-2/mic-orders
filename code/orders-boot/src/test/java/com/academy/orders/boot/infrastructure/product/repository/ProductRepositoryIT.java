@@ -36,6 +36,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 class ProductRepositoryIT extends AbstractRepositoryIT {
   @Autowired
@@ -163,13 +165,16 @@ class ProductRepositoryIT extends AbstractRepositoryIT {
 
   @Test
   void updateTest() {
+    // Given
     Product productFromBD = productRepository.getById(PRODUCT_UUID).orElseThrow(ProductNotFoundException::new);
     Discount discount = getDiscount();
     productFromBD.setDiscount(discount);
     ProductManagement productForUpdate = productManagementMapper.fromEntity(productMapper.toEntity(productFromBD));
 
+    // When
     productRepository.update(productForUpdate);
 
+    // Then
     Product result = productRepository.getById(PRODUCT_UUID).orElseThrow(ProductNotFoundException::new);
     assertEquals(discount.getAmount(), result.getDiscount().getAmount());
   }
