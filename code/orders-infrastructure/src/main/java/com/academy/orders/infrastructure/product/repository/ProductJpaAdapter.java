@@ -68,7 +68,7 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
   @Query("SELECT p FROM ProductEntity p LEFT JOIN p.orderItems oi LEFT JOIN p.productTranslations pt "
       + "LEFT JOIN pt.language l LEFT JOIN p.tags t  WHERE l.code = :language AND p.status = 'VISIBLE' "
       + "AND (:#{#tags.isEmpty()} = true OR t.name IN :tags) GROUP BY p.id "
-      + "ORDER BY count(oi.orderItemId.productId) desc")
+      + "ORDER BY count(oi.orderItemId.productId) desc, p.id desc")
   Page<ProductEntity> findAllByLanguageCodeAndStatusVisibleOrderedByDefault(String language, Pageable pageable,
       List<String> tags);
 
