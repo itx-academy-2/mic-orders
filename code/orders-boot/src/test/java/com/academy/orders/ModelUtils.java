@@ -5,6 +5,7 @@ import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.common.Pageable;
+import com.academy.orders.domain.discount.entity.Discount;
 import com.academy.orders.domain.order.entity.Order;
 import com.academy.orders.domain.order.entity.OrderItem;
 import com.academy.orders.domain.order.entity.OrderReceiver;
@@ -15,7 +16,6 @@ import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -97,12 +97,6 @@ public class ModelUtils {
     return ProductManagementFilterDto.builder().searchByName("iphone").tags(emptyList()).build();
   }
 
-  public static ProductManagement getProductManagement() {
-    return ProductManagement.builder().id(UUID.fromString("84b7e491-0dcf-44c3-beb6-7496dc6ef3b1")).status(VISIBLE)
-        .image(PRODUCT_IMAGE).createdAt(DATE_TIME).quantity(1000).price(BigDecimal.valueOf(559.00))
-        .productTranslationManagement(getProductTranslations()).build();
-  }
-
   public static ProductManagement getProductToSave() {
     return ProductManagement.builder().status(VISIBLE).image(PRODUCT_IMAGE).createdAt(DATE_TIME).quantity(1000)
         .price(BigDecimal.valueOf(559.00)).productTranslationManagement(Set.of()).build();
@@ -120,5 +114,13 @@ public class ModelUtils {
 
   public static CartItem getCartItem() {
     return CartItem.builder().product(getProductWithImageName()).quantity(10).build();
+  }
+
+  public static Discount getDiscount() {
+    return Discount.builder()
+        .amount(50)
+        .startDate(LocalDateTime.now())
+        .endDate(LocalDateTime.now().plusDays(10))
+        .build();
   }
 }
