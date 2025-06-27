@@ -46,10 +46,12 @@ class SecurityUtilsTest {
     // Given
     SecurityContextHolder.getContext().setAuthentication(null);
 
-    // When / Then
+    // When
     ResponseStatusException ex = assertThrows(ResponseStatusException.class, securityUtils::getAuthenticatedUserId);
 
+    // Then
     assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+    assertEquals(SecurityUtils.ERROR_NOT_AUTHENTICATED, ex.getReason());
   }
 
   @Test
@@ -60,10 +62,12 @@ class SecurityUtilsTest {
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    // When / Then
+    // When
     ResponseStatusException ex = assertThrows(ResponseStatusException.class, securityUtils::getAuthenticatedUserId);
 
+    // Then
     assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+    assertEquals(SecurityUtils.ERROR_NOT_AUTHENTICATED, ex.getReason());
   }
 
   @Test
@@ -75,10 +79,12 @@ class SecurityUtilsTest {
     when(authentication.getPrincipal()).thenReturn(jwt);
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    // When / Then
+    // When
     ResponseStatusException ex = assertThrows(ResponseStatusException.class, securityUtils::getAuthenticatedUserId);
 
+    // Then
     assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+    assertEquals(SecurityUtils.ERROR_INVALID_ID_FORMAT, ex.getReason());
   }
 
   @Test
@@ -90,9 +96,11 @@ class SecurityUtilsTest {
     when(authentication.getPrincipal()).thenReturn(jwt);
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    // When / Then
+    // When
     ResponseStatusException ex = assertThrows(ResponseStatusException.class, securityUtils::getAuthenticatedUserId);
 
+    // Then
     assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+    assertEquals(SecurityUtils.ERROR_INVALID_ID_FORMAT, ex.getReason());
   }
 }
