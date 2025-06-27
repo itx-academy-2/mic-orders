@@ -12,7 +12,9 @@ import org.springframework.web.server.ResponseStatusException;
 @Component
 public class SecurityUtils {
   private static final String USER_ID_CLAIM = "id";
+
   private static final String ERROR_NOT_AUTHENTICATED = "User not authenticated";
+
   private static final String ERROR_INVALID_ID_FORMAT = "Invalid user ID format in token";
 
   public Long getAuthenticatedUserId() {
