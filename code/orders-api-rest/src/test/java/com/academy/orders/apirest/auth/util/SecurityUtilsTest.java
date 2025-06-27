@@ -26,7 +26,7 @@ class SecurityUtilsTest {
   }
 
   @Test
-  void shouldReturnUserIdWhenJwtIsValid() {
+  void shouldReturnUserIdWhenJwtIsValidTest() {
     // Given
     Jwt jwt = mock(Jwt.class);
     Authentication authentication = mock(Authentication.class);
@@ -42,7 +42,7 @@ class SecurityUtilsTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenAuthenticationIsNull() {
+  void shouldThrowExceptionWhenAuthenticationIsNullTest() {
     // Given
     SecurityContextHolder.getContext().setAuthentication(null);
 
@@ -53,7 +53,7 @@ class SecurityUtilsTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenPrincipalIsNotJwt() {
+  void shouldThrowExceptionWhenPrincipalIsNotJwtTest() {
     // Given
     Authentication authentication = mock(Authentication.class);
     when(authentication.getPrincipal()).thenReturn("not-a-jwt");
@@ -67,10 +67,25 @@ class SecurityUtilsTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenJwtDoesNotContainIdClaim() {
+  void shouldThrowExceptionWhenJwtDoesNotContainIdClaimTest() {
     // Given
     Jwt jwt = mock(Jwt.class);
     when(jwt.getClaim("id")).thenReturn(null);
+    Authentication authentication = mock(Authentication.class);
+    when(authentication.getPrincipal()).thenReturn(jwt);
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    // When / Then
+    ResponseStatusException ex = assertThrows(ResponseStatusException.class, securityUtils::getAuthenticatedUserId);
+
+    assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+  }
+
+  @Test
+  void shouldThrowExceptionWhenIdClaimIsNotNumberTest() {
+    // Given
+    Jwt jwt = mock(Jwt.class);
+    when(jwt.getClaim("id")).thenReturn("not-a-number");
     Authentication authentication = mock(Authentication.class);
     when(authentication.getPrincipal()).thenReturn(jwt);
     SecurityContextHolder.getContext().setAuthentication(authentication);
