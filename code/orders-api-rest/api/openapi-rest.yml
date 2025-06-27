@@ -923,57 +923,57 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
   /v1/password-reset/{token}:
-      get:
-        tags:
-          - PasswordResetController
-        summary: Validate password reset token
-        description: |
-          Validates a token and returns its status. Used to enable the password 
-          reset form on the frontend.
-
-          **Token Requirements:**
-          - Must be a valid UUID v4
-          - Must not be expired (within 10 minutes of creation)
-          - Must not have been used already
-
-          **Common Error Scenarios:**
-          - Invalid UUID format returns 400
-          - Token not found returns 404
-          - Expired or used token returns 410
-        parameters:
-          - name: token
-            in: path
-            required: true
-            description: UUID v4 token from password reset email
-            schema:
-              type: string
-              format: uuid
-              example: "550e8400-e29b-41d4-a716-446655440000"
-        responses:
-          '200':
-            description: Token is valid and can be used for password reset
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/TokenValidResponse'
-          '400':
-            description: Malformed token (invalid UUID format)
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/ErrorResponse'
-          '404':
-            description: Token not found
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/ErrorResponse'
-          '410':
-            description: Token expired or already used
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - PasswordResetController
+      summary: Validate password reset token
+      description: |
+        Validates a token and returns its status. Used to enable the password 
+        reset form on the frontend.
+        
+        **Token Requirements:**
+        - Must be a valid UUID v4
+        - Must not be expired (within 10 minutes of creation)
+        - Must not have been used already
+        
+        **Common Error Scenarios:**
+        - Invalid UUID format returns 400
+        - Token not found returns 404
+        - Expired or used token returns 410
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: UUID v4 token from password reset email
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Token is valid and can be used for password reset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenValidResponse'
+        '400':
+          description: Malformed token (invalid UUID format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '410':
+          description: Token expired or already used
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 #COMPONENTS
 #=======================================================================================================================
