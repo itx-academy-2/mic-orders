@@ -825,6 +825,32 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+    post:
+      tags:
+        - Address
+      summary: Create a new user's address
+      operationId: createUserAddress
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAddress'
+      responses:
+        '201':
+          description: Address is created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPostAddressResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
   /v2/users/{userId}/orders:
     post:
       tags:
@@ -2320,3 +2346,57 @@ components:
         - firstName
         - lastName
         - phone
+
+    CreateAddress:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: John
+          minLength: 2
+          maxLength: 50
+          pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
+          description: First name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens.
+        lastName:
+          type: string
+          example: Doe
+          minLength: 2
+          maxLength: 50
+          pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
+          description: Last name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
+        deliveryMethod:
+          $ref: '#/components/schemas/DeliveryMethod'
+        city:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: City where department is located
+          example: Lviv
+        department:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Department of the post
+          example: №1 Franka street, 7
+        phone:
+          type: string
+          minLength: 10
+          maxLength: 13
+          pattern: ^\+?[0-9]+$
+          description: Phone number of the recipient
+          example: +380960775434
+        title:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: Home
+          pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+$
+          description: Title for the delivery address. Used to identify saved addresses (e.g. "Home", "Office")
+      required:
+        - city
+        - deliveryMethod
+        - department
+        - firstName
+        - lastName
+        - phone
+        - title
