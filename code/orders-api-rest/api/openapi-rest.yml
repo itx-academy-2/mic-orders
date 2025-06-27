@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.0.8
+  version: 2.1.0
 servers:
   - url: http://localhost:8080/retail
 
@@ -801,6 +801,56 @@ paths:
         '401':
           description: Unauthorized - authentication required
 
+  /v1/users/{userId}/addresses:
+    get:
+      tags:
+        - Address
+      summary: Get all post addresses for the user
+      operationId: getUserAddresses
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: List of post addresses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPostAddressResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /v2/users/{userId}/orders:
+    post:
+      tags:
+        - Orders
+      summary: Place an order
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      operationId: placeOrderV2
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceOrderRequestV2'
+      responses:
+        '201':
+          description: Order is created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaceOrderResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
 #COMPONENTS
 #=======================================================================================================================
@@ -2181,3 +2231,92 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FilterUsageStatistics'
+
+    UserPostAddressResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deliveryMethod:
+          $ref: '#/components/schemas/DeliveryMethod'
+        city:
+          type: string
+          example: "Lviv"
+        department:
+          type: string
+          example: "52"
+        title:
+          type: string
+          example: "Home"
+          description: Title of the address (e.g. Home, Office)
+        firstName:
+          type: string
+          example: "John"
+          description: First name of the recipient
+        lastName:
+          type: string
+          example: "Doe"
+          description: Last name of the recipient
+        phone:
+          type: string
+          example: "+380960775434"
+          description: Phone number of the recipient
+
+    PlaceOrderRequestV2:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: John
+          minLength: 2
+          maxLength: 50
+          pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
+          description: First name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens.
+        lastName:
+          type: string
+          example: Doe
+          minLength: 2
+          maxLength: 50
+          pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
+          description: Last name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens.
+        email:
+          type: string
+          format: email
+          example: example@mail.com
+        deliveryMethod:
+          $ref: '#/components/schemas/DeliveryMethod'
+        city:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: city where department is located
+          example: Lviv
+        department:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: department of the post
+          example: №1 Franka street, 7
+        phone:
+          type: string
+          minLength: 10
+          maxLength: 13
+          pattern: ^\+?[0-9]+$
+          description: phone number of the recipient
+          example: +380960775434
+        title:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: Home
+          pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+$
+          description: Optional title for the delivery address. Used to identify saved addresses (e.g. "Home", "Office")
+      required:
+        - city
+        - deliveryMethod
+        - department
+        - email
+        - firstName
+        - lastName
+        - phone
