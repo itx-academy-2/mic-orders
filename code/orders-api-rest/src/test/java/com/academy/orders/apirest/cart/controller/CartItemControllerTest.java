@@ -1,6 +1,7 @@
 package com.academy.orders.apirest.cart.controller;
 
 import com.academy.orders.apirest.ModelUtils;
+import com.academy.orders.apirest.auth.util.SecurityUtils;
 import com.academy.orders.apirest.auth.validator.CheckAccountIdUseCaseImpl;
 import com.academy.orders.apirest.cart.mapper.CartItemDTOMapper;
 import com.academy.orders.apirest.common.ErrorHandler;
@@ -24,7 +25,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.util.UUID;
 
 import static com.academy.orders.apirest.ModelUtils.getJwtRequest;
@@ -50,7 +50,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = CartItemController.class)
 @ContextConfiguration(classes = {CartItemController.class})
 @Import(value = {AopAutoConfiguration.class, TestSecurityConfig.class, ErrorHandler.class,
-    CheckAccountIdUseCaseImpl.class})
+    CheckAccountIdUseCaseImpl.class, SecurityUtils.class})
 class CartItemControllerTest {
   private final UUID productId = UUID.randomUUID();
 
