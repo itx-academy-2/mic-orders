@@ -41,7 +41,7 @@ class GetUserAccountV2InfoUseCaseImplTest {
   void getUserAccountInfoWithNotExistsAccountTest() {
     // Given
     Long notExistsAccountID = 999L;
-    when(accountV2Repository.findAccountById(notExistsAccountID)).thenThrow(AccountNotFoundException.class);
+    when(accountV2Repository.findAccountById(notExistsAccountID)).thenReturn(Optional.empty());
 
     // When / Then
     assertThrows(AccountNotFoundException.class, () -> getUserAccountV2InfoUseCase.getUserAccountInfo(notExistsAccountID));

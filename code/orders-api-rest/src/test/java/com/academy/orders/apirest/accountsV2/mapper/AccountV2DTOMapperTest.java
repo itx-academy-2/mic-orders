@@ -13,7 +13,7 @@ public class AccountV2DTOMapperTest {
   private final AccountV2DTOMapper accountDTOMapper = Mappers.getMapper(AccountV2DTOMapper.class);
 
   @Test
-  void toUserAccountInfoDtoFromAccount() {
+  void toUserAccountInfoDtoFromAccountTest() {
     // Given
     AccountV2 accountV2 = ModelUtils.getAccountV2();
     UserAccountInfoDTO expected = new UserAccountInfoDTO();
