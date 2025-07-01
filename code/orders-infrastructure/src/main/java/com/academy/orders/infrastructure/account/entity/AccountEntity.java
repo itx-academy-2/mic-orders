@@ -22,7 +22,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +53,12 @@ public class AccountEntity {
 
   @Column(name = "last_name", nullable = false, length = 100)
   private String lastName;
+
+  @Column(name = "phone", length = 13)
+  private String phone;
+
+  @Column(name = "photo")
+  private String photo;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "role", nullable = false, length = 20)

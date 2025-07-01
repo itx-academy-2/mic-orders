@@ -6,27 +6,31 @@ import com.academy.orders.domain.account.entity.CreateAccountDTO;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
 import com.academy.orders.domain.account.repository.AccountRepository;
+import com.academy.orders.domain.accountv2.entity.AccountV2;
+import com.academy.orders.domain.accountv2.repository.AccountV2Repository;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.infrastructure.account.AccountMapper;
 import com.academy.orders.infrastructure.account.AccountPageMapper;
+import com.academy.orders.infrastructure.account.AccountV2Mapper;
 import com.academy.orders.infrastructure.account.entity.AccountEntity;
 import com.academy.orders.infrastructure.common.PageableMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class AccountRepositoryImpl implements AccountRepository {
+public class AccountRepositoryImpl implements AccountRepository, AccountV2Repository {
   private final AccountJpaAdapter accountJpaAdapter;
 
   private final AccountMapper accountMapper;
+
+  private final AccountV2Mapper accountV2Mapper;
 
   private final AccountPageMapper accountPageMapper;
 
@@ -75,5 +79,11 @@ public class AccountRepositoryImpl implements AccountRepository {
     var pageable = pageableMapper.fromDomain(pageableDomain);
     var accountPage = accountJpaAdapter.findAllByRoleAndStatus(filter, pageable);
     return accountPageMapper.toDomain(accountPage);
+  }
+
+  @Override
+  public Optional<AccountV2> findAccountById(Long id) {
+    var accountEntity = accountJpaAdapter.findById(id);
+    return accountEntity.map(accountV2Mapper::fromEntity);
   }
 }
