@@ -33,6 +33,9 @@ tags:
   - name: Address
     description: Address endpoints
 
+  - name: OrdersV2
+    description: Orders endpoints, version 2
+
 #ENDPOINTS
 #=======================================================================================================================
 paths:
@@ -859,7 +862,7 @@ paths:
   /v2/users/{userId}/orders:
     post:
       tags:
-        - Orders
+        - OrdersV2
       summary: Place an order
       parameters:
         - $ref: '#/components/parameters/UserId'
