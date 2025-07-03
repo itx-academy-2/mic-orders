@@ -2,7 +2,7 @@ package com.academy.orders.apirest.ordersV2.controller;
 
 import com.academy.orders.apirest.ordersV2.mapper.OrderV2DTOMapper;
 import com.academy.orders.domain.orderV2.usecase.CreateOrderV2UseCase;
-import com.academy.orders_api_rest.generated.api.OrdersApi;
+import com.academy.orders_api_rest.generated.api.OrdersV2Api;
 import com.academy.orders_api_rest.generated.model.PlaceOrderRequestV2DTO;
 import com.academy.orders_api_rest.generated.model.PlaceOrderResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin
-public class OrdersV2Controller implements OrdersApi {
+public class OrdersV2Controller implements OrdersV2Api {
     private final CreateOrderV2UseCase createOrderV2UseCase;
 
     private final OrderV2DTOMapper mapper;
