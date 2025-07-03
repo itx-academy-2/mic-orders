@@ -72,6 +72,7 @@ import com.academy.orders_api_rest.generated.model.TagDTO;
 import com.academy.orders_api_rest.generated.model.UpdateOrderStatusRequestDTO;
 import com.academy.orders_api_rest.generated.model.UpdatedCartItemDTO;
 import com.academy.orders_api_rest.generated.model.UserOrderDTO;
+import com.academy.orders_api_rest.generated.model.PlaceOrderRequestV2DTO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -113,6 +114,8 @@ import static com.academy.orders.apirest.TestConstants.TEST_PRICE_WITH_DISCOUNT;
 import static com.academy.orders.apirest.TestConstants.TEST_QUANTITY;
 import static com.academy.orders.apirest.TestConstants.TEST_START_DATE;
 import static com.academy.orders.apirest.TestConstants.TEST_UUID;
+import static com.academy.orders.apirest.TestConstants.TEST_PHONE_NUMBER;
+import static com.academy.orders.apirest.TestConstants.TEST_ADDRESS_TITLE;
 import static com.academy.orders_api_rest.generated.model.DeliveryMethodDTO.NOVA;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
@@ -743,5 +746,19 @@ public class ModelUtils {
   public static FilterUsageReportDTO getFilterUsageReportDTO() {
     return new FilterUsageReportDTO()
         .filterMetrics(List.of(getFilterUsageStatisticsDTO()));
+  }
+
+  public static PlaceOrderRequestV2DTO getPlaceOrderRequestV2DTO() {
+    var placeOrderRequestV2DTO = new PlaceOrderRequestV2DTO();
+    placeOrderRequestV2DTO.setFirstName(TEST_FIRST_NAME);
+    placeOrderRequestV2DTO.setLastName(TEST_LAST_NAME);
+    placeOrderRequestV2DTO.setEmail(TEST_EMAIL);
+    placeOrderRequestV2DTO.setCity(TEST_CITY);
+    placeOrderRequestV2DTO.setDepartment(TEST_DEPARTMENT);
+    placeOrderRequestV2DTO.setDeliveryMethod(NOVA);
+    placeOrderRequestV2DTO.setPhone(TEST_PHONE_NUMBER);
+    placeOrderRequestV2DTO.setTitle(TEST_ADDRESS_TITLE);
+
+    return placeOrderRequestV2DTO;
   }
 }
