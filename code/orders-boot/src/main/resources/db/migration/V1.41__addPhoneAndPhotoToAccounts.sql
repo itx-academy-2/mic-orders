@@ -1,0 +1,3 @@
+ALTER TABLE accounts
+    ADD COLUMN phone VARCHAR(13),
+    ADD COLUMN photo TEXT;
