@@ -5,6 +5,7 @@ import com.academy.orders.apirest.auth.validator.CheckAccountIdUseCaseImpl;
 import com.academy.orders.apirest.common.ErrorHandler;
 import com.academy.orders.apirest.common.TestSecurityConfig;
 import com.academy.orders.apirest.ordersV2.mapper.OrderV2DTOMapper;
+import com.academy.orders.domain.cart.exception.EmptyCartException;
 import com.academy.orders.domain.order.exception.InsufficientProductQuantityException;
 import com.academy.orders.domain.orderV2.dto.CreateOrderV2Dto;
 import com.academy.orders.domain.orderV2.usecase.CreateOrderV2UseCase;
@@ -143,7 +144,7 @@ public class OrdersV2ControllerTest {
 
     @Test
     @SneakyThrows
-    void placeOrderV2_ThrowsInsufficientProductQuantityException_Test() {
+    void placeOrderV2_ThrowsEmptyCartException_Test() {
         //Given
         Long userId = 1L;
         String role = "ROLE_ADMIN";
@@ -151,14 +152,14 @@ public class OrdersV2ControllerTest {
         //When
         when(mapper.toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class))).thenReturn(CreateOrderV2Dto.builder().build());
         when(createOrderV2UseCase.createOrderV2(any(CreateOrderV2Dto.class), anyLong()))
-                .thenThrow(new InsufficientProductQuantityException(UUID.randomUUID()));
+                .thenThrow(new EmptyCartException());
 
         var result = mockMvc.perform(post("/v2/users/{id}/orders", userId).with(getJwtRequest(userId, role))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
 
         //Then
-        result.andExpect(status().isConflict());
+        result.andExpect(status().isBadRequest());
         verify(mapper).toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class));
         verify(createOrderV2UseCase).createOrderV2(any(CreateOrderV2Dto.class), anyLong());
     }
