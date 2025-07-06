@@ -1,14 +1,16 @@
 package com.academy.orders.application.orderV2.usecase;
 
+import com.academy.orders.domain.account.exception.AccountNotFoundException;
+import com.academy.orders.domain.accountV2.entity.AccountV2;
+import com.academy.orders.domain.accountV2.repository.AccountV2Repository;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.cart.exception.EmptyCartException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
 import com.academy.orders.domain.order.entity.OrderItem;
-import com.academy.orders.domain.order.entity.OrderReceiver;
-import com.academy.orders.domain.order.entity.PostAddress;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.orderV2.dto.CreateOrderV2Dto;
 import com.academy.orders.domain.orderV2.entity.OrderV2;
+import com.academy.orders.domain.orderV2.entity.PostAddressV2;
 import com.academy.orders.domain.orderV2.repository.OrderV2Repository;
 import com.academy.orders.domain.orderV2.usecase.CreateOrderV2UseCase;
 import com.academy.orders.domain.product.usecase.ChangeQuantityUseCase;
@@ -29,13 +31,15 @@ public class CreateOrderV2UseCaseImpl implements CreateOrderV2UseCase {
 
     private final ChangeQuantityUseCase changeQuantityUseCase;
 
+    private final AccountV2Repository accountV2Repository;
+
 
     @Override
     public UUID createOrderV2(CreateOrderV2Dto orderV2Dto, Long accountId) {
         var bucketElements = getBucketElements(accountId);
         checkCartIsNotEmpty(bucketElements);
         var orderItems = createOrderItems(bucketElements);
-        var order = createOrderObject(orderV2Dto, orderItems);
+        var order = createOrderObject(orderV2Dto, orderItems, accountId);
         var orderId = saveOrder(order, accountId);
         clearCart(accountId);
         return orderId;
@@ -62,20 +66,23 @@ public class CreateOrderV2UseCaseImpl implements CreateOrderV2UseCase {
         return new OrderItem(cartItem.product(), calculatedPrice, currentDiscount, cartItem.quantity());
     }
 
-    private OrderV2 createOrderObject(CreateOrderV2Dto createOrderV2Dto, List<OrderItem> orderItems) {
-        return OrderV2.builder().receiver(createReceiverObject(createOrderV2Dto))
-                .postAddress(createPostAddressObject(createOrderV2Dto)).orderStatus(OrderStatus.IN_PROGRESS).isPaid(false)
+    private OrderV2 createOrderObject(CreateOrderV2Dto createOrderV2Dto, List<OrderItem> orderItems,
+                                      Long accountId) {
+        return OrderV2.builder()
+                .postAddress(createPostAddressObject(createOrderV2Dto, accountId)).orderStatus(OrderStatus.IN_PROGRESS).isPaid(false)
                 .orderItems(orderItems).build();
     }
 
-    private OrderReceiver createReceiverObject(CreateOrderV2Dto createOrderV2Dto) {
-        return OrderReceiver.builder().firstName(createOrderV2Dto.firstName()).lastName(createOrderV2Dto.lastName())
-                .email(createOrderV2Dto.email()).build();
+    private PostAddressV2 createPostAddressObject(CreateOrderV2Dto createOrderV2Dto, Long accountId) {
+        return PostAddressV2.builder().city(createOrderV2Dto.city()).department(createOrderV2Dto.department())
+                .deliveryMethod(createOrderV2Dto.deliveryMethod())
+                .recipientFirstName(createOrderV2Dto.firstName()).recipientLastName(createOrderV2Dto.lastName())
+                .recipientPhone(createOrderV2Dto.phone()).title(createOrderV2Dto.title())
+                .account(createAccountV2Object(accountId)).build();
     }
 
-    private PostAddress createPostAddressObject(CreateOrderV2Dto createOrderV2Dto) {
-        return PostAddress.builder().city(createOrderV2Dto.city()).department(createOrderV2Dto.department())
-                .deliveryMethod(createOrderV2Dto.deliveryMethod()).build();
+    private AccountV2 createAccountV2Object(Long accountId) {
+        return accountV2Repository.findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
     }
 
     private UUID saveOrder(OrderV2 orderV2, Long accountId) {
