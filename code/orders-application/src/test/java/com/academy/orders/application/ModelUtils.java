@@ -16,6 +16,7 @@ import com.academy.orders.domain.order.dto.CreateOrderDto;
 import com.academy.orders.domain.order.dto.OrderStatusInfo;
 import com.academy.orders.domain.order.dto.OrdersFilterParametersDto;
 import com.academy.orders.domain.order.dto.UpdateOrderStatusDto;
+import com.academy.orders.domain.orderV2.dto.CreateOrderV2Dto;
 import com.academy.orders.domain.order.entity.Order;
 import com.academy.orders.domain.order.entity.OrderItem;
 import com.academy.orders.domain.order.entity.OrderManagement;
@@ -405,5 +406,11 @@ public class ModelUtils {
         .createdAt(TEST_START_DATE)
         .contents(getArticleContents())
         .build();
+  }
+
+  public static CreateOrderV2Dto getCreateOrderV2Dto() {
+    return CreateOrderV2Dto.builder().firstName("mockFirstName").lastName("mockLastName").email("mockmail@mail.com")
+            .city("mockCity").department("mockDepartment").deliveryMethod(DeliveryMethod.NOVA).
+            phone("+380968776677").title("Home").build();
   }
 }

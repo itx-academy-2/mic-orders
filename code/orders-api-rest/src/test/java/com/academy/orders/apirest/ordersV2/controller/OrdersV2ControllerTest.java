@@ -6,7 +6,6 @@ import com.academy.orders.apirest.common.ErrorHandler;
 import com.academy.orders.apirest.common.TestSecurityConfig;
 import com.academy.orders.apirest.ordersV2.mapper.OrderV2DTOMapper;
 import com.academy.orders.domain.cart.exception.EmptyCartException;
-import com.academy.orders.domain.order.exception.InsufficientProductQuantityException;
 import com.academy.orders.domain.orderV2.dto.CreateOrderV2Dto;
 import com.academy.orders.domain.orderV2.usecase.CreateOrderV2UseCase;
 import com.academy.orders_api_rest.generated.model.PlaceOrderRequestV2DTO;
