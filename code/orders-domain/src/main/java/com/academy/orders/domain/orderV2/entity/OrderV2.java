@@ -1,11 +1,9 @@
 package com.academy.orders.domain.orderV2.entity;
 
-import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.accountV2.entity.AccountV2;
 import com.academy.orders.domain.order.entity.OrderItem;
-import com.academy.orders.domain.order.entity.OrderReceiver;
-import com.academy.orders.domain.order.entity.PostAddress;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
+import com.academy.orders.domain.postaddress.entity.PostAddressV2;
 import lombok.Builder;
 
 import java.math.BigDecimal;

@@ -1,8 +1,7 @@
 package com.academy.orders.infrastructure.orderV2.repository;
 
-import com.academy.orders.domain.orderV2.repository.PostAddressRepository;
+import com.academy.orders.domain.postaddress.repository.PostAddressRepository;
 import com.academy.orders.infrastructure.account.repository.AccountJpaAdapter;
-import com.academy.orders.infrastructure.order.entity.OrderEntity;
 import com.academy.orders.infrastructure.order.entity.PostAddressEntity;
 import com.academy.orders.infrastructure.orderV2.PostAddressV2Mapper;
 import lombok.RequiredArgsConstructor;

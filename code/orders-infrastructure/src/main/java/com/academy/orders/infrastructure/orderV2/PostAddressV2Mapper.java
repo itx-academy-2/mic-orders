@@ -1,6 +1,6 @@
 package com.academy.orders.infrastructure.orderV2;
 
-import com.academy.orders.domain.orderV2.entity.PostAddressV2;
+import com.academy.orders.domain.postaddress.entity.PostAddressV2;
 import com.academy.orders.infrastructure.order.entity.PostAddressEntity;
 import org.mapstruct.Mapper;
 

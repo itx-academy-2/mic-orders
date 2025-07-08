@@ -2,7 +2,7 @@ package com.academy.orders.domain.accountV2.entity;
 
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
-import com.academy.orders.domain.orderV2.entity.PostAddressV2;
+import com.academy.orders.domain.postaddress.entity.PostAddressV2;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

@@ -10,7 +10,7 @@ import com.academy.orders.domain.order.entity.OrderItem;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.orderV2.dto.CreateOrderV2Dto;
 import com.academy.orders.domain.orderV2.entity.OrderV2;
-import com.academy.orders.domain.orderV2.entity.PostAddressV2;
+import com.academy.orders.domain.postaddress.entity.PostAddressV2;
 import com.academy.orders.domain.orderV2.repository.OrderV2Repository;
 import com.academy.orders.domain.orderV2.usecase.CreateOrderV2UseCase;
 import com.academy.orders.domain.product.usecase.ChangeQuantityUseCase;

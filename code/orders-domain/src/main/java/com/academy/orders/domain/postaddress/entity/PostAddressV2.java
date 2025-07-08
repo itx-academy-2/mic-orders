@@ -1,8 +1,8 @@
-package com.academy.orders.domain.orderV2.entity;
+package com.academy.orders.domain.postaddress.entity;
 
-import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.accountV2.entity.AccountV2;
 import com.academy.orders.domain.order.entity.enumerated.DeliveryMethod;
+import com.academy.orders.domain.orderV2.entity.OrderV2;
 import lombok.Builder;
 
 import java.util.List;
