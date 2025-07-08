@@ -2287,7 +2287,6 @@ components:
           type: string
           description: |
             User's phone number in international or local format.
-            
             Must match one of the following formats:
             - International format: '+' followed by exactly 12 digits.
               Example: +380631234567

@@ -10,7 +10,7 @@ public interface UpdateUserAccountV2InfoUseCase {
   /**
    * Updates personal info for user account.
    *
-   * @param userId the {@link String} user's id.
+   * @param userId the {@link Long} user's id.
    * @param updateUserAccountV2InfoDto {@link UpdateUserAccountV2InfoDto} the DTO containing updated personal info
    */
   void updateUserAccountInfo(Long userId, UpdateUserAccountV2InfoDto updateUserAccountV2InfoDto);
