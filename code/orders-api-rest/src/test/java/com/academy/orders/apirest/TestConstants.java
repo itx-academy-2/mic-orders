@@ -67,6 +67,8 @@ public class TestConstants {
 
   public static final String TEST_EMAIL = "mockedmail@mail.com";
 
+  public static final String TEST_PHONE_NUMBER = "+380631234567";
+
   public static final String TEST_CITY = "mockedCity";
 
   public static final String TEST_DEPARTMENT = "mockedDepartment";

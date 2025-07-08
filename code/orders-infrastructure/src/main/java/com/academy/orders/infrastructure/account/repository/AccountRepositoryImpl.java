@@ -6,6 +6,7 @@ import com.academy.orders.domain.account.entity.CreateAccountDTO;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
 import com.academy.orders.domain.account.repository.AccountRepository;
+import com.academy.orders.domain.accountv2.dto.UpdateUserAccountV2InfoDto;
 import com.academy.orders.domain.accountv2.entity.AccountV2;
 import com.academy.orders.domain.accountv2.repository.AccountV2Repository;
 import com.academy.orders.domain.common.Page;
@@ -85,5 +86,12 @@ public class AccountRepositoryImpl implements AccountRepository, AccountV2Reposi
   public Optional<AccountV2> findAccountById(Long id) {
     var accountEntity = accountJpaAdapter.findById(id);
     return accountEntity.map(accountV2Mapper::fromEntity);
+  }
+
+  @Override
+  @Transactional
+  public void updateAccountPersonalInfo(Long id, UpdateUserAccountV2InfoDto dto) {
+    log.info("Updating personal info for user with id {}: {}", id, dto);
+    accountJpaAdapter.updatePersonalInfo(id, dto.firstName(), dto.lastName(), dto.phone());
   }
 }

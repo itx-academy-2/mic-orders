@@ -14,9 +14,11 @@ import com.academy.orders_api_rest.generated.model.ErrorObjectDTO;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -36,7 +38,26 @@ public class ErrorHandler {
     return new ErrorObjectDTO().status(HttpStatus.BAD_REQUEST.value())
         .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
         .detail(requireNonNull(ex.getFieldError()).getDefaultMessage());
+  }
 
+  @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+  @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+  public ErrorObjectDTO handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException ex) {
+    log.warn("Unsupported media type", ex);
+    return new ErrorObjectDTO()
+        .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
+        .title("Unsupported Media Type")
+        .detail("Content-Type '" + ex.getContentType() + "' is not supported");
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public final ErrorObjectDTO handleHttpMessageNotReadableException(final HttpMessageNotReadableException ex) {
+    log.warn("Malformed JSON request", ex);
+    return new ErrorObjectDTO()
+        .status(HttpStatus.BAD_REQUEST.value())
+        .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
+        .detail("Malformed JSON request or empty body is not allowed");
   }
 
   @ExceptionHandler(value = NotFoundException.class)

@@ -1,12 +1,14 @@
 package com.academy.orders.boot.infrastructure.accountV2.repository;
 
 import com.academy.orders.boot.infrastructure.common.repository.AbstractRepositoryIT;
+import com.academy.orders.domain.accountv2.dto.UpdateUserAccountV2InfoDto;
 import com.academy.orders.domain.accountv2.entity.AccountV2;
 import com.academy.orders.domain.accountv2.repository.AccountV2Repository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Optional;
 
+import static com.academy.orders.ModelUtils.getUpdateUserAccountV2InfoDto;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class AccountV2RepositoryIT extends AbstractRepositoryIT {
@@ -36,5 +38,22 @@ public class AccountV2RepositoryIT extends AbstractRepositoryIT {
 
     // Then
     assertThat(result).isNotPresent();
+  }
+
+  @Test
+  void updateAccountPersonalInfoUpdatesDataTest() {
+    // Given
+    Long existingId = 1L;
+    UpdateUserAccountV2InfoDto updateDto = getUpdateUserAccountV2InfoDto();
+
+    // When
+    accountV2Repository.updateAccountPersonalInfo(existingId, updateDto);
+
+    // Then
+    Optional<AccountV2> updatedAccount = accountV2Repository.findAccountById(existingId);
+    assertThat(updatedAccount).isPresent();
+    assertThat(updatedAccount.get().firstName()).isEqualTo(updateDto.firstName());
+    assertThat(updatedAccount.get().lastName()).isEqualTo(updateDto.lastName());
+    assertThat(updatedAccount.get().phone()).isEqualTo(updateDto.phone());
   }
 }

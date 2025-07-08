@@ -5,6 +5,7 @@ import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.account.entity.CreateAccountDTO;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
+import com.academy.orders.domain.accountv2.dto.UpdateUserAccountV2InfoDto;
 import com.academy.orders.domain.accountv2.entity.AccountV2;
 import com.academy.orders.domain.article.entity.Article;
 import com.academy.orders.domain.article.entity.ArticleContent;
@@ -53,7 +54,10 @@ import static com.academy.orders.domain.order.entity.enumerated.DeliveryMethod.N
 import static com.academy.orders.infrastructure.TestConstants.LANGUAGE_EN;
 import static com.academy.orders.infrastructure.TestConstants.TEST_AMOUNT;
 import static com.academy.orders.infrastructure.TestConstants.TEST_END_DATE;
+import static com.academy.orders.infrastructure.TestConstants.TEST_FIRST_NAME;
 import static com.academy.orders.infrastructure.TestConstants.TEST_ID;
+import static com.academy.orders.infrastructure.TestConstants.TEST_LAST_NAME;
+import static com.academy.orders.infrastructure.TestConstants.TEST_PHONE_NUMBER;
 import static com.academy.orders.infrastructure.TestConstants.TEST_START_DATE;
 import static com.academy.orders.infrastructure.TestConstants.TEST_UUID;
 
@@ -90,6 +94,14 @@ public class ModelUtils {
         .password("$2a$12$j6tAmpJpMhU6ATtgRIS0puHsPVxs2upwoBUbTtakSt9tlZ6uZ04IC").role(Role.ROLE_ADMIN)
         .status(UserStatus.ACTIVE).createdAt(DATE_TIME)
         .phone("+380631234567").photo("https://somenotexistsurl.com/mynotexistsphoto.jpg").build();
+  }
+
+  public static UpdateUserAccountV2InfoDto getUpdateUserAccountV2InfoDto() {
+    return UpdateUserAccountV2InfoDto.builder()
+        .firstName(TEST_FIRST_NAME)
+        .lastName(TEST_LAST_NAME)
+        .phone(TEST_PHONE_NUMBER)
+        .build();
   }
 
   public static CreateAccountDTO getCreateAccountDTO() {

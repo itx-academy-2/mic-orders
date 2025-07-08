@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.1.8
+  version: 2.2.8
 servers:
   - url: http://localhost:8080/retail
 
@@ -823,6 +823,31 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+    patch:
+      tags:
+        - UserPersonalCabinet
+      summary: Update personal info
+      description: Update personal information such as first name, last name, and phone number for the authenticated user.
+      operationId: updatePersonalUserInfo
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAccountV2InfoRequest'
+      responses:
+        '204':
+          description: Personal info successfully updated
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+
+
 #COMPONENTS
 #=======================================================================================================================
 components:
@@ -962,6 +987,16 @@ components:
             title: Forbidden
             detail: User does not have success to this resource
 
+    UnsupportedMediaType:
+      description: Unsupported Media Type
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            status: 415
+            title: Unsupported Media Type
+            detail: Content-Type 'null' is not supported. Please use 'application/json'.
   #SCHEMAS
   #=======================================================================================================================
   schemas:
@@ -2231,3 +2266,35 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FilterUsageStatistics'
+
+    UpdateAccountV2InfoRequest:
+      type: object
+      description: Request body for updating the authenticated user's personal information.
+      properties:
+        firstName:
+          type: string
+          description: User's first name. Must be between 1 and 50 characters.
+          minLength: 1
+          maxLength: 50
+          example: John
+        lastName:
+          type: string
+          description: User's last name. Must be between 1 and 50 characters.
+          minLength: 1
+          maxLength: 50
+          example: Doe
+        phone:
+          type: string
+          description: |
+            User's phone number in international or local format.
+            
+            Must match one of the following formats:
+            - International format: '+' followed by exactly 12 digits.
+              Example: +380631234567
+            - Local format: exactly 10 digits without '+'.
+              Example: 0631234567
+          pattern: '^(\+\d{12})|(\d{10})$'
+          example: "+1234567890 or 0631234567"
+      required:
+        - firstName
+        - lastName
