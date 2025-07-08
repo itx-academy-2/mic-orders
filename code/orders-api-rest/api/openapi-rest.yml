@@ -2294,7 +2294,7 @@ components:
             - Local format: exactly 10 digits without '+'.
               Example: 0631234567
           pattern: '^(\+\d{12})|(\d{10})$'
-          example: "+1234567890 or 0631234567"
+          example: "+380631234567 or 0631234567"
       required:
         - firstName
         - lastName

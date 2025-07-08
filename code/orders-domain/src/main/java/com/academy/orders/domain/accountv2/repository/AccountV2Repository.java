@@ -24,7 +24,7 @@ public interface AccountV2Repository {
   void updateAccountPersonalInfo(Long id, UpdateUserAccountV2InfoDto dto);
 
   /**
-   * Checks if an account exists by its email.
+   * Checks if an account exists by its ID.
    *
    * @param id the id of account to check for existence.
    * @return {@code true} if an account with the given id exists, otherwise {@code false}.
