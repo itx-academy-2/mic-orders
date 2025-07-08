@@ -17,5 +17,3 @@ services:
       - POSTGRES_USER=pgusr
       - POSTGRES_PASSWORD=pgpwd
       - POSTGRES_DB=retail
-    volumes:
-      - ./db:/docker-entrypoint-initdb.d

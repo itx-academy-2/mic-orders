@@ -1,4 +1,5 @@
 @ignore
+@GS3-51
 Feature: Get current user personal info (helper)
 
   Background:

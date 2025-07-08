@@ -20,7 +20,7 @@ spring:
         globally_quoted_identifiers: true
         physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
   flyway:
-    enabled: false
+    enabled: true
 
 rest:
   client:
