@@ -18,7 +18,7 @@ class UserCabinetControllerIT extends AbstractControllerIT {
   @Value("${auth.users[0].username}")
   private String user;
 
-  private static final String ENDPOINT_URI = "/v2/myInfo";
+  private static final String ENDPOINT_URI = "/v2/my-info";
 
   @Test
   void getPersonalUserInfoWithLoggedUserTest() {
