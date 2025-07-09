@@ -1,4 +1,4 @@
-package com.academy.orders.domain.accountV2.entity;
+package com.academy.orders.domain.accountV3.entity;
 
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;

@@ -1,6 +1,6 @@
 package com.academy.orders.domain.orderV2.entity;
 
-import com.academy.orders.domain.accountV2.entity.AccountV2;
+import com.academy.orders.domain.accountV3.entity.AccountV2;
 import com.academy.orders.domain.order.entity.OrderItem;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.postaddress.entity.PostAddressV2;

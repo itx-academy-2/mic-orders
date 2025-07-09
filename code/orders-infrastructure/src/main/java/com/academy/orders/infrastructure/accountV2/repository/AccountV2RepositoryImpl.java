@@ -1,7 +1,7 @@
 package com.academy.orders.infrastructure.accountV2.repository;
 
-import com.academy.orders.domain.accountV2.entity.AccountV2;
-import com.academy.orders.domain.accountV2.repository.AccountV2Repository;
+import com.academy.orders.domain.accountV3.entity.AccountV2;
+import com.academy.orders.domain.accountV3.repository.AccountV2Repository;
 import com.academy.orders.infrastructure.account.repository.AccountJpaAdapter;
 import com.academy.orders.infrastructure.accountV2.AccountV2Mapper;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,8 @@
 package com.academy.orders.application.orderV2.usecase;
 
 import com.academy.orders.domain.account.exception.AccountNotFoundException;
-import com.academy.orders.domain.accountV2.entity.AccountV2;
-import com.academy.orders.domain.accountV2.repository.AccountV2Repository;
+import com.academy.orders.domain.accountV3.entity.AccountV2;
+import com.academy.orders.domain.accountV3.repository.AccountV2Repository;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.cart.exception.EmptyCartException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
