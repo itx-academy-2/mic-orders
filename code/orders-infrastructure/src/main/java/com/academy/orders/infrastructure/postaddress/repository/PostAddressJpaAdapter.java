@@ -1,4 +1,4 @@
-package com.academy.orders.infrastructure.orderV2.repository;
+package com.academy.orders.infrastructure.postaddress.repository;
 
 import com.academy.orders.infrastructure.order.entity.PostAddressEntity;
 import org.springframework.data.repository.CrudRepository;

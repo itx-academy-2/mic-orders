@@ -1,9 +1,9 @@
-package com.academy.orders.infrastructure.orderV2.repository;
+package com.academy.orders.infrastructure.postaddress.repository;
 
 import com.academy.orders.domain.postaddress.repository.PostAddressRepository;
 import com.academy.orders.infrastructure.account.repository.AccountJpaAdapter;
 import com.academy.orders.infrastructure.order.entity.PostAddressEntity;
-import com.academy.orders.infrastructure.orderV2.PostAddressV2Mapper;
+import com.academy.orders.infrastructure.postaddress.PostAddressV2Mapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
