@@ -1,8 +1,8 @@
 package com.academy.orders.application.orderV2.usecase;
 
 import com.academy.orders.domain.account.exception.AccountNotFoundException;
-import com.academy.orders.domain.accountV3.entity.AccountV2;
-import com.academy.orders.domain.accountV3.repository.AccountV2Repository;
+import com.academy.orders.domain.accountV3.entity.AccountV3;
+import com.academy.orders.domain.accountV3.repository.AccountV3Repository;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.cart.exception.EmptyCartException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
@@ -31,7 +31,7 @@ public class CreateOrderV2UseCaseImpl implements CreateOrderV2UseCase {
 
     private final ChangeQuantityUseCase changeQuantityUseCase;
 
-    private final AccountV2Repository accountV2Repository;
+    private final AccountV3Repository accountV2Repository;
 
 
     @Override
@@ -81,7 +81,7 @@ public class CreateOrderV2UseCaseImpl implements CreateOrderV2UseCase {
                 .account(createAccountV2Object(accountId)).build();
     }
 
-    private AccountV2 createAccountV2Object(Long accountId) {
+    private AccountV3 createAccountV2Object(Long accountId) {
         return accountV2Repository.findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
     }
 
