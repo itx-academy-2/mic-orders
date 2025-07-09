@@ -17,4 +17,10 @@ public class TestConstants {
   public static final LocalDateTime TEST_START_DATE = LocalDateTime.of(2020, 1, 1, 15, 4);
 
   public static final LocalDateTime TEST_END_DATE = LocalDateTime.of(2020, 2, 1, 15, 4);
+
+  public static final String TEST_FIRST_NAME = "John";
+
+  public static final String TEST_LAST_NAME = "Doe";
+
+  public static final String TEST_PHONE_NUMBER = "+380631234567";
 }

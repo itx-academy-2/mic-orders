@@ -4,6 +4,7 @@ import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.account.entity.CreateAccountDTO;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
+import com.academy.orders.domain.accountv2.dto.UpdateUserAccountV2InfoDto;
 import com.academy.orders.infrastructure.ModelUtils;
 import com.academy.orders.infrastructure.account.AccountMapper;
 import com.academy.orders.infrastructure.account.AccountPageMapper;
@@ -25,7 +26,9 @@ import static com.academy.orders.infrastructure.ModelUtils.getAccount;
 import static com.academy.orders.infrastructure.ModelUtils.getAccountEntity;
 import static com.academy.orders.infrastructure.ModelUtils.getAccountV2;
 import static com.academy.orders.infrastructure.ModelUtils.getCreateAccountDTO;
+import static com.academy.orders.infrastructure.ModelUtils.getUpdateUserAccountV2InfoDto;
 import static com.academy.orders.infrastructure.TestConstants.TEST_EMAIL;
+import static com.academy.orders.infrastructure.TestConstants.TEST_ID;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -202,5 +205,18 @@ class AccountRepositoryTest {
     assertTrue(actualAccount.isEmpty());
     verify(accountJpaAdapter, times(1)).findById(notExistsAccountId);
     verify(accountV2Mapper, never()).fromEntity(any(AccountEntity.class));
+  }
+
+  @Test
+  void updateAccountPersonalInfoTest() {
+    // Given
+    var userId = TEST_ID;
+    UpdateUserAccountV2InfoDto updateDto = getUpdateUserAccountV2InfoDto();
+
+    // When
+    repository.updateAccountPersonalInfo(userId, updateDto);
+
+    // Then
+    verify(accountJpaAdapter, times(1)).updatePersonalInfo(userId, updateDto.firstName(), updateDto.lastName(), updateDto.phone());
   }
 }
