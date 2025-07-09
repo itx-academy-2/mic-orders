@@ -4,6 +4,7 @@ import com.academy.orders.domain.common.exception.BadRequestException;
 import com.academy.orders.domain.language.exception.LanguageNotFoundException;
 import com.academy.orders.domain.language.repository.LanguageRepository;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
+import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.exception.ProductNotFoundException;
 import com.academy.orders.domain.product.repository.ProductRepository;
@@ -20,7 +21,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,6 +28,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.academy.orders.application.ModelUtils.getLanguage;
+import static com.academy.orders.application.ModelUtils.getLanguageEn;
 import static com.academy.orders.application.ModelUtils.getProductRequestDto;
 import static com.academy.orders.application.ModelUtils.getProductRequestDtoWithDiscount;
 import static com.academy.orders.application.ModelUtils.getProductRequestRemoveAllTagsDto;
@@ -41,11 +42,13 @@ import static com.academy.orders.application.ModelUtils.getTag;
 import static com.academy.orders.application.TestConstants.LANGUAGE_EN;
 import static com.academy.orders.application.TestConstants.TEST_ID;
 import static com.academy.orders.application.TestConstants.TEST_UUID;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -82,51 +85,43 @@ class UpdateProductUseCaseTest {
   @ParameterizedTest
   @MethodSource("provideProductRequestsWithTags")
   void updateProductWithTagsTest(ProductRequestDto request, List<Long> tagIds) {
+    // Given
     var product = getProductWithImageLink();
-    var productTranslationManagement = getProductTranslationManagement();
-    var language = getLanguage();
-
+    var language = getLanguageEn();
     when(productRepository.getById(TEST_UUID)).thenReturn(Optional.ofNullable(product));
-    when(productRepository.findTranslationsByProductId(TEST_UUID)).thenReturn(Set.of(productTranslationManagement));
     when(tagRepository.getTagsByIds(tagIds)).thenReturn(Set.of(getTag()));
     when(languageRepository.findByCode(LANGUAGE_EN)).thenReturn(Optional.ofNullable(language));
-
     doNothing().when(productRepository).update(any(ProductManagement.class));
 
+    // When
     updateProductUseCase.updateProduct(TEST_UUID, request);
 
+    // Then
     verify(productRepository).getById(TEST_UUID);
-    verify(productRepository).findTranslationsByProductId(TEST_UUID);
     verify(tagRepository).getTagsByIds(tagIds);
     verify(languageRepository).findByCode(LANGUAGE_EN);
-
     var productCaptor = ArgumentCaptor.forClass(ProductManagement.class);
     verify(productRepository).update(productCaptor.capture());
     var updatedProduct = productCaptor.getValue();
-
     var updatedTranslations = updatedProduct.productTranslationManagement();
-
-    updatedTranslations.forEach(
-        updatedTranslation -> assertEquals(LANGUAGE_EN, updatedTranslation.language().code()));
+    updatedTranslations.forEach(updatedTranslation -> assertEquals(LANGUAGE_EN, updatedTranslation.language().code()));
   }
 
   @ParameterizedTest
   @MethodSource("provideProductRequestsWithoutTags")
   void updateProductWithoutTagsTest(ProductRequestDto request) {
+    // Given
     var product = getProductWithImageLink();
-    var productTranslationManagement = getProductTranslationManagement();
     var language = getLanguage();
-
     when(productRepository.getById(TEST_UUID)).thenReturn(Optional.ofNullable(product));
-    when(productRepository.findTranslationsByProductId(TEST_UUID)).thenReturn(Set.of(productTranslationManagement));
     when(languageRepository.findByCode(LANGUAGE_EN)).thenReturn(Optional.ofNullable(language));
-
     doNothing().when(productRepository).update(any(ProductManagement.class));
 
+    // When
     updateProductUseCase.updateProduct(TEST_UUID, request);
 
+    // Then
     verify(productRepository).getById(TEST_UUID);
-    verify(productRepository).findTranslationsByProductId(TEST_UUID);
     verify(languageRepository).findByCode(LANGUAGE_EN);
   }
 
@@ -140,20 +135,41 @@ class UpdateProductUseCaseTest {
   }
 
   @Test
+  void updateProductWhenNewTranslationAddedTest() {
+    // Given
+    ProductRequestDto productRequestDto = getProductRequestDto();
+    Product product = getProductWithImageLink();
+    when(productRepository.getById(TEST_UUID)).thenReturn(Optional.ofNullable(product));
+    when(languageRepository.findByCode(LANGUAGE_EN)).thenReturn(Optional.of(getLanguageEn()));
+
+    // When
+    updateProductUseCase.updateProduct(TEST_UUID, productRequestDto);
+
+    // Then
+    verify(productRepository, times(1)).getById(TEST_UUID);
+    verify(getCountOfDiscountedProductsUseCase, never()).getCountOfDiscountedProducts();
+    verify(languageRepository, times(1)).findByCode(LANGUAGE_EN);
+    verify(productRepository, times(1)).update(any(ProductManagement.class));
+    ArgumentCaptor<ProductManagement> captor = ArgumentCaptor.forClass(ProductManagement.class);
+    verify(productRepository).update(captor.capture());
+    ProductManagement updated = captor.getValue();
+    assertThat(updated.productTranslationManagement()).hasSize(1);
+  }
+
+  @Test
   void updateProductThrowsLanguageNotFoundExceptionTest() {
+    // Given
     var request = getProductRequestDto();
     var product = getProductWithImageLink();
-    var productTranslationManagement = getProductTranslationManagement();
-
     when(productRepository.getById(TEST_UUID)).thenReturn(Optional.ofNullable(product));
-    when(productRepository.findTranslationsByProductId(TEST_UUID)).thenReturn(Set.of(productTranslationManagement));
     when(tagRepository.getTagsByIds(List.of(TEST_ID))).thenReturn(Set.of(getTag()));
     when(languageRepository.findByCode(LANGUAGE_EN)).thenReturn(Optional.empty());
 
+    // When
     assertThrows(LanguageNotFoundException.class, () -> updateProductUseCase.updateProduct(TEST_UUID, request));
 
+    // Then
     verify(productRepository).getById(TEST_UUID);
-    verify(productRepository).findTranslationsByProductId(TEST_UUID);
     verify(tagRepository).getTagsByIds(List.of(TEST_ID));
   }
 
@@ -166,26 +182,24 @@ class UpdateProductUseCaseTest {
 
   @Test
   void updateProductWhenCountOfDiscountsIsMaximumAndProductHasAlreadyDiscountTest() {
+    // Given
     var discount = 20;
     var request = getProductRequestDtoWithDiscount(discount);
     var productBeforeSettingDiscount = getProductWithImageLinkAndDiscount(10);
-    var productTranslationManagement = getProductTranslationManagement();
     var language = getLanguage();
-
     when(productRepository.getById(TEST_UUID)).thenReturn(Optional.of(productBeforeSettingDiscount));
-    when(productRepository.findTranslationsByProductId(TEST_UUID)).thenReturn(Set.of(productTranslationManagement));
     when(tagRepository.getTagsByIds(List.of(TEST_ID))).thenReturn(Set.of(getTag()));
     when(languageRepository.findByCode(LANGUAGE_EN)).thenReturn(Optional.ofNullable(language));
 
+    // When
     updateProductUseCase.updateProduct(TEST_UUID, request);
 
+    // Then
     verify(getCountOfDiscountedProductsUseCase, never()).getCountOfDiscountedProducts();
     verify(productRepository).getById(TEST_UUID);
-    verify(productRepository).findTranslationsByProductId(TEST_UUID);
     verify(tagRepository).getTagsByIds(List.of(TEST_ID));
     verify(languageRepository).findByCode(LANGUAGE_EN);
     verify(productRepository).update(argumentCaptor.capture());
-
     var result = argumentCaptor.getValue();
     assertEquals(discount, result.discount());
   }
@@ -210,28 +224,27 @@ class UpdateProductUseCaseTest {
 
   @Test
   void updateProductWhenProductHasNoDiscountTest() {
+    // Given
     var discount = 20;
     var request = getProductRequestDtoWithDiscount(discount);
     var productBeforeSettingDiscount = getProductWithImageLink();
     var productTranslationManagement = getProductTranslationManagement();
     var language = getLanguage();
-
     when(getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts()).thenReturn(9);
     when(productRepository.getById(TEST_UUID)).thenReturn(Optional.of(productBeforeSettingDiscount));
-    when(productRepository.findTranslationsByProductId(TEST_UUID)).thenReturn(Set.of(productTranslationManagement));
     when(tagRepository.getTagsByIds(List.of(TEST_ID))).thenReturn(Set.of(getTag()));
     when(languageRepository.findByCode(LANGUAGE_EN)).thenReturn(Optional.ofNullable(language));
     doNothing().when(productRepository).update(any(ProductManagement.class));
 
+    // When
     updateProductUseCase.updateProduct(TEST_UUID, request);
 
+    // Then
     verify(getCountOfDiscountedProductsUseCase).getCountOfDiscountedProducts();
     verify(productRepository).getById(TEST_UUID);
-    verify(productRepository).findTranslationsByProductId(TEST_UUID);
     verify(tagRepository).getTagsByIds(List.of(TEST_ID));
     verify(languageRepository).findByCode(LANGUAGE_EN);
     verify(productRepository).update(argumentCaptor.capture());
-
     var result = argumentCaptor.getValue();
     assertEquals(discount, result.discount());
   }

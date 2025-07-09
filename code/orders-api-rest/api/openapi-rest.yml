@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.1.0
+  version: 2.2.0
 servers:
   - url: http://localhost:8080/retail
 
@@ -29,6 +29,9 @@ tags:
 
   - name: UsersManagement
     description: Endpoints for users management page
+
+  - name: UserPersonalCabinet
+    description: Endpoints for the user personal cabinet
 
   - name: Address
     description: Address endpoints
@@ -807,6 +810,24 @@ paths:
         '401':
           description: Unauthorized - authentication required
 
+  /v2/myInfo:
+    get:
+      tags:
+        - UserPersonalCabinet
+      summary: Get user info.
+      description: Get main user info such as Name, Surname, Email etc for the registered user.
+      operationId: getPersonalUserInfo
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: Users personal info such as Name, Surname, email etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccountInfo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
   /v1/users/{userId}/addresses:
     get:
       tags:
@@ -2161,6 +2182,35 @@ components:
         createdAt:
           type: string
           format: date-time
+
+    UserAccountInfo:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        firstName:
+          type: string
+          example: "John"
+        lastName:
+          type: string
+          example: "Doe"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-06-24 1A9:37:59.682238"
+        photo:
+          type: string
+          example: "https://cdn.pixabay.com/photo/2024/05/13/03/18/ai-generated-8757985_1280.png"
+        phone:
+          type: string
+          example: "+380631234567"
+      required:
+        - email
+        - firstName
+        - lastName
+        - createdAt
 
     AccountStatus:
       type: string

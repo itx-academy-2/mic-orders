@@ -4,6 +4,7 @@ import com.academy.orders.domain.account.dto.AccountManagementFilterDto;
 import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
+import com.academy.orders.domain.accountv2.entity.AccountV2;
 import com.academy.orders.domain.article.entity.Article;
 import com.academy.orders.domain.article.entity.ArticleContent;
 import com.academy.orders.domain.cart.dto.CartItemDto;
@@ -34,7 +35,6 @@ import com.academy.orders.domain.product.entity.ProductTranslation;
 import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -125,6 +125,13 @@ public class ModelUtils {
     return Account.builder().id(1L).email("user@mail.com").firstName("first").lastName("last")
         .password("$2a$12$j6tAmpJpMhU6ATtgRIS0puHsPVxs2upwoBUbTtakSt9tlZ6uZ04IC").role(Role.ROLE_ADMIN)
         .status(UserStatus.ACTIVE).createdAt(DATE_TIME).build();
+  }
+
+  public static AccountV2 getAccountV2() {
+    return AccountV2.builder().id(1L).email("user@mail.com").firstName("first").lastName("last")
+        .password("$2a$12$j6tAmpJpMhU6ATtgRIS0puHsPVxs2upwoBUbTtakSt9tlZ6uZ04IC").role(Role.ROLE_USER)
+        .status(UserStatus.ACTIVE).createdAt(DATE_TIME)
+        .phone("+380631234567").photo("https://somenotexistsurl.com/mynotexistsphoto.jpg").build();
   }
 
   public static CreateOrderDto getCreateOrderDto() {
