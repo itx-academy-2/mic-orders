@@ -1,14 +1,15 @@
 @ignore
-@GS3-51
 Feature: Get current user personal info (helper)
 
   Background:
     * url urls.retailApiUrl
     * def authHeader = callonce read('classpath:karate-auth.js')
+    * def myInfoPath = '/v2/my-info'
 
+  @GS3-51
   Scenario: Get current user info
     Given headers authHeader
-    And path '/v2/myInfo'
+    And path myInfoPath
     When method get
     Then status 200
     * def originalUserData =

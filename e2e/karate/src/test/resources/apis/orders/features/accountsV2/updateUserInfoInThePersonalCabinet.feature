@@ -5,6 +5,7 @@ Feature: Update personal user info (PATCH)
     * def authHeader = callonce read('classpath:karate-auth.js')
     * def userInfo = call read('classpath:apis/orders/helpers/get-user-info.feature')
     * def originalUserData = userInfo.originalUserData
+    * def myInfoPath = '/v2/my-info'
 
   @GS3-51
   Scenario: Update myInfo - authorized user
@@ -17,7 +18,7 @@ Feature: Update personal user info (PATCH)
     # Update user info with new data
     Given headers authHeader
     And header Content-Type = 'application/json'
-    And path '/v2/myInfo'
+    And path myInfoPath
     And request
     """
     {
@@ -31,7 +32,7 @@ Feature: Update personal user info (PATCH)
 
     # Verify that data was updated successfully
     Given headers authHeader
-    And path '/v2/myInfo'
+    And path myInfoPath
     When method get
     Then status 200
     * match response.firstName == "Updated"
@@ -41,7 +42,7 @@ Feature: Update personal user info (PATCH)
     # Restore original data
     Given headers authHeader
     And header Content-Type = 'application/json'
-    And path '/v2/myInfo'
+    And path myInfoPath
     And request originalUserData
     When method patch
     Then status 204
@@ -49,7 +50,7 @@ Feature: Update personal user info (PATCH)
   @GS3-51
   Scenario: Update myInfo - unauthorized user
     Given header Content-Type = 'application/json'
-    And path '/v2/myInfo'
+    And path myInfoPath
     And request
     """
     {
@@ -65,7 +66,7 @@ Feature: Update personal user info (PATCH)
   Scenario: Update myInfo - invalid request
     Given headers authHeader
     And header Content-Type = 'application/json'
-    And path '/v2/myInfo'
+    And path myInfoPath
     And request
     """
     {
