@@ -868,6 +868,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PageProducts'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -880,7 +882,7 @@ paths:
         - bearerAuth: [ ]
       responses:
         '204':
-          description: All products removed from the viewed history.
+          description: All products removed from the view history.
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -895,8 +897,10 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProductId'
       responses:
-        '201':
+        '200':
           description: Product added to the viewed history.
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -911,7 +915,9 @@ paths:
         - $ref: '#/components/parameters/ProductId'
       responses:
         '204':
-          description: Product removed from the viewed history.
+          description: Product removed from the view history.
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
 
