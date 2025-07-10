@@ -847,6 +847,73 @@ paths:
         '415':
           $ref: '#/components/responses/UnsupportedMediaType'
 
+  /v1/my-view-history:
+    get:
+      tags:
+        - UserPersonalCabinet
+      summary: Get list of viewed products
+      description: The endpoint for getting all viewed products from the database.
+      operationId: getViewedProducts
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/Pageable'
+        - $ref: '#/components/parameters/Language'
+      responses:
+        '200':
+          description: |
+            Retrieves the list of products the user has viewed, sorted by most recently viewed first.
+            Supports pagination and language filtering.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageProducts'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    delete:
+      tags:
+        - UserPersonalCabinet
+      summary: Remove all products from the view history
+      operationId: deleteAllViewedProducts
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '204':
+          description: All products removed from the viewed history.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/my-view-history/{productId}:
+    put:
+      tags:
+        - UserPersonalCabinet
+      summary: Add product to the viewed history
+      operationId: addProductToViewedHistory
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '201':
+          description: Product added to the viewed history.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    delete:
+      tags:
+        - UserPersonalCabinet
+      summary: Remove single product from the view history
+      operationId: deleteViewedProduct
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '204':
+          description: Product removed from the viewed history.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
 #COMPONENTS
 #=======================================================================================================================
