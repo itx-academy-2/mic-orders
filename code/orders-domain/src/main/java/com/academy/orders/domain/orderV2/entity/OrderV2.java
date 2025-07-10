@@ -1,6 +1,6 @@
 package com.academy.orders.domain.orderV2.entity;
 
-import com.academy.orders.domain.accountV3.entity.AccountV3;
+import com.academy.orders.domain.accountv2.entity.AccountV2;
 import com.academy.orders.domain.order.entity.OrderItem;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.postaddress.entity.PostAddressV2;
@@ -13,6 +13,6 @@ import java.util.UUID;
 
 @Builder
 public record OrderV2(UUID id, OrderStatus orderStatus, PostAddressV2 postAddress, BigDecimal total,
-                      AccountV3 account, List<OrderItem> orderItems, Boolean isPaid, LocalDateTime editedAt,
+                      AccountV2 account, List<OrderItem> orderItems, Boolean isPaid, LocalDateTime editedAt,
                       LocalDateTime createdAt) {
 }

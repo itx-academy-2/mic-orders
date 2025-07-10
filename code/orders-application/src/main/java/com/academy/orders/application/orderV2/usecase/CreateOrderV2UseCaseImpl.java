@@ -1,8 +1,8 @@
 package com.academy.orders.application.orderV2.usecase;
 
 import com.academy.orders.domain.account.exception.AccountNotFoundException;
-import com.academy.orders.domain.accountV3.entity.AccountV3;
-import com.academy.orders.domain.accountV3.repository.AccountV3Repository;
+import com.academy.orders.domain.accountv2.entity.AccountV2;
+import com.academy.orders.domain.accountv2.repository.AccountV2Repository;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.cart.exception.EmptyCartException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
@@ -31,8 +31,7 @@ public class CreateOrderV2UseCaseImpl implements CreateOrderV2UseCase {
 
     private final ChangeQuantityUseCase changeQuantityUseCase;
 
-    private final AccountV3Repository accountV2Repository;
-
+    private final AccountV2Repository accountV2Repository;
 
     @Override
     public UUID createOrderV2(CreateOrderV2Dto orderV2Dto, Long accountId) {
@@ -78,11 +77,11 @@ public class CreateOrderV2UseCaseImpl implements CreateOrderV2UseCase {
                 .deliveryMethod(createOrderV2Dto.deliveryMethod())
                 .recipientFirstName(createOrderV2Dto.firstName()).recipientLastName(createOrderV2Dto.lastName())
                 .recipientPhone(createOrderV2Dto.phone()).title(createOrderV2Dto.title())
-                .account(createAccountV2Object(accountId)).build();
+                .account(createAccountObject(accountId)).build();
     }
 
-    private AccountV3 createAccountV2Object(Long accountId) {
-        return accountV2Repository.findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
+    private AccountV2 createAccountObject(Long accountId) {
+        return accountV2Repository.findAccountById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
     }
 
     private UUID saveOrder(OrderV2 orderV2, Long accountId) {
