@@ -2396,8 +2396,11 @@ components:
           minLength: 1
           maxLength: 50
           example: Home
-          pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+$
+          pattern: ^(?!\s*$)[a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+( [a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+)*$
           description: Optional title for the delivery address. Used to identify saved addresses (e.g. "Home", "Office")
+        addressId:
+          type: string
+          format: uuid
       required:
         - city
         - deliveryMethod

@@ -69,7 +69,7 @@ public class CreateOrderV2UseCaseImpl implements CreateOrderV2UseCase {
                                       Long accountId) {
         return OrderV2.builder()
                 .postAddress(createPostAddressObject(createOrderV2Dto, accountId)).orderStatus(OrderStatus.IN_PROGRESS).isPaid(false)
-                .orderItems(orderItems).build();
+                .orderItems(orderItems).account(createAccountObject(accountId)).build();
     }
 
     private PostAddressV2 createPostAddressObject(CreateOrderV2Dto createOrderV2Dto, Long accountId) {
@@ -77,7 +77,8 @@ public class CreateOrderV2UseCaseImpl implements CreateOrderV2UseCase {
                 .deliveryMethod(createOrderV2Dto.deliveryMethod())
                 .recipientFirstName(createOrderV2Dto.firstName()).recipientLastName(createOrderV2Dto.lastName())
                 .recipientPhone(createOrderV2Dto.phone()).title(createOrderV2Dto.title())
-                .account(createAccountObject(accountId)).build();
+                .account(createAccountObject(accountId))
+                .id(createOrderV2Dto.addressId() != null ? UUID.fromString(createOrderV2Dto.addressId()) : null).build();
     }
 
     private AccountV2 createAccountObject(Long accountId) {

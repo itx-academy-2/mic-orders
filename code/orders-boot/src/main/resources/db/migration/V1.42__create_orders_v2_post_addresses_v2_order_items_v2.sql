@@ -8,7 +8,8 @@ CREATE TABLE post_addresses_v2 (
     recipient_last_name VARCHAR(50) NOT NULL,
     recipient_phone VARCHAR(13) NOT NULL,
     title VARCHAR(100) NOT NULL,
-    CONSTRAINT fk_post_addresses_v2_account_id FOREIGN KEY (account_id) REFERENCES accounts(id)
+    CONSTRAINT fk_post_addresses_v2_account_id FOREIGN KEY (account_id) REFERENCES accounts(id),
+    CONSTRAINT uq_account_title UNIQUE (account_id, title)
 );
 
 CREATE TABLE orders_v2 (

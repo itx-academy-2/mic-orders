@@ -29,6 +29,5 @@ public class OrdersV2Controller implements OrdersV2Api {
         var id = createOrderV2UseCase.createOrderV2(mapper.toCreateOrderV2Dto(placeOrderRequestV2DTO), userId);
         PlaceOrderResponseDTO responseDTO = new PlaceOrderResponseDTO().orderId(id);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
-        //return ResponseEntity.status(HttpStatus.CREATED).body(new PlaceOrderResponseDTO().orderId(UUID.randomUUID())); //Temp mock, delete when everything is ready
     }
 }
