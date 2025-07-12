@@ -13,6 +13,7 @@ import com.academy.orders.infrastructure.viewhistory.entity.ViewedHistoryId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -83,6 +84,7 @@ public class ViewedHistoryRepositoryImpl implements ViewedHistoryRepository {
         .collect(Collectors.toMap(ProductEntity::getId, p -> p));
     return productIds.stream()
         .map(productMap::get)
+        .filter(Objects::nonNull)
         .map(productMapper::fromEntity)
         .toList();
   }
