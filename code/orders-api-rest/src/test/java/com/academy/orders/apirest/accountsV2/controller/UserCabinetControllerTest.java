@@ -37,6 +37,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = UserCabinetController.class)
 @Import(ErrorHandler.class)
 class UserCabinetControllerTest {
+  private static final String URI = "/v2/my-info";
+
   @Autowired
   private MockMvc mockMvc;
 
@@ -70,7 +72,7 @@ class UserCabinetControllerTest {
     when(accountV2DTOMapper.toUserAccountInfoDto(accountV2)).thenReturn(userAccountInfoDTO);
 
     // When
-    mockMvc.perform(get("/v2/myInfo")
+    mockMvc.perform(get(URI)
         .with(getJwtRequest(userId, ROLE_USER)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -93,7 +95,7 @@ class UserCabinetControllerTest {
     when(accountV2InfoUpdateMapper.toUpdateUserAccountV2InfoDto(requestDto)).thenReturn(updateDto);
 
     // When
-    mockMvc.perform(patch("/v2/myInfo")
+    mockMvc.perform(patch(URI)
         .with(getJwtRequest(userId, ROLE_USER))
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(requestDto)))
@@ -117,7 +119,7 @@ class UserCabinetControllerTest {
     doThrow(new AccountNotFoundException(userId)).when(updateUserAccountV2InfoUseCase).updateUserAccountInfo(userId, updateDto);
 
     // When
-    mockMvc.perform(patch("/v2/myInfo")
+    mockMvc.perform(patch(URI)
         .with(getJwtRequest(userId, ROLE_USER))
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(requestDto)))
