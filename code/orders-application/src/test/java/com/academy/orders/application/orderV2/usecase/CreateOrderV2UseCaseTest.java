@@ -1,11 +1,10 @@
 package com.academy.orders.application.orderV2.usecase;
 
+import com.academy.orders.domain.accountv2.repository.AccountV2Repository;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.cart.exception.EmptyCartException;
 import com.academy.orders.domain.cart.repository.CartItemRepository;
 import com.academy.orders.domain.order.entity.OrderItem;
-import com.academy.orders.domain.order.entity.OrderReceiver;
-import com.academy.orders.domain.order.entity.PostAddress;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.order.exception.InsufficientProductQuantityException;
 import com.academy.orders.domain.orderV2.dto.CreateOrderV2Dto;
@@ -21,17 +20,25 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
-import static com.academy.orders.application.ModelUtils.*;
+import static com.academy.orders.application.ModelUtils.getCartItem;
+import static com.academy.orders.application.ModelUtils.getCreateOrderV2Dto;
+import static com.academy.orders.application.ModelUtils.getPostAddressV2;
+import static com.academy.orders.application.ModelUtils.getAccountV2;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 public class CreateOrderV2UseCaseTest {
@@ -43,6 +50,9 @@ public class CreateOrderV2UseCaseTest {
 
     @Mock
     private ChangeQuantityUseCase changeQuantityUseCase;
+
+    @Mock
+    private AccountV2Repository accountV2Repository;
 
     @InjectMocks
     private CreateOrderV2UseCaseImpl createOrderV2UseCase;
@@ -64,14 +74,16 @@ public class CreateOrderV2UseCaseTest {
     void createOrderV2_SuccessTest() {
         //Given
         var expectedOrderId = UUID.randomUUID();
-        var order = OrderV2.builder().receiver(getOrderReceiver()).postAddress(getPostAddress())
+        var order = OrderV2.builder().postAddress(getPostAddressV2(createOrderV2Dto))
                 .orderStatus(OrderStatus.IN_PROGRESS)
                 .orderItems(singletonList(new OrderItem(cartItem.product(), calculatedPrice, null, cartItem.quantity())))
+                .account(getAccountV2())
                 .isPaid(false).build();
 
         //When
         when(cartItemRepository.findCartItemsByAccountId(anyLong())).thenReturn(singletonList(cartItem));
         doNothing().when(changeQuantityUseCase).changeQuantityOfProduct(any(Product.class), anyInt());
+        when(accountV2Repository.findAccountById(anyLong())).thenReturn(Optional.of(getAccountV2()));
         when(orderV2Repository.save(eq(order), anyLong())).thenReturn(expectedOrderId);
         doNothing().when(cartItemRepository).deleteCartItemsByAccountId(anyLong());
 
@@ -84,16 +96,6 @@ public class CreateOrderV2UseCaseTest {
         verify(changeQuantityUseCase).changeQuantityOfProduct(any(Product.class), anyInt());
         verify(orderV2Repository).save(any(OrderV2.class), anyLong());
         verify(cartItemRepository).deleteCartItemsByAccountId(anyLong());
-    }
-
-    private OrderReceiver getOrderReceiver() {
-        return OrderReceiver.builder().firstName(createOrderV2Dto.firstName()).lastName(createOrderV2Dto.lastName())
-                .email(createOrderV2Dto.email()).build();
-    }
-
-    private PostAddress getPostAddress() {
-        return PostAddress.builder().city(createOrderV2Dto.city()).department(createOrderV2Dto.department())
-                .deliveryMethod(createOrderV2Dto.deliveryMethod()).build();
     }
 
     @Test

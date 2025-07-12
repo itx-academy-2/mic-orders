@@ -15,6 +15,7 @@ import com.academy.orders.domain.orderV2.repository.OrderV2Repository;
 import com.academy.orders.domain.orderV2.usecase.CreateOrderV2UseCase;
 import com.academy.orders.domain.product.usecase.ChangeQuantityUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,6 +25,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CreateOrderV2UseCaseImpl implements CreateOrderV2UseCase {
     private final OrderV2Repository orderV2Repository;
 
@@ -35,13 +37,15 @@ public class CreateOrderV2UseCaseImpl implements CreateOrderV2UseCase {
 
     @Override
     public UUID createOrderV2(CreateOrderV2Dto orderV2Dto, Long accountId) {
+        log.info("Creating orderV2 for accountId={}", accountId);
         var bucketElements = getBucketElements(accountId);
         checkCartIsNotEmpty(bucketElements);
         var orderItems = createOrderItems(bucketElements);
-        var order = createOrderObject(orderV2Dto, orderItems, accountId);
-        var orderId = saveOrder(order, accountId);
+        var orderV2 = createOrderV2Object(orderV2Dto, orderItems, accountId);
+        var orderV2Id = saveOrderV2(orderV2, accountId);
+        log.info("OrderV2 created: orderId={}, accountId={}", orderV2Id, accountId);
         clearCart(accountId);
-        return orderId;
+        return orderV2Id;
     }
 
     private List<CartItem> getBucketElements(Long accountId) {
@@ -50,6 +54,7 @@ public class CreateOrderV2UseCaseImpl implements CreateOrderV2UseCase {
 
     private void checkCartIsNotEmpty(List<CartItem> bucketElements) {
         if (Objects.isNull(bucketElements) || bucketElements.isEmpty()) {
+            log.error("The cart is empty");
             throw new EmptyCartException();
         }
     }
@@ -65,27 +70,27 @@ public class CreateOrderV2UseCaseImpl implements CreateOrderV2UseCase {
         return new OrderItem(cartItem.product(), calculatedPrice, currentDiscount, cartItem.quantity());
     }
 
-    private OrderV2 createOrderObject(CreateOrderV2Dto createOrderV2Dto, List<OrderItem> orderItems,
+    private OrderV2 createOrderV2Object(CreateOrderV2Dto createOrderV2Dto, List<OrderItem> orderItems,
                                       Long accountId) {
         return OrderV2.builder()
-                .postAddress(createPostAddressObject(createOrderV2Dto, accountId)).orderStatus(OrderStatus.IN_PROGRESS).isPaid(false)
-                .orderItems(orderItems).account(createAccountObject(accountId)).build();
+                .postAddress(createPostAddressV2Object(createOrderV2Dto, accountId)).orderStatus(OrderStatus.IN_PROGRESS).isPaid(false)
+                .orderItems(orderItems).account(createAccountV2Object(accountId)).build();
     }
 
-    private PostAddressV2 createPostAddressObject(CreateOrderV2Dto createOrderV2Dto, Long accountId) {
+    private PostAddressV2 createPostAddressV2Object(CreateOrderV2Dto createOrderV2Dto, Long accountId) {
         return PostAddressV2.builder().city(createOrderV2Dto.city()).department(createOrderV2Dto.department())
                 .deliveryMethod(createOrderV2Dto.deliveryMethod())
                 .recipientFirstName(createOrderV2Dto.firstName()).recipientLastName(createOrderV2Dto.lastName())
                 .recipientPhone(createOrderV2Dto.phone()).title(createOrderV2Dto.title())
-                .account(createAccountObject(accountId))
+                .account(createAccountV2Object(accountId))
                 .id(createOrderV2Dto.addressId() != null ? UUID.fromString(createOrderV2Dto.addressId()) : null).build();
     }
 
-    private AccountV2 createAccountObject(Long accountId) {
+    private AccountV2 createAccountV2Object(Long accountId) {
         return accountV2Repository.findAccountById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
     }
 
-    private UUID saveOrder(OrderV2 orderV2, Long accountId) {
+    private UUID saveOrderV2(OrderV2 orderV2, Long accountId) {
         return orderV2Repository.save(orderV2, accountId);
     }
 
