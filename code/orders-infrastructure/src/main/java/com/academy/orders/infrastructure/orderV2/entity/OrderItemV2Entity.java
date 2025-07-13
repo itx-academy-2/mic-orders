@@ -26,8 +26,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@EqualsAndHashCode(exclude = {"order", "product"})
-@ToString(exclude = {"order", "product"})
+@EqualsAndHashCode(exclude = {"orderV2", "product"})
+@ToString(exclude = {"product", "orderV2"})
 public class OrderItemV2Entity {
 
     @EmbeddedId

@@ -13,6 +13,7 @@ public interface CreateOrderV2UseCase {
      *
      * @param order {@link CreateOrderV2Dto}
      * @param accountId id of the user.
+     * @return {@link UUID} id of created order
      * @author Oleksandra Bulhakova
      */
     UUID createOrderV2(CreateOrderV2Dto order, Long accountId);

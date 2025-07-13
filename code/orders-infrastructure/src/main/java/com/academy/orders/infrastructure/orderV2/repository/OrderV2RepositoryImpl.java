@@ -39,6 +39,7 @@ public class OrderV2RepositoryImpl implements OrderV2Repository {
     @Override
     @Transactional
     public UUID save(OrderV2 orderV2, Long accountId) {
+        log.info("Saving new orderV2 for accountId={}", accountId);
         var orderV2Entity = mapper.toEntity(orderV2);
         addAccountToOrder(orderV2Entity, accountId);
         var postAddressEntity = createPostAddress(orderV2.postAddress(), accountId);
@@ -46,22 +47,27 @@ public class OrderV2RepositoryImpl implements OrderV2Repository {
         orderV2Entity.setPostAddress(postAddressEntity);
         mapOrderItemsWithProductsAndOrder(orderV2Entity);
 
-        return jpaAdapter.save(orderV2Entity).getId();
+        var savedId = jpaAdapter.save(orderV2Entity).getId();
+        log.info("OrderV2 saved successfully with id={}", savedId);
+        return savedId;
     }
 
     private PostAddressV2Entity createPostAddress(PostAddressV2 postAddressV2, Long accountId) {
         if (postAddressV2.id() != null) {
             var existingPostAddressEntity = postAddressJpaAdapter.findById(postAddressV2.id());
             if (existingPostAddressEntity.isPresent()) {
+                log.debug("Found existing post address by id: {}", postAddressV2.id());
                 return existingPostAddressEntity.get();
             }
         }
         if (postAddressV2.title() != null) {
             var existingPostAddressEntity = findExistingPostAddressEntityByTitleAndAccountId("permanent: " + postAddressV2.title(), accountId);
             if (existingPostAddressEntity.isPresent()) {
+                log.warn("Post address title already exists for accountId={}: {}", accountId, postAddressV2.title());
                 throw new PostAddressTitleAlreadyExistsException("This PostAddress title already exists: " + postAddressV2.title());
             }
         }
+        log.info("Creating new post address for accountId={}", accountId);
         PostAddressV2Entity postAddressV2Entity = postAddressMapper.toEntity(postAddressV2);
         addAccountToPostAddress(postAddressV2Entity, accountId);
         addPostAddressTitle(postAddressV2, postAddressV2Entity);
@@ -70,10 +76,12 @@ public class OrderV2RepositoryImpl implements OrderV2Repository {
 
     private void addAccountToPostAddress(PostAddressV2Entity postAddressV2Entity, Long accountId) {
         postAddressV2Entity.setAccount(accountJpaAdapter.getReferenceById(accountId));
+        log.debug("Linked accountId={} to post address", accountId);
     }
 
     private void addAccountToOrder(OrderV2Entity orderV2Entity, Long accountId) {
         orderV2Entity.setAccount(accountJpaAdapter.getReferenceById(accountId));
+        log.debug("Linked accountId={} to order", accountId);
     }
 
     private void mapOrderItemsWithProductsAndOrder(OrderV2Entity orderV2Entity) {
@@ -89,6 +97,7 @@ public class OrderV2RepositoryImpl implements OrderV2Repository {
         } else {
             postAddressV2Entity.setTitle("permanent: " + postAddressV2.title());
         }
+        log.debug("Assigned post address title: {}", postAddressV2Entity.getTitle());
     }
 
     private Optional<PostAddressV2Entity> findExistingPostAddressEntityByTitleAndAccountId(String title, Long accountId) {

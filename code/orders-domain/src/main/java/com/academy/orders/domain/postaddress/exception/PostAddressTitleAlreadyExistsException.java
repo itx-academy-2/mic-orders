@@ -1,6 +1,8 @@
 package com.academy.orders.domain.postaddress.exception;
 
-public class PostAddressTitleAlreadyExistsException extends RuntimeException {
+import com.academy.orders.domain.common.exception.BadRequestException;
+
+public class PostAddressTitleAlreadyExistsException extends BadRequestException {
     public PostAddressTitleAlreadyExistsException(String message) {
         super(message);
     }
