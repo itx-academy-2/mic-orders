@@ -36,6 +36,8 @@ public class OrderV2RepositoryImpl implements OrderV2Repository {
 
     private final PostAddressV2Mapper postAddressMapper;
 
+    private final OrderV1DuplicateAdapter orderV1DuplicateAdapter;
+
     @Override
     @Transactional
     public UUID save(OrderV2 orderV2, Long accountId) {
@@ -47,7 +49,9 @@ public class OrderV2RepositoryImpl implements OrderV2Repository {
         orderV2Entity.setPostAddress(postAddressEntity);
         mapOrderItemsWithProductsAndOrder(orderV2Entity);
 
-        var savedId = jpaAdapter.save(orderV2Entity).getId();
+        var createdOrderV2Entity = jpaAdapter.save(orderV2Entity);
+        orderV1DuplicateAdapter.duplicateOrderV2ToV1(createdOrderV2Entity); //Calling the temporary method to duplicate the created OrderV2 with OrderItems and PostAddress to the V1 of the tables
+        var savedId = createdOrderV2Entity.getId();
         log.info("OrderV2 saved successfully with id={}", savedId);
         return savedId;
     }
