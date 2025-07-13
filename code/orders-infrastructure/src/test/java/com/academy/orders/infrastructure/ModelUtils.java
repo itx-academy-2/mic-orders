@@ -26,6 +26,8 @@ import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
+import com.academy.orders.domain.orderV2.entity.OrderV2;
+import com.academy.orders.domain.postaddress.entity.PostAddressV2;
 import com.academy.orders.infrastructure.account.entity.AccountEntity;
 import com.academy.orders.infrastructure.article.entity.ArticleContentEntity;
 import com.academy.orders.infrastructure.article.entity.ArticleEntity;
@@ -303,5 +305,25 @@ public class ModelUtils {
         .contents(List.of(getArticleContent()))
         .build();
     return article;
+  }
+
+  public static OrderV2 getOrderV2() {
+    return OrderV2.builder().id(UUID.fromString("4602edda-6e9f-4a35-a472-2f6eac06e203"))
+            .createdAt(LocalDateTime.of(1, 1, 1, 1, 1)).isPaid(false).orderStatus(OrderStatus.IN_PROGRESS)
+            .postAddress(PostAddressV2.builder().city("Kharkiv").deliveryMethod(NOVA).department("1")
+                    .recipientFirstName("Jane").recipientLastName("Doe").recipientPhone("+380960776655").title("Home")
+                    .account(AccountV2.builder().id(23L).build()).orders(List.of(OrderV2.builder()
+                            .id(UUID.fromString("2202edda-6e9f-4a35-a472-2f6eac06e203")).build()))
+                    .build())
+            .account(AccountV2.builder().id(23L).build())
+            .orderItems(List.of(getOrderItem())).build();
+  }
+
+  public static PostAddressV2 getPostAddressV2() {
+    return PostAddressV2.builder().city("Kharkiv").deliveryMethod(NOVA).department("1")
+            .recipientFirstName("Jim").recipientLastName("Doe").recipientPhone("+380960776655").title("Friend")
+            .account(AccountV2.builder().id(23L).build()).orders(List.of(OrderV2.builder()
+                    .id(UUID.fromString("2202edda-6e9f-4a35-a472-2f6eac06e203")).build()))
+            .build();
   }
 }
