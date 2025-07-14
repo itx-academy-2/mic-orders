@@ -74,7 +74,7 @@ class UserViewedHistoryControllerTest {
     // When
     mockMvc.perform(put("/v1/my-view-history/{productId}", productId)
         .with(getJwtRequest(USER_ID, ROLE_USER)))
-        .andExpect(status().isOk());
+        .andExpect(status().isNoContent());
 
     // Then
     verify(securityUtils, times(1)).getAuthenticatedUserId();

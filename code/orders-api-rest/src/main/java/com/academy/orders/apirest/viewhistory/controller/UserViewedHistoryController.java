@@ -42,7 +42,7 @@ public class UserViewedHistoryController implements ViewHistoryApi {
     Long userId = securityUtils.getAuthenticatedUserId();
     log.info("User {} is adding product {} to viewed history", userId, productId);
     addProductToViewedHistoryUseCase.addProductToViewedHistory(userId, productId);
-    return ResponseEntity.status(200).build();
+    return ResponseEntity.noContent().build();
   }
 
   @Override

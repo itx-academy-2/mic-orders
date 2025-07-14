@@ -14,7 +14,7 @@ Feature: Delete product from viewed history
     Given headers authHeader
     And path myViewHistoryPath, productId
     When method put
-    Then status 200
+    Then status 204
 
     # Ensure product appears in history
     Given headers authHeader

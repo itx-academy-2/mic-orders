@@ -8,13 +8,13 @@ Feature: Delete all products from the viewed history
     * def myViewHistoryPath = '/v1/my-view-history'
 
 
-  @GS#-57
+  @GS3-57
   Scenario: Add → Delete all → Verify it’s removed
     # Add product to viewed history
     Given headers authHeader
     And path myViewHistoryPath, productId
     When method put
-    Then status 200
+    Then status 204
 
     # Ensure product appears in history
     Given headers authHeader

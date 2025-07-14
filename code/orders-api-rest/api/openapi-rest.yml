@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 3.2.8
+  version: 2.3.0
 servers:
   - url: http://localhost:8080/retail
 
@@ -900,7 +900,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProductId'
       responses:
-        '200':
+        '204':
           description: Product added to the viewed history.
         '400':
           $ref: '#/components/responses/BadRequestResponse'

@@ -67,7 +67,7 @@ class UserViewedHistoryControllerIT extends AbstractControllerIT {
     var result = restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(headers), Void.class);
 
     // Then
-    assertEquals(200, result.getStatusCode().value());
+    assertEquals(204, result.getStatusCode().value());
 
     // Check DB
     Long accountId = getUserId();
