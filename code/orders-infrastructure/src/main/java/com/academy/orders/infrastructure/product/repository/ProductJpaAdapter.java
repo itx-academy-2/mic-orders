@@ -16,7 +16,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -84,6 +83,18 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
       + "LEFT JOIN FETCH pt.language l LEFT JOIN FETCH p.tags t "
       + "WHERE p.id in (:productIds) and l.code = :language")
   List<ProductEntity> findAllByIdAndLanguageCode(List<UUID> productIds, String language);
+
+  /**
+   * Retrieves a paginated collection of {@link ProductEntity} objects by their IDs and language code, including only products with a status
+   * of 'VISIBLE'. The associated product translations and their languages are eagerly fetched.
+   *
+   * @param ids the list of product IDs to retrieve.
+   * @param language the language code to filter the product translations.
+   * @return a {@link List} of {@link ProductEntity} objects that match the given criteria.
+   */
+  @Query("SELECT p FROM ProductEntity p JOIN FETCH p.productTranslations pt JOIN FETCH pt.language l "
+      + "WHERE p.id IN :ids AND l.code = :language AND p.status = 'VISIBLE'")
+  List<ProductEntity> findVisibleProductsByIdsAndLanguage(List<UUID> ids, String language);
 
   /**
    * Updates the quantity of a product.
