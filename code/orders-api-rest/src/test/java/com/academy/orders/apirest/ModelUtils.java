@@ -770,7 +770,6 @@ public class ModelUtils {
     var placeOrderRequestV2DTO = new PlaceOrderRequestV2DTO();
     placeOrderRequestV2DTO.setFirstName(TEST_FIRST_NAME);
     placeOrderRequestV2DTO.setLastName(TEST_LAST_NAME);
-    placeOrderRequestV2DTO.setEmail(TEST_EMAIL);
     placeOrderRequestV2DTO.setCity(TEST_CITY);
     placeOrderRequestV2DTO.setDepartment(TEST_DEPARTMENT);
     placeOrderRequestV2DTO.setDeliveryMethod(NOVA);

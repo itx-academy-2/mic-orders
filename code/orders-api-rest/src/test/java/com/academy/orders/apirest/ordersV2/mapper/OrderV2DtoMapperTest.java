@@ -28,7 +28,6 @@ public class OrderV2DtoMapperTest {
         //Then
         assertEquals(placeOrderRequestV2DTO.getFirstName(), createOrderV2Dto.firstName());
         assertEquals(placeOrderRequestV2DTO.getLastName(), createOrderV2Dto.lastName());
-        assertEquals(placeOrderRequestV2DTO.getEmail(), createOrderV2Dto.email());
         assertEquals(placeOrderRequestV2DTO.getPhone(), createOrderV2Dto.phone());
         assertEquals(placeOrderRequestV2DTO.getCity(), createOrderV2Dto.city());
         assertEquals(placeOrderRequestV2DTO.getDeliveryMethod().getValue(), createOrderV2Dto.deliveryMethod().toString());
@@ -48,7 +47,6 @@ public class OrderV2DtoMapperTest {
         assertNotNull(createOrderV2Dto);
         assertNull(createOrderV2Dto.firstName());
         assertNull(createOrderV2Dto.lastName());
-        assertNull(createOrderV2Dto.email());
         assertNull(createOrderV2Dto.phone());
         assertNull(createOrderV2Dto.city());
         assertNull(createOrderV2Dto.deliveryMethod());

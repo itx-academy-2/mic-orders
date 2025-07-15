@@ -202,6 +202,6 @@ class ErrorHandlerTest {
     when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
 
     //Then
-    assertEquals(buildErrorObjectDTO(BAD_REQUEST), errorHandler.handlePostAddressTitleAlreadyExistsException(ex));
+    assertEquals(buildErrorObjectDTO(CONFLICT), errorHandler.handlePostAddressTitleAlreadyExistsException(ex));
   }
 }

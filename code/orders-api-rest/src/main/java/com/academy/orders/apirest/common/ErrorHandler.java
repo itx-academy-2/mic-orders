@@ -164,10 +164,10 @@ public class ErrorHandler {
   }
 
   @ExceptionHandler(PostAddressTitleAlreadyExistsException.class)
-  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  @ResponseStatus(value = HttpStatus.CONFLICT)
   public ErrorObjectDTO handlePostAddressTitleAlreadyExistsException(final PostAddressTitleAlreadyExistsException ex) {
     log.warn("PostAddress title already exists ", ex);
-    return new ErrorObjectDTO().status(HttpStatus.BAD_REQUEST.value()).title(HttpStatus.BAD_REQUEST.getReasonPhrase())
+    return new ErrorObjectDTO().status(HttpStatus.CONFLICT.value()).title(HttpStatus.CONFLICT.getReasonPhrase())
             .detail(ex.getMessage());
   }
 }

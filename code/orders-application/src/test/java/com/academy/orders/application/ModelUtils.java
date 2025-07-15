@@ -417,7 +417,7 @@ public class ModelUtils {
   }
 
   public static CreateOrderV2Dto getCreateOrderV2Dto() {
-    return CreateOrderV2Dto.builder().firstName("mockFirstName").lastName("mockLastName").email("mockmail@mail.com")
+    return CreateOrderV2Dto.builder().firstName("mockFirstName").lastName("mockLastName")
             .city("mockCity").department("mockDepartment").deliveryMethod(DeliveryMethod.NOVA).
             phone("+380968776677").title("Home").build();
   }

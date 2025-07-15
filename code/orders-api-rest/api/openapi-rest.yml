@@ -908,6 +908,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
 
 #COMPONENTS
 #=======================================================================================================================
@@ -2358,18 +2360,14 @@ components:
           minLength: 2
           maxLength: 50
           pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
-          description: First name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens.
+          description: First name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
         lastName:
           type: string
           example: Doe
           minLength: 2
           maxLength: 50
           pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
-          description: Last name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens.
-        email:
-          type: string
-          format: email
-          example: example@mail.com
+          description: Last name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
         deliveryMethod:
           $ref: '#/components/schemas/DeliveryMethod'
         city:
@@ -2398,14 +2396,10 @@ components:
           example: Home
           pattern: ^(?!\s*$)[a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+( [a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+)*$
           description: Optional title for the delivery address. Used to identify saved addresses (e.g. "Home", "Office")
-        addressId:
-          type: string
-          format: uuid
       required:
         - city
         - deliveryMethod
         - department
-        - email
         - firstName
         - lastName
         - phone
