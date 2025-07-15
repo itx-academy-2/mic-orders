@@ -57,24 +57,22 @@ public class OrderV2RepositoryImpl implements OrderV2Repository {
     }
 
     private PostAddressV2Entity createPostAddress(PostAddressV2 postAddressV2, Long accountId) {
-        if (postAddressV2.id() != null) {
-            var existingPostAddressEntity = postAddressJpaAdapter.findById(postAddressV2.id());
-            if (existingPostAddressEntity.isPresent()) {
-                log.debug("Found existing post address by id: {}", postAddressV2.id());
-                return existingPostAddressEntity.get();
-            }
-        }
         if (postAddressV2.title() != null) {
             var existingPostAddressEntity = findExistingPostAddressEntityByTitleAndAccountId("permanent: " + postAddressV2.title(), accountId);
             if (existingPostAddressEntity.isPresent()) {
-                log.warn("Post address title already exists for accountId={}: {}", accountId, postAddressV2.title());
-                throw new PostAddressTitleAlreadyExistsException("This PostAddress title already exists: " + postAddressV2.title());
+                log.debug("Post address title already exists for accountId={}: {}", accountId, postAddressV2.title());
+                if (!checkIfPostAddressesEqual(existingPostAddressEntity.get(), postAddressV2)) {
+                    throw new PostAddressTitleAlreadyExistsException("This PostAddress title already exists: " + postAddressV2.title());
+                } else {
+                    return existingPostAddressEntity.get();
+                }
             }
         }
         log.info("Creating new post address for accountId={}", accountId);
         PostAddressV2Entity postAddressV2Entity = postAddressMapper.toEntity(postAddressV2);
         addAccountToPostAddress(postAddressV2Entity, accountId);
         addPostAddressTitle(postAddressV2, postAddressV2Entity);
+
         return postAddressJpaAdapter.save(postAddressV2Entity);
     }
 
@@ -106,5 +104,15 @@ public class OrderV2RepositoryImpl implements OrderV2Repository {
 
     private Optional<PostAddressV2Entity> findExistingPostAddressEntityByTitleAndAccountId(String title, Long accountId) {
         return postAddressJpaAdapter.findByTitleAndAccount_Id(title, accountId);
+    }
+
+    private boolean checkIfPostAddressesEqual(PostAddressV2Entity postAddressV2Entity, PostAddressV2 postAddressV2) {
+        return postAddressV2Entity.getCity().equals(postAddressV2.city())
+                && postAddressV2Entity.getDeliveryMethod().equals(postAddressV2.deliveryMethod())
+                && postAddressV2Entity.getDepartment().equals(postAddressV2.department())
+                && postAddressV2Entity.getTitle().equals("permanent: " + postAddressV2.title())
+                && postAddressV2Entity.getRecipientFirstName().equals(postAddressV2.recipientFirstName())
+                && postAddressV2Entity.getRecipientLastName().equals(postAddressV2.recipientLastName())
+                && postAddressV2Entity.getRecipientPhone().equals(postAddressV2.recipientPhone());
     }
 }
