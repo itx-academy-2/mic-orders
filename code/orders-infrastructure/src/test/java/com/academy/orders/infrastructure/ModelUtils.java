@@ -38,6 +38,9 @@ import com.academy.orders.infrastructure.language.entity.LanguageEntity;
 import com.academy.orders.infrastructure.order.entity.OrderEntity;
 import com.academy.orders.infrastructure.order.entity.OrderItemEntity;
 import com.academy.orders.infrastructure.order.entity.OrderReceiverVO;
+import com.academy.orders.infrastructure.orderV2.entity.OrderV2Entity;
+import com.academy.orders.infrastructure.orderV2.entity.OrderItemV2Entity;
+import com.academy.orders.infrastructure.postaddress.entity.PostAddressV2Entity;
 import com.academy.orders.infrastructure.order.entity.PostAddressEntity;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
@@ -325,5 +328,69 @@ public class ModelUtils {
             .account(AccountV2.builder().id(23L).build()).orders(List.of(OrderV2.builder()
                     .id(UUID.fromString("2202edda-6e9f-4a35-a472-2f6eac06e203")).build()))
             .build();
+  }
+
+  public static OrderItemV2Entity getOrderItemV2Entity() {
+    return OrderItemV2Entity.builder().price(BigDecimal.valueOf(100.00)).quantity(1).build();
+  }
+
+  public static PostAddressV2Entity getPostAddressV2Entity() {
+    return PostAddressV2Entity.builder().account(getAccountEntity()).title("Home").city("Kharkiv").deliveryMethod(NOVA).department("43")
+            .recipientFirstName("Sasha").recipientLastName("Bulhakova").recipientPhone("+380960997887").build();
+  }
+
+  public static OrderV2Entity getOrderV2Entity() {
+    return OrderV2Entity.builder().account(getAccountEntity()).orderItems(List.of(getOrderItemV2EntityWithProduct())).orderStatus(OrderStatus.IN_PROGRESS)
+            .createdAt(LocalDateTime.of(2025, 1, 1, 1, 1)).isPaid(false)
+            .postAddress(getPostAddressV2EntityWithNewTitle())
+            .build();
+  }
+
+  public static PostAddressV2Entity getPostAddressV2EntityWithNewTitle() {
+    return PostAddressV2Entity.builder().account(getAccountEntity()).title("permanent: Friend").city("Kharkiv").deliveryMethod(NOVA).department("43")
+            .recipientFirstName("Sasha").recipientLastName("Bulhakova").recipientPhone("+380960997887").build();
+  }
+
+  public static OrderV2Entity getOrderV2EntityWithId() {
+    return OrderV2Entity.builder().id(UUID.randomUUID()).account(getAccountEntity()).orderItems(List.of(getOrderItemV2Entity())).orderStatus(OrderStatus.IN_PROGRESS)
+            .createdAt(LocalDateTime.of(2025, 1, 1, 1, 1)).isPaid(false)
+            .postAddress(getPostAddressV2EntityWithNewTitle())
+            .build();
+  }
+
+  public static OrderItemV2Entity getOrderItemV2EntityWithProduct() {
+    return OrderItemV2Entity.builder().price(BigDecimal.valueOf(100.00)).quantity(1).product(getProductEntity()).build();
+  }
+
+  public static OrderV2 getOrderV2WithoutId() {
+    return OrderV2.builder()
+            .createdAt(LocalDateTime.of(1, 1, 1, 1, 1)).isPaid(false).orderStatus(OrderStatus.IN_PROGRESS)
+            .postAddress(PostAddressV2.builder().city("Kharkiv").deliveryMethod(NOVA).department("1")
+                    .recipientFirstName("Sasha").recipientLastName("Bulhakova").recipientPhone("+380960776655").title("Friend")
+                    .account(AccountV2.builder().id(23L).build()).orders(List.of(OrderV2.builder()
+                            .id(UUID.fromString("2202edda-6e9f-4a35-a472-2f6eac06e203")).build()))
+                    .build())
+            .account(AccountV2.builder().id(23L).build())
+            .orderItems(List.of(getOrderItem())).build();
+  }
+
+  public static PostAddressV2 getPostAddressV2WithNewRecipientInfo() {
+    return PostAddressV2.builder().city("Kharkiv").deliveryMethod(NOVA).department("1")
+            .recipientFirstName("Sasha").recipientLastName("Bulhakova").recipientPhone("+380960776655").title("Friend")
+            .account(AccountV2.builder().id(23L).build()).orders(List.of(OrderV2.builder()
+                    .id(UUID.fromString("2202edda-6e9f-4a35-a472-2f6eac06e203")).build()))
+            .build();
+  }
+
+  public static OrderV2 getOrderV2WithoutIdWithNewRecipientInfo() {
+    return OrderV2.builder()
+            .createdAt(LocalDateTime.of(1, 1, 1, 1, 1)).isPaid(false).orderStatus(OrderStatus.IN_PROGRESS)
+            .postAddress(PostAddressV2.builder().city("Kharkiv").deliveryMethod(NOVA).department("43")
+                    .recipientFirstName("Sasha").recipientLastName("Bulhakova").recipientPhone("+380960997887").title("Friend")
+                    .account(AccountV2.builder().id(23L).build()).orders(List.of(OrderV2.builder()
+                            .id(UUID.fromString("2202edda-6e9f-4a35-a472-2f6eac06e203")).build()))
+                    .build())
+            .account(AccountV2.builder().id(23L).build())
+            .orderItems(List.of(getOrderItem())).build();
   }
 }
