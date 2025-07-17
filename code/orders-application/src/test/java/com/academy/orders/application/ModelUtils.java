@@ -425,6 +425,11 @@ public class ModelUtils {
         new ArticleContent("Title", "Description", getLanguage()));
   }
 
+  /**
+   * Creates an Article instance with a preset ID, creation date, and associated contents.
+   *
+   * @return an Article object populated with test data
+   */
   public static Article getArticle() {
     return Article.builder()
         .id(TEST_ID)
@@ -433,6 +438,13 @@ public class ModelUtils {
         .build();
   }
 
+  /**
+   * Creates an Account instance with the specified ID and email.
+   *
+   * @param id the unique identifier for the account
+   * @param email the email address associated with the account
+   * @return a new Account object with the given ID and email
+   */
   public static Account createAccount(Long id, String email) {
     return Account.builder()
         .id(id)
@@ -440,6 +452,14 @@ public class ModelUtils {
         .build();
   }
 
+  /**
+   * Creates a PasswordResetToken with the specified token value, email, and account ID.
+   *
+   * @param token     the token string to associate with the password reset
+   * @param email     the email address linked to the token
+   * @param accountId the ID of the account for which the token is generated
+   * @return a PasswordResetToken instance with the provided attributes
+   */
   public static PasswordResetToken createPasswordResetToken(String token, String email, Long accountId) {
     return PasswordResetToken.builder()
         .token(token)
@@ -448,6 +468,13 @@ public class ModelUtils {
         .build();
   }
 
+  /**
+   * Creates a PasswordResetToken instance with a null token value for the specified email and account ID.
+   *
+   * @param email the email address associated with the token
+   * @param accountId the ID of the account associated with the token
+   * @return a PasswordResetToken with a null token value
+   */
   public static PasswordResetToken createNullToken(String email, Long accountId) {
     return PasswordResetToken.builder()
         .token(null)
@@ -456,10 +483,28 @@ public class ModelUtils {
         .build();
   }
 
+  /**
+   * Creates a PasswordResetCommand with the specified token and password.
+   *
+   * @param token the password reset token string
+   * @param password the new password to set
+   * @return a PasswordResetCommand initialized with the given token and password
+   */
   public static PasswordResetCommand createPasswordResetCommand(String token, String password) {
     return new PasswordResetCommand(token, password);
   }
 
+  /**
+   * Creates a PasswordResetToken with the specified token value, email, type, status, expiration time, and account ID.
+   *
+   * @param token the token string value
+   * @param email the email address associated with the token
+   * @param type the type of the password reset token
+   * @param status the status of the token
+   * @param expiresAt the expiration time of the token
+   * @param accountId the ID of the associated account
+   * @return a PasswordResetToken instance with the provided attributes
+   */
   public static PasswordResetToken createPasswordResetToken(String token, String email, TokenType type,
       TokenStatus status, OffsetDateTime expiresAt, Long accountId) {
     return PasswordResetToken.builder()
@@ -472,6 +517,17 @@ public class ModelUtils {
         .build();
   }
 
+  /**
+   * Creates a PasswordResetToken with the specified token value, email, type, status, expiration time, and account ID.
+   *
+   * @param token the token string value
+   * @param email the email address associated with the token
+   * @param type the type of the password reset token
+   * @param status the status of the token
+   * @param expiresAtInstant the expiration time as an Instant
+   * @param accountId the ID of the associated account
+   * @return a PasswordResetToken instance with the provided attributes
+   */
   public static PasswordResetToken createTokenWithExpiry(String token, String email, TokenType type,
       TokenStatus status, Instant expiresAtInstant, Long accountId) {
     return PasswordResetToken.builder()
@@ -484,6 +540,14 @@ public class ModelUtils {
         .build();
   }
 
+  /**
+   * Creates an Account instance with the specified ID, email, and password.
+   *
+   * @param id the unique identifier for the account
+   * @param email the email address associated with the account
+   * @param password the password for the account
+   * @return a new Account object with the provided attributes
+   */
   public static Account createAccount(Long id, String email, String password) {
     return Account.builder()
         .id(id)
@@ -492,6 +556,16 @@ public class ModelUtils {
         .build();
   }
 
+  /**
+   * Creates a primary password reset token with the specified token value, email, account ID, creation time, and time-to-live.
+   *
+   * @param token the token string value
+   * @param email the email address associated with the token
+   * @param accountId the ID of the account associated with the token
+   * @param createdAtInstant the creation time of the token as an {@link Instant}
+   * @param ttlSeconds the time-to-live for the token in seconds
+   * @return a {@link PasswordResetToken} instance configured as a primary, active token with calculated expiration
+   */
   public static PasswordResetToken createPrimaryToken(
       String token, String email, Long accountId,
       Instant createdAtInstant, long ttlSeconds) {
@@ -509,6 +583,16 @@ public class ModelUtils {
         .build();
   }
 
+  /**
+   * Creates a secondary password reset token with the specified value, email, account ID, issuance time, and time-to-live.
+   *
+   * @param tokenValue the token string value
+   * @param email the email address associated with the token
+   * @param accountId the ID of the account associated with the token
+   * @param issuedAt the instant when the token was issued
+   * @param ttlSeconds the time-to-live for the token in seconds
+   * @return a PasswordResetToken instance configured as a secondary, active token with calculated expiration
+   */
   public static PasswordResetToken createSecondaryToken(String tokenValue, String email, Long accountId,
       Instant issuedAt, long ttlSeconds) {
     return PasswordResetToken.builder()
@@ -522,6 +606,17 @@ public class ModelUtils {
         .build();
   }
 
+  /**
+   * Creates a primary password reset token with the specified token value, email, account ID, and an expiration time set to the given instant.
+   *
+   * The returned token is marked as active and uses the provided expiration instant converted to UTC.
+   *
+   * @param token the token string value
+   * @param email the email address associated with the token
+   * @param accountId the ID of the account associated with the token
+   * @param expiredInstant the instant representing the token's expiration time
+   * @return a PasswordResetToken instance with the specified attributes and an active status
+   */
   public static PasswordResetToken createExpiredToken(String token, String email,
       Long accountId, Instant expiredInstant) {
     return PasswordResetToken.builder()
@@ -534,6 +629,15 @@ public class ModelUtils {
         .build();
   }
 
+  /**
+   * Creates a secondary password reset token with a null token value for the specified email and account ID.
+   *
+   * The token is set to active status and expires at the current UTC time.
+   *
+   * @param email the email address associated with the token
+   * @param accountId the account ID associated with the token
+   * @return a PasswordResetToken instance with a null token value
+   */
   public static PasswordResetToken createTokenWithNullValue(String email, Long accountId) {
     return PasswordResetToken.builder()
         .token(null)
@@ -545,6 +649,12 @@ public class ModelUtils {
         .build();
   }
 
+  /**
+   * Returns a copy of the given primary password reset token with its status set to USED.
+   *
+   * @param primaryToken the original primary password reset token
+   * @return a new PasswordResetToken instance with status updated to USED
+   */
   public static PasswordResetToken createUsedPrimaryToken(PasswordResetToken primaryToken) {
     return primaryToken.toBuilder()
         .status(TokenStatus.USED)

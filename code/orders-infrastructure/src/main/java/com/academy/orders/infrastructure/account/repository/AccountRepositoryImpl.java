@@ -76,6 +76,13 @@ public class AccountRepositoryImpl implements AccountRepository, AccountV2Reposi
     accountJpaAdapter.updateStatus(id, status);
   }
 
+  /**
+   * Retrieves a paginated list of accounts filtered by role and status.
+   *
+   * @param filter the filter criteria for account management, including role and status
+   * @param pageableDomain the pagination and sorting information from the domain layer
+   * @return a page of accounts matching the specified filter and pagination criteria
+   */
   @Override
   public Page<Account> getAccounts(AccountManagementFilterDto filter, Pageable pageableDomain) {
     var pageable = pageableMapper.fromDomain(pageableDomain);
@@ -83,6 +90,12 @@ public class AccountRepositoryImpl implements AccountRepository, AccountV2Reposi
     return accountPageMapper.toDomain(accountPage);
   }
 
+  /**
+   * Updates the password of the account identified by the given ID.
+   *
+   * @param accountId   the ID of the account whose password will be updated
+   * @param newPassword the new password to set for the account
+   */
   @Override
   @Transactional
   @Modifying(clearAutomatically = true)
@@ -90,6 +103,12 @@ public class AccountRepositoryImpl implements AccountRepository, AccountV2Reposi
     accountJpaAdapter.updatePasswordById(accountId, newPassword);
   }
   
+  /**
+   * Retrieves an account by its ID and maps it to a domain {@code AccountV2} object.
+   *
+   * @param id the unique identifier of the account
+   * @return an {@code Optional} containing the mapped {@code AccountV2} if found, or empty if not found
+   */
   @Override
   public Optional<AccountV2> findAccountById(Long id) {
     var accountEntity = accountJpaAdapter.findById(id);

@@ -9,6 +9,12 @@ import java.time.LocalDateTime;
 @Builder
 public record Account(Long id, String password, String email, String firstName, String lastName, Role role,
     UserStatus status, LocalDateTime createdAt) {
+  /**
+   * Returns a new {@code Account} instance with the specified password and all other fields unchanged.
+   *
+   * @param newPassword the new password to set for the account
+   * @return a new {@code Account} with the updated password
+   */
   public Account withPassword(String newPassword) {
     return new Account(
         this.id,

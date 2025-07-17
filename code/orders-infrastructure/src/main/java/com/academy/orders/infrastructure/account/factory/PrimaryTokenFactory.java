@@ -16,6 +16,16 @@ import org.springframework.stereotype.Component;
 public class PrimaryTokenFactory implements PasswordResetTokenFactory {
   private final Clock clock;
 
+  /**
+   * Creates a new primary password reset token for the specified account and email.
+   *
+   * The generated token is assigned a unique UUID value, set to type PRIMARY and status ACTIVE,
+   * and is valid for 10 minutes from the time of creation.
+   *
+   * @param accountId the ID of the account for which the token is generated
+   * @param email the email address associated with the account
+   * @return a new {@link PasswordResetToken} instance with the specified properties
+   */
   @Override
   public PasswordResetToken createToken(Long accountId, String email) {
     var now = OffsetDateTime.now(clock);

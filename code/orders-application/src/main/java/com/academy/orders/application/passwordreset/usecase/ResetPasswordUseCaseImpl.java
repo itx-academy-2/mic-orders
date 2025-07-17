@@ -39,6 +39,11 @@ public class ResetPasswordUseCaseImpl implements ResetPasswordUseCase {
 
   private final Clock clock;
 
+  /**
+   * Resets the account password using the provided password reset command.
+   *
+   * Validates the new password and reset token, updates the account's password, marks the token as used, and removes used tokens. Ensures transactional consistency and throws domain-specific exceptions if validation fails.
+   */
   @Override
   public void resetPassword(PasswordResetCommand command) {
     validatePassword(command);
@@ -48,12 +53,28 @@ public class ResetPasswordUseCaseImpl implements ResetPasswordUseCase {
     log.info("Password reset successfully for account with email: {}", token.getEmail());
   }
 
+  /**
+   * Validates that the password in the given command is not null or blank.
+   *
+   * @param command the password reset command containing the new password
+   * @throws InvalidPasswordException if the password is null or blank
+   */
   private void validatePassword(PasswordResetCommand command) {
     if (command.password() == null || command.password().isBlank()) {
       throw new InvalidPasswordException(INVALID_PASSWORD_MSG);
     }
   }
 
+  /**
+   * Validates the password reset token from the command and retrieves the corresponding token entity.
+   *
+   * Checks that the token string is present, correctly formatted as a UUID, exists in the repository, is of type SECONDARY, has not been used, and is not expired. Throws an appropriate exception if any validation fails.
+   *
+   * @param command the password reset command containing the token to validate
+   * @return the valid PasswordResetToken entity
+   * @throws InvalidTokenException if the token is missing, improperly formatted, not of type SECONDARY, already used, or expired
+   * @throws TokenNotFoundException if the token does not exist in the repository
+   */
   private PasswordResetToken validateAndGetToken(PasswordResetCommand command) {
     String tokenStr = command.token();
     if (tokenStr == null || tokenStr.isBlank()) {
@@ -80,6 +101,12 @@ public class ResetPasswordUseCaseImpl implements ResetPasswordUseCase {
     return token;
   }
 
+  /**
+   * Updates the account's password with the new hashed password from the reset command.
+   *
+   * Retrieves the account associated with the email in the provided token, hashes the new password,
+   * and updates the account's password in the repository. Throws {@code AccountNotFoundException} if the account does not exist.
+   */
   private void updateAccountPassword(PasswordResetToken token, PasswordResetCommand command) {
     var account = accountRepository.findAccountByEmail(token.getEmail())
         .orElseThrow(() -> new AccountNotFoundException(token.getEmail()));
@@ -88,6 +115,11 @@ public class ResetPasswordUseCaseImpl implements ResetPasswordUseCase {
     accountRepository.updatePassword(updatedAccount.id(), updatedAccount.password());
   }
 
+  /**
+   * Marks the given password reset token as used, saves the updated token, and deletes all tokens with the used status from the repository.
+   *
+   * @param token the password reset token to mark as used and clean up
+   */
   private void markTokenAsUsedAndDelete(PasswordResetToken token) {
     var usedToken = token.markAsUsed();
     tokenRepository.save(usedToken);

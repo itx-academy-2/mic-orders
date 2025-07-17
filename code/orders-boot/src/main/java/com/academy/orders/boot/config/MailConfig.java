@@ -17,6 +17,14 @@ public class MailConfig {
 
   private final int port;
 
+  /**
+   * Constructs a MailConfig instance with the specified SMTP configuration properties.
+   *
+   * @param userName the SMTP username from application properties
+   * @param password the SMTP password from application properties
+   * @param host the SMTP server host from application properties
+   * @param port the SMTP server port from application properties, defaulting to 587 if not specified
+   */
   public MailConfig(@Value("${spring.mail.username}") String userName, @Value("${spring.mail.password}") String password,
       @Value("${spring.mail.host}") String host, @Value("${spring.mail.port:587}") int port) {
     this.userName = userName;
@@ -25,6 +33,13 @@ public class MailConfig {
     this.port = port;
   }
 
+  /**
+   * Creates and configures a {@link JavaMailSender} bean for sending emails using SMTP.
+   *
+   * The mail sender is set up with the specified host, port, username, and password, and is configured to use SMTP authentication and STARTTLS encryption.
+   *
+   * @return a configured {@link JavaMailSender} instance
+   */
   @Bean
   public JavaMailSender javaMailSender() {
     JavaMailSenderImpl mailSender = new JavaMailSenderImpl();

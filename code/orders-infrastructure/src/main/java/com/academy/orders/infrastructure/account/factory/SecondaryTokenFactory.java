@@ -17,6 +17,15 @@ import org.springframework.stereotype.Component;
 public class SecondaryTokenFactory implements PasswordResetTokenFactory {
   private final Clock clock;
 
+  /**
+   * Creates a new password reset token of type SECONDARY for the specified account and email.
+   *
+   * The generated token is assigned a unique UUID, marked as ACTIVE, and set to expire 10 minutes after creation.
+   *
+   * @param accountId the ID of the account for which the token is generated
+   * @param email the email address associated with the account
+   * @return a new PasswordResetToken instance with the specified properties
+   */
   @Override
   public PasswordResetToken createToken(Long accountId, String email) {
     var now = OffsetDateTime.now(clock);

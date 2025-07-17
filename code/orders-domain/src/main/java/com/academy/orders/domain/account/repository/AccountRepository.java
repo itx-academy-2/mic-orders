@@ -66,14 +66,19 @@ public interface AccountRepository {
   void updateStatus(Long id, UserStatus status);
 
   /**
-   * Retrieves a paginated list of accounts based on the provided filter and pagination information.
-   *
-   * @param filter the {@link AccountManagementFilterDto} containing the filtering criteria for accounts.
-   * @param pageable the {@link Pageable} object containing pagination information such as page number and size.
-   * @return a {@link Page} object containing the paginated list of {@link Account} entities that match the filtering criteria.
-   * @author Yurii Osovskyi
-   */
+ * Returns a paginated list of accounts matching the specified filter criteria.
+ *
+ * @param filter filtering criteria for selecting accounts
+ * @param pageable pagination details including page number and size
+ * @return a page of accounts that satisfy the filter conditions
+ */
   Page<Account> getAccounts(AccountManagementFilterDto filter, Pageable pageable);
 
-  void updatePassword(Long accountId, String newPassword);
+  /**
+ * Updates the password of the account with the specified ID.
+ *
+ * @param accountId    the unique identifier of the account whose password will be updated
+ * @param newPassword  the new password to set for the account
+ */
+void updatePassword(Long accountId, String newPassword);
 }

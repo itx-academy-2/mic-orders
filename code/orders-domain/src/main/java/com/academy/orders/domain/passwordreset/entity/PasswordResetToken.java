@@ -26,10 +26,21 @@ public class PasswordResetToken {
 
   OffsetDateTime expiresAt;
 
+  /**
+   * Checks if the token has been marked as used.
+   *
+   * @return true if the token status is USED; false otherwise
+   */
   public boolean isUsed() {
     return status == TokenStatus.USED;
   }
 
+  /**
+   * Determines whether the token has expired based on the provided instant.
+   *
+   * @param now the current instant to compare against the token's expiration time
+   * @return true if the token has expired or if the expiration time is not set; false otherwise
+   */
   public boolean isExpired(Instant now) {
     if (expiresAt == null) {
       return true;
@@ -37,10 +48,20 @@ public class PasswordResetToken {
     return expiresAt.toInstant().isBefore(now);
   }
 
+  /**
+   * Checks if the token is currently active.
+   *
+   * @return true if the token status is ACTIVE; false otherwise
+   */
   public boolean isActive() {
     return status == TokenStatus.ACTIVE;
   }
 
+  /**
+   * Returns a new instance of this token with its status set to {@code USED}.
+   *
+   * @return a copy of this token marked as used
+   */
   public PasswordResetToken markAsUsed() {
     return this.toBuilder().status(TokenStatus.USED).build();
   }

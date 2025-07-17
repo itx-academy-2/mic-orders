@@ -35,6 +35,9 @@ public class GenerateSecondaryTokenUseCaseImpl implements GenerateSecondaryToken
 
   private final Clock clock;
 
+  /**
+   * Constructs a new instance of GenerateSecondaryTokenUseCaseImpl with the specified token repository, secondary token factory, and clock.
+   */
   public GenerateSecondaryTokenUseCaseImpl(
       PasswordResetTokenRepository tokenRepository,
       @Qualifier("secondaryTokenFactory") PasswordResetTokenFactory tokenFactory,
@@ -44,6 +47,17 @@ public class GenerateSecondaryTokenUseCaseImpl implements GenerateSecondaryToken
     this.clock = clock;
   }
 
+  /**
+   * Generates a secondary password reset token based on a valid primary token value.
+   *
+   * Validates the provided primary token, ensures it is unused, unexpired, and of the correct type,
+   * then marks it as used and issues a new secondary token linked to the same account.
+   *
+   * @param primaryTokenValue the string value of the primary password reset token
+   * @return the generated secondary password reset token string
+   * @throws InvalidTokenException if the primary token is invalid, expired, already used, or not of type PRIMARY
+   * @throws TokenNotFoundException if the primary token does not exist
+   */
   @Override
   public String generateSecondaryToken(String primaryTokenValue) {
     validateTokenValue(primaryTokenValue);
@@ -54,6 +68,12 @@ public class GenerateSecondaryTokenUseCaseImpl implements GenerateSecondaryToken
     return secondaryToken.getToken();
   }
 
+  /**
+   * Validates that the provided token value is neither null nor blank.
+   *
+   * @param tokenValue the token string to validate
+   * @throws InvalidTokenException if the token value is null or blank
+   */
   private void validateTokenValue(String tokenValue) {
     if (tokenValue == null) {
       throw new InvalidTokenException(NULL_TOKEN_MSG);
@@ -63,6 +83,14 @@ public class GenerateSecondaryTokenUseCaseImpl implements GenerateSecondaryToken
     }
   }
 
+  /**
+   * Validates that the provided token value corresponds to an existing, unused, unexpired primary token and returns the token entity.
+   *
+   * @param tokenValue the token string to validate and retrieve
+   * @return the valid primary PasswordResetToken entity
+   * @throws TokenNotFoundException if no token is found for the provided value
+   * @throws InvalidTokenException if the token is not primary, already used, or expired
+   */
   private PasswordResetToken validateAndGetPrimaryToken(String tokenValue) {
     var token = tokenRepository.findByToken(tokenValue)
         .orElseThrow(() -> new TokenNotFoundException(tokenValue));
@@ -82,6 +110,13 @@ public class GenerateSecondaryTokenUseCaseImpl implements GenerateSecondaryToken
     return token;
   }
 
+  /**
+   * Marks the given primary password reset token as used, persists the change, creates a secondary token linked to the same account and email, saves it, and returns the secondary token entity.
+   *
+   * @param primaryToken the valid primary password reset token to be marked as used and linked to the new secondary token
+   * @return the newly created and persisted secondary password reset token
+   * @throws InvalidTokenException if the generated secondary token string is null
+   */
   private PasswordResetToken createAndSaveSecondaryToken(PasswordResetToken primaryToken) {
     log.info("Primary token status before markAsUsed: {}", primaryToken.getStatus());
 

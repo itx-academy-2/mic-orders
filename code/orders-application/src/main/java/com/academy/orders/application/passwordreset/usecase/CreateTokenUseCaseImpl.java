@@ -37,6 +37,13 @@ public class CreateTokenUseCaseImpl implements CreateTokenUseCase {
 
   private final PasswordResetTokenFactory tokenFactory;
 
+  /**
+   * Constructs a new instance of CreateTokenUseCaseImpl with the specified repositories and token factory.
+   *
+   * @param accountRepository the repository for accessing account data
+   * @param tokenRepository the repository for managing password reset tokens
+   * @param tokenFactory the factory for creating primary password reset tokens
+   */
   public CreateTokenUseCaseImpl(
       AccountRepository accountRepository,
       PasswordResetTokenRepository tokenRepository,
@@ -46,12 +53,29 @@ public class CreateTokenUseCaseImpl implements CreateTokenUseCase {
     this.tokenFactory = tokenFactory;
   }
 
+  /**
+   * Creates a primary password reset token for the account associated with the given email address.
+   *
+   * Validates the email format and, if valid, generates and returns a new primary password reset token.
+   * If no account exists for the provided email, returns a random UUID string.
+   *
+   * @param email the email address for which to create the password reset token
+   * @return the generated password reset token string
+   * @throws InvalidEmailException if the email is null, blank, or invalid in format
+   * @throws InvalidTokenException if a token is created with a null email
+   */
   @Override
   public String createPrimaryToken(String email) {
     validateEmail(email);
     return generateTokenForEmail(email);
   }
 
+  /**
+   * Validates the provided email address, ensuring it is not null, not blank, and matches the required email format.
+   *
+   * @param email the email address to validate
+   * @throws InvalidEmailException if the email is null, blank, or does not match the expected format
+   */
   private void validateEmail(String email) {
     if (email == null) {
       throw new InvalidEmailException(NULL_EMAIL_MSG);
@@ -64,6 +88,16 @@ public class CreateTokenUseCaseImpl implements CreateTokenUseCase {
     }
   }
 
+  /**
+   * Generates a new primary password reset token for the specified email address.
+   *
+   * If an account with the given email exists, marks all existing active primary tokens for that account as used,
+   * creates and saves a new primary token, and returns the token string. If no account is found, returns a random UUID string.
+   *
+   * @param email the email address for which to generate the token
+   * @return the generated token string, or a random UUID if the account does not exist
+   * @throws InvalidTokenException if the created token has a null email
+   */
   private String generateTokenForEmail(String email) {
     Optional<Account> account = accountRepository.findAccountByEmail(email);
 

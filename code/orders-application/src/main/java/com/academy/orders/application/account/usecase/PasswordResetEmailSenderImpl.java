@@ -20,6 +20,12 @@ public class PasswordResetEmailSenderImpl implements PasswordResetEmailSender {
   @Value("${spring.mail.username}")
   private String from;
 
+  /**
+   * Sends a password reset email to the specified recipient with a unique reset link.
+   *
+   * @param to    the recipient's email address
+   * @param token the password reset token to be included in the reset link
+   */
   @Override
   public void send(String to, String token) {
     String subject = "Reset your password";

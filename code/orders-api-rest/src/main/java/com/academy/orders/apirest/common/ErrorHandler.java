@@ -180,12 +180,26 @@ public class ErrorHandler {
         .detail(ex.getMessage());
   }
 
+  /**
+   * Handles concurrent update conflicts by returning a 409 Conflict error response.
+   *
+   * @param ex the exception indicating a concurrent modification conflict
+   * @return an error object containing the HTTP status and exception message
+   */
   @ExceptionHandler(ConcurrentUpdateException.class)
   @ResponseStatus(value = HttpStatus.CONFLICT)
   public ErrorObjectDTO handleConcurrentUpdateException(final ConcurrentUpdateException ex) {
     return new ErrorObjectDTO().status(HttpStatus.CONFLICT.value()).detail(ex.getMessage());
   }
 
+  /**
+   * Handles requests with unreadable HTTP messages, such as malformed JSON or invalid UUID format.
+   *
+   * Returns a 400 Bad Request error with a detail message indicating whether the issue is malformed JSON or an invalid token format.
+   *
+   * @param ex the exception thrown when the HTTP message is not readable
+   * @return an error response with status, title, and detail message
+   */
   @ExceptionHandler(HttpMessageNotReadableException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorObjectDTO handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
@@ -198,6 +212,12 @@ public class ErrorHandler {
         .detail(detail);
   }
 
+  /**
+   * Handles missing servlet request parameter exceptions and returns a 400 Bad Request error response.
+   *
+   * @param ex the exception indicating which required request parameter is missing
+   * @return an error object containing the HTTP status, title, and detail message about the missing parameter
+   */
   @ExceptionHandler(MissingServletRequestParameterException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorObjectDTO handleMissingRequestParam(MissingServletRequestParameterException ex) {
@@ -208,6 +228,12 @@ public class ErrorHandler {
         .detail("Required request parameter '" + ex.getParameterName() + "' is missing");
   }
 
+  /**
+   * Handles InvalidTokenException by returning a 400 Bad Request error response with details from the exception message.
+   *
+   * @param ex the InvalidTokenException thrown when a provided token is invalid
+   * @return an ErrorObjectDTO containing the HTTP status, title, and detail message
+   */
   @ExceptionHandler(InvalidTokenException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorObjectDTO handleInvalidTokenException(InvalidTokenException ex) {
@@ -218,6 +244,12 @@ public class ErrorHandler {
         .detail(ex.getMessage());
   }
 
+  /**
+   * Handles TokenNotFoundException by returning a 404 Not Found error response with details about the missing token.
+   *
+   * @param ex the exception indicating that the token was not found
+   * @return an ErrorObjectDTO containing the HTTP status, title, and detail message
+   */
   @ExceptionHandler(TokenNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ErrorObjectDTO handleTokenNotFoundException(TokenNotFoundException ex) {

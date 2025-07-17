@@ -10,6 +10,12 @@ import org.springframework.stereotype.Component;
 public class BCryptPasswordHashingAdapter implements PasswordHashingPort {
   private final PasswordEncoder passwordEncoder;
 
+  /**
+   * Returns a hashed representation of the provided plain text password.
+   *
+   * @param password the plain text password to hash
+   * @return the hashed password string
+   */
   @Override
   public String hash(String password) {
     return passwordEncoder.encode(password);

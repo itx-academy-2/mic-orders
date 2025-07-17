@@ -32,6 +32,12 @@ public class PasswordResetController implements PasswordResetControllerApi {
 
   private final PasswordResetMapper mapper;
 
+  /**
+   * Initiates the password reset process by sending a reset email to the specified address.
+   *
+   * @param passwordResetEmailRequestDTO the request containing the user's email address
+   * @return a response entity containing a success response DTO
+   */
   @Override
   @PreAuthorize("permitAll()")
   public ResponseEntity<PasswordResetSuccessResponseDTO> v1PasswordResetPost(
@@ -42,6 +48,15 @@ public class PasswordResetController implements PasswordResetControllerApi {
     return ResponseEntity.ok(response);
   }
 
+  /**
+   * Resets the user's password using the provided token and new password details.
+   *
+   * Accepts a password reset request containing a token and new password, performs the password reset operation,
+   * and returns a success response if the reset is successful.
+   *
+   * @param passwordResetRequestDTO the password reset request containing the token and new password information
+   * @return HTTP 200 response with a success response DTO upon successful password reset
+   */
   @Override
   @PreAuthorize("permitAll()")
   public ResponseEntity<PasswordResetSuccessResponseDTO> v1PasswordResetPut(
@@ -53,6 +68,12 @@ public class PasswordResetController implements PasswordResetControllerApi {
     return ResponseEntity.ok(response);
   }
 
+  /**
+   * Validates a password reset token and returns the validation result.
+   *
+   * @param token the UUID token to be validated
+   * @return HTTP 200 response containing the token validation result DTO
+   */
   @Override
   @PreAuthorize("permitAll()")
   public ResponseEntity<TokenValidResponseDTO> v1PasswordResetTokenGet(UUID token) {
