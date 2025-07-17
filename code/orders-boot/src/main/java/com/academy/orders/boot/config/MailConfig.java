@@ -10,32 +10,26 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 /**
- * Configuration class for setting up the JavaMailSender bean used for sending emails.
- * <p>
- * This class loads SMTP configuration properties from the application environment:
- * <ul>
- *   <li>{@code spring.mail.username} – SMTP login (required)</li>
- *   <li>{@code spring.mail.password} – SMTP password (required)</li>
- *   <li>{@code spring.mail.host} – SMTP host (required)</li>
- *   <li>{@code spring.mail.port} – SMTP port (default: 587)</li>
- * </ul>
+ * Configuration class for setting up the JavaMailSender bean used for sending emails. <p> This class loads SMTP configuration properties
+ * from the application environment: <ul> <li>{@code spring.mail.username} – SMTP login (required)</li> <li>{@code spring.mail.password} –
+ * SMTP password (required)</li> <li>{@code spring.mail.host} – SMTP host (required)</li> <li>{@code spring.mail.port} – SMTP port (default:
+ * 587)</li> </ul>
  *
- * <p>
- * The configuration is validated at startup to ensure all required parameters are present and valid.
- * If validation fails, an {@link IllegalArgumentException} is thrown to prevent silent misconfiguration.
- * </p>
+ * <p> The configuration is validated at startup to ensure all required parameters are present and valid. If validation fails, an
+ * {@link IllegalArgumentException} is thrown to prevent silent misconfiguration. </p>
  *
- * <p>
- * This mail configuration is typically used for sending password reset links,
- * registration confirmations, and other transactional emails.
- * </p>
+ * <p> This mail configuration is typically used for sending password reset links, registration confirmations, and other transactional
+ * emails. </p>
  */
 @Slf4j
 @Configuration
 public class MailConfig {
   private final String userName;
+
   private final String password;
+
   private final String host;
+
   private final int port;
 
   /**
@@ -43,15 +37,14 @@ public class MailConfig {
    *
    * @param userName SMTP username
    * @param password SMTP password
-   * @param host     SMTP server hostname
-   * @param port     SMTP server port (default: 587)
+   * @param host SMTP server hostname
+   * @param port SMTP server port (default: 587)
    */
   public MailConfig(
       @Value("${spring.mail.username}") String userName,
       @Value("${spring.mail.password}") String password,
       @Value("${spring.mail.host}") String host,
-      @Value("${spring.mail.port:587}") int port
-  ) {
+      @Value("${spring.mail.port:587}") int port) {
     this.userName = userName;
     this.password = password;
     this.host = host;
@@ -59,8 +52,8 @@ public class MailConfig {
   }
 
   /**
-   * Validates the injected mail configuration parameters.
-   * Throws an {@link IllegalArgumentException} if any required property is missing or invalid.
+   * Validates the injected mail configuration parameters. Throws an {@link IllegalArgumentException} if any required property is missing or
+   * invalid.
    */
   @PostConstruct
   public void validateMailProperties() {
@@ -113,16 +106,17 @@ public class MailConfig {
   }
 
   /**
-   * Masks the provided email address for safe logging.
-   * Only the first character and domain are shown, e.g., j***@domain.com.
+   * Masks the provided email address for safe logging. Only the first character and domain are shown, e.g., j***@domain.com.
    *
    * @param email the email address to mask
    * @return a masked version of the email
    */
   private String maskEmail(String email) {
-    if (isBlank(email)) return "****";
+    if (isBlank(email))
+      return "****";
     int atIndex = email.indexOf('@');
-    if (atIndex <= 1) return "***";
+    if (atIndex <= 1)
+      return "***";
     return email.charAt(0) + "***" + email.substring(atIndex);
   }
 }

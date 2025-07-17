@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PasswordResetTokenRepositoryImpl implements PasswordResetTokenRepository {
   private final PasswordResetTokenJpaAdaptor jpaAdaptor;
+
   private final PasswordResetTokenMapper mapper;
 
   @Override

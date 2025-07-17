@@ -25,8 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class PasswordResetController implements PasswordResetControllerApi {
   private final SendPasswordResetEmailUseCase sendPasswordResetEmailUseCase;
+
   private final ResetPasswordUseCase resetPasswordUseCase;
+
   private final ValidateTokenUseCase validateTokenUseCase;
+
   private final PasswordResetMapper mapper;
 
   @Override

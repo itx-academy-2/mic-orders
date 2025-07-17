@@ -19,6 +19,7 @@ public class PasswordResetEmailSenderImpl implements PasswordResetEmailSender {
 
   @Value("${app.frontend.reset-password-url}")
   private String frontendResetUrl;
+
   @Value("${spring.mail.username}")
   private String from;
 

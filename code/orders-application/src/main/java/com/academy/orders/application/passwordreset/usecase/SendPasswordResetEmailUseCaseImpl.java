@@ -19,9 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SendPasswordResetEmailUseCaseImpl implements SendPasswordResetEmailUseCase {
   private final AccountRepository accountRepository;
+
   private final PasswordResetTokenRepository tokenRepository;
+
   private final PasswordResetTokenFactory tokenFactory;
+
   private final PasswordResetEmailSender emailSender;
+
   private final Clock clock;
 
   private static final Duration COOLDOWN_DURATION = Duration.ofMinutes(2);
