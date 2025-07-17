@@ -186,18 +186,6 @@ public class ErrorHandler {
     return new ErrorObjectDTO().status(HttpStatus.CONFLICT.value()).detail(ex.getMessage());
   }
 
-  @ExceptionHandler(HttpMessageNotReadableException.class)
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public ErrorObjectDTO handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
-    log.warn("Malformed JSON or invalid UUID format", ex);
-    String msg = ex.getMessage();
-    String detail = (msg != null && msg.contains("UUID")) ? "Invalid token format" : "Malformed JSON request";
-    return new ErrorObjectDTO()
-        .status(HttpStatus.BAD_REQUEST.value())
-        .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
-        .detail(detail);
-  }
-
   @ExceptionHandler(MissingServletRequestParameterException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorObjectDTO handleMissingRequestParam(MissingServletRequestParameterException ex) {
