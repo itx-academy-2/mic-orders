@@ -12,7 +12,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
-
 import java.util.Optional;
 
 @Repository
@@ -36,4 +35,8 @@ public interface AccountJpaAdapter extends JpaRepository<AccountEntity, Long> {
   @Modifying
   @Query("UPDATE AccountEntity a SET a.password = :password WHERE a.id = :id")
   void updatePasswordById(@Param("id") Long id, @Param("password") String password);
+
+  @Query("UPDATE AccountEntity a SET a.firstName = :firstName, a.lastName = :lastName, a.phone = :phone WHERE a.id = :id")
+  void updatePersonalInfo(@Param("id") Long id, @Param("firstName") String firstName, @Param("lastName") String lastName,
+      @Param("phone") String phone);
 }

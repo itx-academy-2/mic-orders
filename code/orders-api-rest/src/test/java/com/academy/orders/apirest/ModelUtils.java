@@ -4,6 +4,8 @@ import com.academy.orders.domain.account.dto.AccountManagementFilterDto;
 import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
+import com.academy.orders.domain.accountv2.dto.UpdateUserAccountV2InfoDto;
+import com.academy.orders.domain.accountv2.entity.AccountV2;
 import com.academy.orders.domain.article.entity.Article;
 import com.academy.orders.domain.article.entity.ArticleContent;
 import com.academy.orders.domain.cart.dto.UpdatedCartItemDto;
@@ -66,11 +68,12 @@ import com.academy.orders_api_rest.generated.model.ProductResponseDTO;
 import com.academy.orders_api_rest.generated.model.ProductSearchResultDTO;
 import com.academy.orders_api_rest.generated.model.ProductStatusDTO;
 import com.academy.orders_api_rest.generated.model.ProductTranslationDTO;
-import com.academy.orders_api_rest.generated.model.ProductsOnSaleFilterDTO;
 import com.academy.orders_api_rest.generated.model.ProductsOnSaleResponseDTO;
 import com.academy.orders_api_rest.generated.model.TagDTO;
+import com.academy.orders_api_rest.generated.model.UpdateAccountV2InfoRequestDTO;
 import com.academy.orders_api_rest.generated.model.UpdateOrderStatusRequestDTO;
 import com.academy.orders_api_rest.generated.model.UpdatedCartItemDTO;
+import com.academy.orders_api_rest.generated.model.UserAccountInfoDTO;
 import com.academy.orders_api_rest.generated.model.UserOrderDTO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -78,7 +81,6 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -108,6 +110,7 @@ import static com.academy.orders.apirest.TestConstants.TEST_FIRST_NAME;
 import static com.academy.orders.apirest.TestConstants.TEST_ID;
 import static com.academy.orders.apirest.TestConstants.TEST_LAST_NAME;
 import static com.academy.orders.apirest.TestConstants.TEST_PASSWORD;
+import static com.academy.orders.apirest.TestConstants.TEST_PHONE_NUMBER;
 import static com.academy.orders.apirest.TestConstants.TEST_PRICE;
 import static com.academy.orders.apirest.TestConstants.TEST_PRICE_WITH_DISCOUNT;
 import static com.academy.orders.apirest.TestConstants.TEST_QUANTITY;
@@ -641,6 +644,13 @@ public class ModelUtils {
         UserStatus.ACTIVE, LocalDateTime.now());
   }
 
+  public static AccountV2 getAccountV2() {
+    return AccountV2.builder().id(1L).email("user@mail.com").firstName("first").lastName("last")
+        .password("$2a$12$j6tAmpJpMhU6ATtgRIS0puHsPVxs2upwoBUbTtakSt9tlZ6uZ04IC").role(Role.ROLE_USER)
+        .status(UserStatus.ACTIVE).createdAt(DATE_TIME)
+        .phone("+380631234567").photo("https://somenotexistsurl.com/mynotexistsphoto.jpg").build();
+  }
+
   public static Page<Account> getAccountPage() {
     return Page.<Account>builder().totalElements(1L).totalPages(1).first(true).last(true).number(0)
         .numberOfElements(1).size(5).empty(false).content(Collections.singletonList(getAccount())).build();
@@ -662,6 +672,33 @@ public class ModelUtils {
 
   public static AccountManagementFilterDto getAccountManagementFilterDto() {
     return AccountManagementFilterDto.builder().status(UserStatus.ACTIVE).role(Role.ROLE_USER).build();
+  }
+
+  public static UserAccountInfoDTO getUserAccountInfoDTO() {
+    var userAccountInfoDTO = new UserAccountInfoDTO();
+    userAccountInfoDTO.setEmail(TEST_EMAIL);
+    userAccountInfoDTO.setFirstName(TEST_FIRST_NAME);
+    userAccountInfoDTO.setLastName(TEST_LAST_NAME);
+    userAccountInfoDTO.setCreatedAt(LocalDateTime.now().atOffset(ZoneOffset.UTC));
+    userAccountInfoDTO.setPhone(TEST_PHONE_NUMBER);
+    userAccountInfoDTO.setPhoto("https://somelink.to.the.photo.jpg");
+    return userAccountInfoDTO;
+  }
+
+  public static UpdateAccountV2InfoRequestDTO getUpdateAccountV2InfoRequestDTO() {
+    var dto = new UpdateAccountV2InfoRequestDTO();
+    dto.setFirstName(TEST_FIRST_NAME);
+    dto.setLastName(TEST_LAST_NAME);
+    dto.setPhone(TEST_PHONE_NUMBER);
+    return dto;
+  }
+
+  public static UpdateUserAccountV2InfoDto getUpdateUserAccountV2InfoDto() {
+    return UpdateUserAccountV2InfoDto.builder()
+        .firstName(TEST_FIRST_NAME)
+        .lastName(TEST_LAST_NAME)
+        .phone(TEST_PHONE_NUMBER)
+        .build();
   }
 
   public static Language getEnglishLanguage() {

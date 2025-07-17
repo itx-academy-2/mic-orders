@@ -6,6 +6,8 @@ import com.academy.orders.domain.discount.entity.Discount;
 import com.academy.orders.domain.language.exception.LanguageNotFoundException;
 import com.academy.orders.domain.language.repository.LanguageRepository;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
+import com.academy.orders.domain.product.dto.ProductTranslationDto;
+import com.academy.orders.domain.product.entity.Language;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.entity.ProductTranslationManagement;
@@ -19,7 +21,6 @@ import com.academy.orders.domain.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -57,22 +58,11 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
           "Please remove a discount from one or more products.") {};
     }
 
-    var existingTranslations = productRepository.findTranslationsByProductId(productId);
-
     var tags = getTags(request, existingProduct);
 
-    request.productTranslations().forEach(dto -> languageRepository.findByCode(dto.languageCode())
-        .orElseThrow(() -> new LanguageNotFoundException(dto.languageCode())));
-
-    var existingTranslationsMap = existingTranslations.stream()
-        .collect(Collectors.toMap(t -> t.language().code(), t -> t));
-
-    var updatedTranslations = request.productTranslations().stream().map(dto -> {
-      var existingTranslation = existingTranslationsMap.get(dto.languageCode());
-      return new ProductTranslationManagement(existingProduct.getId(), existingTranslation.language().id(),
-          getValue(dto.name(), existingTranslation.name()),
-          getValue(dto.description(), existingTranslation.description()), existingTranslation.language());
-    }).collect(Collectors.toSet());
+    var updatedTranslations = request.productTranslations().stream()
+        .map(dto -> populateTranslation(productId, dto))
+        .collect(Collectors.toSet());
 
     var updatedProduct = new ProductManagement(existingProduct.getId(),
         ProductStatus.valueOf(getValue(request.status(), String.valueOf(existingProduct.getStatus()))),
@@ -82,6 +72,17 @@ public class UpdateProductUseCaseImpl implements UpdateProductUseCase {
         updatedTranslations,
         existingProduct.getVersion());
     productRepository.update(updatedProduct);
+  }
+
+  private ProductTranslationManagement populateTranslation(UUID productId, ProductTranslationDto dto) {
+    Language lang = languageRepository.findByCode(dto.languageCode()).orElseThrow(() -> new LanguageNotFoundException(dto.languageCode()));
+    return ProductTranslationManagement.builder()
+        .productId(productId)
+        .languageId(lang.id())
+        .name(dto.name())
+        .description(dto.description())
+        .language(lang)
+        .build();
   }
 
   /**

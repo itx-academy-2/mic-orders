@@ -3,8 +3,10 @@ package com.academy.orders;
 import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
+import com.academy.orders.domain.accountv2.dto.UpdateUserAccountV2InfoDto;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.common.Pageable;
+import com.academy.orders.domain.discount.entity.Discount;
 import com.academy.orders.domain.order.entity.Order;
 import com.academy.orders.domain.order.entity.OrderItem;
 import com.academy.orders.domain.order.entity.OrderReceiver;
@@ -15,7 +17,7 @@ import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
-
+import com.academy.orders_api_rest.generated.model.UpdateAccountV2InfoRequestDTO;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -26,6 +28,9 @@ import java.util.UUID;
 import static com.academy.orders.boot.TestConstants.PRODUCT_IMAGE;
 import static com.academy.orders.boot.TestConstants.SORT_BY_PRICE_ASC;
 import static com.academy.orders.boot.TestConstants.SORT_BY_PRICE_DESC;
+import static com.academy.orders.boot.TestConstants.TEST_FIRST_NAME;
+import static com.academy.orders.boot.TestConstants.TEST_LAST_NAME;
+import static com.academy.orders.boot.TestConstants.TEST_PHONE_NUMBER;
 import static com.academy.orders.domain.order.entity.enumerated.DeliveryMethod.NOVA;
 import static com.academy.orders.domain.product.entity.enumerated.ProductStatus.VISIBLE;
 import static java.math.BigDecimal.valueOf;
@@ -42,6 +47,22 @@ public class ModelUtils {
     return Account.builder().id(1L).email("user@mail.com").firstName("first").lastName("last")
         .password("$2a$12$j6tAmpJpMhU6ATtgRIS0puHsPVxs2upwoBUbTtakSt9tlZ6uZ04IC").role(Role.ROLE_ADMIN)
         .status(UserStatus.ACTIVE).createdAt(DATE_TIME).build();
+  }
+
+  public static UpdateAccountV2InfoRequestDTO getUpdateAccountV2InfoRequestDTO() {
+    UpdateAccountV2InfoRequestDTO userPersonalInfoUpdateRequestDTO = new UpdateAccountV2InfoRequestDTO();
+    userPersonalInfoUpdateRequestDTO.setFirstName(TEST_FIRST_NAME);
+    userPersonalInfoUpdateRequestDTO.setLastName(TEST_LAST_NAME);
+    userPersonalInfoUpdateRequestDTO.setPhone(TEST_PHONE_NUMBER);
+    return userPersonalInfoUpdateRequestDTO;
+  }
+
+  public static UpdateUserAccountV2InfoDto getUpdateUserAccountV2InfoDto() {
+    return UpdateUserAccountV2InfoDto.builder()
+        .firstName(TEST_FIRST_NAME)
+        .lastName(TEST_LAST_NAME)
+        .phone(TEST_PHONE_NUMBER)
+        .build();
   }
 
   public static Order getOrderWithoutId() {
@@ -97,12 +118,6 @@ public class ModelUtils {
     return ProductManagementFilterDto.builder().searchByName("iphone").tags(emptyList()).build();
   }
 
-  public static ProductManagement getProductManagement() {
-    return ProductManagement.builder().id(UUID.fromString("84b7e491-0dcf-44c3-beb6-7496dc6ef3b1")).status(VISIBLE)
-        .image(PRODUCT_IMAGE).createdAt(DATE_TIME).quantity(1000).price(BigDecimal.valueOf(559.00))
-        .productTranslationManagement(getProductTranslations()).build();
-  }
-
   public static ProductManagement getProductToSave() {
     return ProductManagement.builder().status(VISIBLE).image(PRODUCT_IMAGE).createdAt(DATE_TIME).quantity(1000)
         .price(BigDecimal.valueOf(559.00)).productTranslationManagement(Set.of()).build();
@@ -120,5 +135,13 @@ public class ModelUtils {
 
   public static CartItem getCartItem() {
     return CartItem.builder().product(getProductWithImageName()).quantity(10).build();
+  }
+
+  public static Discount getDiscount() {
+    return Discount.builder()
+        .amount(50)
+        .startDate(LocalDateTime.now())
+        .endDate(LocalDateTime.now().plusDays(10))
+        .build();
   }
 }

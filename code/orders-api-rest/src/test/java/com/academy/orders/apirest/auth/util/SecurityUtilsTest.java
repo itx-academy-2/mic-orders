@@ -1,0 +1,106 @@
+package com.academy.orders.apirest.auth.util;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.server.ResponseStatusException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class SecurityUtilsTest {
+
+  private final SecurityUtils securityUtils = new SecurityUtils();
+
+  @AfterEach
+  void clearSecurityContext() {
+    SecurityContextHolder.clearContext();
+  }
+
+  @Test
+  void shouldReturnUserIdWhenJwtIsValidTest() {
+    // Given
+    Jwt jwt = mock(Jwt.class);
+    Authentication authentication = mock(Authentication.class);
+    when(jwt.getClaim("id")).thenReturn(123L);
+    when(authentication.getPrincipal()).thenReturn(jwt);
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    // When
+    Long userId = securityUtils.getAuthenticatedUserId();
+
+    // Then
+    assertEquals(123L, userId);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenAuthenticationIsNullTest() {
+    // Given
+    SecurityContextHolder.getContext().setAuthentication(null);
+
+    // When
+    ResponseStatusException ex = assertThrows(ResponseStatusException.class, securityUtils::getAuthenticatedUserId);
+
+    // Then
+    assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+    assertEquals(SecurityUtils.ERROR_NOT_AUTHENTICATED, ex.getReason());
+  }
+
+  @Test
+  void shouldThrowExceptionWhenPrincipalIsNotJwtTest() {
+    // Given
+    Authentication authentication = mock(Authentication.class);
+    when(authentication.getPrincipal()).thenReturn("not-a-jwt");
+
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    // When
+    ResponseStatusException ex = assertThrows(ResponseStatusException.class, securityUtils::getAuthenticatedUserId);
+
+    // Then
+    assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+    assertEquals(SecurityUtils.ERROR_NOT_AUTHENTICATED, ex.getReason());
+  }
+
+  @Test
+  void shouldThrowExceptionWhenJwtDoesNotContainIdClaimTest() {
+    // Given
+    Jwt jwt = mock(Jwt.class);
+    when(jwt.getClaim("id")).thenReturn(null);
+    Authentication authentication = mock(Authentication.class);
+    when(authentication.getPrincipal()).thenReturn(jwt);
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    // When
+    ResponseStatusException ex = assertThrows(ResponseStatusException.class, securityUtils::getAuthenticatedUserId);
+
+    // Then
+    assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+    assertEquals(SecurityUtils.ERROR_INVALID_ID_FORMAT, ex.getReason());
+  }
+
+  @Test
+  void shouldThrowExceptionWhenIdClaimIsNotNumberTest() {
+    // Given
+    Jwt jwt = mock(Jwt.class);
+    when(jwt.getClaim("id")).thenReturn("not-a-number");
+    Authentication authentication = mock(Authentication.class);
+    when(authentication.getPrincipal()).thenReturn(jwt);
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    // When
+    ResponseStatusException ex = assertThrows(ResponseStatusException.class, securityUtils::getAuthenticatedUserId);
+
+    // Then
+    assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+    assertEquals(SecurityUtils.ERROR_INVALID_ID_FORMAT, ex.getReason());
+  }
+}

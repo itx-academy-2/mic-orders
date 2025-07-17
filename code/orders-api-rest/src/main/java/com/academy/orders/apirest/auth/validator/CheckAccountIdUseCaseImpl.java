@@ -1,20 +1,20 @@
 package com.academy.orders.apirest.auth.validator;
 
+import com.academy.orders.apirest.auth.util.SecurityUtils;
 import com.academy.orders.domain.account.usecase.CheckAccountIdUseCase;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
+@RequiredArgsConstructor
 @Component("checkAccountIdUseCaseImpl")
 public class CheckAccountIdUseCaseImpl implements CheckAccountIdUseCase {
+  private final SecurityUtils securityUtils;
+
   @Override
   public boolean hasSameId(Long userId) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    Jwt principal = (Jwt) authentication.getPrincipal();
-    Long claimedId = principal.getClaim("id");
+    Long claimedId = securityUtils.getAuthenticatedUserId();
     return Objects.equals(claimedId, userId);
   }
 }
