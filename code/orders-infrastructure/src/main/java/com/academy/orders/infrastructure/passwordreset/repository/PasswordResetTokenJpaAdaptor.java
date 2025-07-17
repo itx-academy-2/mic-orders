@@ -1,6 +1,5 @@
 package com.academy.orders.infrastructure.passwordreset.repository;
 
-import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenStatus;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
 import com.academy.orders.infrastructure.passwordreset.entity.PasswordResetTokenEntity;
@@ -46,7 +45,7 @@ public interface PasswordResetTokenJpaAdaptor extends JpaRepository<PasswordRese
    * @param status the status of the token (e.g., ACTIVE)
    * @return List of PasswordResetTokenEntity matching the criteria
    */
-  List<PasswordResetToken> findByAccountIdAndTypeAndStatus(Long accountId, TokenType type, TokenStatus status);
+  List<PasswordResetTokenEntity> findByAccountIdAndTypeAndStatus(Long accountId, TokenType type, TokenStatus status);
 
   /**
    * Deletes all password reset token entities having the specified status. This operation is modifying and transactional.

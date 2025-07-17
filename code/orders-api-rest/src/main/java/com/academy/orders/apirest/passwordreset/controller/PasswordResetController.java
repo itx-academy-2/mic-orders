@@ -25,18 +25,15 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class PasswordResetController implements PasswordResetControllerApi {
   private final SendPasswordResetEmailUseCase sendPasswordResetEmailUseCase;
-
   private final ResetPasswordUseCase resetPasswordUseCase;
-
   private final ValidateTokenUseCase validateTokenUseCase;
-
   private final PasswordResetMapper mapper;
 
   @Override
   @PreAuthorize("permitAll()")
   public ResponseEntity<PasswordResetSuccessResponseDTO> v1PasswordResetPost(
       @Valid PasswordResetEmailRequestDTO passwordResetEmailRequestDTO) {
-    log.info("Sending password reset email for: {}", passwordResetEmailRequestDTO.getEmail());
+    log.info("Processing password reset email request");
     sendPasswordResetEmailUseCase.sendResetEmail(passwordResetEmailRequestDTO.getEmail());
     var response = mapper.toSuccessResponseForEmail();
     return ResponseEntity.ok(response);
@@ -46,7 +43,7 @@ public class PasswordResetController implements PasswordResetControllerApi {
   @PreAuthorize("permitAll()")
   public ResponseEntity<PasswordResetSuccessResponseDTO> v1PasswordResetPut(
       @Valid PasswordResetRequestDTO passwordResetRequestDTO) {
-    log.info("Processing password reset for token: {}", passwordResetRequestDTO.getToken());
+    log.info("Processing password reset request");
     var command = mapper.toCommand(passwordResetRequestDTO);
     resetPasswordUseCase.resetPassword(command);
     var response = mapper.toSuccessResponseForReset(new TokenWrapper(passwordResetRequestDTO.getToken()));
@@ -56,7 +53,7 @@ public class PasswordResetController implements PasswordResetControllerApi {
   @Override
   @PreAuthorize("permitAll()")
   public ResponseEntity<TokenValidResponseDTO> v1PasswordResetTokenGet(UUID token) {
-    log.info("Validating token: {}", token);
+    log.info("Validating password reset token");
     var result = validateTokenUseCase.validatePrimaryToken(token.toString());
     var dto = mapper.toTokenValidResponse(result);
     return ResponseEntity.ok(dto);

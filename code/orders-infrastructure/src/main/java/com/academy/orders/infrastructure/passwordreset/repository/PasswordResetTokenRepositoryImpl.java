@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PasswordResetTokenRepositoryImpl implements PasswordResetTokenRepository {
   private final PasswordResetTokenJpaAdaptor jpaAdaptor;
-
   private final PasswordResetTokenMapper mapper;
 
   @Override
@@ -44,7 +43,10 @@ public class PasswordResetTokenRepositoryImpl implements PasswordResetTokenRepos
 
   @Override
   public List<PasswordResetToken> findByAccountIdAndTypeAndStatus(Long id, TokenType tokenType, TokenStatus tokenStatus) {
-    return jpaAdaptor.findByAccountIdAndTypeAndStatus(id, tokenType, tokenStatus);
+    List<PasswordResetTokenEntity> entities = jpaAdaptor.findByAccountIdAndTypeAndStatus(id, tokenType, tokenStatus);
+    return entities.stream()
+        .map(mapper::toDomain)
+        .toList();
   }
 
   @Override

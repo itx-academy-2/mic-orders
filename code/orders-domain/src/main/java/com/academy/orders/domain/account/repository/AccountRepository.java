@@ -75,5 +75,14 @@ public interface AccountRepository {
    */
   Page<Account> getAccounts(AccountManagementFilterDto filter, Pageable pageable);
 
+  /**
+   +   * Updates the password for an account with the given ID.
+   +   *
+   +   * @param accountId the ID of the account whose password should be updated
+   +   * @param newPassword the new password (should be pre-hashed)
+   +   * @throws IllegalArgumentException if accountId is null or newPassword is blank
+   +   * @throws AccountNotFoundException if no account exists with the given ID
+   +   * @author DmytroLysenko1
+   +   */
   void updatePassword(Long accountId, String newPassword);
 }

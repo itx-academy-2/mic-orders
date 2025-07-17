@@ -11,4 +11,5 @@ Feature: Reset password - success
     And request resetPasswordRequest
     When method PUT
     Then status 404
-    And match response contains { title: 'Not Found', detail: '#(resetPasswordRequest.token)' }
+    And match response.title == 'Not Found'
+    And match response.detail startsWith 'Invalid or expired token'

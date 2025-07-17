@@ -9,21 +9,19 @@ import com.academy.orders.domain.passwordreset.repository.PasswordResetTokenRepo
 import com.academy.orders.domain.passwordreset.usecase.SendPasswordResetEmailUseCase;
 import java.time.Clock;
 import java.time.Duration;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 public class SendPasswordResetEmailUseCaseImpl implements SendPasswordResetEmailUseCase {
   private final AccountRepository accountRepository;
-
   private final PasswordResetTokenRepository tokenRepository;
-
   private final PasswordResetTokenFactory tokenFactory;
-
   private final PasswordResetEmailSender emailSender;
-
   private final Clock clock;
 
   private static final Duration COOLDOWN_DURATION = Duration.ofMinutes(2);
@@ -45,9 +43,11 @@ public class SendPasswordResetEmailUseCaseImpl implements SendPasswordResetEmail
   public void sendResetEmail(String email) {
     var account = findAccountByEmail(email);
     if (account == null) {
+      log.debug("No account found for email: {}. Silently returning.", email);
       return;
     }
     if (isWithinCooldownPeriod(account.id())) {
+      log.info("Password reset request within cooldown period for account: {}", account.id());
       return;
     }
     createAndSendPasswordResetToken(account, email);

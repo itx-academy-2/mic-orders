@@ -18,21 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class GenerateSecondaryTokenUseCaseImpl implements GenerateSecondaryTokenUseCase {
   static final String NULL_TOKEN_MSG = "Token value cannot be null";
-
   static final String BLANK_TOKEN_MSG = "Token value cannot be empty or blank";
-
   static final String NOT_PRIMARY_MSG = "Token is not primary";
-
   static final String USED_TOKEN_MSG = "Token has already been used";
-
   static final String EXPIRED_TOKEN_MSG = "Token has expired";
-
   static final String NULL_SECONDARY_TOKEN_MSG = "Secondary token value cannot be null";
 
   private final PasswordResetTokenRepository tokenRepository;
-
   private final PasswordResetTokenFactory tokenFactory;
-
   private final Clock clock;
 
   public GenerateSecondaryTokenUseCaseImpl(

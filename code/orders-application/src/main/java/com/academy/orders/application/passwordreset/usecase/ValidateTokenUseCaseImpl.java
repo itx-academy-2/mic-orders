@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ValidateTokenUseCaseImpl implements ValidateTokenUseCase {
   private final PasswordResetTokenRepository tokenRepository;
-
   private final PasswordResetTokenFactory tokenFactory;
 
   private final Clock clock;

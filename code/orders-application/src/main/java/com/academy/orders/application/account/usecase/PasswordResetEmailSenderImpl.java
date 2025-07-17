@@ -8,6 +8,9 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -16,16 +19,25 @@ public class PasswordResetEmailSenderImpl implements PasswordResetEmailSender {
 
   @Value("${app.frontend.reset-password-url}")
   private String frontendResetUrl;
-
   @Value("${spring.mail.username}")
   private String from;
 
   @Override
   public void send(String to, String token) {
-    String subject = "Reset your password";
-    String resetLink = frontendResetUrl + "/" + token;
+    try {
+      var encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8);
+      var message = buildResetEmail(to, encodedToken);
+      mailSender.send(message);
+      log.info("Password reset email successfully sent to {}", to);
+    } catch (Exception e) {
+      log.error("Failed to send password reset email to {}", to, e);
+    }
+  }
 
-    String text = String.format("""
+  private SimpleMailMessage buildResetEmail(String to, String encodedToken) {
+    var resetLink = frontendResetUrl + "/" + encodedToken;
+    var subject = "Reset your password";
+    var text = String.format("""
         Hello,
 
         You requested to reset your password. Click the link below to reset it:
@@ -38,12 +50,12 @@ public class PasswordResetEmailSenderImpl implements PasswordResetEmailSender {
         Your Support Team
         """, resetLink);
 
-    SimpleMailMessage message = new SimpleMailMessage();
+    var message = new SimpleMailMessage();
     message.setFrom(from);
     message.setTo(to);
     message.setSubject(subject);
     message.setText(text);
 
-    mailSender.send(message);
+    return message;
   }
 }
