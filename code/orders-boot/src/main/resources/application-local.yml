@@ -1,6 +1,16 @@
 springdoc.swagger-ui.enabled: true
-
+app :
+  frontend:
+    reset-password-url: https://spa-retail-dev.up.railway.app/reset-password
 spring:
+  mail :
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL:gadgets.store.retail@gmail.com}
+    password: ${EMAIL_PASSWORD:fbgj zuox vhxh rxhjs}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
   datasource:
     url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/retail}
     username: ${DATASOURCE_USER:pgusr}

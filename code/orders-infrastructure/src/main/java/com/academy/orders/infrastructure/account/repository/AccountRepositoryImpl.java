@@ -14,6 +14,7 @@ import com.academy.orders.infrastructure.account.entity.AccountEntity;
 import com.academy.orders.infrastructure.common.PageableMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,5 +76,12 @@ public class AccountRepositoryImpl implements AccountRepository {
     var pageable = pageableMapper.fromDomain(pageableDomain);
     var accountPage = accountJpaAdapter.findAllByRoleAndStatus(filter, pageable);
     return accountPageMapper.toDomain(accountPage);
+  }
+
+  @Override
+  @Transactional
+  @Modifying(clearAutomatically = true)
+  public void updatePassword(Long accountId, String newPassword) {
+    accountJpaAdapter.updatePasswordById(accountId, newPassword);
   }
 }

@@ -23,6 +23,10 @@ import com.academy.orders.domain.order.entity.OrderReceiver;
 import com.academy.orders.domain.order.entity.PostAddress;
 import com.academy.orders.domain.order.entity.enumerated.DeliveryMethod;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
+import com.academy.orders.domain.passwordreset.dto.PasswordResetCommand;
+import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
+import com.academy.orders.domain.passwordreset.entity.enumerated.TokenStatus;
+import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
 import com.academy.orders.domain.product.dto.DiscountAndPriceWithDiscountRangeDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
@@ -35,7 +39,10 @@ import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -404,6 +411,124 @@ public class ModelUtils {
         .id(TEST_ID)
         .createdAt(TEST_START_DATE)
         .contents(getArticleContents())
+        .build();
+  }
+
+  public static Account createAccount(Long id, String email) {
+    return Account.builder()
+        .id(id)
+        .email(email)
+        .build();
+  }
+
+  public static PasswordResetToken createPasswordResetToken(String token, String email, Long accountId) {
+    return PasswordResetToken.builder()
+        .token(token)
+        .email(email)
+        .accountId(accountId)
+        .build();
+  }
+
+  public static PasswordResetToken createNullToken(String email, Long accountId) {
+    return PasswordResetToken.builder()
+        .token(null)
+        .email(email)
+        .accountId(accountId)
+        .build();
+  }
+
+  public static PasswordResetCommand createPasswordResetCommand(String token, String password) {
+    return new PasswordResetCommand(token, password);
+  }
+
+  public static PasswordResetToken createPasswordResetToken(String token, String email, TokenType type,
+      TokenStatus status, OffsetDateTime expiresAt, Long accountId) {
+    return PasswordResetToken.builder()
+        .token(token)
+        .email(email)
+        .type(type)
+        .status(status)
+        .expiresAt(expiresAt)
+        .accountId(accountId)
+        .build();
+  }
+
+  public static PasswordResetToken createTokenWithExpiry(String token, String email, TokenType type,
+      TokenStatus status, Instant expiresAtInstant, Long accountId) {
+    return PasswordResetToken.builder()
+        .token(token)
+        .email(email)
+        .type(type)
+        .status(status)
+        .expiresAt(OffsetDateTime.ofInstant(expiresAtInstant, ZoneOffset.UTC))
+        .accountId(accountId)
+        .build();
+  }
+
+  public static Account createAccount(Long id, String email, String password) {
+    return Account.builder()
+        .id(id)
+        .email(email)
+        .password(password)
+        .build();
+  }
+
+  public static PasswordResetToken createPrimaryToken(
+      String token, String email, Long accountId,
+      Instant createdAtInstant, long ttlSeconds) {
+    OffsetDateTime createdAt = OffsetDateTime.ofInstant(createdAtInstant, ZoneOffset.UTC);
+    OffsetDateTime expiresAt = OffsetDateTime.ofInstant(createdAtInstant.plusSeconds(ttlSeconds), ZoneOffset.UTC);
+
+    return PasswordResetToken.builder()
+        .token(token)
+        .email(email)
+        .accountId(accountId)
+        .type(TokenType.PRIMARY)
+        .status(TokenStatus.ACTIVE)
+        .createdAt(createdAt)
+        .expiresAt(expiresAt)
+        .build();
+  }
+
+  public static PasswordResetToken createSecondaryToken(String tokenValue, String email, Long accountId,
+      Instant issuedAt, long ttlSeconds) {
+    return PasswordResetToken.builder()
+        .token(tokenValue)
+        .email(email)
+        .accountId(accountId)
+        .type(TokenType.SECONDARY)
+        .status(TokenStatus.ACTIVE)
+        .createdAt(OffsetDateTime.ofInstant(issuedAt, ZoneOffset.UTC))
+        .expiresAt(OffsetDateTime.ofInstant(issuedAt.plusSeconds(ttlSeconds), ZoneOffset.UTC))
+        .build();
+  }
+
+  public static PasswordResetToken createExpiredToken(String token, String email,
+      Long accountId, Instant expiredInstant) {
+    return PasswordResetToken.builder()
+        .token(token)
+        .email(email)
+        .accountId(accountId)
+        .type(TokenType.PRIMARY)
+        .status(TokenStatus.ACTIVE)
+        .expiresAt(OffsetDateTime.ofInstant(expiredInstant, ZoneOffset.UTC))
+        .build();
+  }
+
+  public static PasswordResetToken createTokenWithNullValue(String email, Long accountId) {
+    return PasswordResetToken.builder()
+        .token(null)
+        .email(email)
+        .accountId(accountId)
+        .type(TokenType.SECONDARY)
+        .status(TokenStatus.ACTIVE)
+        .expiresAt(OffsetDateTime.now(ZoneOffset.UTC))
+        .build();
+  }
+
+  public static PasswordResetToken createUsedPrimaryToken(PasswordResetToken primaryToken) {
+    return primaryToken.toBuilder()
+        .status(TokenStatus.USED)
         .build();
   }
 }

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
@@ -31,4 +32,8 @@ public interface AccountJpaAdapter extends JpaRepository<AccountEntity, Long> {
       + "(:#{#filter.status} IS NULL OR a.status = :#{#filter.status}) AND "
       + "(:#{#filter.role} IS NULL OR a.role = :#{#filter.role})")
   Page<AccountEntity> findAllByRoleAndStatus(@Nullable AccountManagementFilterDto filter, Pageable pageable);
+
+  @Modifying
+  @Query("UPDATE AccountEntity a SET a.password = :password WHERE a.id = :id")
+  void updatePasswordById(@Param("id") Long id, @Param("password") String password);
 }

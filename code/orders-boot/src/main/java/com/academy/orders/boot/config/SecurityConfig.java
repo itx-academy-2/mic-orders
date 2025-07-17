@@ -82,7 +82,9 @@ public class SecurityConfig {
           configurer.configurationSource(source);
         })
         .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/v2/my-info").authenticated()
+            .anyRequest().permitAll())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterAfter(accountStatusFilter(), BearerTokenAuthenticationFilter.class)
         .oauth2ResourceServer(oauth2 -> oauth2

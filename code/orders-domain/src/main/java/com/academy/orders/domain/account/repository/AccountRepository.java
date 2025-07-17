@@ -74,4 +74,6 @@ public interface AccountRepository {
    * @author Yurii Osovskyi
    */
   Page<Account> getAccounts(AccountManagementFilterDto filter, Pageable pageable);
+
+  void updatePassword(Long accountId, String newPassword);
 }
