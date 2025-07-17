@@ -2,23 +2,27 @@ package com.academy.orders.boot.infrastructure.product.repository;
 
 import com.academy.orders.boot.infrastructure.common.repository.AbstractRepositoryIT;
 import com.academy.orders.domain.common.Page;
+import com.academy.orders.domain.discount.entity.Discount;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.entity.Product;
+import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.entity.ProductTranslation;
 import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
+import com.academy.orders.domain.product.exception.ProductNotFoundException;
 import com.academy.orders.domain.product.repository.ProductRepository;
+import com.academy.orders.infrastructure.product.ProductManagementMapper;
+import com.academy.orders.infrastructure.product.ProductMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 
+import static com.academy.orders.ModelUtils.getDiscount;
 import static com.academy.orders.ModelUtils.getPageable;
 import static com.academy.orders.ModelUtils.getPageableSortAsc;
 import static com.academy.orders.ModelUtils.getPageableSortDesc;
-import static com.academy.orders.ModelUtils.getProductManagement;
 import static com.academy.orders.ModelUtils.getProductManagementFilterDto;
 import static com.academy.orders.ModelUtils.getProductManagementFilterDtoWithPrices;
 import static com.academy.orders.ModelUtils.getProductManagementFilterSearchByName;
@@ -36,6 +40,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ProductRepositoryIT extends AbstractRepositoryIT {
   @Autowired
   private ProductRepository productRepository;
+
+  @Autowired
+  private ProductManagementMapper productManagementMapper;
+
+  @Autowired
+  private ProductMapper productMapper;
 
   @Test
   void findAllByLanguageWithFilterTest() {
@@ -153,10 +163,18 @@ class ProductRepositoryIT extends AbstractRepositoryIT {
 
   @Test
   void updateTest() {
-    productRepository.update(getProductManagement());
-    final var product = productRepository.getById(getProductManagement().id());
+    // Given
+    Product productFromBD = productRepository.getById(PRODUCT_UUID).orElseThrow(ProductNotFoundException::new);
+    Discount discount = getDiscount();
+    productFromBD.setDiscount(discount);
+    ProductManagement productForUpdate = productManagementMapper.fromEntity(productMapper.toEntity(productFromBD));
 
-    assertEquals(1000, product.get().getQuantity());
+    // When
+    productRepository.update(productForUpdate);
+
+    // Then
+    Product result = productRepository.getById(PRODUCT_UUID).orElseThrow(ProductNotFoundException::new);
+    assertEquals(discount.getAmount(), result.getDiscount().getAmount());
   }
 
   @Test

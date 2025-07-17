@@ -40,4 +40,10 @@ public class TestConstants {
   public static final String PRODUCT_NAME = "IPhone";
 
   public static final String PRODUCT_DESCRIPTION = "Phone";
+
+  public static final String TEST_FIRST_NAME = "John";
+
+  public static final String TEST_LAST_NAME = "Doe";
+
+  public static final String TEST_PHONE_NUMBER = "+380631234567";
 }

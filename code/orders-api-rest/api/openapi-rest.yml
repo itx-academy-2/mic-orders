@@ -3,6 +3,7 @@ info:
   title: Retail API
   description: Retail service API
   version: 2.4.0
+  version: 2.3.0
 servers:
   - url: http://localhost:8080/retail
 
@@ -29,6 +30,12 @@ tags:
 
   - name: UsersManagement
     description: Endpoints for users management page
+
+  - name: UserPersonalCabinet
+    description: Endpoints for the user personal cabinet
+
+  - name: ViewHistory
+    description: User's viewed product history endpoints
 
 #ENDPOINTS
 #=======================================================================================================================
@@ -800,7 +807,7 @@ paths:
           description: Bad request - invalid parameters
         '401':
           description: Unauthorized - authentication required
-
+          
   /v1/password-reset:
     post:
       tags:
@@ -884,6 +891,34 @@ paths:
         - Token is invalidated after use
         - All active sessions are terminated
         - Confirmation email is sent
+        
+  /v2/my-info:
+    get:
+      tags:
+        - UserPersonalCabinet
+      summary: Get user info.
+      description: Get main user info such as Name, Surname, Email etc for the registered user.
+      operationId: getPersonalUserInfo
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: Users personal info such as Name, Surname, email etc.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccountInfo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    patch:
+      tags:
+        - UserPersonalCabinet
+      summary: Update personal info
+      description: Update personal information such as first name, last name, and phone number for the authenticated user.
+      operationId: updatePersonalUserInfo
+      security:
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -974,6 +1009,91 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+=======
+              $ref: '#/components/schemas/UpdateAccountV2InfoRequest'
+      responses:
+        '204':
+          description: Personal info successfully updated
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+
+  /v1/my-view-history:
+    get:
+      tags:
+        - ViewHistory
+      summary: Get list of viewed products
+      description: The endpoint for getting all viewed products from the database.
+      operationId: getViewedProducts
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/Pageable'
+        - $ref: '#/components/parameters/Language'
+      responses:
+        '200':
+          description: |
+            Retrieves the list of products the user has viewed, sorted by most recently viewed first.
+            Supports pagination and language filtering.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageProducts'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    delete:
+      tags:
+        - ViewHistory
+      summary: Remove all products from the view history
+      operationId: deleteAllViewedProducts
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '204':
+          description: All products removed from the view history.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/my-view-history/{productId}:
+    put:
+      tags:
+        - ViewHistory
+      summary: Add product to the viewed history
+      operationId: addProductToViewedHistory
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '204':
+          description: Product added to the viewed history.
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    delete:
+      tags:
+        - ViewHistory
+      summary: Remove single product from the view history
+      operationId: deleteViewedProduct
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '204':
+          description: Product removed from the view history.
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
 #COMPONENTS
 #=======================================================================================================================
@@ -1114,6 +1234,16 @@ components:
             title: Forbidden
             detail: User does not have success to this resource
 
+    UnsupportedMediaType:
+      description: Unsupported Media Type
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            status: 415
+            title: Unsupported Media Type
+            detail: Content-Type 'null' is not supported. Please use 'application/json'.
   #SCHEMAS
   #=======================================================================================================================
   schemas:
@@ -2249,6 +2379,35 @@ components:
           type: string
           format: date-time
 
+    UserAccountInfo:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        firstName:
+          type: string
+          example: "John"
+        lastName:
+          type: string
+          example: "Doe"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-06-24 1A9:37:59.682238"
+        photo:
+          type: string
+          example: "https://cdn.pixabay.com/photo/2024/05/13/03/18/ai-generated-8757985_1280.png"
+        phone:
+          type: string
+          example: "+380631234567"
+      required:
+        - email
+        - firstName
+        - lastName
+        - createdAt
+
     AccountStatus:
       type: string
       enum:
@@ -2465,3 +2624,34 @@ components:
           format: date-time
           description: ISO 8601 timestamp of when the error occurred
           example: "2025-06-27T10:30:00Z"
+          
+    UpdateAccountV2InfoRequest:
+      type: object
+      description: Request body for updating the authenticated user's personal information.
+      properties:
+        firstName:
+          type: string
+          description: User's first name. Must be between 1 and 50 characters.
+          minLength: 1
+          maxLength: 50
+          example: John
+        lastName:
+          type: string
+          description: User's last name. Must be between 1 and 50 characters.
+          minLength: 1
+          maxLength: 50
+          example: Doe
+        phone:
+          type: string
+          description: |
+            User's phone number in international or local format.
+            Must match one of the following formats:
+            - International format: '+' followed by exactly 12 digits.
+              Example: +380631234567
+            - Local format: exactly 10 digits without '+'.
+              Example: 0631234567
+          pattern: '^(\+\d{12})|(\d{10})$'
+          example: "+380631234567"
+      required:
+        - firstName
+        - lastName
