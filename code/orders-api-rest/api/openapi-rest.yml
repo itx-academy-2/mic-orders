@@ -3,7 +3,6 @@ info:
   title: Retail API
   description: Retail service API
   version: 2.4.0
-  version: 2.3.0
 servers:
   - url: http://localhost:8080/retail
 
