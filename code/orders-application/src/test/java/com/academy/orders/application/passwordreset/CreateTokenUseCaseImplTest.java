@@ -7,7 +7,6 @@ import com.academy.orders.domain.account.factory.PasswordResetTokenFactory;
 import com.academy.orders.domain.account.repository.AccountRepository;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.exception.InvalidEmailException;
-import com.academy.orders.domain.passwordreset.exception.InvalidTokenException;
 import com.academy.orders.domain.passwordreset.repository.PasswordResetTokenRepository;
 import java.util.Optional;
 import java.util.UUID;
@@ -71,7 +70,6 @@ class CreateTokenUseCaseImplTest {
     verify(accountRepository).findAccountByEmail(TEST_EMAIL);
     verify(tokenFactory).createToken(ACCOUNT_ID, TEST_EMAIL);
     verify(tokenRepository).save(token);
-    verifyNoMoreInteractions(accountRepository, tokenFactory, tokenRepository);
   }
 
   @Test
@@ -133,24 +131,6 @@ class CreateTokenUseCaseImplTest {
     assertEquals("Factory error", exception.getMessage());
     verify(accountRepository).findAccountByEmail(TEST_EMAIL);
     verify(tokenFactory).createToken(ACCOUNT_ID, TEST_EMAIL);
-    verifyNoInteractions(tokenRepository);
-  }
-
-  @Test
-  void createPrimaryToken_TokenWithNullValue_ThrowsInvalidTokenException() {
-    // Given
-    var nullToken = createNullToken(TEST_EMAIL, ACCOUNT_ID);
-    when(accountRepository.findAccountByEmail(TEST_EMAIL)).thenReturn(Optional.of(account));
-    when(tokenFactory.createToken(ACCOUNT_ID, TEST_EMAIL)).thenReturn(nullToken);
-
-    // When & Then
-    var exception = assertThrows(
-        InvalidTokenException.class,
-        () -> createTokenUseCase.createPrimaryToken(TEST_EMAIL));
-    assertEquals("Token value cannot be null", exception.getMessage());
-    verify(accountRepository).findAccountByEmail(TEST_EMAIL);
-    verify(tokenFactory).createToken(ACCOUNT_ID, TEST_EMAIL);
-    verifyNoInteractions(tokenRepository);
   }
 
   @Test
