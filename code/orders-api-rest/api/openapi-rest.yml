@@ -2360,6 +2360,7 @@ components:
           minLength: 2
           maxLength: 50
           pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
+          x-pattern-message: First name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
           description: First name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
         lastName:
           type: string
@@ -2367,6 +2368,7 @@ components:
           minLength: 2
           maxLength: 50
           pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
+          x-pattern-message: Last name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
           description: Last name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
         deliveryMethod:
           $ref: '#/components/schemas/DeliveryMethod'
@@ -2396,6 +2398,7 @@ components:
           example: Home
           pattern: ^(?!\s*$)[a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+( [a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+)*$
           description: Optional title for the delivery address. Used to identify saved addresses (e.g. "Home", "Office")
+          x-pattern-message: Title must not be empty and may contain only letters, digits, dashes, spaces between the words, apostrophes, or underscores.
       required:
         - city
         - deliveryMethod
