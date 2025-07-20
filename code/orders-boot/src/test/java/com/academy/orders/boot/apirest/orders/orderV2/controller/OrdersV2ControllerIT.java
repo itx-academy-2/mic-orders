@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,6 +19,9 @@ import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OrdersV2ControllerIT extends AbstractControllerIT {
+    @Value("${auth.users[3].username}")
+    private String username;
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -36,14 +40,14 @@ public class OrdersV2ControllerIT extends AbstractControllerIT {
             SELECT 1 FROM accounts WHERE email = ?
         )
         """,
-                "user-for-orders-v2@mail.com",
+                "user-2@mail.com",
                 "$2y$10$6IQper1XrKudSKuC8J0hnO1hJGsfexYdee6mgy2Lh.amnufF5/2cu",
                 "user", "user", "ROLE_USER", "ACTIVE",
-                "user-for-orders-v2@mail.com"
+                "user-2@mail.com"
         );
 
         accountId = jdbcTemplate.queryForObject(
-                "SELECT id FROM accounts WHERE email = ?", new Object[] {"user-for-orders-v2@mail.com"}, Long.class);
+                "SELECT id FROM accounts WHERE email = ?", new Object[] {"user-2@mail.com"}, Long.class);
 
         jdbcTemplate.update("""
         INSERT INTO cart_items (product_id, user_id, quantity)
@@ -71,7 +75,6 @@ public class OrdersV2ControllerIT extends AbstractControllerIT {
     @Test
     void placeOrderV2_Success_Test() {
         //Given
-        final var username = "user-for-orders-v2@mail.com";
         final var url = baseUrl() + format(ENDPOINT, accountId);
         final HttpHeaders headers = buildAuthHeaders(username);
         headers.set("Content-Type", "application/json");
@@ -94,7 +97,6 @@ public class OrdersV2ControllerIT extends AbstractControllerIT {
     @Test
     void placeOrderV2_Conflict_Test() {
         //Given
-        final var username = "user-for-orders-v2@mail.com";
         final var url = baseUrl() + format(ENDPOINT, accountId);
         final HttpHeaders headers = buildAuthHeaders(username);
         headers.set("Content-Type", "application/json");
@@ -129,7 +131,6 @@ public class OrdersV2ControllerIT extends AbstractControllerIT {
     @Test
     void placeOrderV2_Forbidden_Test() {
         //Given
-        final var username = "user-for-orders-v2@mail.com";
         final var url = baseUrl() + format(ENDPOINT, 2L);
         final HttpHeaders headers = buildAuthHeaders(username);
         headers.set("Content-Type", "application/json");
@@ -176,7 +177,6 @@ public class OrdersV2ControllerIT extends AbstractControllerIT {
     @Test
     void placeOrderV2_BadRequest_Test() {
         //Given
-        final var username = "user-for-orders-v2@mail.com";
         final var url = baseUrl() + format(ENDPOINT, accountId);
         final HttpHeaders headers = buildAuthHeaders(username);
         headers.set("Content-Type", "application/json");

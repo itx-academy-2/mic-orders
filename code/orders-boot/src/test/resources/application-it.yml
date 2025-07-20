@@ -20,7 +20,7 @@ spring:
         globally_quoted_identifiers: true
         physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
   flyway:
-    enabled: true
+    enabled: false
 
 rest:
   client:
@@ -38,7 +38,7 @@ auth:
     - username: manager@mail.com
       roles: ROLE_Manager
       password: Manager_1234
-    - username: user-for-orders-v2@mail.com
+    - username: user-2@mail.com
       roles: ROLE_USER
       password: Test_1234
 
