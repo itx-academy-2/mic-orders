@@ -19,6 +19,9 @@ import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
+import com.academy.orders_api_rest.generated.model.DeliveryMethodDTO;
+import com.academy.orders_api_rest.generated.model.PlaceOrderRequestV2DTO;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -147,5 +150,16 @@ public class ModelUtils {
                     .build())
             .account(AccountV2.builder().id(23L).build())
             .orderItems(List.of(getOrderItem())).build();
+  }
+
+  public static PlaceOrderRequestV2DTO getPlaceOrderRequestV2DTO() {
+    return new PlaceOrderRequestV2DTO()
+            .firstName("John")
+            .lastName("Doe")
+            .deliveryMethod(DeliveryMethodDTO.NOVA)
+            .city("Kharkiv")
+            .department("№3 Franka street, 7")
+            .phone("+380960775434")
+            .title("Home");
   }
 }
