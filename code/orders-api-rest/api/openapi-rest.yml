@@ -879,6 +879,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
 
   /v2/users/{userId}/orders:
     post:
@@ -2416,13 +2418,15 @@ components:
           minLength: 2
           maxLength: 50
           pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
-          description: First name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens.
+          x-pattern-message: First name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
+          description: First name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
         lastName:
           type: string
           example: Doe
           minLength: 2
           maxLength: 50
           pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
+          x-pattern-message: Last name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
           description: Last name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
         deliveryMethod:
           $ref: '#/components/schemas/DeliveryMethod'
@@ -2451,6 +2455,7 @@ components:
           maxLength: 50
           example: Home
           pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+$
+          x-pattern-message: Title must not be empty and may contain only letters, digits, dashes, spaces between the words, apostrophes, or underscores
           description: Title for the delivery address. Used to identify saved addresses (e.g. "Home", "Office")
       required:
         - city
