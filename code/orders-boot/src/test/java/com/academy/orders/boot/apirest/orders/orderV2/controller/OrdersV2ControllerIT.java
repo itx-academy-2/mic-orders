@@ -70,6 +70,8 @@ public class OrdersV2ControllerIT extends AbstractControllerIT {
             jdbcTemplate.update("DELETE FROM orders_v2 WHERE id = ?", createdOrderId);
             jdbcTemplate.update("DELETE FROM post_addresses_v2 WHERE account_id = ?", accountId);
         }
+
+        jdbcTemplate.update("DELETE FROM accounts WHERE id = ?", accountId);
     }
 
     @Test
