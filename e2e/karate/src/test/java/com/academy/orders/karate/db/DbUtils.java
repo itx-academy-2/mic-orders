@@ -79,4 +79,28 @@ public class DbUtils {
             throw new RuntimeException("No rows affected");
         }
     }
+
+    public void executeUpdateWithParams(String sql, Object... params) {
+        try (var connection = getConnection(url, username, password)) {
+            var statement = connection.prepareStatement(sql);
+            prepareParams(statement, params);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to execute update", e);
+        }
+    }
+
+    public String getPostAddressIdByOrderId(UUID orderId) {
+        try (var connection = getConnection(url, username, password)) {
+            var sql = "SELECT post_address_v2_id FROM orders_v2 WHERE id = ?";
+            var rs = performGetRequestRequest(connection, sql, orderId);
+            if (rs.next()) {
+                return rs.getString("post_address_v2_id");
+            } else {
+                throw new RuntimeException("Order not found");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch post_address_v2_id", e);
+        }
+    }
 }
