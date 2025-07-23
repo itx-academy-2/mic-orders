@@ -7,5 +7,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", uses = {ProductPreviewDTOMapper.class})
 public interface OrderV2DTOMapper {
-    CreateOrderV2Dto toCreateOrderV2Dto(PlaceOrderRequestV2DTO placeOrderRequestV2DTO);
+  CreateOrderV2Dto toCreateOrderV2Dto(PlaceOrderRequestV2DTO placeOrderRequestV2DTO);
 }

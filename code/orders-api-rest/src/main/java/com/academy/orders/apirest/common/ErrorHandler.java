@@ -189,6 +189,6 @@ public class ErrorHandler {
   public ErrorObjectDTO handlePostAddressTitleAlreadyExistsException(final PostAddressTitleAlreadyExistsException ex) {
     log.warn("PostAddress title already exists ", ex);
     return new ErrorObjectDTO().status(HttpStatus.CONFLICT.value()).title(HttpStatus.CONFLICT.getReasonPhrase())
-            .detail(ex.getMessage());
+        .detail(ex.getMessage());
   }
 }

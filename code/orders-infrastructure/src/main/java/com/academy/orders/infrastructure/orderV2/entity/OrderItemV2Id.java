@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @ToString
 public class OrderItemV2Id implements Serializable {
-    private UUID orderV2Id;
+  private UUID orderV2Id;
 
-    private UUID productId;
+  private UUID productId;
 }

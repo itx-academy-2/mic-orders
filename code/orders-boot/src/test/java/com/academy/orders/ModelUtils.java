@@ -153,34 +153,34 @@ public class ModelUtils {
 
   public static OrderV2 getOrderV2WithoutId() {
     return OrderV2.builder()
-            .createdAt(LocalDateTime.of(1, 1, 1, 1, 1)).isPaid(false).orderStatus(OrderStatus.IN_PROGRESS)
-            .postAddress(PostAddressV2.builder().city("Kharkiv").deliveryMethod(NOVA).department("43")
-                    .recipientFirstName("Sasha").recipientLastName("Bulhakova").recipientPhone("+380960997887").title("Friend")
-                    .account(AccountV2.builder().id(23L).build())
-                    .build())
+        .createdAt(LocalDateTime.of(1, 1, 1, 1, 1)).isPaid(false).orderStatus(OrderStatus.IN_PROGRESS)
+        .postAddress(PostAddressV2.builder().city("Kharkiv").deliveryMethod(NOVA).department("43")
+            .recipientFirstName("Sasha").recipientLastName("Bulhakova").recipientPhone("+380960997887").title("Friend")
             .account(AccountV2.builder().id(23L).build())
-            .orderItems(List.of(getOrderItem())).build();
+            .build())
+        .account(AccountV2.builder().id(23L).build())
+        .orderItems(List.of(getOrderItem())).build();
   }
 
   public static OrderV2 getOrderV2WithoutIdWithNewRecipientName() {
     return OrderV2.builder()
-            .createdAt(LocalDateTime.of(1, 1, 1, 1, 1)).isPaid(false).orderStatus(OrderStatus.IN_PROGRESS)
-            .postAddress(PostAddressV2.builder().city("Kharkiv").deliveryMethod(NOVA).department("43")
-                    .recipientFirstName("Masha").recipientLastName("Bulhakova").recipientPhone("+380960997887").title("Friend")
-                    .account(AccountV2.builder().id(23L).build())
-                    .build())
+        .createdAt(LocalDateTime.of(1, 1, 1, 1, 1)).isPaid(false).orderStatus(OrderStatus.IN_PROGRESS)
+        .postAddress(PostAddressV2.builder().city("Kharkiv").deliveryMethod(NOVA).department("43")
+            .recipientFirstName("Masha").recipientLastName("Bulhakova").recipientPhone("+380960997887").title("Friend")
             .account(AccountV2.builder().id(23L).build())
-            .orderItems(List.of(getOrderItem())).build();
+            .build())
+        .account(AccountV2.builder().id(23L).build())
+        .orderItems(List.of(getOrderItem())).build();
   }
 
   public static PlaceOrderRequestV2DTO getPlaceOrderRequestV2DTO() {
     return new PlaceOrderRequestV2DTO()
-            .firstName("John")
-            .lastName("Doe")
-            .deliveryMethod(DeliveryMethodDTO.NOVA)
-            .city("Kharkiv")
-            .department("№3 Franka street, 7")
-            .phone("+380960775434")
-            .title("Home");
+        .firstName("John")
+        .lastName("Doe")
+        .deliveryMethod(DeliveryMethodDTO.NOVA)
+        .city("Kharkiv")
+        .department("№3 Franka street, 7")
+        .phone("+380960775434")
+        .title("Home");
   }
 }

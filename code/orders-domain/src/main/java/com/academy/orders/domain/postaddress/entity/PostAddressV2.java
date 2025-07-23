@@ -10,5 +10,5 @@ import java.util.UUID;
 
 @Builder
 public record PostAddressV2(UUID id, DeliveryMethod deliveryMethod, String city, String department, String recipientFirstName,
-                            String recipientLastName, String recipientPhone, String title, AccountV2 account, List<OrderV2> orders) {
+    String recipientLastName, String recipientPhone, String title, AccountV2 account, List<OrderV2> orders) {
 }

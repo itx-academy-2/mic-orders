@@ -8,13 +8,13 @@ import java.util.UUID;
  * Use case interface for creating new order, V2.
  */
 public interface CreateOrderV2UseCase {
-    /**
-     * Method creates new order.
-     *
-     * @param order {@link CreateOrderV2Dto}
-     * @param accountId id of the user.
-     * @return {@link UUID} id of created order
-     * @author Oleksandra Bulhakova
-     */
-    UUID createOrderV2(CreateOrderV2Dto order, Long accountId);
+  /**
+   * Method creates new order.
+   *
+   * @param order {@link CreateOrderV2Dto}
+   * @param accountId id of the user.
+   * @return {@link UUID} id of created order
+   * @author Oleksandra Bulhakova
+   */
+  UUID createOrderV2(CreateOrderV2Dto order, Long accountId);
 }

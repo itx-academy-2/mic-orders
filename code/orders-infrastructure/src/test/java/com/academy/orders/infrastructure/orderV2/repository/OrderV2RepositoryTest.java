@@ -34,101 +34,103 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 public class OrderV2RepositoryTest {
-    @Mock
-    private OrderV2JpaAdapter jpaAdapter;
+  @Mock
+  private OrderV2JpaAdapter jpaAdapter;
 
-    @Mock
-    private OrderV2Mapper mapper;
+  @Mock
+  private OrderV2Mapper mapper;
 
-    @Mock
-    private AccountJpaAdapter accountJpaAdapter;
+  @Mock
+  private AccountJpaAdapter accountJpaAdapter;
 
-    @Mock
-    private ProductJpaAdapter productJpaAdapter;
+  @Mock
+  private ProductJpaAdapter productJpaAdapter;
 
-    @Mock
-    private PostAddressJpaAdapter postAddressJpaAdapter;
+  @Mock
+  private PostAddressJpaAdapter postAddressJpaAdapter;
 
-    @Mock
-    private PostAddressV2Mapper postAddressMapper;
+  @Mock
+  private PostAddressV2Mapper postAddressMapper;
 
-    @Mock
-    private OrderV1DuplicateAdapter orderV1DuplicateAdapter;
+  @Mock
+  private OrderV1DuplicateAdapter orderV1DuplicateAdapter;
 
-    @InjectMocks
-    private OrderV2RepositoryImpl repository;
+  @InjectMocks
+  private OrderV2RepositoryImpl repository;
 
-    @Test
-    void save_NoExistingPostAddressesWithGivenTitleFound_Test() {
-        //Given
-        var orderV2 = getOrderV2WithoutId();
-        var accountId = 1L;
-        var orderV2Entity = getOrderV2Entity();
-        var title = "Friend";
-        var postAddressV2Entity = getPostAddressV2Entity();
-        var expectedPostAddressEntity = getPostAddressV2EntityWithNewTitle();
-        var expectedOrderV2Entity = getOrderV2EntityWithId();
+  @Test
+  void save_NoExistingPostAddressesWithGivenTitleFound_Test() {
+    // Given
+    var orderV2 = getOrderV2WithoutId();
+    var accountId = 1L;
+    var orderV2Entity = getOrderV2Entity();
+    var title = "Friend";
+    var postAddressV2Entity = getPostAddressV2Entity();
+    var expectedPostAddressEntity = getPostAddressV2EntityWithNewTitle();
+    var expectedOrderV2Entity = getOrderV2EntityWithId();
 
-        when(mapper.toEntity(orderV2)).thenReturn(orderV2Entity);
-        when(accountJpaAdapter.getReferenceById(accountId)).thenReturn(getAccountEntity());
-        when(postAddressJpaAdapter.findByTitleAndAccount_Id("permanent: " + title, accountId)).thenReturn(Optional.empty());
-        when(postAddressMapper.toEntity(getPostAddressV2WithNewRecipientInfo())).thenReturn(postAddressV2Entity);
-        when(postAddressJpaAdapter.save(any(PostAddressV2Entity.class))).thenReturn(expectedPostAddressEntity);
-        when(productJpaAdapter.getReferenceById(orderV2Entity.getOrderItems().get(0).getProduct().getId())).thenReturn(getProductEntity());
-        when(jpaAdapter.save(any(OrderV2Entity.class))).thenReturn(expectedOrderV2Entity);
-        doNothing().when(orderV1DuplicateAdapter).duplicateOrderV2ToV1(expectedOrderV2Entity);
+    when(mapper.toEntity(orderV2)).thenReturn(orderV2Entity);
+    when(accountJpaAdapter.getReferenceById(accountId)).thenReturn(getAccountEntity());
+    when(postAddressJpaAdapter.findByTitleAndAccount_Id("permanent: " + title, accountId)).thenReturn(Optional.empty());
+    when(postAddressMapper.toEntity(getPostAddressV2WithNewRecipientInfo())).thenReturn(postAddressV2Entity);
+    when(postAddressJpaAdapter.save(any(PostAddressV2Entity.class))).thenReturn(expectedPostAddressEntity);
+    when(productJpaAdapter.getReferenceById(orderV2Entity.getOrderItems().get(0).getProduct().getId())).thenReturn(getProductEntity());
+    when(jpaAdapter.save(any(OrderV2Entity.class))).thenReturn(expectedOrderV2Entity);
+    doNothing().when(orderV1DuplicateAdapter).duplicateOrderV2ToV1(expectedOrderV2Entity);
 
-        //When
-        var actualUUID = repository.save(orderV2, accountId);
+    // When
+    var actualUUID = repository.save(orderV2, accountId);
 
-        //Then
-        assertEquals(actualUUID, expectedOrderV2Entity.getId());
-    }
+    // Then
+    assertEquals(actualUUID, expectedOrderV2Entity.getId());
+  }
 
-    @Test
-    void save_FoundExistingPostAddressWithGivenTitleAndTheSameWithInputFields_Test() {
-        //Given
-        var orderV2 = getOrderV2WithoutIdWithNewRecipientInfo();
-        var accountId = 1L;
-        var orderV2Entity = getOrderV2Entity();
-        var title = "Friend";
-        var expectedOrderV2Entity = getOrderV2EntityWithId();
+  @Test
+  void save_FoundExistingPostAddressWithGivenTitleAndTheSameWithInputFields_Test() {
+    // Given
+    var orderV2 = getOrderV2WithoutIdWithNewRecipientInfo();
+    var accountId = 1L;
+    var orderV2Entity = getOrderV2Entity();
+    var title = "Friend";
+    var expectedOrderV2Entity = getOrderV2EntityWithId();
 
-        when(mapper.toEntity(orderV2)).thenReturn(orderV2Entity);
-        when(accountJpaAdapter.getReferenceById(accountId)).thenReturn(getAccountEntity());
-        when(postAddressJpaAdapter.findByTitleAndAccount_Id("permanent: " + title, accountId)).thenReturn(Optional.of(getPostAddressV2EntityWithNewTitle()));
-        when(productJpaAdapter.getReferenceById(orderV2Entity.getOrderItems().get(0).getProduct().getId())).thenReturn(getProductEntity());
-        when(jpaAdapter.save(any(OrderV2Entity.class))).thenReturn(expectedOrderV2Entity);
-        doNothing().when(orderV1DuplicateAdapter).duplicateOrderV2ToV1(expectedOrderV2Entity);
+    when(mapper.toEntity(orderV2)).thenReturn(orderV2Entity);
+    when(accountJpaAdapter.getReferenceById(accountId)).thenReturn(getAccountEntity());
+    when(postAddressJpaAdapter.findByTitleAndAccount_Id("permanent: " + title, accountId))
+        .thenReturn(Optional.of(getPostAddressV2EntityWithNewTitle()));
+    when(productJpaAdapter.getReferenceById(orderV2Entity.getOrderItems().get(0).getProduct().getId())).thenReturn(getProductEntity());
+    when(jpaAdapter.save(any(OrderV2Entity.class))).thenReturn(expectedOrderV2Entity);
+    doNothing().when(orderV1DuplicateAdapter).duplicateOrderV2ToV1(expectedOrderV2Entity);
 
-        //When
-        var actualUUID = repository.save(orderV2, accountId);
+    // When
+    var actualUUID = repository.save(orderV2, accountId);
 
-        //Then
-        assertEquals(actualUUID, expectedOrderV2Entity.getId());
-    }
+    // Then
+    assertEquals(actualUUID, expectedOrderV2Entity.getId());
+  }
 
-    @Test
-    void save_FoundExistingPostAddressWithGivenTitleAndDifferentWithInputFields_Test() {
-        //Given
-        var orderV2 = getOrderV2WithoutId();
-        var accountId = 1L;
-        var orderV2Entity = getOrderV2Entity();
-        var title = "Friend";
+  @Test
+  void save_FoundExistingPostAddressWithGivenTitleAndDifferentWithInputFields_Test() {
+    // Given
+    var orderV2 = getOrderV2WithoutId();
+    var accountId = 1L;
+    var orderV2Entity = getOrderV2Entity();
+    var title = "Friend";
 
-        when(mapper.toEntity(orderV2)).thenReturn(orderV2Entity);
-        when(accountJpaAdapter.getReferenceById(accountId)).thenReturn(getAccountEntity());
-        when(postAddressJpaAdapter.findByTitleAndAccount_Id("permanent: " + title, accountId)).thenReturn(Optional.of(getPostAddressV2EntityWithNewTitle()));
+    when(mapper.toEntity(orderV2)).thenReturn(orderV2Entity);
+    when(accountJpaAdapter.getReferenceById(accountId)).thenReturn(getAccountEntity());
+    when(postAddressJpaAdapter.findByTitleAndAccount_Id("permanent: " + title, accountId))
+        .thenReturn(Optional.of(getPostAddressV2EntityWithNewTitle()));
 
-        //When
-        PostAddressTitleAlreadyExistsException exception = assertThrows(PostAddressTitleAlreadyExistsException.class,
-                () -> repository.save(orderV2, accountId));
+    // When
+    PostAddressTitleAlreadyExistsException exception = assertThrows(PostAddressTitleAlreadyExistsException.class,
+        () -> repository.save(orderV2, accountId));
 
-        //Then
-        assertEquals("This PostAddress title already exists: " + title, exception.getMessage());
+    // Then
+    assertEquals("This PostAddress title already exists: " + title, exception.getMessage());
 
-        verifyNoInteractions(productJpaAdapter);
-        verifyNoInteractions(jpaAdapter);
-        verifyNoInteractions(orderV1DuplicateAdapter);
-    }
+    verifyNoInteractions(productJpaAdapter);
+    verifyNoInteractions(jpaAdapter);
+    verifyNoInteractions(orderV1DuplicateAdapter);
+  }
 }

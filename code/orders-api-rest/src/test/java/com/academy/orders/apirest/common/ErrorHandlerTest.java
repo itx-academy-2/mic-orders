@@ -219,13 +219,13 @@ class ErrorHandlerTest {
 
   @Test
   void handlePostAddressTitleAlreadyExistsExceptionTest() {
-    //Given
+    // Given
     var ex = mock(PostAddressTitleAlreadyExistsException.class);
 
-    //When
+    // When
     when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
 
-    //Then
+    // Then
     assertEquals(buildErrorObjectDTO(CONFLICT), errorHandler.handlePostAddressTitleAlreadyExistsException(ex));
   }
 }

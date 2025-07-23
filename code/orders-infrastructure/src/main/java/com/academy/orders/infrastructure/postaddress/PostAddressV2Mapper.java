@@ -6,5 +6,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface PostAddressV2Mapper {
-    PostAddressV2Entity toEntity(PostAddressV2 postAddressV2);
+  PostAddressV2Entity toEntity(PostAddressV2 postAddressV2);
 }

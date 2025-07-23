@@ -430,16 +430,15 @@ public class ModelUtils {
 
   public static CreateOrderV2Dto getCreateOrderV2Dto() {
     return CreateOrderV2Dto.builder().firstName("mockFirstName").lastName("mockLastName")
-            .city("mockCity").department("mockDepartment").deliveryMethod(DeliveryMethod.NOVA).
-            phone("+380968776677").title("Home").build();
+        .city("mockCity").department("mockDepartment").deliveryMethod(DeliveryMethod.NOVA).phone("+380968776677").title("Home").build();
   }
 
   public static PostAddressV2 getPostAddressV2(CreateOrderV2Dto createOrderV2Dto) {
     return PostAddressV2.builder().city(createOrderV2Dto.city()).department(createOrderV2Dto.department())
-            .deliveryMethod(createOrderV2Dto.deliveryMethod())
-            .recipientFirstName(createOrderV2Dto.firstName()).recipientLastName(createOrderV2Dto.lastName())
-            .recipientPhone(createOrderV2Dto.phone()).title(createOrderV2Dto.title())
-            .account(getAccountV2())
-            .build();
+        .deliveryMethod(createOrderV2Dto.deliveryMethod())
+        .recipientFirstName(createOrderV2Dto.firstName()).recipientLastName(createOrderV2Dto.lastName())
+        .recipientPhone(createOrderV2Dto.phone()).title(createOrderV2Dto.title())
+        .account(getAccountV2())
+        .build();
   }
 }

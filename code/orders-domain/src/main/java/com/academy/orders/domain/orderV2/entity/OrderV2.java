@@ -13,6 +13,6 @@ import java.util.UUID;
 
 @Builder
 public record OrderV2(UUID id, OrderStatus orderStatus, PostAddressV2 postAddress, BigDecimal total,
-                      AccountV2 account, List<OrderItem> orderItems, Boolean isPaid, LocalDateTime editedAt,
-                      LocalDateTime createdAt) {
+    AccountV2 account, List<OrderItem> orderItems, Boolean isPaid, LocalDateTime editedAt,
+    LocalDateTime createdAt) {
 }

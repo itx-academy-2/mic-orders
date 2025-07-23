@@ -6,5 +6,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface OrderV2Mapper {
-    OrderV2Entity toEntity(OrderV2 order);
+  OrderV2Entity toEntity(OrderV2 order);
 }

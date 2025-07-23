@@ -38,128 +38,127 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(OrdersV2Controller.class)
 @ContextConfiguration(classes = {OrdersV2Controller.class})
 @Import(value = {CheckAccountIdUseCaseImpl.class, AopAutoConfiguration.class, TestSecurityConfig.class,
-        ErrorHandler.class, SecurityUtils.class})
+    ErrorHandler.class, SecurityUtils.class})
 public class OrdersV2ControllerTest {
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockBean
-    private CreateOrderV2UseCase createOrderV2UseCase;
+  @MockBean
+  private CreateOrderV2UseCase createOrderV2UseCase;
 
-    @MockBean
-    private OrderV2DTOMapper mapper;
+  @MockBean
+  private OrderV2DTOMapper mapper;
 
-    @Test
-    @SneakyThrows
-    void placeOrderV2_AdminAccessAllowed_Test() {
-        //Given
-        Long userId = 1L;
-        String role = "ROLE_ADMIN";
-        var orderId = UUID.randomUUID();
+  @Test
+  @SneakyThrows
+  void placeOrderV2_AdminAccessAllowed_Test() {
+    // Given
+    Long userId = 1L;
+    String role = "ROLE_ADMIN";
+    var orderId = UUID.randomUUID();
 
-        when(mapper.toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class))).thenReturn(CreateOrderV2Dto.builder().build());
-        when(createOrderV2UseCase.createOrderV2(any(CreateOrderV2Dto.class), eq(userId))).thenReturn(orderId);
+    when(mapper.toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class))).thenReturn(CreateOrderV2Dto.builder().build());
+    when(createOrderV2UseCase.createOrderV2(any(CreateOrderV2Dto.class), eq(userId))).thenReturn(orderId);
 
-        //When
-        var result = mockMvc.perform(post("/v2/users/{id}/orders", userId).with(getJwtRequest(userId, role))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
+    // When
+    var result = mockMvc.perform(post("/v2/users/{id}/orders", userId).with(getJwtRequest(userId, role))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
 
-        //Then
-        result.andExpect(status().isCreated());
-        result.andExpect(jsonPath("$.orderId").value(orderId.toString()));
-        verify(mapper).toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class));
-        verify(createOrderV2UseCase).createOrderV2(any(CreateOrderV2Dto.class), anyLong());
-    }
+    // Then
+    result.andExpect(status().isCreated());
+    result.andExpect(jsonPath("$.orderId").value(orderId.toString()));
+    verify(mapper).toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class));
+    verify(createOrderV2UseCase).createOrderV2(any(CreateOrderV2Dto.class), anyLong());
+  }
 
-    @Test
-    @SneakyThrows
-    void placeOrderV2_ManagerAccessAllowed_Test() {
-        //Given
-        Long userId = 1L;
-        String role = "ROLE_MANAGER";
-        var orderId = UUID.randomUUID();
+  @Test
+  @SneakyThrows
+  void placeOrderV2_ManagerAccessAllowed_Test() {
+    // Given
+    Long userId = 1L;
+    String role = "ROLE_MANAGER";
+    var orderId = UUID.randomUUID();
 
-        when(mapper.toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class))).thenReturn(CreateOrderV2Dto.builder().build());
-        when(createOrderV2UseCase.createOrderV2(any(CreateOrderV2Dto.class), eq(userId))).thenReturn(orderId);
+    when(mapper.toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class))).thenReturn(CreateOrderV2Dto.builder().build());
+    when(createOrderV2UseCase.createOrderV2(any(CreateOrderV2Dto.class), eq(userId))).thenReturn(orderId);
 
-        //When
-        var result = mockMvc.perform(post("/v2/users/{id}/orders", userId).with(getJwtRequest(userId, role))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
+    // When
+    var result = mockMvc.perform(post("/v2/users/{id}/orders", userId).with(getJwtRequest(userId, role))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
 
-        //Then
-        result.andExpect(status().isCreated());
-        result.andExpect(jsonPath("$.orderId").value(orderId.toString()));
-        verify(mapper).toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class));
-        verify(createOrderV2UseCase).createOrderV2(any(CreateOrderV2Dto.class), anyLong());
-    }
+    // Then
+    result.andExpect(status().isCreated());
+    result.andExpect(jsonPath("$.orderId").value(orderId.toString()));
+    verify(mapper).toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class));
+    verify(createOrderV2UseCase).createOrderV2(any(CreateOrderV2Dto.class), anyLong());
+  }
 
-    @Test
-    @SneakyThrows
-    void placeOrderV2_UserAllowedToCreateOrderForThemselves_Test() {
-        //Given
-        Long userId = 1L;
-        String role = "ROLE_USER";
-        var orderId = UUID.randomUUID();
+  @Test
+  @SneakyThrows
+  void placeOrderV2_UserAllowedToCreateOrderForThemselves_Test() {
+    // Given
+    Long userId = 1L;
+    String role = "ROLE_USER";
+    var orderId = UUID.randomUUID();
 
-        when(mapper.toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class))).thenReturn(CreateOrderV2Dto.builder().build());
-        when(createOrderV2UseCase.createOrderV2(any(CreateOrderV2Dto.class), eq(userId))).thenReturn(orderId);
+    when(mapper.toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class))).thenReturn(CreateOrderV2Dto.builder().build());
+    when(createOrderV2UseCase.createOrderV2(any(CreateOrderV2Dto.class), eq(userId))).thenReturn(orderId);
 
-        //When
-        var result = mockMvc.perform(post("/v2/users/{id}/orders", userId).with(getJwtRequest(userId, role))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
+    // When
+    var result = mockMvc.perform(post("/v2/users/{id}/orders", userId).with(getJwtRequest(userId, role))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
 
-        //Then
-        result.andExpect(status().isCreated());
-        result.andExpect(jsonPath("$.orderId").value(orderId.toString()));
-        verify(mapper).toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class));
-        verify(createOrderV2UseCase).createOrderV2(any(CreateOrderV2Dto.class), anyLong());
-    }
+    // Then
+    result.andExpect(status().isCreated());
+    result.andExpect(jsonPath("$.orderId").value(orderId.toString()));
+    verify(mapper).toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class));
+    verify(createOrderV2UseCase).createOrderV2(any(CreateOrderV2Dto.class), anyLong());
+  }
 
+  @Test
+  @SneakyThrows
+  void placeOrderV2_UserNotAllowedToPlaceOrderForADifferentUser_Test() {
+    // Given
+    Long actualUserId = 1L;
+    Long requestedUserId = 99L;
+    String role = "ROLE_USER";
 
-    @Test
-    @SneakyThrows
-    void placeOrderV2_UserNotAllowedToPlaceOrderForADifferentUser_Test() {
-        //Given
-        Long actualUserId = 1L;
-        Long requestedUserId = 99L;
-        String role = "ROLE_USER";
+    // When
+    var result = mockMvc.perform(post("/v2/users/{id}/orders", requestedUserId).with(getJwtRequest(actualUserId, role))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
 
-        //When
-        var result = mockMvc.perform(post("/v2/users/{id}/orders", requestedUserId).with(getJwtRequest(actualUserId, role))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
+    // Then
+    result.andExpect(status().isForbidden());
+    verify(mapper, never()).toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class));
+    verify(createOrderV2UseCase, never()).createOrderV2(any(CreateOrderV2Dto.class), anyLong());
+  }
 
-        //Then
-        result.andExpect(status().isForbidden());
-        verify(mapper, never()).toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class));
-        verify(createOrderV2UseCase, never()).createOrderV2(any(CreateOrderV2Dto.class), anyLong());
-    }
+  @Test
+  @SneakyThrows
+  void placeOrderV2_ThrowsEmptyCartException_Test() {
+    // Given
+    Long userId = 1L;
+    String role = "ROLE_ADMIN";
 
-    @Test
-    @SneakyThrows
-    void placeOrderV2_ThrowsEmptyCartException_Test() {
-        //Given
-        Long userId = 1L;
-        String role = "ROLE_ADMIN";
+    when(mapper.toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class))).thenReturn(CreateOrderV2Dto.builder().build());
+    when(createOrderV2UseCase.createOrderV2(any(CreateOrderV2Dto.class), anyLong()))
+        .thenThrow(new EmptyCartException());
 
-        when(mapper.toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class))).thenReturn(CreateOrderV2Dto.builder().build());
-        when(createOrderV2UseCase.createOrderV2(any(CreateOrderV2Dto.class), anyLong()))
-                .thenThrow(new EmptyCartException());
+    // When
+    var result = mockMvc.perform(post("/v2/users/{id}/orders", userId).with(getJwtRequest(userId, role))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
 
-        //When
-        var result = mockMvc.perform(post("/v2/users/{id}/orders", userId).with(getJwtRequest(userId, role))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
-
-        //Then
-        result.andExpect(status().isBadRequest());
-        verify(mapper).toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class));
-        verify(createOrderV2UseCase).createOrderV2(any(CreateOrderV2Dto.class), anyLong());
-    }
+    // Then
+    result.andExpect(status().isBadRequest());
+    verify(mapper).toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class));
+    verify(createOrderV2UseCase).createOrderV2(any(CreateOrderV2Dto.class), anyLong());
+  }
 }

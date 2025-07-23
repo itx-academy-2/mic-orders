@@ -37,36 +37,36 @@ import java.util.UUID;
 @ToString(exclude = {"orders", "account"})
 @Entity
 public class PostAddressV2Entity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "delivery_method", nullable = false)
-    private DeliveryMethod deliveryMethod;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "delivery_method", nullable = false)
+  private DeliveryMethod deliveryMethod;
 
-    @Column(nullable = false)
-    private String city;
+  @Column(nullable = false)
+  private String city;
 
-    @Column(nullable = false)
-    private String department;
+  @Column(nullable = false)
+  private String department;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
-    private AccountEntity account;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "account_id", nullable = false)
+  private AccountEntity account;
 
-    @Column(name = "recipient_first_name", nullable = false, length = 50)
-    private String recipientFirstName;
+  @Column(name = "recipient_first_name", nullable = false, length = 50)
+  private String recipientFirstName;
 
-    @Column(name = "recipient_last_name", nullable = false, length = 50)
-    private String recipientLastName;
+  @Column(name = "recipient_last_name", nullable = false, length = 50)
+  private String recipientLastName;
 
-    @Column(name = "recipient_phone", nullable = false, length = 13)
-    private String recipientPhone;
+  @Column(name = "recipient_phone", nullable = false, length = 13)
+  private String recipientPhone;
 
-    @Column(name = "title", nullable = false, length = 100)
-    private String title;
+  @Column(name = "title", nullable = false, length = 100)
+  private String title;
 
-    @OneToMany(mappedBy = "postAddress", fetch = FetchType.LAZY)
-    private List<OrderV2Entity> orders = new ArrayList<>();
+  @OneToMany(mappedBy = "postAddress", fetch = FetchType.LAZY)
+  private List<OrderV2Entity> orders = new ArrayList<>();
 }

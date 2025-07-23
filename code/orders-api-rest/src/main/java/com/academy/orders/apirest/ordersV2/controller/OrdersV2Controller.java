@@ -18,16 +18,16 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @CrossOrigin
 public class OrdersV2Controller implements OrdersV2Api {
-    private final CreateOrderV2UseCase createOrderV2UseCase;
+  private final CreateOrderV2UseCase createOrderV2UseCase;
 
-    private final OrderV2DTOMapper mapper;
+  private final OrderV2DTOMapper mapper;
 
-    @Override
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER') || (hasAnyAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
-    public ResponseEntity<PlaceOrderResponseDTO> placeOrderV2(Long userId, PlaceOrderRequestV2DTO placeOrderRequestV2DTO) {
-        log.info("POST /v2/users/{userId}/orders - userId: {}", userId);
-        var id = createOrderV2UseCase.createOrderV2(mapper.toCreateOrderV2Dto(placeOrderRequestV2DTO), userId);
-        PlaceOrderResponseDTO responseDTO = new PlaceOrderResponseDTO().orderId(id);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
-    }
+  @Override
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER') || (hasAnyAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
+  public ResponseEntity<PlaceOrderResponseDTO> placeOrderV2(Long userId, PlaceOrderRequestV2DTO placeOrderRequestV2DTO) {
+    log.info("POST /v2/users/{userId}/orders - userId: {}", userId);
+    var id = createOrderV2UseCase.createOrderV2(mapper.toCreateOrderV2Dto(placeOrderRequestV2DTO), userId);
+    PlaceOrderResponseDTO responseDTO = new PlaceOrderResponseDTO().orderId(id);
+    return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+  }
 }

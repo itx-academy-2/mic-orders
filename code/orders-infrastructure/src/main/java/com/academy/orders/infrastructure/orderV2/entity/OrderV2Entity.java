@@ -42,35 +42,35 @@ import java.util.UUID;
 @EqualsAndHashCode(exclude = {"account", "postAddress", "orderItems"})
 @ToString(exclude = {"account", "postAddress", "orderItems"})
 public class OrderV2Entity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(name = "is_paid", nullable = false)
-    private Boolean isPaid;
+  @Column(name = "is_paid", nullable = false)
+  private Boolean isPaid;
 
-    @Column(name = "order_status", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private OrderStatus orderStatus;
+  @Column(name = "order_status", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private OrderStatus orderStatus;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+  @Column(name = "created_at", nullable = false, updatable = false)
+  @CreationTimestamp
+  private LocalDateTime createdAt;
 
-    @Column(name = "edited_at", nullable = false)
-    @UpdateTimestamp
-    private LocalDateTime editedAt;
+  @Column(name = "edited_at", nullable = false)
+  @UpdateTimestamp
+  private LocalDateTime editedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "account_id", nullable = false)
-    private AccountEntity account;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "account_id", nullable = false)
+  private AccountEntity account;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_address_v2_id")
-    private PostAddressV2Entity postAddress;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "post_address_v2_id")
+  private PostAddressV2Entity postAddress;
 
-    @Setter(AccessLevel.PRIVATE)
-    @OneToMany(mappedBy = "orderV2", cascade = CascadeType.ALL)
-    @Builder.Default
-    private List<OrderItemV2Entity> orderItems = new ArrayList<>();
+  @Setter(AccessLevel.PRIVATE)
+  @OneToMany(mappedBy = "orderV2", cascade = CascadeType.ALL)
+  @Builder.Default
+  private List<OrderItemV2Entity> orderItems = new ArrayList<>();
 }
