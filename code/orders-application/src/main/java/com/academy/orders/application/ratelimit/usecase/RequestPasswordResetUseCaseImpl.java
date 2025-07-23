@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RequestPasswordResetUseCaseImpl implements RequestPasswordResetUseCase {
   private final CheckRateLimitUseCase rateLimitUseCase;
+
   private final ClientIpExtractorUseCase clientIpExtractorUseCase;
 
   @Override
