@@ -83,7 +83,5 @@ public class TestConstants {
 
   public static final int TEST_COUNT = 10;
 
-  public static final String TEST_PHONE_NUMBER = "+380960223456";
-
   public static final String TEST_ADDRESS_TITLE = "Home";
 }
