@@ -24,8 +24,8 @@ public class PasswordResetTokenRepositoryImpl implements PasswordResetTokenRepos
   @Override
   @Transactional
   public PasswordResetToken save(PasswordResetToken token) {
-    PasswordResetTokenEntity entity = mapper.toEntity(token);
-    PasswordResetTokenEntity saved = jpaAdaptor.save(entity);
+    var entity = mapper.toEntity(token);
+    var saved = jpaAdaptor.save(entity);
     return mapper.toDomain(saved);
   }
 

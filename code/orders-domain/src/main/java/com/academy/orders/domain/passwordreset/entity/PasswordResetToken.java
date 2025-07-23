@@ -11,19 +11,12 @@ import lombok.Value;
 @Builder(toBuilder = true)
 public class PasswordResetToken {
   Long id;
-
   String token;
-
   Long accountId;
-
   String email;
-
   TokenType type;
-
   TokenStatus status;
-
   OffsetDateTime createdAt;
-
   OffsetDateTime expiresAt;
 
   public boolean isUsed() {

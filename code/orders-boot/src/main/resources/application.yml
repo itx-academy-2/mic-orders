@@ -40,20 +40,12 @@ rest:
       base-url: http://${MOCKED_SERVICES_HOST:localhost}:${MOCKED_SERVICES_PORT:8081}/colors
 
 resilience4j:
-  circuitbreaker:
+  ratelimiter:
     instances:
-      imagesCircuit:
-        minimumNumberOfCalls: 4
-        slowCallRateThreshold: 34
-        failureRateThreshold: 30
-        permittedNumberOfCallsInHalfOpenState: 3
-        waitDurationInOpenState: 30000
-  retry:
-    instances:
-      imagesRetry:
-        maxAttempts: 2
-        waitDuration: 10
-        fail-after-max-attempts: true
+      passwordReset:
+        limit-for-period: 10
+        limit-refresh-period: 1s
+        timeout-duration: 0
 
 images:
   product: https://www.demyhealth.com/storage/media/2/default-product-image.png

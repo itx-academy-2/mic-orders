@@ -22,11 +22,11 @@ public interface PasswordResetMapper {
   PasswordResetSuccessResponseDTO toSuccessResponseForReset(TokenWrapper wrapper);
 
   @Mapping(target = "valid", source = "valid")
-  @Mapping(target = "token", expression = "java(result.token().toString())")
-  @Mapping(target = "newToken", expression = "java(result.newToken().toString())")
+  @Mapping(target = "token", source = "token")
+  @Mapping(target = "newToken", source = "newToken")
   @Mapping(target = "tokenType", source = "tokenType")
-  @Mapping(target = "expiresAt", expression = "java(java.time.OffsetDateTime.ofInstant(result.expiresAt(), java.time.ZoneId.of(\"UTC\")))")
-  @Mapping(target = "timestamp", expression = "java(java.time.OffsetDateTime.ofInstant(result.timestamp(), java.time.ZoneId.of(\"UTC\")))")
+  @Mapping(target = "expiresAt", expression = "java(result.expiresAt() == null ? null : java.time.OffsetDateTime.ofInstant(result.expiresAt(), java.time.ZoneId.of(\"UTC\")))")
+  @Mapping(target = "timestamp", expression = "java(result.timestamp() == null ? null : java.time.OffsetDateTime.ofInstant(result.timestamp(), java.time.ZoneId.of(\"UTC\")))")
   TokenValidResponseDTO toTokenValidResponse(TokenValidationResult result);
 
   default String map(UUID uuid) {

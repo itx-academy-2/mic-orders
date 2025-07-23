@@ -14,6 +14,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Implementation of {@link SendPasswordResetEmailUseCase} responsible for sending password reset emails to users.
+ *
+ * <p>This class handles the logic of finding the account by email, checking cooldown periods between reset requests, generating password
+ * reset tokens, and sending the reset email.</p>
+ *
+ * <p>Marked as thread-safe and transactional.</p>
+ */
 @Slf4j
 @Service
 @Transactional
@@ -43,6 +51,11 @@ public class SendPasswordResetEmailUseCaseImpl implements SendPasswordResetEmail
     this.clock = clock;
   }
 
+  /**
+   * Sends a password reset email if the account exists and the cooldown period has passed since the last reset request.
+   *
+   * @param email the user's email address requesting password reset
+   */
   @Override
   public void sendResetEmail(String email) {
     var account = findAccountByEmail(email);
@@ -57,16 +70,34 @@ public class SendPasswordResetEmailUseCaseImpl implements SendPasswordResetEmail
     createAndSendPasswordResetToken(account, email);
   }
 
+  /**
+   * Finds an account by the provided email.
+   *
+   * @param email the email to search for
+   * @return the account if found, otherwise null
+   */
   private Account findAccountByEmail(String email) {
     return accountRepository.findAccountByEmail(email).orElse(null);
   }
 
+  /**
+   * Checks whether the latest primary token for the account is still within the cooldown period.
+   *
+   * @param accountId the ID of the account
+   * @return true if cooldown period is active, false otherwise
+   */
   private boolean isWithinCooldownPeriod(Long accountId) {
     return tokenRepository.findLatestPrimaryTokenByAccountId(accountId)
         .map(this::isTokenWithinCooldown)
         .orElse(false);
   }
 
+  /**
+   * Determines if the given token is still valid and within the cooldown duration.
+   *
+   * @param token the password reset token
+   * @return true if token is not expired and cooldown duration is not exceeded, false otherwise
+   */
   private boolean isTokenWithinCooldown(PasswordResetToken token) {
     var now = clock.instant();
 
@@ -79,6 +110,12 @@ public class SendPasswordResetEmailUseCaseImpl implements SendPasswordResetEmail
     return timeSinceCreation.compareTo(COOLDOWN_DURATION) <= 0;
   }
 
+  /**
+   * Creates a new password reset token, saves it to the repository, and sends the reset email to the user.
+   *
+   * @param account the user's account
+   * @param email the user's email address
+   */
   private void createAndSendPasswordResetToken(Account account, String email) {
     var token = tokenFactory.createToken(account.id(), email);
     tokenRepository.save(token);
