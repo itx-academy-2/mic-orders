@@ -80,13 +80,13 @@ public class CreateOrderV2UseCaseTest {
                 .account(getAccountV2())
                 .isPaid(false).build();
 
-        //When
         when(cartItemRepository.findCartItemsByAccountId(anyLong())).thenReturn(singletonList(cartItem));
         doNothing().when(changeQuantityUseCase).changeQuantityOfProduct(any(Product.class), anyInt());
         when(accountV2Repository.findAccountById(anyLong())).thenReturn(Optional.of(getAccountV2()));
         when(orderV2Repository.save(eq(order), anyLong())).thenReturn(expectedOrderId);
         doNothing().when(cartItemRepository).deleteCartItemsByAccountId(anyLong());
 
+        //When
         var actualOrderId = createOrderV2UseCase.createOrderV2(createOrderV2Dto, 1L);
 
         //Then
@@ -100,26 +100,29 @@ public class CreateOrderV2UseCaseTest {
 
     @Test
     void createOrderV2_ThrowsInsufficientProductQuantityExceptionTest() {
-        //When
+        //Given
         when(cartItemRepository.findCartItemsByAccountId(anyLong())).thenReturn(singletonList(cartItem));
         doThrow(InsufficientProductQuantityException.class).when(changeQuantityUseCase)
                 .changeQuantityOfProduct(any(Product.class), anyInt());
 
-        //Then
+        //When
         assertThrows(InsufficientProductQuantityException.class,
                 () -> createOrderV2UseCase.createOrderV2(createOrderV2Dto, 1L));
 
+        //Then
         verify(cartItemRepository).findCartItemsByAccountId(anyLong());
         verify(changeQuantityUseCase).changeQuantityOfProduct(any(Product.class), anyInt());
     }
 
     @Test
     void createOrderV2_ThrowsEmptyCartExceptionTest() {
-        //When
+        //Given
         when(cartItemRepository.findCartItemsByAccountId(anyLong())).thenReturn(emptyList());
 
-        //Then
+        //When
         assertThrows(EmptyCartException.class, () -> createOrderV2UseCase.createOrderV2(createOrderV2Dto, 1L));
+
+        //Then
         verify(cartItemRepository).findCartItemsByAccountId(anyLong());
     }
 }

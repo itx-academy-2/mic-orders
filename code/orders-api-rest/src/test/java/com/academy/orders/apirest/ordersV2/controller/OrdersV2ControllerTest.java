@@ -60,10 +60,10 @@ public class OrdersV2ControllerTest {
         String role = "ROLE_ADMIN";
         var orderId = UUID.randomUUID();
 
-        //When
         when(mapper.toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class))).thenReturn(CreateOrderV2Dto.builder().build());
         when(createOrderV2UseCase.createOrderV2(any(CreateOrderV2Dto.class), eq(userId))).thenReturn(orderId);
 
+        //When
         var result = mockMvc.perform(post("/v2/users/{id}/orders", userId).with(getJwtRequest(userId, role))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
@@ -83,10 +83,10 @@ public class OrdersV2ControllerTest {
         String role = "ROLE_MANAGER";
         var orderId = UUID.randomUUID();
 
-        //When
         when(mapper.toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class))).thenReturn(CreateOrderV2Dto.builder().build());
         when(createOrderV2UseCase.createOrderV2(any(CreateOrderV2Dto.class), eq(userId))).thenReturn(orderId);
 
+        //When
         var result = mockMvc.perform(post("/v2/users/{id}/orders", userId).with(getJwtRequest(userId, role))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
@@ -106,10 +106,10 @@ public class OrdersV2ControllerTest {
         String role = "ROLE_USER";
         var orderId = UUID.randomUUID();
 
-        //When
         when(mapper.toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class))).thenReturn(CreateOrderV2Dto.builder().build());
         when(createOrderV2UseCase.createOrderV2(any(CreateOrderV2Dto.class), eq(userId))).thenReturn(orderId);
 
+        //When
         var result = mockMvc.perform(post("/v2/users/{id}/orders", userId).with(getJwtRequest(userId, role))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));
@@ -148,11 +148,11 @@ public class OrdersV2ControllerTest {
         Long userId = 1L;
         String role = "ROLE_ADMIN";
 
-        //When
         when(mapper.toCreateOrderV2Dto(any(PlaceOrderRequestV2DTO.class))).thenReturn(CreateOrderV2Dto.builder().build());
         when(createOrderV2UseCase.createOrderV2(any(CreateOrderV2Dto.class), anyLong()))
                 .thenThrow(new EmptyCartException());
 
+        //When
         var result = mockMvc.perform(post("/v2/users/{id}/orders", userId).with(getJwtRequest(userId, role))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(getPlaceOrderRequestV2DTO())));

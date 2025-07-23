@@ -69,7 +69,6 @@ public class OrderV2RepositoryTest {
         var expectedPostAddressEntity = getPostAddressV2EntityWithNewTitle();
         var expectedOrderV2Entity = getOrderV2EntityWithId();
 
-        //When
         when(mapper.toEntity(orderV2)).thenReturn(orderV2Entity);
         when(accountJpaAdapter.getReferenceById(accountId)).thenReturn(getAccountEntity());
         when(postAddressJpaAdapter.findByTitleAndAccount_Id("permanent: " + title, accountId)).thenReturn(Optional.empty());
@@ -79,9 +78,10 @@ public class OrderV2RepositoryTest {
         when(jpaAdapter.save(any(OrderV2Entity.class))).thenReturn(expectedOrderV2Entity);
         doNothing().when(orderV1DuplicateAdapter).duplicateOrderV2ToV1(expectedOrderV2Entity);
 
-        //Then
+        //When
         var actualUUID = repository.save(orderV2, accountId);
 
+        //Then
         assertEquals(actualUUID, expectedOrderV2Entity.getId());
     }
 
@@ -94,7 +94,6 @@ public class OrderV2RepositoryTest {
         var title = "Friend";
         var expectedOrderV2Entity = getOrderV2EntityWithId();
 
-        //When
         when(mapper.toEntity(orderV2)).thenReturn(orderV2Entity);
         when(accountJpaAdapter.getReferenceById(accountId)).thenReturn(getAccountEntity());
         when(postAddressJpaAdapter.findByTitleAndAccount_Id("permanent: " + title, accountId)).thenReturn(Optional.of(getPostAddressV2EntityWithNewTitle()));
@@ -102,9 +101,10 @@ public class OrderV2RepositoryTest {
         when(jpaAdapter.save(any(OrderV2Entity.class))).thenReturn(expectedOrderV2Entity);
         doNothing().when(orderV1DuplicateAdapter).duplicateOrderV2ToV1(expectedOrderV2Entity);
 
-        //Then
+        //When
         var actualUUID = repository.save(orderV2, accountId);
 
+        //Then
         assertEquals(actualUUID, expectedOrderV2Entity.getId());
     }
 
@@ -116,15 +116,15 @@ public class OrderV2RepositoryTest {
         var orderV2Entity = getOrderV2Entity();
         var title = "Friend";
 
-        //When
         when(mapper.toEntity(orderV2)).thenReturn(orderV2Entity);
         when(accountJpaAdapter.getReferenceById(accountId)).thenReturn(getAccountEntity());
         when(postAddressJpaAdapter.findByTitleAndAccount_Id("permanent: " + title, accountId)).thenReturn(Optional.of(getPostAddressV2EntityWithNewTitle()));
 
-        //Then
+        //When
         PostAddressTitleAlreadyExistsException exception = assertThrows(PostAddressTitleAlreadyExistsException.class,
                 () -> repository.save(orderV2, accountId));
 
+        //Then
         assertEquals("This PostAddress title already exists: " + title, exception.getMessage());
 
         verifyNoInteractions(productJpaAdapter);
