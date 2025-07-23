@@ -13,27 +13,28 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class BCryptPasswordHashingAdapterTest {
-    @Mock
-    private PasswordEncoder passwordEncoder;
-    private PasswordHashingPort hashingAdapter;
+  @Mock
+  private PasswordEncoder passwordEncoder;
 
-    @BeforeEach
-    void setUp() {
-        hashingAdapter = new BCryptPasswordHashingAdapter(passwordEncoder);
-    }
+  private PasswordHashingPort hashingAdapter;
 
-    @Test
-    void hash_shouldDelegateToPasswordEncoder() {
-        // Given
-        var rawPassword = "mySecret123!";
-        var encodedPassword = "$2a$10$abcdefghijklmnopqrstuv";
-        when(passwordEncoder.encode(rawPassword)).thenReturn(encodedPassword);
+  @BeforeEach
+  void setUp() {
+    hashingAdapter = new BCryptPasswordHashingAdapter(passwordEncoder);
+  }
 
-        // When
-        var result = hashingAdapter.hash(rawPassword);
+  @Test
+  void hash_shouldDelegateToPasswordEncoder() {
+    // Given
+    var rawPassword = "mySecret123!";
+    var encodedPassword = "$2a$10$abcdefghijklmnopqrstuv";
+    when(passwordEncoder.encode(rawPassword)).thenReturn(encodedPassword);
 
-        // Then
-        assertThat(result).isEqualTo(encodedPassword);
-        verify(passwordEncoder).encode(rawPassword);
-    }
+    // When
+    var result = hashingAdapter.hash(rawPassword);
+
+    // Then
+    assertThat(result).isEqualTo(encodedPassword);
+    verify(passwordEncoder).encode(rawPassword);
+  }
 }

@@ -19,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProcessPasswordResetUseCaseImpl implements ProcessPasswordResetUseCase {
   private final RequestPasswordResetUseCase requestPasswordResetUseCase;
+
   private final SendPasswordResetEmailUseCase sendPasswordResetEmailUseCase;
+
   private final Validator validator;
 
   /**

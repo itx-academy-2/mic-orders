@@ -25,8 +25,10 @@ public interface PasswordResetMapper {
   @Mapping(target = "token", source = "token")
   @Mapping(target = "newToken", source = "newToken")
   @Mapping(target = "tokenType", source = "tokenType")
-  @Mapping(target = "expiresAt", expression = "java(result.expiresAt() == null ? null : java.time.OffsetDateTime.ofInstant(result.expiresAt(), java.time.ZoneId.of(\"UTC\")))")
-  @Mapping(target = "timestamp", expression = "java(result.timestamp() == null ? null : java.time.OffsetDateTime.ofInstant(result.timestamp(), java.time.ZoneId.of(\"UTC\")))")
+  @Mapping(target = "expiresAt",
+      expression = "java(result.expiresAt() == null ? null : java.time.OffsetDateTime.ofInstant(result.expiresAt(), java.time.ZoneId.of(\"UTC\")))")
+  @Mapping(target = "timestamp",
+      expression = "java(result.timestamp() == null ? null : java.time.OffsetDateTime.ofInstant(result.timestamp(), java.time.ZoneId.of(\"UTC\")))")
   TokenValidResponseDTO toTokenValidResponse(TokenValidationResult result);
 
   default String map(UUID uuid) {
