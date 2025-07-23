@@ -18,13 +18,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,6 +38,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
 
 @ExtendWith(MockitoExtension.class)
 class ErrorHandlerTest {
@@ -53,6 +56,27 @@ class ErrorHandlerTest {
     when(ex.getFieldError()).thenReturn(fieldError);
 
     assertEquals(buildErrorObjectDTO(BAD_REQUEST), errorHandler.handleMethodArgumentNotValidException(ex));
+  }
+
+  @Test
+  void handleHttpMediaTypeNotSupportedExceptionTest() {
+    // Given
+    var ex = mock(HttpMediaTypeNotSupportedException.class);
+    when(ex.getContentType()).thenReturn(MediaType.APPLICATION_XML);
+    var expectedDetail = "Content-Type 'application/xml' is not supported";
+
+    // When & Then
+    assertEquals(buildErrorObjectDTO(UNSUPPORTED_MEDIA_TYPE, expectedDetail), errorHandler.handleHttpMediaTypeNotSupportedException(ex));
+  }
+
+  @Test
+  void handleHttpMessageNotReadableExceptionTest() {
+    // Given
+    var ex = mock(HttpMessageNotReadableException.class);
+    var expectedDetail = "Malformed JSON request or empty body is not allowed";
+
+    // When & Then
+    assertEquals(buildErrorObjectDTO(BAD_REQUEST, expectedDetail), errorHandler.handleHttpMessageNotReadableException(ex));
   }
 
   @Test

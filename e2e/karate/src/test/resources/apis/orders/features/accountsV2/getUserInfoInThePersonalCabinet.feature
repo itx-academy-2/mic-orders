@@ -3,10 +3,11 @@ Feature: Get current authenticated user info
   Background:
     * url urls.retailApiUrl
     * def authHeader = callonce read('classpath:karate-auth.js')
+    * def myInfoPath = '/v2/my-info'
 
   Scenario: Get myInfo - authorized user
     Given headers authHeader
-    And path '/v2/myInfo'
+    And path myInfoPath
     When method get
     Then status 200
     And match response ==
@@ -22,6 +23,6 @@ Feature: Get current authenticated user info
     """
 
   Scenario: Get myInfo - unauthorized user
-    Given path '/v2/myInfo'
+    Given path myInfoPath
     When method get
     Then status 401

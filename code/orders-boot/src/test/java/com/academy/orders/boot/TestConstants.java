@@ -17,4 +17,10 @@ public class TestConstants {
   public static final String LANGUAGE_UK = "uk";
 
   public static final int NUMBER_OF_TRANSLATIONS_UK_AND_EN = 2;
+
+  public static final String TEST_FIRST_NAME = "John";
+
+  public static final String TEST_LAST_NAME = "Doe";
+
+  public static final String TEST_PHONE_NUMBER = "+380631234567";
 }

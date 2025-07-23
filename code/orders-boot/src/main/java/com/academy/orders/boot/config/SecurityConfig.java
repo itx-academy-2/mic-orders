@@ -84,7 +84,8 @@ public class SecurityConfig {
         })
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers(HttpMethod.GET, "/v2/myInfo").authenticated()
+            .requestMatchers("/v2/my-info").authenticated()
+            .requestMatchers("/v1/my-view-history/**").authenticated()
             .anyRequest().permitAll())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterAfter(accountStatusFilter(), BearerTokenAuthenticationFilter.class)
