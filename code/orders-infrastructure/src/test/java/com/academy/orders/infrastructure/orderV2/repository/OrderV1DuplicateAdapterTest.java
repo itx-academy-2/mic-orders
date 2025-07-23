@@ -41,23 +41,28 @@ public class OrderV1DuplicateAdapterTest {
 
     @Test
     void duplicateOrderV2ToV1_Test() {
+        //Given
         var order = mock(OrderV2Entity.class);
         var address = mock(PostAddressV2Entity.class);
         var account = mock(AccountEntity.class);
         var item = mock(OrderItemV2Entity.class);
         var items = List.of(item);
 
-        when(order.getId()).thenReturn(UUID.randomUUID());
+        var orderId = UUID.randomUUID();
+        var productId = UUID.randomUUID();
+        var createdAt = LocalDateTime.of(2025, 5, 23, 13, 30, 0);
+
+        when(order.getId()).thenReturn(orderId);
         when(order.getIsPaid()).thenReturn(true);
         when(order.getOrderStatus()).thenReturn(OrderStatus.IN_PROGRESS);
-        when(order.getCreatedAt()).thenReturn(LocalDateTime.of(2025, 5, 23, 13, 30, 0));
+        when(order.getCreatedAt()).thenReturn(createdAt);
         when(order.getEditedAt()).thenReturn(null);
         when(order.getAccount()).thenReturn(account);
         when(order.getPostAddress()).thenReturn(address);
         when(order.getOrderItems()).thenReturn(items);
 
         when(item.getProduct()).thenReturn(mock(ProductEntity.class));
-        when(item.getProduct().getId()).thenReturn(UUID.randomUUID());
+        when(item.getProduct().getId()).thenReturn(productId);
         when(item.getPrice()).thenReturn(BigDecimal.valueOf(300.8));
         when(item.getDiscount()).thenReturn(null);
         when(item.getQuantity()).thenReturn(1);
@@ -75,7 +80,19 @@ public class OrderV1DuplicateAdapterTest {
         when(query.setParameter(anyInt(), any())).thenReturn(query);
         when(query.executeUpdate()).thenReturn(1);
 
+        //When
         adapter.duplicateOrderV2ToV1(order);
+
+        //Then
+        verify(query, atLeastOnce()).setParameter(1, orderId);
+        verify(query, atLeastOnce()).setParameter(2, true);
+        verify(query).setParameter(3, OrderStatus.IN_PROGRESS.name());
+        verify(query).setParameter(4, createdAt);
+        verify(query).setParameter(5, null);
+        verify(query).setParameter(6, 1L);
+        verify(query).setParameter(7, "Test");
+        verify(query).setParameter(8, "User");
+        verify(query).setParameter(9, "test@example.com");
 
         verify(entityManager, atLeastOnce()).createNativeQuery(anyString());
         verify(query, atLeastOnce()).setParameter(anyInt(), any());
