@@ -22,35 +22,36 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * A Spring filter that enforces rate limiting for the {@code /retail/v1/password-reset} endpoint using Resilience4j's {@link RateLimiter}.
- * It logs request and response headers, limits requests based on client IP, and returns a {@code 429 Too Many Requests} response when the
- * limit is exceeded. The filter sets custom headers: <ul> <li><strong>X-RateLimit-Remaining-IP</strong>: Number of requests remaining in
- * the current rate limit window.</li> <li><strong>X-RateLimit-Reset-IP</strong>: Seconds until the rate limit window resets.</li> </ul>
- * These headers are non-standard but follow common API conventions for rate limiting. Clients should parse them to monitor rate limit
- * status. To avoid "unknown header" warnings in tools like Swagger UI, these headers are documented in the OpenAPI specification.
- *
- * <p>This filter has the highest precedence to ensure rate limiting is applied before other filters or controllers process the request.</p>
+ * Spring filter that enforces rate limiting on the {@code /retail/v1/password-reset} endpoint using Resilience4j's {@link RateLimiter}. <p>
+ * The filter limits requests based on client IP address, sets rate limit headers, and responds with HTTP 429 when the limit is exceeded. It
+ * logs relevant request and response headers and periodically cleans up stale IP tracking data to avoid memory leaks. <p> The filter has
+ * the highest precedence to ensure rate limiting is applied before other processing.
  */
 @Slf4j
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RequiredArgsConstructor
 public class RateLimitLoggingFilter extends OncePerRequestFilter {
+
   private static final String PASSWORD_RESET_ENDPOINT = "/retail/v1/password-reset";
+
+  private static final long CLEANUP_INTERVAL_MS = 3600000;
 
   private final RateLimiterRegistry rateLimiterRegistry;
 
   private final ConcurrentHashMap<String, Long> lastResetTimeByIp = new ConcurrentHashMap<>();
 
+  private volatile long lastCleanupTime = System.currentTimeMillis();
+
   /**
-   * Filters incoming HTTP requests, applying rate limiting to the password reset endpoint. If the rate limit is exceeded, responds with a
-   * {@code 429 Too Many Requests} status and appropriate headers. Logs request and response headers for debugging.
+   * Filters incoming HTTP requests, applying rate limiting for the password reset endpoint. If the rate limit is exceeded, responds with
+   * 429 status and rate limit headers. Logs request and response headers for monitoring.
    *
    * @param request the incoming HTTP request
    * @param response the HTTP response
-   * @param filterChain the filter chain to continue processing if rate limit is not exceeded
+   * @param filterChain the filter chain to continue processing if not rate limited
    * @throws ServletException if a servlet error occurs
-   * @throws IOException if an I/O error occurs
+   * @throws IOException if an I/O error occurs while handling the request/response
    */
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -58,7 +59,7 @@ public class RateLimitLoggingFilter extends OncePerRequestFilter {
     var uri = request.getRequestURI();
     log.info("Processing request for URI: {}", uri);
 
-    if (uri.startsWith(PASSWORD_RESET_ENDPOINT) && applyRateLimit(request, response)) {
+    if (uri.startsWith(PASSWORD_RESET_ENDPOINT) && isRateLimitExceeded(request, response)) {
       return;
     }
 
@@ -70,59 +71,91 @@ public class RateLimitLoggingFilter extends OncePerRequestFilter {
   }
 
   /**
-   * Applies rate limiting for the password reset endpoint. Checks the rate limit for the client's IP, sets headers, and rejects requests if
-   * the limit is exceeded.
+   * Checks if the request from the client IP exceeds the rate limit. If the limit is exceeded, sends a 429 response with appropriate
+   * headers. Also updates internal tracking data and sets rate limit headers on successful requests.
    *
-   * @param request the incoming HTTP request
-   * @param response the HTTP response
-   * @return true if the request was rejected (response committed), false if allowed
-   * @throws IOException if an I/O error occurs while writing the response
+   * @param request HTTP request
+   * @param response HTTP response
+   * @return {@code true} if the request was rejected due to rate limiting; {@code false} otherwise
+   * @throws IOException if writing the rejection response fails
    */
-  private boolean applyRateLimit(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    var clientIp = normalizeIp(request.getRemoteAddr());
-    logRequestHeaders(request);
+  private boolean isRateLimitExceeded(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    cleanupOldEntriesIfNeeded();
 
-    var rateLimiter = rateLimiterRegistry.rateLimiter("passwordReset");
+    String clientIp = normalizeIp(request.getRemoteAddr());
+    RateLimiter rateLimiter = rateLimiterRegistry.rateLimiter("passwordReset");
     logRateLimiterConfig(rateLimiter);
 
-    var now = System.currentTimeMillis();
+    long now = System.currentTimeMillis();
     var config = rateLimiter.getRateLimiterConfig();
-    var refreshPeriodMillis = config.getLimitRefreshPeriod().toMillis();
-    var lastResetTime = lastResetTimeByIp.getOrDefault(clientIp, now - (now % refreshPeriodMillis));
-    var resetInSeconds = calculateResetInSeconds(now, lastResetTime, refreshPeriodMillis);
+    long refreshPeriodMillis = config.getLimitRefreshPeriod().toMillis();
 
-    try {
-      var acquired = rateLimiter.acquirePermission();
-      var remaining = rateLimiter.getMetrics().getAvailablePermissions();
-      log.info("Rate limit check: acquired={}, remaining={}, clientIp={}", acquired, remaining, clientIp);
+    long lastResetTime = lastResetTimeByIp.getOrDefault(clientIp, now - (now % refreshPeriodMillis));
+    long resetInSeconds = calculateResetInSeconds(now, lastResetTime, refreshPeriodMillis);
 
-      if (!acquired) {
-        rejectRequest(response, clientIp, request.getRequestURI(), resetInSeconds, remaining);
-        return true;
-      }
+    logRequestHeaders(request);
 
-      lastResetTimeByIp.put(clientIp, now - (now % refreshPeriodMillis));
-      setRateLimitHeaders(response, remaining, resetInSeconds);
-      return false;
-    } catch (RequestNotPermitted e) {
-      var remaining = rateLimiter.getMetrics().getAvailablePermissions();
+    boolean permitted = tryAcquirePermission(rateLimiter);
+
+    int remaining = rateLimiter.getMetrics().getAvailablePermissions();
+
+    if (!permitted) {
       rejectRequest(response, clientIp, request.getRequestURI(), resetInSeconds, remaining);
       return true;
+    }
+
+    lastResetTimeByIp.put(clientIp, now - (now % refreshPeriodMillis));
+    setRateLimitHeaders(response, remaining, resetInSeconds);
+
+    return false;
+  }
+
+  /**
+   * Attempts to acquire permission from the rate limiter. Logs result and handles {@link RequestNotPermitted} exceptions by returning
+   * {@code false}.
+   *
+   * @param rateLimiter the rate limiter instance
+   * @return {@code true} if permission granted, {@code false} if rate limit exceeded
+   */
+  private boolean tryAcquirePermission(RateLimiter rateLimiter) {
+    try {
+      boolean acquired = rateLimiter.acquirePermission();
+      log.info("Rate limit check: acquired={}, remaining={}", acquired, rateLimiter.getMetrics().getAvailablePermissions());
+      return acquired;
+    } catch (RequestNotPermitted e) {
+      log.warn("Request rejected by rate limiter: {}", e.getMessage());
+      return false;
     }
   }
 
   /**
-   * Rejects a request when the rate limit is exceeded, setting a {@code 429 Too Many Requests} status and rate limit headers.
-   *
-   * @param response the HTTP response
-   * @param clientIp the client's IP address
-   * @param uri the request URI
-   * @param resetInSeconds the time until the rate limit resets (in seconds)
-   * @param remaining the number of remaining requests allowed
-   * @throws IOException if an I/O error occurs while writing the response
+   * Periodically cleans up entries tracking client IP reset times that are older than twice the refresh period. This prevents unbounded
+   * memory growth from tracking many unique client IPs.
    */
-  private void rejectRequest(HttpServletResponse response, String clientIp, String uri,
-      long resetInSeconds, int remaining) throws IOException {
+  private void cleanupOldEntriesIfNeeded() {
+    long now = System.currentTimeMillis();
+    if (now - lastCleanupTime < CLEANUP_INTERVAL_MS) {
+      return;
+    }
+    var refreshPeriodMillis = rateLimiterRegistry.rateLimiter("passwordReset").getRateLimiterConfig().getLimitRefreshPeriod().toMillis();
+
+    lastResetTimeByIp.entrySet().removeIf(entry -> now - entry.getValue() > refreshPeriodMillis * 2);
+    lastCleanupTime = now;
+    log.info("Cleaned up old IP entries from lastResetTimeByIp map");
+  }
+
+  /**
+   * Sends a 429 Too Many Requests response with JSON error body and sets rate limit headers.
+   *
+   * @param response HTTP response to write to
+   * @param clientIp IP address of the client
+   * @param uri request URI
+   * @param resetInSeconds seconds until the rate limit window resets
+   * @param remaining number of remaining requests allowed in the current window
+   * @throws IOException if writing the response body fails
+   */
+  private void rejectRequest(HttpServletResponse response, String clientIp, String uri, long resetInSeconds, int remaining)
+      throws IOException {
     var timestamp = DateTimeFormatter.ISO_INSTANT.format(Instant.now().atOffset(ZoneOffset.UTC));
     log.warn("Rate limit exceeded at {} for IP: {}, URI: {}", timestamp, clientIp, uri);
 
@@ -133,12 +166,12 @@ public class RateLimitLoggingFilter extends OncePerRequestFilter {
   }
 
   /**
-   * Sets rate limit response headers: {@code X-RateLimit-Remaining-IP} for remaining requests and {@code X-RateLimit-Reset-IP} for the time
-   * until the rate limit resets.
+   * Sets custom rate limit headers on the response: <ul> <li>{@code X-RateLimit-Remaining-IP} - remaining requests allowed</li>
+   * <li>{@code X-RateLimit-Reset-IP} - seconds until rate limit resets</li> </ul>
    *
-   * @param response the HTTP response
-   * @param remaining the number of remaining requests allowed
-   * @param resetInSeconds the time until the rate limit resets (in seconds)
+   * @param response HTTP response to set headers on
+   * @param remaining remaining requests count
+   * @param resetInSeconds seconds until reset
    */
   private void setRateLimitHeaders(HttpServletResponse response, int remaining, long resetInSeconds) {
     response.setHeader("X-RateLimit-Remaining-IP", String.valueOf(remaining));
@@ -147,41 +180,41 @@ public class RateLimitLoggingFilter extends OncePerRequestFilter {
   }
 
   /**
-   * Logs all request headers for the password reset endpoint.
+   * Logs all headers from the HTTP request.
    *
-   * @param request the incoming HTTP request
+   * @param request HTTP request whose headers will be logged
    */
   private void logRequestHeaders(HttpServletRequest request) {
     log.info("Request headers for password reset:");
     Collections.list(request.getHeaderNames())
-        .forEach(headerName -> log.info("Request header: {} = {}", headerName, request.getHeader(headerName)));
+        .forEach(name -> log.info("Request header: {} = {}", name, request.getHeader(name)));
   }
 
   /**
-   * Logs all response headers for the password reset endpoint.
+   * Logs all headers from the HTTP response.
    *
-   * @param response the HTTP response
+   * @param response HTTP response whose headers will be logged
    */
   private void logResponseHeaders(HttpServletResponse response) {
     log.info("Matched password reset URI. Logging response headers.");
     response.getHeaderNames()
-        .forEach(headerName -> log.info("Response header: {} = {}", headerName, response.getHeader(headerName)));
+        .forEach(name -> log.info("Response header: {} = {}", name, response.getHeader(name)));
   }
 
   /**
-   * Normalizes the client IP address, converting localhost IPv6 addresses to IPv4.
+   * Normalizes the client IP address, converting IPv6 localhost (::1) to IPv4 (127.0.0.1).
    *
-   * @param ip the raw IP address from the request
-   * @return the normalized IP address (e.g., "127.0.0.1" for localhost)
+   * @param ip raw IP address from the request
+   * @return normalized IP address string
    */
   private String normalizeIp(String ip) {
     return ("0:0:0:0:0:0:0:1".equals(ip) || "::1".equals(ip)) ? "127.0.0.1" : ip;
   }
 
   /**
-   * Logs the configuration of the rate limiter for debugging purposes.
+   * Logs configuration details of the provided rate limiter for debugging purposes.
    *
-   * @param rateLimiter the Resilience4j RateLimiter instance
+   * @param rateLimiter the rate limiter instance
    */
   private void logRateLimiterConfig(RateLimiter rateLimiter) {
     var config = rateLimiter.getRateLimiterConfig();
@@ -190,15 +223,15 @@ public class RateLimitLoggingFilter extends OncePerRequestFilter {
   }
 
   /**
-   * Calculates the time until the rate limit resets, in seconds.
+   * Calculates seconds remaining until the rate limit window resets.
    *
-   * @param now the current time in milliseconds
-   * @param lastResetTime the last reset time in milliseconds
-   * @param refreshPeriodMillis the rate limit refresh period in milliseconds
-   * @return the time until the next reset in seconds
+   * @param now current time in milliseconds
+   * @param lastResetTime last reset time in milliseconds
+   * @param refreshPeriodMillis refresh period duration in milliseconds
+   * @return seconds until the next rate limit window reset (minimum zero)
    */
   private long calculateResetInSeconds(long now, long lastResetTime, long refreshPeriodMillis) {
-    var resetTimestampMillis = lastResetTime + refreshPeriodMillis;
+    long resetTimestampMillis = lastResetTime + refreshPeriodMillis;
     return Math.max(0, (resetTimestampMillis - now) / 1000);
   }
 }

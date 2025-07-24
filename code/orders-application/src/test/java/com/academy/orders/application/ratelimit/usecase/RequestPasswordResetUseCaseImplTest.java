@@ -139,6 +139,7 @@ class RequestPasswordResetUseCaseImplTest {
     // When / Then
     assertThrows(NullPointerException.class, () -> useCase.requestPasswordReset(command));
     verify(clientIpExtractorUseCase).extractClientIp();
+    verifyNoInteractions(rateLimitUseCase);
   }
 
   @Test
