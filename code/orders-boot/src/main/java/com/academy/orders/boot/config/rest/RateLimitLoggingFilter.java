@@ -82,31 +82,29 @@ public class RateLimitLoggingFilter extends OncePerRequestFilter {
   private boolean isRateLimitExceeded(HttpServletRequest request, HttpServletResponse response) throws IOException {
     cleanupOldEntriesIfNeeded();
 
-    String clientIp = normalizeIp(request.getRemoteAddr());
-    RateLimiter rateLimiter = rateLimiterRegistry.rateLimiter("passwordReset");
+    var clientIp = normalizeIp(request.getRemoteAddr());
+    var rateLimiter = rateLimiterRegistry.rateLimiter("passwordReset");
     logRateLimiterConfig(rateLimiter);
 
     long now = System.currentTimeMillis();
     var config = rateLimiter.getRateLimiterConfig();
     long refreshPeriodMillis = config.getLimitRefreshPeriod().toMillis();
+    long currentWindowStart = now - (now % refreshPeriodMillis);
 
-    long lastResetTime = lastResetTimeByIp.getOrDefault(clientIp, now - (now % refreshPeriodMillis));
+    long lastResetTime = lastResetTimeByIp.compute(clientIp, (k, v) -> (v == null || v < currentWindowStart) ? currentWindowStart : v);
+
     long resetInSeconds = calculateResetInSeconds(now, lastResetTime, refreshPeriodMillis);
 
     logRequestHeaders(request);
 
     boolean permitted = tryAcquirePermission(rateLimiter);
-
     int remaining = rateLimiter.getMetrics().getAvailablePermissions();
 
     if (!permitted) {
       rejectRequest(response, clientIp, request.getRequestURI(), resetInSeconds, remaining);
       return true;
     }
-
-    lastResetTimeByIp.put(clientIp, now - (now % refreshPeriodMillis));
     setRateLimitHeaders(response, remaining, resetInSeconds);
-
     return false;
   }
 
