@@ -136,7 +136,7 @@ class UserWishlistControllerIT extends AbstractControllerIT {
         .build();
 
     savedProduct.setProductTranslations(new HashSet<>(List.of(translation)));
-    ProductEntity finalSavedProduct = productJpaAdapter.saveAndFlush(product);
+    ProductEntity finalSavedProduct = productJpaAdapter.saveAndFlush(savedProduct);
     testProductId = finalSavedProduct.getId();
     return testProductId;
   }

@@ -97,6 +97,10 @@ public class WishlistRepositoryIT extends AbstractRepositoryIT {
 
     // Then
     assertThat(wishlistJpaAdapter.findById(new WishlistId(userId, productId))).isEmpty();
+
+    // Cleanup
+    wishlistRepository.removeProductFromWishlist(userId, productId);
+    productJpaAdapter.deleteById(productId);
   }
 
   @Test

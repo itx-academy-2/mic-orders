@@ -2,7 +2,6 @@ package com.academy.orders.infrastructure.wishlist.repository;
 
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
-import com.academy.orders.domain.wishlist.exception.UnsupportedSortFieldException;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.wishlist.repository.WishlistRepository;
 import com.academy.orders.infrastructure.common.PageableMapper;
@@ -10,12 +9,12 @@ import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.wishlist.entity.WishlistEntity;
 import com.academy.orders.infrastructure.wishlist.entity.WishlistId;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
+
+import static com.academy.orders.infrastructure.wishlist.repository.WishlistProductTranslationJpaAdapter.remapSort;
 
 @Repository
 @RequiredArgsConstructor
@@ -66,22 +65,5 @@ public class WishlistRepositoryImpl implements WishlistRepository {
         .empty(pageEntities.isEmpty())
         .content(products)
         .build();
-  }
-
-  private org.springframework.data.domain.Pageable remapSort(org.springframework.data.domain.Pageable original) {
-    Sort remappedSort = Sort.by(original.getSort().stream()
-        .map(order -> {
-          String property = order.getProperty();
-
-          return switch (property) {
-            case "product.price" -> new Sort.Order(order.getDirection(), "p.price");
-            case "product.createdAt" -> new Sort.Order(order.getDirection(), "p.createdAt");
-            case "name" -> new Sort.Order(order.getDirection(), "pt.name");
-            case "addedAt" -> new Sort.Order(order.getDirection(), "w.addedAt");
-            default -> throw new UnsupportedSortFieldException(property);
-          };
-        }).toList());
-
-    return PageRequest.of(original.getPageNumber(), original.getPageSize(), remappedSort);
   }
 }
