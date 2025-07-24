@@ -28,7 +28,6 @@ public interface WishlistProductTranslationJpaAdapter extends JpaRepository<Prod
           SELECT pt FROM ProductTranslationEntity pt
           JOIN  pt.product p
           JOIN  pt.language l
-          LEFT JOIN  p.tags t
           JOIN WishlistEntity w ON w.id.productId = p.id
           WHERE w.id.accountId = :accountId
             AND l.code = :language

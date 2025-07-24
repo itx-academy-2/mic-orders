@@ -108,9 +108,6 @@ class UserWishlistControllerIT extends AbstractControllerIT {
     // Then
     assertEquals(200, result.getStatusCode().value());
     assertNotNull(result.getBody());
-
-    // Cleanup
-    wishlistJpaAdapter.delete(new WishlistEntity(accountId, productId));
   }
 
   private UUID createTestProduct() {

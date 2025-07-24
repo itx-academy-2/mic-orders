@@ -1,6 +1,5 @@
 package com.academy.orders.application.wishlist.usecase;
 
-import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.wishlist.repository.WishlistRepository;
 import com.academy.orders.domain.wishlist.usecase.RemoveFromWishlistUseCase;
 import lombok.RequiredArgsConstructor;
