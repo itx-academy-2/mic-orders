@@ -78,6 +78,7 @@ public interface AccountRepository {
 
   /**
    * Updates the password for an account with the given ID.*
+   *
    * @param accountId the ID of the account whose password should be updated
    * @param newPassword the new password (should be pre-hashed)
    * @throws IllegalArgumentException if accountId is null or newPassword is blank
