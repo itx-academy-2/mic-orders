@@ -114,6 +114,8 @@ class PasswordResetTokenRepositoryImplTest {
     var tokenStatus = TokenStatus.ACTIVE;
     var entity1 = createSampleEntity();
     var entity2 = createSampleEntity();
+    entity2.setId(6L);
+    entity2.setToken("different-token");
 
     when(jpaAdaptor.findByAccountIdAndTypeAndStatus(accountId, tokenType, tokenStatus))
         .thenReturn(List.of(entity1, entity2));
@@ -123,7 +125,7 @@ class PasswordResetTokenRepositoryImplTest {
 
     // Then
     assertThat(tokens).hasSize(2);
-    assertThat(tokens).extracting("id").containsExactlyInAnyOrder(5L, 5L); // оба объекта одинаковы, по createSampleEntity()
+    assertThat(tokens).extracting("id").containsExactlyInAnyOrder(5L, 6L);
     assertThat(tokens).extracting("accountId").allMatch(id -> id.equals(accountId));
     verify(jpaAdaptor).findByAccountIdAndTypeAndStatus(accountId, tokenType, tokenStatus);
   }
