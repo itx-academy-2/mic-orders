@@ -68,23 +68,22 @@ class ClientIpExtractorUseCaseImplTest {
 
   @ParameterizedTest
   @CsvSource({
-      "null, 127.0.0.1, 127.0.0.1",
+      ", 127.0.0.1, 127.0.0.1",
       "'   ', 127.0.0.1, 127.0.0.1",
-      "null, '', ''"
+      ", '', ''"
   })
   void extractClientIp_returnsRemoteAddr_forVariousHeaderAndRemoteAddr(String xForwardedFor, String remoteAddr,
       String expected) {
-    // Given
     when(servletRequestAttributes.getRequest()).thenReturn(request);
     RequestContextHolder.setRequestAttributes(servletRequestAttributes);
 
-    when(request.getHeader("X-Forwarded-For")).thenReturn("null".equals(xForwardedFor) ? null : xForwardedFor);
-    when(request.getRemoteAddr()).thenReturn("null".equals(remoteAddr) ? null : remoteAddr);
+    String header = (xForwardedFor == null || xForwardedFor.isBlank()) ? null : xForwardedFor;
 
-    // When
+    when(request.getHeader("X-Forwarded-For")).thenReturn(header);
+    when(request.getRemoteAddr()).thenReturn(remoteAddr);
+
     String result = extractor.extractClientIp();
 
-    // Then
     assertEquals(expected, result);
   }
 
