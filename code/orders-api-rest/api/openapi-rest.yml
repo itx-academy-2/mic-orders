@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.3.0
+  version: 2.4.0
 servers:
   - url: http://localhost:8080/retail
 
@@ -36,6 +36,8 @@ tags:
   - name: ViewHistory
     description: User's viewed product history endpoints
 
+  - name: Wishlist
+    description: User's wishlist endpoints
 #ENDPOINTS
 #=======================================================================================================================
 paths:
@@ -919,6 +921,65 @@ paths:
       responses:
         '204':
           description: Product removed from the view history.
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/my-wishlist:
+    get:
+      tags:
+        - Wishlist
+      summary: Get current user's wishlist
+      description: Retrieves the wishlist of the current user with full product filtering, sorting, and pagination support.
+      operationId: getUserWishlist
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/Pageable'
+        - $ref: '#/components/parameters/Language'
+      responses:
+        '200':
+          description: Short information about all products in the wishlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageProducts'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /v1/my-wishlist/{productId}:
+    put:
+      tags:
+        - Wishlist
+      summary: Add a product to wishlist
+      operationId: addToWishlist
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '204':
+          description: Product added successfully
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    delete:
+      tags:
+        - Wishlist
+      summary: Remove a product from wishlist
+      operationId: removeFromWishlist
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '204':
+          description: Product removed successfully
         '400':
           $ref: '#/components/responses/BadRequestResponse'
         '401':
