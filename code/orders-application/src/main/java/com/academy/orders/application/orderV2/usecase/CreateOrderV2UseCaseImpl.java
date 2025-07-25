@@ -83,7 +83,7 @@ public class CreateOrderV2UseCaseImpl implements CreateOrderV2UseCase {
         .recipientFirstName(createOrderV2Dto.firstName()).recipientLastName(createOrderV2Dto.lastName())
         .recipientPhone(createOrderV2Dto.phone()).title(createOrderV2Dto.title())
         .account(createAccountV2Object(accountId))
-        .id(createOrderV2Dto.addressId() != null ? UUID.fromString(createOrderV2Dto.addressId()) : null).build();
+        .build();
   }
 
   private AccountV2 createAccountV2Object(Long accountId) {

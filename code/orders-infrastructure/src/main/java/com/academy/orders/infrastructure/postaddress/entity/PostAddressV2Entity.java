@@ -33,7 +33,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(exclude = "orders, account")
+@EqualsAndHashCode(exclude = {"orders", "account"})
 @ToString(exclude = {"orders", "account"})
 @Entity
 public class PostAddressV2Entity {

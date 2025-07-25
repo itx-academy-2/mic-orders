@@ -144,11 +144,6 @@ public class OrdersV2ControllerIT extends AbstractControllerIT {
 
     // Then
     assertEquals(403, response.getStatusCode().value());
-
-    var body = response.getBody();
-    if (body != null && body.get("orderId") != null) {
-      createdOrderId = UUID.fromString(body.get("orderId").toString());
-    }
   }
 
   @Test

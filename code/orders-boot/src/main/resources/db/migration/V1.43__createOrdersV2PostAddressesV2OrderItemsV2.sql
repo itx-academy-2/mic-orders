@@ -31,6 +31,6 @@ CREATE TABLE order_items_v2 (
     discount INT DEFAULT NULL,
     quantity INTEGER NOT NULL,
     PRIMARY KEY (order_v2_id, product_id),
-    CONSTRAINT FK_order_items_v2_order FOREIGN KEY (order_V2_id) REFERENCES orders_v2(id),
+    CONSTRAINT FK_order_items_v2_order FOREIGN KEY (order_v2_id) REFERENCES orders_v2(id),
     CONSTRAINT FK_order_items_v2_product FOREIGN KEY (product_id) REFERENCES products(id)
 );
