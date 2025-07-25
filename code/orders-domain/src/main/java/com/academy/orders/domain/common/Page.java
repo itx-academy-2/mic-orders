@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.Function;
 
 @Builder
-public record Page<T> (Long totalElements, Integer totalPages, Boolean first, Boolean last, Integer number,
+public record Page<T>(Long totalElements, Integer totalPages, Boolean first, Boolean last, Integer number,
     Integer numberOfElements, Integer size, Boolean empty, List<T> content) {
 
   public <D> Page<D> map(Function<T, D> mapper) {
