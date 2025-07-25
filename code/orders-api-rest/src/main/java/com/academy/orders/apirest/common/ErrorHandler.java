@@ -10,6 +10,7 @@ import com.academy.orders.domain.common.exception.PaidException;
 import com.academy.orders.domain.order.exception.InsufficientProductQuantityException;
 import com.academy.orders.domain.order.exception.InvalidOrderStatusTransitionException;
 import com.academy.orders.domain.order.exception.OrderFinalStateException;
+import com.academy.orders.domain.wishlist.exception.UnsupportedSortFieldException;
 import com.academy.orders_api_rest.generated.model.ErrorObjectDTO;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -181,5 +182,12 @@ public class ErrorHandler {
   @ResponseStatus(value = HttpStatus.CONFLICT)
   public ErrorObjectDTO handleConcurrentUpdateException(final ConcurrentUpdateException ex) {
     return new ErrorObjectDTO().status(HttpStatus.CONFLICT.value()).detail(ex.getMessage());
+  }
+
+  @ExceptionHandler(UnsupportedSortFieldException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorObjectDTO handleUnsupportedSortFieldException(UnsupportedSortFieldException ex) {
+    log.warn("Unsupported sort field", ex);
+    return new ErrorObjectDTO().status(HttpStatus.BAD_REQUEST.value()).title("Invalid Sort Parameter").detail(ex.getMessage());
   }
 }
