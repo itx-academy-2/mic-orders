@@ -16,6 +16,8 @@ public class TestConstants {
 
   public static final String LANGUAGE_UK = "uk";
 
+  public static final String LANGUAGE_EN = "en";
+
   public static final int NUMBER_OF_TRANSLATIONS_UK_AND_EN = 2;
 
   public static final String TEST_FIRST_NAME = "John";

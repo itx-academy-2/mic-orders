@@ -10,6 +10,7 @@ import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.order.exception.InsufficientProductQuantityException;
 import com.academy.orders.domain.order.exception.InvalidOrderStatusTransitionException;
 import com.academy.orders.domain.order.exception.OrderFinalStateException;
+import com.academy.orders.domain.wishlist.exception.UnsupportedSortFieldException;
 import com.academy.orders.domain.postaddress.exception.PostAddressTitleAlreadyExistsException;
 import com.academy.orders_api_rest.generated.model.ErrorObjectDTO;
 import jakarta.validation.ConstraintViolationException;
@@ -207,6 +208,21 @@ class ErrorHandlerTest {
     var message = String.format("The Role of account with email: %s is not found", accountEmail);
 
     assertEquals(buildErrorObjectDTO(NOT_FOUND, message), errorHandler.handleAccountRoleNotFoundException(ex));
+  }
+
+  @Test
+  void handleUnsupportedSortFieldExceptionTest() {
+    // Given
+    String unsupportedField = "unknownField";
+    var ex = new UnsupportedSortFieldException(unsupportedField);
+
+    // When
+    var result = errorHandler.handleUnsupportedSortFieldException(ex);
+
+    // Then
+    assertEquals(HttpStatus.BAD_REQUEST.value(), result.getStatus());
+    assertEquals("Invalid Sort Parameter", result.getTitle());
+    assertEquals("Unsupported sort field: unknownField", result.getDetail());
   }
 
   private ErrorObjectDTO buildErrorObjectDTO(HttpStatus status, String detail) {
