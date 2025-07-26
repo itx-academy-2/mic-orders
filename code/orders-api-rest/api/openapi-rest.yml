@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.4.0
+  version: 2.5.0
 servers:
   - url: http://localhost:8080/retail
 
@@ -2597,7 +2597,7 @@ components:
           minLength: 1
           maxLength: 50
           example: Home
-          pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+$
+          pattern: ^(?!\s*$)[a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+( [a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+)*$
           x-pattern-message: Title must not be empty and may contain only letters, digits, dashes, spaces between the words, apostrophes, or underscores
           description: Title for the delivery address. Used to identify saved addresses (e.g. "Home", "Office")
       required:
