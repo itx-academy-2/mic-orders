@@ -50,10 +50,14 @@ public class OrderV2RepositoryImpl implements OrderV2Repository {
     mapOrderItemsWithProductsAndOrder(orderV2Entity);
 
     var createdOrderV2Entity = jpaAdapter.save(orderV2Entity);
-    orderV1DuplicateAdapter.duplicateOrderV2ToV1(createdOrderV2Entity); // Calling the temporary method to duplicate the created OrderV2
-                                                                        // with OrderItems and PostAddress to the V1 of the tables
     var savedId = createdOrderV2Entity.getId();
     log.info("OrderV2 saved successfully with id={}", savedId);
+
+    log.info("Starting the duplication of OrderV2, PostAddressV2 and OrderItemsV2 to the V1 tables");
+    orderV1DuplicateAdapter.duplicateOrderV2ToV1(createdOrderV2Entity); // Calling the temporary method to duplicate the created OrderV2
+                                                                        // with OrderItems and PostAddress to the V1 of the tables
+    log.info("Finished the duplication of OrderV2, PostAddressV2 and OrderItemsV2 to the V1 tables");
+
     return savedId;
   }
 
