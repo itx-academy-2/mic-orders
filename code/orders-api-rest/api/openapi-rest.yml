@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.4.0
+  version: 2.5.0
 servers:
   - url: http://localhost:8080/retail
 
@@ -38,6 +38,13 @@ tags:
 
   - name: Wishlist
     description: User's wishlist endpoints
+
+  - name: Address
+    description: Address endpoints
+
+  - name: OrdersV2
+    description: Orders endpoints, version 2
+
 #ENDPOINTS
 #=======================================================================================================================
 paths:
@@ -984,6 +991,91 @@ paths:
           $ref: '#/components/responses/BadRequestResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
+
+  /v1/users/{userId}/addresses:
+    get:
+      tags:
+        - Address
+      summary: Get all post addresses for the user
+      operationId: getUserAddresses
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: List of post addresses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPostAddressResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags:
+        - Address
+      summary: Create a new user's address
+      operationId: createUserAddress
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAddress'
+      responses:
+        '201':
+          description: Address is created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPostAddressResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /v2/users/{userId}/orders:
+    post:
+      tags:
+        - OrdersV2
+      summary: Place an order
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      operationId: placeOrderV2
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceOrderRequestV2'
+      responses:
+        '201':
+          description: Order is created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaceOrderResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
 
 #COMPONENTS
 #=======================================================================================================================
@@ -2434,3 +2526,147 @@ components:
       required:
         - firstName
         - lastName
+
+    UserPostAddressResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deliveryMethod:
+          $ref: '#/components/schemas/DeliveryMethod'
+        city:
+          type: string
+          example: "Lviv"
+        department:
+          type: string
+          example: "52"
+        title:
+          type: string
+          example: "Home"
+          description: Title of the address (e.g. Home, Office)
+        firstName:
+          type: string
+          example: "John"
+          description: First name of the recipient
+        lastName:
+          type: string
+          example: "Doe"
+          description: Last name of the recipient
+        phone:
+          type: string
+          example: "+380960775434"
+          description: Phone number of the recipient
+
+    PlaceOrderRequestV2:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: John
+          minLength: 2
+          maxLength: 50
+          pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
+          x-pattern-message: First name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
+          description: First name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
+        lastName:
+          type: string
+          example: Doe
+          minLength: 2
+          maxLength: 50
+          pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
+          x-pattern-message: Last name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
+          description: Last name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
+        deliveryMethod:
+          $ref: '#/components/schemas/DeliveryMethod'
+        city:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: city where department is located
+          example: Lviv
+        department:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: department of the post
+          example: №1 Franka street, 7
+        phone:
+          type: string
+          minLength: 10
+          maxLength: 13
+          pattern: ^\+?[0-9]+$
+          description: phone number of the recipient
+          example: +380960775434
+        title:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: Home
+          pattern: ^(?!\s*$)[a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+( [a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+)*$
+          description: Optional title for the delivery address. Used to identify saved addresses (e.g. "Home", "Office")
+          x-pattern-message: Title must not be empty and may contain only letters, digits, dashes, spaces between the words, apostrophes, or underscores.
+      required:
+        - city
+        - deliveryMethod
+        - department
+        - firstName
+        - lastName
+        - phone
+
+    CreateAddress:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: John
+          minLength: 2
+          maxLength: 50
+          pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
+          x-pattern-message: First name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
+          description: First name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
+        lastName:
+          type: string
+          example: Doe
+          minLength: 2
+          maxLength: 50
+          pattern: ^[a-zA-Zа-яА-ЯёЁіІїЇєЄ'’\-]+$
+          x-pattern-message: Last name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
+          description: Last name must contain from 2 to 50 characters long and can only include Latin and Cyrillic letters, as well as apostrophes and hyphens
+        deliveryMethod:
+          $ref: '#/components/schemas/DeliveryMethod'
+        city:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: City where department is located
+          example: Lviv
+        department:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Department of the post
+          example: №1 Franka street, 7
+        phone:
+          type: string
+          minLength: 10
+          maxLength: 13
+          pattern: ^\+?[0-9]+$
+          description: Phone number of the recipient
+          example: +380960775434
+        title:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: Home
+          pattern: ^(?!\s*$)[a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+( [a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9_\-’']+)*$
+          x-pattern-message: Title must not be empty and may contain only letters, digits, dashes, spaces between the words, apostrophes, or underscores
+          description: Title for the delivery address. Used to identify saved addresses (e.g. "Home", "Office")
+      required:
+        - city
+        - deliveryMethod
+        - department
+        - firstName
+        - lastName
+        - phone
+        - title

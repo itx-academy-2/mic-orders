@@ -11,6 +11,7 @@ import com.academy.orders.domain.order.exception.InsufficientProductQuantityExce
 import com.academy.orders.domain.order.exception.InvalidOrderStatusTransitionException;
 import com.academy.orders.domain.order.exception.OrderFinalStateException;
 import com.academy.orders.domain.wishlist.exception.UnsupportedSortFieldException;
+import com.academy.orders.domain.postaddress.exception.PostAddressTitleAlreadyExistsException;
 import com.academy.orders_api_rest.generated.model.ErrorObjectDTO;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
@@ -230,5 +231,17 @@ class ErrorHandlerTest {
 
   private ErrorObjectDTO buildErrorObjectDTO(HttpStatus status) {
     return new ErrorObjectDTO(status.value(), status.getReasonPhrase(), DEFAULT_ERROR_MESSAGE);
+  }
+
+  @Test
+  void handlePostAddressTitleAlreadyExistsExceptionTest() {
+    // Given
+    var ex = mock(PostAddressTitleAlreadyExistsException.class);
+
+    // When
+    when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
+
+    // Then
+    assertEquals(buildErrorObjectDTO(CONFLICT), errorHandler.handlePostAddressTitleAlreadyExistsException(ex));
   }
 }
