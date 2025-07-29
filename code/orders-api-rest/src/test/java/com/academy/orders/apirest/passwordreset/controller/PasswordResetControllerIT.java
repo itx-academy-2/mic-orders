@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {PasswordResetController.class})
 @WebMvcTest(PasswordResetController.class)
 @AutoConfigureMockMvc
-class PasswordResetControllerIT {
+class PasswordResetControllerTest {
   @Autowired
   private MockMvc mockMvc;
 

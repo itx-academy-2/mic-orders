@@ -353,7 +353,7 @@ public class ModelUtils {
     entity.setExpiresAt(OffsetDateTime.now(ZoneOffset.UTC).plusHours(2));
     return entity;
   }
-  
+
   public static OrderV2 getOrderV2() {
     return OrderV2.builder().id(UUID.fromString("4602edda-6e9f-4a35-a472-2f6eac06e203"))
         .createdAt(LocalDateTime.of(1, 1, 1, 1, 1)).isPaid(false).orderStatus(OrderStatus.IN_PROGRESS)

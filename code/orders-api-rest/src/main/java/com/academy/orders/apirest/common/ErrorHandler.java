@@ -216,7 +216,7 @@ public class ErrorHandler {
         .status(HttpStatus.NOT_FOUND.value())
         .title(HttpStatus.NOT_FOUND.getReasonPhrase());
   }
-      
+
   @ExceptionHandler(UnsupportedSortFieldException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorObjectDTO handleUnsupportedSortFieldException(UnsupportedSortFieldException ex) {
