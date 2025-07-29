@@ -18,11 +18,13 @@ import com.academy.orders.domain.order.dto.CreateOrderDto;
 import com.academy.orders.domain.order.dto.OrderStatusInfo;
 import com.academy.orders.domain.order.dto.OrdersFilterParametersDto;
 import com.academy.orders.domain.order.dto.UpdateOrderStatusDto;
+import com.academy.orders.domain.orderV2.dto.CreateOrderV2Dto;
 import com.academy.orders.domain.order.entity.Order;
 import com.academy.orders.domain.order.entity.OrderItem;
 import com.academy.orders.domain.order.entity.OrderManagement;
 import com.academy.orders.domain.order.entity.OrderReceiver;
 import com.academy.orders.domain.order.entity.PostAddress;
+import com.academy.orders.domain.postaddress.entity.PostAddressV2;
 import com.academy.orders.domain.order.entity.enumerated.DeliveryMethod;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.passwordreset.dto.PasswordResetCommand;
@@ -547,7 +549,20 @@ public class ModelUtils {
 
   public static PasswordResetToken createUsedPrimaryToken(PasswordResetToken primaryToken) {
     return primaryToken.toBuilder()
-        .status(TokenStatus.USED)
+        .status(TokenStatus.USED);
+  }
+
+  public static CreateOrderV2Dto getCreateOrderV2Dto() {
+    return CreateOrderV2Dto.builder().firstName("mockFirstName").lastName("mockLastName")
+        .city("mockCity").department("mockDepartment").deliveryMethod(DeliveryMethod.NOVA).phone("+380968776677").title("Home").build();
+  }
+
+  public static PostAddressV2 getPostAddressV2(CreateOrderV2Dto createOrderV2Dto) {
+    return PostAddressV2.builder().city(createOrderV2Dto.city()).department(createOrderV2Dto.department())
+        .deliveryMethod(createOrderV2Dto.deliveryMethod())
+        .recipientFirstName(createOrderV2Dto.firstName()).recipientLastName(createOrderV2Dto.lastName())
+        .recipientPhone(createOrderV2Dto.phone()).title(createOrderV2Dto.title())
+        .account(getAccountV2())
         .build();
   }
 }

@@ -12,6 +12,8 @@ import com.academy.orders.domain.order.exception.InvalidOrderStatusTransitionExc
 import com.academy.orders.domain.order.exception.OrderFinalStateException;
 import com.academy.orders.domain.passwordreset.exception.InvalidTokenException;
 import com.academy.orders.domain.passwordreset.exception.TokenNotFoundException;
+import com.academy.orders.domain.wishlist.exception.UnsupportedSortFieldException;
+import com.academy.orders.domain.postaddress.exception.PostAddressTitleAlreadyExistsException;
 import com.academy.orders_api_rest.generated.model.ErrorObjectDTO;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -212,7 +214,21 @@ public class ErrorHandler {
     log.warn("Token not found", ex);
     return new ErrorObjectDTO()
         .status(HttpStatus.NOT_FOUND.value())
-        .title(HttpStatus.NOT_FOUND.getReasonPhrase())
+        .title(HttpStatus.NOT_FOUND.getReasonPhrase());
+  }
+      
+  @ExceptionHandler(UnsupportedSortFieldException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorObjectDTO handleUnsupportedSortFieldException(UnsupportedSortFieldException ex) {
+    log.warn("Unsupported sort field", ex);
+    return new ErrorObjectDTO().status(HttpStatus.BAD_REQUEST.value()).title("Invalid Sort Parameter").detail(ex.getMessage());
+  }
+
+  @ExceptionHandler(PostAddressTitleAlreadyExistsException.class)
+  @ResponseStatus(value = HttpStatus.CONFLICT)
+  public ErrorObjectDTO handlePostAddressTitleAlreadyExistsException(final PostAddressTitleAlreadyExistsException ex) {
+    log.warn("PostAddress title already exists ", ex);
+    return new ErrorObjectDTO().status(HttpStatus.CONFLICT.value()).title(HttpStatus.CONFLICT.getReasonPhrase())
         .detail(ex.getMessage());
   }
 }

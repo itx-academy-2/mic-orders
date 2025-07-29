@@ -10,6 +10,8 @@ import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.order.exception.InsufficientProductQuantityException;
 import com.academy.orders.domain.order.exception.InvalidOrderStatusTransitionException;
 import com.academy.orders.domain.order.exception.OrderFinalStateException;
+import com.academy.orders.domain.wishlist.exception.UnsupportedSortFieldException;
+import com.academy.orders.domain.postaddress.exception.PostAddressTitleAlreadyExistsException;
 import com.academy.orders_api_rest.generated.model.ErrorObjectDTO;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
@@ -208,11 +210,38 @@ class ErrorHandlerTest {
     assertEquals(buildErrorObjectDTO(NOT_FOUND, message), errorHandler.handleAccountRoleNotFoundException(ex));
   }
 
+  @Test
+  void handleUnsupportedSortFieldExceptionTest() {
+    // Given
+    String unsupportedField = "unknownField";
+    var ex = new UnsupportedSortFieldException(unsupportedField);
+
+    // When
+    var result = errorHandler.handleUnsupportedSortFieldException(ex);
+
+    // Then
+    assertEquals(HttpStatus.BAD_REQUEST.value(), result.getStatus());
+    assertEquals("Invalid Sort Parameter", result.getTitle());
+    assertEquals("Unsupported sort field: unknownField", result.getDetail());
+  }
+
   private ErrorObjectDTO buildErrorObjectDTO(HttpStatus status, String detail) {
     return new ErrorObjectDTO(status.value(), status.getReasonPhrase(), detail);
   }
 
   private ErrorObjectDTO buildErrorObjectDTO(HttpStatus status) {
     return new ErrorObjectDTO(status.value(), status.getReasonPhrase(), DEFAULT_ERROR_MESSAGE);
+  }
+
+  @Test
+  void handlePostAddressTitleAlreadyExistsExceptionTest() {
+    // Given
+    var ex = mock(PostAddressTitleAlreadyExistsException.class);
+
+    // When
+    when(ex.getMessage()).thenReturn(DEFAULT_ERROR_MESSAGE);
+
+    // Then
+    assertEquals(buildErrorObjectDTO(CONFLICT), errorHandler.handlePostAddressTitleAlreadyExistsException(ex));
   }
 }

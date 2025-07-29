@@ -38,6 +38,9 @@ auth:
     - username: manager@mail.com
       roles: ROLE_Manager
       password: Manager_1234
+    - username: user-2@mail.com
+      roles: ROLE_USER
+      password: Test_1234
 
 resilience4j:
   retry:

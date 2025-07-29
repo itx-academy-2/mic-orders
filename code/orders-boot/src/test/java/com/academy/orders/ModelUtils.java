@@ -4,6 +4,7 @@ import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
 import com.academy.orders.domain.accountv2.dto.UpdateUserAccountV2InfoDto;
+import com.academy.orders.domain.accountv2.entity.AccountV2;
 import com.academy.orders.domain.cart.entity.CartItem;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.discount.entity.Discount;
@@ -12,12 +13,17 @@ import com.academy.orders.domain.order.entity.OrderItem;
 import com.academy.orders.domain.order.entity.OrderReceiver;
 import com.academy.orders.domain.order.entity.PostAddress;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
+import com.academy.orders.domain.orderV2.entity.OrderV2;
+import com.academy.orders.domain.postaddress.entity.PostAddressV2;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders_api_rest.generated.model.UpdateAccountV2InfoRequestDTO;
+import com.academy.orders_api_rest.generated.model.DeliveryMethodDTO;
+import com.academy.orders_api_rest.generated.model.PlaceOrderRequestV2DTO;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -143,5 +149,38 @@ public class ModelUtils {
         .startDate(LocalDateTime.now())
         .endDate(LocalDateTime.now().plusDays(10))
         .build();
+  }
+
+  public static OrderV2 getOrderV2WithoutId() {
+    return OrderV2.builder()
+        .createdAt(LocalDateTime.of(1, 1, 1, 1, 1)).isPaid(false).orderStatus(OrderStatus.IN_PROGRESS)
+        .postAddress(PostAddressV2.builder().city("Kharkiv").deliveryMethod(NOVA).department("43")
+            .recipientFirstName("Sasha").recipientLastName("Bulhakova").recipientPhone("+380960997887").title("Friend")
+            .account(AccountV2.builder().id(23L).build())
+            .build())
+        .account(AccountV2.builder().id(23L).build())
+        .orderItems(List.of(getOrderItem())).build();
+  }
+
+  public static OrderV2 getOrderV2WithoutIdWithNewRecipientName() {
+    return OrderV2.builder()
+        .createdAt(LocalDateTime.of(1, 1, 1, 1, 1)).isPaid(false).orderStatus(OrderStatus.IN_PROGRESS)
+        .postAddress(PostAddressV2.builder().city("Kharkiv").deliveryMethod(NOVA).department("43")
+            .recipientFirstName("Masha").recipientLastName("Bulhakova").recipientPhone("+380960997887").title("Friend")
+            .account(AccountV2.builder().id(23L).build())
+            .build())
+        .account(AccountV2.builder().id(23L).build())
+        .orderItems(List.of(getOrderItem())).build();
+  }
+
+  public static PlaceOrderRequestV2DTO getPlaceOrderRequestV2DTO() {
+    return new PlaceOrderRequestV2DTO()
+        .firstName("John")
+        .lastName("Doe")
+        .deliveryMethod(DeliveryMethodDTO.NOVA)
+        .city("Kharkiv")
+        .department("№3 Franka street, 7")
+        .phone("+380960775434")
+        .title("Home");
   }
 }
