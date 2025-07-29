@@ -549,7 +549,8 @@ public class ModelUtils {
 
   public static PasswordResetToken createUsedPrimaryToken(PasswordResetToken primaryToken) {
     return primaryToken.toBuilder()
-        .status(TokenStatus.USED);
+        .status(TokenStatus.USED)
+        .build();
   }
 
   public static CreateOrderV2Dto getCreateOrderV2Dto() {
