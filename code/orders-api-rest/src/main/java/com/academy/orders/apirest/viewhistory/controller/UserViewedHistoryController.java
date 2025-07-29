@@ -15,6 +15,7 @@ import com.academy.orders_api_rest.generated.model.PageableDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
@@ -38,6 +39,7 @@ public class UserViewedHistoryController implements ViewHistoryApi {
   private final ProductPreviewDTOMapper productPreviewDTOMapper;
 
   @Override
+  @PreAuthorize("hasAuthority('ROLE_USER')")
   public ResponseEntity<Void> addProductToViewedHistory(UUID productId) {
     Long userId = securityUtils.getAuthenticatedUserId();
     log.info("User {} is adding product {} to viewed history", userId, productId);
@@ -46,6 +48,7 @@ public class UserViewedHistoryController implements ViewHistoryApi {
   }
 
   @Override
+  @PreAuthorize("hasAuthority('ROLE_USER')")
   public ResponseEntity<Void> deleteAllViewedProducts() {
     Long userId = securityUtils.getAuthenticatedUserId();
     log.info("User {} is deleting all products from viewed history", userId);
@@ -54,6 +57,7 @@ public class UserViewedHistoryController implements ViewHistoryApi {
   }
 
   @Override
+  @PreAuthorize("hasAuthority('ROLE_USER')")
   public ResponseEntity<Void> deleteViewedProduct(UUID productId) {
     Long userId = securityUtils.getAuthenticatedUserId();
     log.info("User {} is deleting product {} from viewed history", userId, productId);
@@ -62,6 +66,7 @@ public class UserViewedHistoryController implements ViewHistoryApi {
   }
 
   @Override
+  @PreAuthorize("hasAuthority('ROLE_USER')")
   public ResponseEntity<PageProductsDTO> getViewedProducts(PageableDTO pageableDTO, String lang) {
     Long userId = securityUtils.getAuthenticatedUserId();
     var pageable = pageableDTOMapper.fromDto(pageableDTO);

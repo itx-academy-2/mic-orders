@@ -10,6 +10,7 @@ import com.academy.orders_api_rest.generated.model.UpdateAccountV2InfoRequestDTO
 import com.academy.orders_api_rest.generated.model.UserAccountInfoDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -26,6 +27,7 @@ public class UserCabinetController implements UserPersonalCabinetApi {
   private final AccountV2InfoUpdateMapper accountV2InfoUpdateMapper;
 
   @Override
+  @PreAuthorize("hasAuthority('ROLE_USER')")
   public ResponseEntity<UserAccountInfoDTO> getPersonalUserInfo() {
     Long userId = securityUtils.getAuthenticatedUserId();
     var accountV2 = getUserAccountV2InfoUseCase.getUserAccountInfo(userId);
@@ -33,6 +35,7 @@ public class UserCabinetController implements UserPersonalCabinetApi {
   }
 
   @Override
+  @PreAuthorize("hasAuthority('ROLE_USER')")
   public ResponseEntity<Void> updatePersonalUserInfo(UpdateAccountV2InfoRequestDTO updateAccountV2InfoRequestDTO) {
     Long userId = securityUtils.getAuthenticatedUserId();
     var updateDto = accountV2InfoUpdateMapper.toUpdateUserAccountV2InfoDto(updateAccountV2InfoRequestDTO);
