@@ -6,8 +6,12 @@ import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.account.factory.PasswordResetTokenFactoryUseCase;
 import com.academy.orders.domain.account.repository.AccountRepository;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
+import com.academy.orders.domain.passwordreset.entity.enumerated.TokenStatus;
+import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
 import com.academy.orders.domain.passwordreset.exception.InvalidEmailException;
+import com.academy.orders.domain.passwordreset.exception.InvalidTokenException;
 import com.academy.orders.domain.passwordreset.repository.PasswordResetTokenRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
@@ -199,5 +203,80 @@ class CreateTokenUseCaseImplTest {
         () -> createTokenUseCase.createPrimaryToken(invalidEmail));
     assertEquals("Invalid email format", exception.getMessage());
     verifyNoInteractions(accountRepository, tokenFactory, tokenRepository);
+  }
+
+  @Test
+  void createPrimaryToken_MarksOldTokensAsUsed() {
+    // Given
+    PasswordResetToken oldToken1 = mock(PasswordResetToken.class);
+    PasswordResetToken oldToken1Used = mock(PasswordResetToken.class);
+    when(oldToken1.getToken()).thenReturn("old-token-1");
+    when(oldToken1.markAsUsed()).thenReturn(oldToken1Used);
+    PasswordResetToken oldToken2 = mock(PasswordResetToken.class);
+    PasswordResetToken oldToken2Used = mock(PasswordResetToken.class);
+    when(oldToken2.getToken()).thenReturn("old-token-2");
+    when(oldToken2.markAsUsed()).thenReturn(oldToken2Used);
+    when(accountRepository.findAccountByEmail(TEST_EMAIL)).thenReturn(Optional.of(account));
+    when(tokenRepository.findByAccountIdAndTypeAndStatus(ACCOUNT_ID, TokenType.PRIMARY, TokenStatus.ACTIVE))
+        .thenReturn(List.of(oldToken1, oldToken2));
+    when(tokenFactory.createToken(ACCOUNT_ID, TEST_EMAIL)).thenReturn(token);
+    when(tokenRepository.save(any(PasswordResetToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    // When
+    String result = createTokenUseCase.createPrimaryToken(TEST_EMAIL);
+
+    // Then
+    assertEquals(TOKEN_VALUE, result);
+    verify(oldToken1).markAsUsed();
+    verify(oldToken2).markAsUsed();
+    verify(tokenRepository).save(oldToken1Used);
+    verify(tokenRepository).save(oldToken2Used);
+    verify(tokenRepository).save(token);
+  }
+
+  @Test
+  void createPrimaryToken_TokenFactoryReturnsTokenWithNullEmail_ThrowsInvalidTokenException() {
+    // Given
+    PasswordResetToken tokenWithNullEmail = mock(PasswordResetToken.class);
+    when(tokenWithNullEmail.getEmail()).thenReturn(null);
+
+    when(accountRepository.findAccountByEmail(TEST_EMAIL)).thenReturn(Optional.of(account));
+    when(tokenFactory.createToken(ACCOUNT_ID, TEST_EMAIL)).thenReturn(tokenWithNullEmail);
+
+    // When & Then
+    var exception = assertThrows(InvalidTokenException.class,
+        () -> createTokenUseCase.createPrimaryToken(TEST_EMAIL));
+
+    assertEquals("Token email cannot be null", exception.getMessage());
+  }
+
+  @Test
+  void createPrimaryToken_CaseInsensitiveEmail_Lookup() {
+    String mixedCaseEmail = "Test@ExAmPlE.com";
+
+    when(accountRepository.findAccountByEmail(mixedCaseEmail)).thenReturn(Optional.of(account));
+    when(tokenRepository.findByAccountIdAndTypeAndStatus(ACCOUNT_ID, TokenType.PRIMARY, TokenStatus.ACTIVE))
+        .thenReturn(List.of());
+    when(tokenFactory.createToken(ACCOUNT_ID, mixedCaseEmail)).thenReturn(token);
+    when(tokenRepository.save(token)).thenReturn(token);
+
+    String result = createTokenUseCase.createPrimaryToken(mixedCaseEmail);
+
+    assertEquals(TOKEN_VALUE, result);
+    verify(accountRepository).findAccountByEmail(mixedCaseEmail);
+    verify(tokenFactory).createToken(ACCOUNT_ID, mixedCaseEmail);
+  }
+
+  @Test
+  void createPrimaryToken_TokenRepositorySaveThrowsException_TransactionalRollback() {
+    when(accountRepository.findAccountByEmail(TEST_EMAIL)).thenReturn(Optional.of(account));
+    when(tokenRepository.findByAccountIdAndTypeAndStatus(ACCOUNT_ID, TokenType.PRIMARY, TokenStatus.ACTIVE))
+        .thenReturn(List.of());
+    when(tokenFactory.createToken(ACCOUNT_ID, TEST_EMAIL)).thenReturn(token);
+    doThrow(new RuntimeException("Save error")).when(tokenRepository).save(token);
+
+    RuntimeException ex = assertThrows(RuntimeException.class,
+        () -> createTokenUseCase.createPrimaryToken(TEST_EMAIL));
+    assertEquals("Save error", ex.getMessage());
   }
 }

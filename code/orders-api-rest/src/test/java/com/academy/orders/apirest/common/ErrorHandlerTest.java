@@ -10,10 +10,13 @@ import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.order.exception.InsufficientProductQuantityException;
 import com.academy.orders.domain.order.exception.InvalidOrderStatusTransitionException;
 import com.academy.orders.domain.order.exception.OrderFinalStateException;
+import com.academy.orders.domain.passwordreset.exception.InvalidTokenException;
+import com.academy.orders.domain.passwordreset.exception.TokenNotFoundException;
 import com.academy.orders.domain.wishlist.exception.UnsupportedSortFieldException;
 import com.academy.orders.domain.postaddress.exception.PostAddressTitleAlreadyExistsException;
 import com.academy.orders_api_rest.generated.model.ErrorObjectDTO;
 import jakarta.validation.ConstraintViolationException;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,10 +30,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -243,5 +246,52 @@ class ErrorHandlerTest {
 
     // Then
     assertEquals(buildErrorObjectDTO(CONFLICT), errorHandler.handlePostAddressTitleAlreadyExistsException(ex));
+  }
+
+  @Test
+  void handleMissingRequestParam_ShouldReturnBadRequestWithParameterName() {
+    // Given
+    String missingParam = "email";
+    var ex = new MissingServletRequestParameterException(missingParam, "String");
+
+    // When
+    var response = errorHandler.handleMissingRequestParam(ex);
+
+    // Then
+    assertNotNull(response);
+    assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    assertEquals(HttpStatus.BAD_REQUEST.getReasonPhrase(), response.getTitle());
+    assertEquals("Required request parameter '" + missingParam + "' is missing", response.getDetail());
+  }
+
+  @Test
+  void handleInvalidTokenException_ShouldReturnBadRequestWithExceptionMessage() {
+    // Given
+    String message = "Token is invalid or expired";
+    var ex = new InvalidTokenException(message);
+
+    // When
+    var response = errorHandler.handleInvalidTokenException(ex);
+
+    // Then
+    assertNotNull(response);
+    assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    assertEquals(HttpStatus.BAD_REQUEST.getReasonPhrase(), response.getTitle());
+    assertEquals(message, response.getDetail());
+  }
+
+  @Test
+  void handleTokenNotFoundException_ShouldReturnNotFoundWithoutDetail() {
+    // Given
+    var ex = new TokenNotFoundException("Token not found");
+
+    // When
+    var response = errorHandler.handleTokenNotFoundException(ex);
+
+    // Then
+    assertNotNull(response);
+    assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
+    assertEquals(HttpStatus.NOT_FOUND.getReasonPhrase(), response.getTitle());
+    assertNull(response.getDetail());
   }
 }

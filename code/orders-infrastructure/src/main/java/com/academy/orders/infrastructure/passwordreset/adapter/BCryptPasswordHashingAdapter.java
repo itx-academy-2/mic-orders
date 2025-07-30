@@ -1,4 +1,4 @@
-package com.academy.orders.infrastructure.passwordreset.repository;
+package com.academy.orders.infrastructure.passwordreset.adapter;
 
 import com.academy.orders.domain.passwordreset.usecase.PasswordHashingPort;
 import lombok.RequiredArgsConstructor;
