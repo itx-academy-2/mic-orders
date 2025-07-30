@@ -3,7 +3,7 @@ package com.academy.orders.application.passwordreset;
 import static com.academy.orders.application.ModelUtils.*;
 import com.academy.orders.application.passwordreset.usecase.CreateTokenUseCaseImpl;
 import com.academy.orders.domain.account.entity.Account;
-import com.academy.orders.domain.account.factory.PasswordResetTokenFactory;
+import com.academy.orders.domain.account.factory.PasswordResetTokenFactoryUseCase;
 import com.academy.orders.domain.account.repository.AccountRepository;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.exception.InvalidEmailException;
@@ -34,7 +34,7 @@ class CreateTokenUseCaseImplTest {
 
   @Mock
   @Qualifier("primaryTokenFactory")
-  private PasswordResetTokenFactory tokenFactory;
+  private PasswordResetTokenFactoryUseCase tokenFactory;
 
   @InjectMocks
   private CreateTokenUseCaseImpl createTokenUseCase;

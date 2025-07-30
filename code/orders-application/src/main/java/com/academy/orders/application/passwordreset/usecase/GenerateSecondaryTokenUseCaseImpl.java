@@ -1,6 +1,6 @@
 package com.academy.orders.application.passwordreset.usecase;
 
-import com.academy.orders.domain.account.factory.PasswordResetTokenFactory;
+import com.academy.orders.domain.account.factory.PasswordResetTokenFactoryUseCase;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
 import com.academy.orders.domain.passwordreset.exception.InvalidTokenException;
@@ -31,13 +31,13 @@ public class GenerateSecondaryTokenUseCaseImpl implements GenerateSecondaryToken
 
   private final PasswordResetTokenRepository tokenRepository;
 
-  private final PasswordResetTokenFactory tokenFactory;
+  private final PasswordResetTokenFactoryUseCase tokenFactory;
 
   private final Clock clock;
 
   public GenerateSecondaryTokenUseCaseImpl(
       PasswordResetTokenRepository tokenRepository,
-      @Qualifier("secondaryTokenFactory") PasswordResetTokenFactory tokenFactory,
+      @Qualifier("secondaryTokenFactory") PasswordResetTokenFactoryUseCase tokenFactory,
       Clock clock) {
     this.tokenRepository = tokenRepository;
     this.tokenFactory = tokenFactory;

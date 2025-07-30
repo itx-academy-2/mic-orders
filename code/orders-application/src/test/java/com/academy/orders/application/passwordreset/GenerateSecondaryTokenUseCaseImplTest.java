@@ -2,7 +2,7 @@ package com.academy.orders.application.passwordreset;
 
 import static com.academy.orders.application.ModelUtils.*;
 import com.academy.orders.application.passwordreset.usecase.GenerateSecondaryTokenUseCaseImpl;
-import com.academy.orders.domain.account.factory.PasswordResetTokenFactory;
+import com.academy.orders.domain.account.factory.PasswordResetTokenFactoryUseCase;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
 import com.academy.orders.domain.passwordreset.exception.InvalidTokenException;
@@ -33,7 +33,7 @@ class GenerateSecondaryTokenUseCaseImplTest {
 
   @Mock
   @Qualifier("primaryTokenFactory")
-  private PasswordResetTokenFactory tokenFactory;
+  private PasswordResetTokenFactoryUseCase tokenFactory;
 
   @InjectMocks
   private GenerateSecondaryTokenUseCaseImpl generateSecondaryTokenUseCase;

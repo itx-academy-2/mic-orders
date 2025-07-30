@@ -3,7 +3,7 @@ package com.academy.orders.application.passwordreset;
 import static com.academy.orders.application.ModelUtils.createPrimaryToken;
 import static com.academy.orders.application.ModelUtils.createSecondaryToken;
 import com.academy.orders.application.passwordreset.usecase.ValidateTokenUseCaseImpl;
-import com.academy.orders.domain.account.factory.PasswordResetTokenFactory;
+import com.academy.orders.domain.account.factory.PasswordResetTokenFactoryUseCase;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenStatus;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
@@ -36,7 +36,7 @@ class ValidateTokenUseCaseImplTest {
   private PasswordResetTokenRepository tokenRepository;
 
   @Mock
-  private PasswordResetTokenFactory tokenFactory;
+  private PasswordResetTokenFactoryUseCase tokenFactory;
 
   @InjectMocks
   private ValidateTokenUseCaseImpl validateTokenUseCase;

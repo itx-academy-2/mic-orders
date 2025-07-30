@@ -1,9 +1,9 @@
 package com.academy.orders.application.passwordreset.usecase;
 
 import com.academy.orders.domain.account.entity.Account;
-import com.academy.orders.domain.account.factory.PasswordResetTokenFactory;
+import com.academy.orders.domain.account.factory.PasswordResetTokenFactoryUseCase;
 import com.academy.orders.domain.account.repository.AccountRepository;
-import com.academy.orders.domain.account.usecase.PasswordResetEmailSender;
+import com.academy.orders.domain.account.usecase.PasswordResetEmailSenderUseCase;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.repository.PasswordResetTokenRepository;
 import com.academy.orders.domain.passwordreset.usecase.SendPasswordResetEmailUseCase;
@@ -30,9 +30,9 @@ public class SendPasswordResetEmailUseCaseImpl implements SendPasswordResetEmail
 
   private final PasswordResetTokenRepository tokenRepository;
 
-  private final PasswordResetTokenFactory tokenFactory;
+  private final PasswordResetTokenFactoryUseCase tokenFactory;
 
-  private final PasswordResetEmailSender emailSender;
+  private final PasswordResetEmailSenderUseCase emailSender;
 
   private final Clock clock;
 
@@ -41,8 +41,8 @@ public class SendPasswordResetEmailUseCaseImpl implements SendPasswordResetEmail
   public SendPasswordResetEmailUseCaseImpl(
       AccountRepository accountRepository,
       PasswordResetTokenRepository tokenRepository,
-      @Qualifier("primaryTokenFactory") PasswordResetTokenFactory tokenFactory,
-      PasswordResetEmailSender emailSender,
+      @Qualifier("primaryTokenFactory") PasswordResetTokenFactoryUseCase tokenFactory,
+      PasswordResetEmailSenderUseCase emailSender,
       Clock clock) {
     this.accountRepository = accountRepository;
     this.tokenRepository = tokenRepository;

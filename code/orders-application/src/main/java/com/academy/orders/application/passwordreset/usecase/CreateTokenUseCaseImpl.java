@@ -1,7 +1,7 @@
 package com.academy.orders.application.passwordreset.usecase;
 
 import com.academy.orders.domain.account.entity.Account;
-import com.academy.orders.domain.account.factory.PasswordResetTokenFactory;
+import com.academy.orders.domain.account.factory.PasswordResetTokenFactoryUseCase;
 import com.academy.orders.domain.account.repository.AccountRepository;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenStatus;
@@ -35,12 +35,12 @@ public class CreateTokenUseCaseImpl implements CreateTokenUseCase {
 
   private final PasswordResetTokenRepository tokenRepository;
 
-  private final PasswordResetTokenFactory tokenFactory;
+  private final PasswordResetTokenFactoryUseCase tokenFactory;
 
   public CreateTokenUseCaseImpl(
       AccountRepository accountRepository,
       PasswordResetTokenRepository tokenRepository,
-      @Qualifier("primaryTokenFactory") PasswordResetTokenFactory tokenFactory) {
+      @Qualifier("primaryTokenFactory") PasswordResetTokenFactoryUseCase tokenFactory) {
     this.accountRepository = accountRepository;
     this.tokenRepository = tokenRepository;
     this.tokenFactory = tokenFactory;

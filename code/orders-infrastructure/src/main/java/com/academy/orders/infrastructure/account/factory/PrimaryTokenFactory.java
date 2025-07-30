@@ -1,6 +1,6 @@
 package com.academy.orders.infrastructure.account.factory;
 
-import com.academy.orders.domain.account.factory.PasswordResetTokenFactory;
+import com.academy.orders.domain.account.factory.PasswordResetTokenFactoryUseCase;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenStatus;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component("primaryTokenFactory")
-public class PrimaryTokenFactory implements PasswordResetTokenFactory {
+public class PrimaryTokenFactory implements PasswordResetTokenFactoryUseCase {
   private final Clock clock;
 
   @Override

@@ -18,7 +18,6 @@ import com.academy.orders.infrastructure.account.entity.AccountEntity;
 import com.academy.orders.infrastructure.common.PageableMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
@@ -85,7 +84,6 @@ public class AccountRepositoryImpl implements AccountRepository, AccountV2Reposi
 
   @Override
   @Transactional
-  @Modifying(clearAutomatically = true)
   public void updatePassword(Long accountId, String newPassword) {
     accountJpaAdapter.updatePasswordById(accountId, newPassword);
   }

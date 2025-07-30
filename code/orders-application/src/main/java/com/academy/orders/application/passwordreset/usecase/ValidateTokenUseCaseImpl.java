@@ -1,6 +1,6 @@
 package com.academy.orders.application.passwordreset.usecase;
 
-import com.academy.orders.domain.account.factory.PasswordResetTokenFactory;
+import com.academy.orders.domain.account.factory.PasswordResetTokenFactoryUseCase;
 import com.academy.orders.domain.passwordreset.dto.TokenValidationResult;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
@@ -18,13 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class ValidateTokenUseCaseImpl implements ValidateTokenUseCase {
   private final PasswordResetTokenRepository tokenRepository;
 
-  private final PasswordResetTokenFactory tokenFactory;
+  private final PasswordResetTokenFactoryUseCase tokenFactory;
 
   private final Clock clock;
 
   public ValidateTokenUseCaseImpl(
       PasswordResetTokenRepository tokenRepository,
-      @Qualifier("secondaryTokenFactory") PasswordResetTokenFactory tokenFactory,
+      @Qualifier("secondaryTokenFactory") PasswordResetTokenFactoryUseCase tokenFactory,
       Clock clock) {
     this.tokenRepository = tokenRepository;
     this.tokenFactory = tokenFactory;

@@ -32,7 +32,7 @@ public interface AccountJpaAdapter extends JpaRepository<AccountEntity, Long> {
       + "(:#{#filter.role} IS NULL OR a.role = :#{#filter.role})")
   Page<AccountEntity> findAllByRoleAndStatus(@Nullable AccountManagementFilterDto filter, Pageable pageable);
 
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query("UPDATE AccountEntity a SET a.password = :password WHERE a.id = :id")
   void updatePasswordById(@Param("id") Long id, @Param("password") String password);
 

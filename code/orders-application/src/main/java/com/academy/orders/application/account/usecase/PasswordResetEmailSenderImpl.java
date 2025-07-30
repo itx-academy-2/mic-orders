@@ -1,6 +1,6 @@
 package com.academy.orders.application.account.usecase;
 
-import com.academy.orders.domain.account.usecase.PasswordResetEmailSender;
+import com.academy.orders.domain.account.usecase.PasswordResetEmailSenderUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PasswordResetEmailSenderImpl implements PasswordResetEmailSender {
+public class PasswordResetEmailSenderImpl implements PasswordResetEmailSenderUseCase {
   private final JavaMailSender mailSender;
 
   @Value("${app.frontend.reset-password-url}")
