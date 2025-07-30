@@ -3,7 +3,7 @@ package com.academy.orders.apirest.passwordreset.controller;
 import com.academy.orders.apirest.auth.util.SecurityUtils;
 import com.academy.orders.apirest.common.ErrorHandler;
 import com.academy.orders.apirest.common.TestSecurityConfig;
-import com.academy.orders.domain.passwordreset.dto.PasswordResetCommand;
+import com.academy.orders.domain.passwordreset.dto.PasswordResetRequestDTO;
 import com.academy.orders.domain.passwordreset.dto.TokenValidationResult;
 import com.academy.orders.domain.passwordreset.dto.TokenWrapper;
 import io.github.resilience4j.ratelimiter.RateLimiter;
@@ -21,7 +21,6 @@ import com.academy.orders.domain.passwordreset.usecase.ResetPasswordUseCase;
 import com.academy.orders.domain.passwordreset.usecase.ValidateTokenUseCase;
 import com.academy.orders.domain.ratelimit.usecase.ClientIpExtractorUseCase;
 import com.academy.orders_api_rest.generated.model.PasswordResetEmailRequestDTO;
-import com.academy.orders_api_rest.generated.model.PasswordResetRequestDTO;
 import com.academy.orders.apirest.passwordreset.mapper.PasswordResetMapper;
 import com.academy.orders_api_rest.generated.model.PasswordResetSuccessResponseDTO;
 import com.academy.orders_api_rest.generated.model.TokenValidResponseDTO;
@@ -148,7 +147,7 @@ class PasswordResetControllerTest {
   @Test
   void v1PasswordResetPut_shouldReturnSuccessResponse_whenRequestIsValid() throws Exception {
     // Given
-    var requestDTO = new PasswordResetRequestDTO();
+    var requestDTO = new com.academy.orders_api_rest.generated.model.PasswordResetRequestDTO();
     requestDTO.setToken(UUID.fromString(TOKEN));
     requestDTO.setPassword(NEW_PASSWORD);
     var responseDTO = new PasswordResetSuccessResponseDTO();
@@ -156,8 +155,8 @@ class PasswordResetControllerTest {
     responseDTO.setToken(TOKEN);
     responseDTO.setTimestamp(java.time.OffsetDateTime.now(java.time.ZoneId.of("UTC")));
 
-    when(passwordResetMapper.toCommand(any(PasswordResetRequestDTO.class)))
-        .thenReturn(new PasswordResetCommand(TOKEN, NEW_PASSWORD));
+    when(passwordResetMapper.toCommand(any(com.academy.orders_api_rest.generated.model.PasswordResetRequestDTO.class)))
+        .thenReturn(new PasswordResetRequestDTO(TOKEN, NEW_PASSWORD));
     when(passwordResetMapper.toSuccessResponseForReset(any(TokenWrapper.class)))
         .thenReturn(responseDTO);
 
@@ -172,14 +171,14 @@ class PasswordResetControllerTest {
         .andExpect(jsonPath("$.timestamp").exists());
 
     verify(passwordResetMapper).toCommand(requestDTO);
-    verify(resetPasswordUseCase).resetPassword(any(PasswordResetCommand.class));
+    verify(resetPasswordUseCase).resetPassword(any(PasswordResetRequestDTO.class));
     verify(passwordResetMapper).toSuccessResponseForReset(any(TokenWrapper.class));
   }
 
   @Test
   void v1PasswordResetPut_shouldReturnBadRequest_whenPasswordIsInvalid() throws Exception {
     // Given
-    var requestDTO = new PasswordResetRequestDTO();
+    var requestDTO = new com.academy.orders_api_rest.generated.model.PasswordResetRequestDTO();
     requestDTO.setToken(UUID.fromString(TOKEN));
     requestDTO.setPassword("");
 

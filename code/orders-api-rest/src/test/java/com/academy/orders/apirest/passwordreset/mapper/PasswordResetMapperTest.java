@@ -1,9 +1,8 @@
 package com.academy.orders.apirest.passwordreset.mapper;
 
-import com.academy.orders.domain.passwordreset.dto.PasswordResetCommand;
+import com.academy.orders.domain.passwordreset.dto.PasswordResetRequestDTO;
 import com.academy.orders.domain.passwordreset.dto.TokenValidationResult;
 import com.academy.orders.domain.passwordreset.dto.TokenWrapper;
-import com.academy.orders_api_rest.generated.model.PasswordResetRequestDTO;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -24,14 +23,14 @@ class PasswordResetMapperTest {
   @Test
   void toCommand_shouldMapPasswordResetRequestDTOToCommand() {
     // Given
-    var dto = new PasswordResetRequestDTO();
+    var dto = new com.academy.orders_api_rest.generated.model.PasswordResetRequestDTO();
     UUID token = UUID.randomUUID();
     String password = "StrongPass1!";
     dto.setToken(token);
     dto.setPassword(password);
 
     // When
-    PasswordResetCommand command = mapper.toCommand(dto);
+    PasswordResetRequestDTO command = mapper.toCommand(dto);
 
     // Then
     assertThat(command).isNotNull();

@@ -1,6 +1,6 @@
 package com.academy.orders.domain.passwordreset.usecase;
 
-import com.academy.orders.domain.passwordreset.dto.PasswordResetCommand;
+import com.academy.orders.domain.passwordreset.dto.PasswordResetRequestDTO;
 
 /**
  * Use case interface for completing the password reset process. <p> Handles validation of the provided token and securely updates the
@@ -14,5 +14,5 @@ public interface ResetPasswordUseCase {
    *
    * @param command the password reset command containing the token and new password
    */
-  void resetPassword(PasswordResetCommand command);
+  void resetPassword(PasswordResetRequestDTO command);
 }

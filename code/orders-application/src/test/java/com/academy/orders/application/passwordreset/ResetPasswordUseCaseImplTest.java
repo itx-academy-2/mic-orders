@@ -5,7 +5,7 @@ import com.academy.orders.application.passwordreset.usecase.ResetPasswordUseCase
 import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.account.exception.AccountNotFoundException;
 import com.academy.orders.domain.account.repository.AccountRepository;
-import com.academy.orders.domain.passwordreset.dto.PasswordResetCommand;
+import com.academy.orders.domain.passwordreset.dto.PasswordResetRequestDTO;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenStatus;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
@@ -51,7 +51,7 @@ class ResetPasswordUseCaseImplTest {
 
   private static final String TEST_TOKEN = "550e8400-e29b-41d4-a716-446655440000";
 
-  private PasswordResetCommand validCommand;
+  private PasswordResetRequestDTO validCommand;
 
   private PasswordResetToken validToken;
 

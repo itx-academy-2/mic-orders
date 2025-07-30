@@ -1,9 +1,8 @@
 package com.academy.orders.apirest.passwordreset.mapper;
 
-import com.academy.orders.domain.passwordreset.dto.PasswordResetCommand;
+import com.academy.orders.domain.passwordreset.dto.PasswordResetRequestDTO;
 import com.academy.orders.domain.passwordreset.dto.TokenValidationResult;
 import com.academy.orders.domain.passwordreset.dto.TokenWrapper;
-import com.academy.orders_api_rest.generated.model.PasswordResetRequestDTO;
 import com.academy.orders_api_rest.generated.model.PasswordResetSuccessResponseDTO;
 import com.academy.orders_api_rest.generated.model.TokenValidResponseDTO;
 
@@ -14,7 +13,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface PasswordResetMapper {
 
-  PasswordResetCommand toCommand(PasswordResetRequestDTO dto);
+  PasswordResetRequestDTO toCommand(com.academy.orders_api_rest.generated.model.PasswordResetRequestDTO dto);
 
   @Mapping(target = "message", constant = "Password has been successfully reset")
   @Mapping(target = "token", source = "token")

@@ -24,10 +24,10 @@ import com.academy.orders.domain.order.entity.OrderItem;
 import com.academy.orders.domain.order.entity.OrderManagement;
 import com.academy.orders.domain.order.entity.OrderReceiver;
 import com.academy.orders.domain.order.entity.PostAddress;
+import com.academy.orders.domain.passwordreset.dto.PasswordResetRequestDTO;
 import com.academy.orders.domain.postaddress.entity.PostAddressV2;
 import com.academy.orders.domain.order.entity.enumerated.DeliveryMethod;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
-import com.academy.orders.domain.passwordreset.dto.PasswordResetCommand;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenStatus;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
@@ -450,16 +450,8 @@ public class ModelUtils {
         .build();
   }
 
-  public static PasswordResetToken createNullToken(String email, Long accountId) {
-    return PasswordResetToken.builder()
-        .token(null)
-        .email(email)
-        .accountId(accountId)
-        .build();
-  }
-
-  public static PasswordResetCommand createPasswordResetCommand(String token, String password) {
-    return new PasswordResetCommand(token, password);
+  public static PasswordResetRequestDTO createPasswordResetCommand(String token, String password) {
+    return new PasswordResetRequestDTO(token, password);
   }
 
   public static PasswordResetToken createPasswordResetToken(String token, String email, TokenType type,

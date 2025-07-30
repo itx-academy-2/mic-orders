@@ -2,7 +2,7 @@ package com.academy.orders.application.passwordreset.usecase;
 
 import com.academy.orders.domain.account.exception.AccountNotFoundException;
 import com.academy.orders.domain.account.repository.AccountRepository;
-import com.academy.orders.domain.passwordreset.dto.PasswordResetCommand;
+import com.academy.orders.domain.passwordreset.dto.PasswordResetRequestDTO;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
 import com.academy.orders.domain.passwordreset.exception.InvalidPasswordException;
@@ -40,7 +40,7 @@ public class ResetPasswordUseCaseImpl implements ResetPasswordUseCase {
   private final Clock clock;
 
   @Override
-  public void resetPassword(PasswordResetCommand command) {
+  public void resetPassword(PasswordResetRequestDTO command) {
     validatePassword(command);
     var token = validateAndGetToken(command);
     updateAccountPassword(token, command);
@@ -48,13 +48,13 @@ public class ResetPasswordUseCaseImpl implements ResetPasswordUseCase {
     log.info("Password reset successfully for account with email: {}", token.getEmail());
   }
 
-  private void validatePassword(PasswordResetCommand command) {
+  private void validatePassword(PasswordResetRequestDTO command) {
     if (command.password() == null || command.password().isBlank()) {
       throw new InvalidPasswordException(INVALID_PASSWORD_MSG);
     }
   }
 
-  private PasswordResetToken validateAndGetToken(PasswordResetCommand command) {
+  private PasswordResetToken validateAndGetToken(PasswordResetRequestDTO command) {
     String tokenStr = command.token();
     if (tokenStr == null || tokenStr.isBlank()) {
       throw new InvalidTokenException("Token must not be null or empty");
@@ -80,7 +80,7 @@ public class ResetPasswordUseCaseImpl implements ResetPasswordUseCase {
     return token;
   }
 
-  private void updateAccountPassword(PasswordResetToken token, PasswordResetCommand command) {
+  private void updateAccountPassword(PasswordResetToken token, PasswordResetRequestDTO command) {
     var account = accountRepository.findAccountByEmail(token.getEmail())
         .orElseThrow(() -> new AccountNotFoundException(token.getEmail()));
     var encodedPassword = passwordHashingPort.hash(command.password());
