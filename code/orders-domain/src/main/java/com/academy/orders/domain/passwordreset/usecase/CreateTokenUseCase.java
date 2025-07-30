@@ -1,10 +1,8 @@
 package com.academy.orders.domain.passwordreset.usecase;
 
 /**
- * Use case interface for creating password reset tokens.
- * <p>
- * Provides functionality to generate a primary token for initiating
- * the password reset process.
+ * Use case interface for creating password reset tokens. <p> Provides functionality to generate a primary token for initiating the password
+ * reset process.
  */
 public interface CreateTokenUseCase {
 
