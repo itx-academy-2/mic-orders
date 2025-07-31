@@ -36,6 +36,7 @@ public interface AccountJpaAdapter extends JpaRepository<AccountEntity, Long> {
   @Query("UPDATE AccountEntity a SET a.password = :password WHERE a.id = :id")
   void updatePasswordById(@Param("id") Long id, @Param("password") String password);
 
+  @Modifying
   @Query("UPDATE AccountEntity a SET a.firstName = :firstName, a.lastName = :lastName, a.phone = :phone WHERE a.id = :id")
   void updatePersonalInfo(@Param("id") Long id, @Param("firstName") String firstName, @Param("lastName") String lastName,
       @Param("phone") String phone);
