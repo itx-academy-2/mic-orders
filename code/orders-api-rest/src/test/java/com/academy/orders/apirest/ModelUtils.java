@@ -78,6 +78,7 @@ import com.academy.orders_api_rest.generated.model.UpdatedCartItemDTO;
 import com.academy.orders_api_rest.generated.model.UserAccountInfoDTO;
 import com.academy.orders_api_rest.generated.model.UserOrderDTO;
 import com.academy.orders_api_rest.generated.model.PlaceOrderRequestV2DTO;
+import com.academy.orders_api_rest.generated.model.DeliveryMethodDTO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -811,13 +812,13 @@ public class ModelUtils {
 
   public static UserPostAddressResponseDTO getUserPostAddressResponseDTO(PostAddressV2 postAddressV2) {
     UserPostAddressResponseDTO userPostAddressResponseDTO = new UserPostAddressResponseDTO();
-    userPostAddressResponseDTO.setFirstName(TEST_FIRST_NAME);
-    userPostAddressResponseDTO.setLastName(TEST_LAST_NAME);
-    userPostAddressResponseDTO.setCity(TEST_CITY);
-    userPostAddressResponseDTO.setDepartment(TEST_DEPARTMENT);
-    userPostAddressResponseDTO.setDeliveryMethod(NOVA);
-    userPostAddressResponseDTO.setPhone(TEST_PHONE_NUMBER);
-    userPostAddressResponseDTO.setTitle(TEST_ADDRESS_TITLE);
+    userPostAddressResponseDTO.setFirstName(postAddressV2.recipientFirstName());
+    userPostAddressResponseDTO.setLastName(postAddressV2.recipientLastName());
+    userPostAddressResponseDTO.setCity(postAddressV2.city());
+    userPostAddressResponseDTO.setDepartment(postAddressV2.department());
+    userPostAddressResponseDTO.setDeliveryMethod(DeliveryMethodDTO.fromValue(postAddressV2.deliveryMethod().toString()));
+    userPostAddressResponseDTO.setPhone(postAddressV2.recipientPhone());
+    userPostAddressResponseDTO.setTitle(postAddressV2.title());
     userPostAddressResponseDTO.setId(postAddressV2.id());
 
     return userPostAddressResponseDTO;

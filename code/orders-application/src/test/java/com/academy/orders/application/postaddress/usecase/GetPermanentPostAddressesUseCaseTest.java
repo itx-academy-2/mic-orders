@@ -12,10 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static com.academy.orders.application.ModelUtils.getPostAddressV2;
-import static com.academy.orders.application.ModelUtils.getPostAddressV2WithNewData;
+import static com.academy.orders.application.ModelUtils.getPostAddressV2WithCleanedTitle;
+import static com.academy.orders.application.ModelUtils.getPostAddressV2WithNewDataAndCleanedTitle;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,7 +34,7 @@ public class GetPermanentPostAddressesUseCaseTest {
   @BeforeEach
   void setUp() {
     userId = 1L;
-    mockAddresses = List.of(getPostAddressV2(), getPostAddressV2WithNewData());
+    mockAddresses = List.of(getPostAddressV2WithCleanedTitle(), getPostAddressV2WithNewDataAndCleanedTitle());
   }
 
   @Test
@@ -48,8 +47,8 @@ public class GetPermanentPostAddressesUseCaseTest {
 
     // Then
     assertEquals(mockAddresses, result);
-    assertTrue(result.get(0).title().startsWith("permanent: "));
-    assertTrue(result.get(1).title().startsWith("permanent: "));
+    assertEquals("Friend", result.get(0).title());
+    assertEquals("Home", result.get(1).title());
     verify(postAddressV2Repository).getPermanentPostAddressesByUserId(userId);
   }
 

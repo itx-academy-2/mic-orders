@@ -453,11 +453,21 @@ public class ModelUtils {
         .build();
   }
 
-  public static PostAddressV2 getPostAddressV2WithNewData() {
+  public static PostAddressV2 getPostAddressV2WithCleanedTitle() {
+    return PostAddressV2.builder().city("Kharkiv").department("54")
+        .deliveryMethod(DeliveryMethod.NOVA)
+        .recipientFirstName("Jane").recipientLastName("Doe")
+        .recipientPhone("+380960998877").title("Friend")
+        .account(getAccountV2())
+        .id(UUID.randomUUID())
+        .build();
+  }
+
+  public static PostAddressV2 getPostAddressV2WithNewDataAndCleanedTitle() {
     return PostAddressV2.builder().city("Lviv").department("77")
         .deliveryMethod(DeliveryMethod.UKRPOSHTA)
         .recipientFirstName("John").recipientLastName("Smith")
-        .recipientPhone("+380960008871").title("permanent: Home")
+        .recipientPhone("+380960008871").title("Home")
         .account(getAccountV2())
         .id(UUID.randomUUID())
         .build();

@@ -23,6 +23,14 @@ public interface PostAddressJpaAdapter extends CrudRepository<PostAddressV2Entit
    */
   Optional<PostAddressV2Entity> findByTitleAndAccount_Id(String title, Long accountId);
 
+  /**
+   * Retrieves all post address entities for a given account that are marked as permanent. A permanent post address is identified by the
+   * "permanent: " prefix in its title.
+   *
+   * @param accountId the ID of the account whose permanent post addresses are to be retrieved
+   * @return a list of {@link PostAddressV2Entity} entries with titles starting with "permanent: " associated with the given account
+   * @author Oleksandra Bulhakova
+   */
   @Query("""
       SELECT p FROM PostAddressV2Entity p WHERE p.account.id = :accountId AND p.title like 'permanent: %'
       """)
