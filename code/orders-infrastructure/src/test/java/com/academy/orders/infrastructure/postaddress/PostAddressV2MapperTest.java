@@ -41,13 +41,13 @@ public class PostAddressV2MapperTest {
 
   @Test
   void fromEntity_Success_Test() {
-    //Given
+    // Given
     var postAddressV2Entity = getPostAddressV2EntityWithIdAndTempTitleAndAccountAndOrders();
 
-    //When
+    // When
     var postAddressV2 = mapper.fromEntity(postAddressV2Entity);
 
-    //Then
+    // Then
     assertNotNull(postAddressV2);
     assertEquals(postAddressV2Entity.getId(), postAddressV2.id());
     assertEquals(postAddressV2Entity.getCity(), postAddressV2.city());

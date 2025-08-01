@@ -13,11 +13,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class GetPermanentPostAddressesUseCaseImpl implements GetPermanentPostAddressesUseCase {
-    private final PostAddressV2Repository postAddressV2Repository;
+  private final PostAddressV2Repository postAddressV2Repository;
 
-    @Override
-    public List<PostAddressV2> getPermanentPostAddressesByUserId(Long userId) {
-        log.info("Get permanent post addresses for the user with id: {}", userId);
-        return postAddressV2Repository.getPermanentPostAddressesByUserId(userId);
-    }
+  @Override
+  public List<PostAddressV2> getPermanentPostAddressesByUserId(Long userId) {
+    log.info("Get permanent post addresses for the user with id: {}", userId);
+    return postAddressV2Repository.getPermanentPostAddressesByUserId(userId);
+  }
 }

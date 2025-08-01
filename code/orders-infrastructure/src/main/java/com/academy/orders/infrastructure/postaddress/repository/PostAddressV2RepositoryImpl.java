@@ -13,24 +13,25 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PostAddressV2RepositoryImpl implements PostAddressV2Repository {
-    private final PostAddressJpaAdapter postAddressJpaAdapter;
+  private final PostAddressJpaAdapter postAddressJpaAdapter;
 
-    private final PostAddressV2Mapper mapper;
+  private final PostAddressV2Mapper mapper;
 
-    @Override
-    public List<PostAddressV2> getPermanentPostAddressesByUserId(Long userId) {
-        return postAddressJpaAdapter.findPermanentPostAddressesByAccountId(userId).stream()
-                .map(mapper::fromEntity)
-                .map(postAddressV2 -> PostAddressV2.builder().title(postAddressV2.title().replaceFirst("^permanent:\\s*", ""))
-                        .id(postAddressV2.id())
-                        .city(postAddressV2.city())
-                        .deliveryMethod(postAddressV2.deliveryMethod())
-                        .department(postAddressV2.department())
-                        .account(postAddressV2.account())
-                        .recipientFirstName(postAddressV2.recipientFirstName())
-                        .recipientLastName(postAddressV2.recipientLastName())
-                        .recipientPhone(postAddressV2.recipientPhone())
-                        .orders(postAddressV2.orders())
-                        .build()).toList();
-    }
+  @Override
+  public List<PostAddressV2> getPermanentPostAddressesByUserId(Long userId) {
+    return postAddressJpaAdapter.findPermanentPostAddressesByAccountId(userId).stream()
+        .map(mapper::fromEntity)
+        .map(postAddressV2 -> PostAddressV2.builder().title(postAddressV2.title().replaceFirst("^permanent:\\s*", ""))
+            .id(postAddressV2.id())
+            .city(postAddressV2.city())
+            .deliveryMethod(postAddressV2.deliveryMethod())
+            .department(postAddressV2.department())
+            .account(postAddressV2.account())
+            .recipientFirstName(postAddressV2.recipientFirstName())
+            .recipientLastName(postAddressV2.recipientLastName())
+            .recipientPhone(postAddressV2.recipientPhone())
+            .orders(postAddressV2.orders())
+            .build())
+        .toList();
+  }
 }

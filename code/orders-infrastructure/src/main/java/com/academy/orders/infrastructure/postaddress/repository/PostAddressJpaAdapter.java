@@ -24,7 +24,7 @@ public interface PostAddressJpaAdapter extends CrudRepository<PostAddressV2Entit
   Optional<PostAddressV2Entity> findByTitleAndAccount_Id(String title, Long accountId);
 
   @Query("""
-          SELECT p FROM PostAddressV2Entity p WHERE p.account.id = :accountId AND p.title like 'permanent: %'
-          """)
+      SELECT p FROM PostAddressV2Entity p WHERE p.account.id = :accountId AND p.title like 'permanent: %'
+      """)
   List<PostAddressV2Entity> findPermanentPostAddressesByAccountId(@Param("accountId") Long accountId);
 }

@@ -19,62 +19,62 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 public class PostAddressV2RepositoryTest {
-    @Mock
-    private PostAddressJpaAdapter postAddressJpaAdapter;
+  @Mock
+  private PostAddressJpaAdapter postAddressJpaAdapter;
 
-    @Mock
-    private PostAddressV2Mapper mapper;
+  @Mock
+  private PostAddressV2Mapper mapper;
 
-    @InjectMocks
-    private PostAddressV2RepositoryImpl postAddressV2Repository;
+  @InjectMocks
+  private PostAddressV2RepositoryImpl postAddressV2Repository;
 
-    @Test
-    void getPermanentPostAddressesByUserId_Success_Test() {
-        //Given
-        var userId = 1L;
-        var postAddressEntity = getPostAddressV2EntityWithPermanentTitle();
-        var mappedDomainObject = getPostAddressV2WithPermanentTitle();
-        var expectedPostAddressWithCleanedTitle = getPostAddressV2WithCleanedPermanentTitle();
+  @Test
+  void getPermanentPostAddressesByUserId_Success_Test() {
+    // Given
+    var userId = 1L;
+    var postAddressEntity = getPostAddressV2EntityWithPermanentTitle();
+    var mappedDomainObject = getPostAddressV2WithPermanentTitle();
+    var expectedPostAddressWithCleanedTitle = getPostAddressV2WithCleanedPermanentTitle();
 
-        when(postAddressJpaAdapter.findPermanentPostAddressesByAccountId(userId)).thenReturn(List.of(postAddressEntity));
-        when(mapper.fromEntity(postAddressEntity)).thenReturn(mappedDomainObject);
+    when(postAddressJpaAdapter.findPermanentPostAddressesByAccountId(userId)).thenReturn(List.of(postAddressEntity));
+    when(mapper.fromEntity(postAddressEntity)).thenReturn(mappedDomainObject);
 
-        //When
-        var result = postAddressV2Repository.getPermanentPostAddressesByUserId(userId);
+    // When
+    var result = postAddressV2Repository.getPermanentPostAddressesByUserId(userId);
 
-        //Then
-        assertEquals(1, result.size());
-        var actual = result.get(0);
+    // Then
+    assertEquals(1, result.size());
+    var actual = result.get(0);
 
-        assertEquals(expectedPostAddressWithCleanedTitle.id(), actual.id());
-        assertEquals(expectedPostAddressWithCleanedTitle.title(), actual.title());
-        assertEquals(expectedPostAddressWithCleanedTitle.city(), actual.city());
-        assertEquals(expectedPostAddressWithCleanedTitle.deliveryMethod(), actual.deliveryMethod());
-        assertEquals(expectedPostAddressWithCleanedTitle.department(), actual.department());
-        assertEquals(expectedPostAddressWithCleanedTitle.account().id(), actual.account().id());
-        assertEquals(expectedPostAddressWithCleanedTitle.recipientFirstName(), actual.recipientFirstName());
-        assertEquals(expectedPostAddressWithCleanedTitle.recipientLastName(), actual.recipientLastName());
-        assertEquals(expectedPostAddressWithCleanedTitle.recipientPhone(), actual.recipientPhone());
-        assertEquals(expectedPostAddressWithCleanedTitle.orders().get(0).id(), actual.orders().get(0).id());
+    assertEquals(expectedPostAddressWithCleanedTitle.id(), actual.id());
+    assertEquals(expectedPostAddressWithCleanedTitle.title(), actual.title());
+    assertEquals(expectedPostAddressWithCleanedTitle.city(), actual.city());
+    assertEquals(expectedPostAddressWithCleanedTitle.deliveryMethod(), actual.deliveryMethod());
+    assertEquals(expectedPostAddressWithCleanedTitle.department(), actual.department());
+    assertEquals(expectedPostAddressWithCleanedTitle.account().id(), actual.account().id());
+    assertEquals(expectedPostAddressWithCleanedTitle.recipientFirstName(), actual.recipientFirstName());
+    assertEquals(expectedPostAddressWithCleanedTitle.recipientLastName(), actual.recipientLastName());
+    assertEquals(expectedPostAddressWithCleanedTitle.recipientPhone(), actual.recipientPhone());
+    assertEquals(expectedPostAddressWithCleanedTitle.orders().get(0).id(), actual.orders().get(0).id());
 
-        verify(postAddressJpaAdapter).findPermanentPostAddressesByAccountId(userId);
-        verify(mapper).fromEntity(postAddressEntity);
-    }
+    verify(postAddressJpaAdapter).findPermanentPostAddressesByAccountId(userId);
+    verify(mapper).fromEntity(postAddressEntity);
+  }
 
-    @Test
-    void getPermanentPostAddressesByUserId_ReturnsEmptyListWhenNoAddressesFound_Test() {
-        //Given
-        var userId = 1L;
+  @Test
+  void getPermanentPostAddressesByUserId_ReturnsEmptyListWhenNoAddressesFound_Test() {
+    // Given
+    var userId = 1L;
 
-        when(postAddressJpaAdapter.findPermanentPostAddressesByAccountId(userId)).thenReturn(List.of());
+    when(postAddressJpaAdapter.findPermanentPostAddressesByAccountId(userId)).thenReturn(List.of());
 
-        //When
-        var result = postAddressV2Repository.getPermanentPostAddressesByUserId(userId);
+    // When
+    var result = postAddressV2Repository.getPermanentPostAddressesByUserId(userId);
 
-        //Then
-        assertEquals(0, result.size());
+    // Then
+    assertEquals(0, result.size());
 
-        verify(postAddressJpaAdapter).findPermanentPostAddressesByAccountId(userId);
-        verifyNoInteractions(mapper);
-    }
+    verify(postAddressJpaAdapter).findPermanentPostAddressesByAccountId(userId);
+    verifyNoInteractions(mapper);
+  }
 }

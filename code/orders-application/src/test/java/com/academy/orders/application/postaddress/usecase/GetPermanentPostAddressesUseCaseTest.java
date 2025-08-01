@@ -22,47 +22,48 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GetPermanentPostAddressesUseCaseTest {
-    @Mock
-    private PostAddressV2Repository postAddressV2Repository;
+  @Mock
+  private PostAddressV2Repository postAddressV2Repository;
 
-    @InjectMocks
-    private GetPermanentPostAddressesUseCaseImpl useCase;
+  @InjectMocks
+  private GetPermanentPostAddressesUseCaseImpl useCase;
 
-    private Long userId;
-    private List<PostAddressV2> mockAddresses;
+  private Long userId;
 
-    @BeforeEach
-    void setUp() {
-        userId = 1L;
-        mockAddresses = List.of(getPostAddressV2(), getPostAddressV2WithNewData());
-    }
+  private List<PostAddressV2> mockAddresses;
 
-    @Test
-    void getPermanentPostAddressesByUserId_ReturnsListFromRepository_Test() {
-        // Given
-        when(postAddressV2Repository.getPermanentPostAddressesByUserId(userId)).thenReturn(mockAddresses);
+  @BeforeEach
+  void setUp() {
+    userId = 1L;
+    mockAddresses = List.of(getPostAddressV2(), getPostAddressV2WithNewData());
+  }
 
-        // When
-        List<PostAddressV2> result = useCase.getPermanentPostAddressesByUserId(userId);
+  @Test
+  void getPermanentPostAddressesByUserId_ReturnsListFromRepository_Test() {
+    // Given
+    when(postAddressV2Repository.getPermanentPostAddressesByUserId(userId)).thenReturn(mockAddresses);
 
-        // Then
-        assertEquals(mockAddresses, result);
-        assertTrue(result.get(0).title().startsWith("permanent: "));
-        assertTrue(result.get(1).title().startsWith("permanent: "));
-        verify(postAddressV2Repository).getPermanentPostAddressesByUserId(userId);
-    }
+    // When
+    List<PostAddressV2> result = useCase.getPermanentPostAddressesByUserId(userId);
 
-    @Test
-    void getPermanentPostAddressesByUserId_CallsRepositoryWithCorrectUserId_Test() {
-        // Given
-        when(postAddressV2Repository.getPermanentPostAddressesByUserId(any())).thenReturn(mockAddresses);
+    // Then
+    assertEquals(mockAddresses, result);
+    assertTrue(result.get(0).title().startsWith("permanent: "));
+    assertTrue(result.get(1).title().startsWith("permanent: "));
+    verify(postAddressV2Repository).getPermanentPostAddressesByUserId(userId);
+  }
 
-        // When
-        useCase.getPermanentPostAddressesByUserId(userId);
+  @Test
+  void getPermanentPostAddressesByUserId_CallsRepositoryWithCorrectUserId_Test() {
+    // Given
+    when(postAddressV2Repository.getPermanentPostAddressesByUserId(any())).thenReturn(mockAddresses);
 
-        // Then
-        ArgumentCaptor<Long> captor = ArgumentCaptor.forClass(Long.class);
-        verify(postAddressV2Repository).getPermanentPostAddressesByUserId(captor.capture());
-        assertEquals(userId, captor.getValue());
-    }
+    // When
+    useCase.getPermanentPostAddressesByUserId(userId);
+
+    // Then
+    ArgumentCaptor<Long> captor = ArgumentCaptor.forClass(Long.class);
+    verify(postAddressV2Repository).getPermanentPostAddressesByUserId(captor.capture());
+    assertEquals(userId, captor.getValue());
+  }
 }

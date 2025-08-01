@@ -15,14 +15,14 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class PostAddressesController implements AddressApi {
-    private final UserPostAddressResponseDTOMapper mapper;
+  private final UserPostAddressResponseDTOMapper mapper;
 
-    private final GetPermanentPostAddressesUseCase useCase;
+  private final GetPermanentPostAddressesUseCase useCase;
 
-    @Override
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER') || (hasAnyAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
-    public ResponseEntity<List<UserPostAddressResponseDTO>> getUserAddresses(Long userId) {
-        var userPostAddresses = useCase.getPermanentPostAddressesByUserId(userId).stream().map(mapper::toUserPostAddressResponseDTO).toList();
-        return ResponseEntity.status(HttpStatus.OK).body(userPostAddresses);
-    }
+  @Override
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER') || (hasAnyAuthority('ROLE_USER') && @checkAccountIdUseCaseImpl.hasSameId(#userId))")
+  public ResponseEntity<List<UserPostAddressResponseDTO>> getUserAddresses(Long userId) {
+    var userPostAddresses = useCase.getPermanentPostAddressesByUserId(userId).stream().map(mapper::toUserPostAddressResponseDTO).toList();
+    return ResponseEntity.status(HttpStatus.OK).body(userPostAddresses);
+  }
 }

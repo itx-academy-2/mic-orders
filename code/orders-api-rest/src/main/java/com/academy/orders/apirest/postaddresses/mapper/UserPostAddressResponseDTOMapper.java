@@ -8,8 +8,8 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface UserPostAddressResponseDTOMapper {
 
-    @Mapping(source = "recipientFirstName", target = "firstName")
-    @Mapping(source = "recipientLastName", target = "lastName")
-    @Mapping(source = "recipientPhone", target = "phone")
-    UserPostAddressResponseDTO toUserPostAddressResponseDTO(PostAddressV2 postAddressV2);
+  @Mapping(source = "recipientFirstName", target = "firstName")
+  @Mapping(source = "recipientLastName", target = "lastName")
+  @Mapping(source = "recipientPhone", target = "phone")
+  UserPostAddressResponseDTO toUserPostAddressResponseDTO(PostAddressV2 postAddressV2);
 }
