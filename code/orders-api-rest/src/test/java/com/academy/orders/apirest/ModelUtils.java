@@ -36,6 +36,7 @@ import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductTranslation;
 import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
+import com.academy.orders_api_rest.generated.model.UserPostAddressResponseDTO;
 import com.academy.orders_api_rest.generated.model.AccountResponseDTO;
 import com.academy.orders_api_rest.generated.model.ArticleDetailsDTO;
 import com.academy.orders_api_rest.generated.model.ArticleResponseDTO;
@@ -803,6 +804,30 @@ public class ModelUtils {
             .deliveryMethod(DeliveryMethod.NOVA)
             .recipientFirstName("Jane").recipientLastName("Doe")
             .recipientPhone("+380960998877").title("permanent: Friend")
+            .account(getAccountV2())
+            .id(UUID.randomUUID())
+            .build();
+  }
+
+  public static UserPostAddressResponseDTO getUserPostAddressResponseDTO(PostAddressV2 postAddressV2) {
+    UserPostAddressResponseDTO userPostAddressResponseDTO = new UserPostAddressResponseDTO();
+    userPostAddressResponseDTO.setFirstName(TEST_FIRST_NAME);
+    userPostAddressResponseDTO.setLastName(TEST_LAST_NAME);
+    userPostAddressResponseDTO.setCity(TEST_CITY);
+    userPostAddressResponseDTO.setDepartment(TEST_DEPARTMENT);
+    userPostAddressResponseDTO.setDeliveryMethod(NOVA);
+    userPostAddressResponseDTO.setPhone(TEST_PHONE_NUMBER);
+    userPostAddressResponseDTO.setTitle(TEST_ADDRESS_TITLE);
+    userPostAddressResponseDTO.setId(postAddressV2.id());
+
+    return userPostAddressResponseDTO;
+  }
+
+  public static PostAddressV2 getPostAddressV2WithNewData() {
+    return PostAddressV2.builder().city("Lviv").department("77")
+            .deliveryMethod(DeliveryMethod.UKRPOSHTA)
+            .recipientFirstName("John").recipientLastName("Smith")
+            .recipientPhone("+380960008871").title("permanent: Home")
             .account(getAccountV2())
             .id(UUID.randomUUID())
             .build();
