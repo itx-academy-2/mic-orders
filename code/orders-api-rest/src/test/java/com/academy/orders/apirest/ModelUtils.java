@@ -25,6 +25,7 @@ import com.academy.orders.domain.order.entity.OrderReceiver;
 import com.academy.orders.domain.order.entity.PostAddress;
 import com.academy.orders.domain.order.entity.enumerated.DeliveryMethod;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
+import com.academy.orders.domain.postaddress.entity.PostAddressV2;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
 import com.academy.orders.domain.product.dto.ProductTranslationDto;
@@ -117,7 +118,6 @@ import static com.academy.orders.apirest.TestConstants.TEST_PRICE_WITH_DISCOUNT;
 import static com.academy.orders.apirest.TestConstants.TEST_QUANTITY;
 import static com.academy.orders.apirest.TestConstants.TEST_START_DATE;
 import static com.academy.orders.apirest.TestConstants.TEST_UUID;
-import static com.academy.orders.apirest.TestConstants.TEST_PHONE_NUMBER;
 import static com.academy.orders.apirest.TestConstants.TEST_ADDRESS_TITLE;
 import static com.academy.orders_api_rest.generated.model.DeliveryMethodDTO.NOVA;
 import static java.util.Collections.emptyList;
@@ -796,5 +796,15 @@ public class ModelUtils {
     placeOrderRequestV2DTO.setTitle(TEST_ADDRESS_TITLE);
 
     return placeOrderRequestV2DTO;
+  }
+
+  public static PostAddressV2 getPostAddressV2() {
+    return PostAddressV2.builder().city("Kharkiv").department("54")
+            .deliveryMethod(DeliveryMethod.NOVA)
+            .recipientFirstName("Jane").recipientLastName("Doe")
+            .recipientPhone("+380960998877").title("permanent: Friend")
+            .account(getAccountV2())
+            .id(UUID.randomUUID())
+            .build();
   }
 }

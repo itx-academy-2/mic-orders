@@ -5,8 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import static com.academy.orders.infrastructure.ModelUtils.getPostAddressV2;
+import static com.academy.orders.infrastructure.ModelUtils.getPostAddressV2EntityWithIdAndTempTitleAndAccountAndOrders;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class PostAddressV2MapperTest {
   private PostAddressV2Mapper mapper;
@@ -17,7 +19,7 @@ public class PostAddressV2MapperTest {
   }
 
   @Test
-  void toEntityTest() {
+  void toEntity_Success_Test() {
     // Given
     var postAddressV2 = getPostAddressV2();
 
@@ -35,5 +37,27 @@ public class PostAddressV2MapperTest {
     assertEquals(postAddressV2Entity.getRecipientFirstName(), postAddressV2.recipientFirstName());
     assertEquals(postAddressV2Entity.getRecipientLastName(), postAddressV2.recipientLastName());
     assertEquals(postAddressV2Entity.getRecipientPhone(), postAddressV2.recipientPhone());
+  }
+
+  @Test
+  void fromEntity_Success_Test() {
+    //Given
+    var postAddressV2Entity = getPostAddressV2EntityWithIdAndTempTitleAndAccountAndOrders();
+
+    //When
+    var postAddressV2 = mapper.fromEntity(postAddressV2Entity);
+
+    //Then
+    assertNotNull(postAddressV2);
+    assertEquals(postAddressV2Entity.getId(), postAddressV2.id());
+    assertEquals(postAddressV2Entity.getCity(), postAddressV2.city());
+    assertEquals(postAddressV2Entity.getAccount().getId(), postAddressV2.account().id());
+    assertEquals(postAddressV2Entity.getTitle(), postAddressV2.title());
+    assertEquals(postAddressV2Entity.getDepartment(), postAddressV2.department());
+    assertEquals(postAddressV2Entity.getDeliveryMethod(), postAddressV2.deliveryMethod());
+    assertEquals(postAddressV2Entity.getRecipientFirstName(), postAddressV2.recipientFirstName());
+    assertEquals(postAddressV2Entity.getRecipientLastName(), postAddressV2.recipientLastName());
+    assertEquals(postAddressV2Entity.getRecipientPhone(), postAddressV2.recipientPhone());
+    assertNull(postAddressV2.orders());
   }
 }

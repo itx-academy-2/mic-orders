@@ -454,4 +454,11 @@ public class ModelUtils {
         .department("43")
         .recipientFirstName("Sasha").recipientLastName("Bulhakova").recipientPhone("+380960997887").build();
   }
+
+  public static PostAddressV2Entity getPostAddressV2EntityWithIdAndTempTitleAndAccountAndOrders() {
+    return PostAddressV2Entity.builder().title("temp: " + UUID.randomUUID()).city("Kharkiv").deliveryMethod(NOVA)
+            .department("43").id(UUID.randomUUID()).orders(List.of(OrderV2Entity.builder().id(UUID.randomUUID()).build()))
+            .account(AccountEntity.builder().id(1L).build())
+            .recipientFirstName("Sasha").recipientLastName("Bulhakova").recipientPhone("+380960997887").build();
+  }
 }
