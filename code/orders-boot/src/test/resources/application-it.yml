@@ -54,10 +54,6 @@ auth:
       roles: ROLE_USER
       password: Test_1234
 
-prometheus:
-  url: ${PROMETHEUS_URL}
-  stage: ${PROMETHEUS_STAGE}
-
 resilience4j:
   retry:
     instances:
