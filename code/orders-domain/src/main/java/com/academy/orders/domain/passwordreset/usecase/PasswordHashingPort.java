@@ -5,7 +5,6 @@ package com.academy.orders.domain.passwordreset.usecase;
  * generation and appropriate work factors. <p> This interface follows the hexagonal architecture pattern to abstract password hashing from
  * the domain logic.
  */
-@FunctionalInterface
 public interface PasswordHashingPort {
   /**
    * Hashes a plaintext password using a cryptographically secure algorithm. The implementation should: - Use a strong hashing algorithm
