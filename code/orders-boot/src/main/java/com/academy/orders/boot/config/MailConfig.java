@@ -57,6 +57,7 @@ public class MailConfig {
    */
   @PostConstruct
   public void validateMailProperties() {
+    log.info("Mail config: user={}, host={}, port={}", userName, host, port);
     if (isBlank(userName)) {
       throw new IllegalStateException("Mail username (spring.mail.username) must not be empty");
     }

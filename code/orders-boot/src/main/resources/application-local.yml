@@ -2,6 +2,7 @@ springdoc.swagger-ui.enabled: true
 app :
   frontend:
     reset-password-url: https://spa-retail-dev.up.railway.app/reset-password
+
 spring:
   mail :
     host: smtp.gmail.com

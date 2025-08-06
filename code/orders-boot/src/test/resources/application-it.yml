@@ -6,6 +6,10 @@ server:
   port: ${SERVER_PORT:8080}
   servlet.context-path: /retail
 
+app:
+  frontend:
+    reset-password-url: https://spa-retail-dev.up.railway.app/reset-password
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/retail
@@ -21,6 +25,14 @@ spring:
         physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
   flyway:
     enabled: true
+  mail:
+    username: ${EMAIL}
+    password: ${EMAIL_PASSWORD}
+    host: smtp.gmail.io
+    port: 587
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
 
 rest:
   client:
@@ -41,6 +53,10 @@ auth:
     - username: user-2@mail.com
       roles: ROLE_USER
       password: Test_1234
+
+prometheus:
+  url: ${PROMETHEUS_URL}
+  stage: ${PROMETHEUS_STAGE}
 
 resilience4j:
   retry:
