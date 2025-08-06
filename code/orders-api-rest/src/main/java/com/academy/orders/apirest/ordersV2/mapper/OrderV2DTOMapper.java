@@ -1,6 +1,5 @@
 package com.academy.orders.apirest.ordersV2.mapper;
 
-import com.academy.orders.apirest.products.mapper.ProductPreviewDTOMapper;
 import com.academy.orders.domain.orderV2.dto.CreateOrderV2Dto;
 import com.academy.orders_api_rest.generated.model.PlaceOrderRequestV2DTO;
 import org.mapstruct.Mapper;

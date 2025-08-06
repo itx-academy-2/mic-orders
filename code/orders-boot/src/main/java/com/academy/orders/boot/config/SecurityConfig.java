@@ -82,7 +82,18 @@ public class SecurityConfig {
           configurer.configurationSource(source);
         })
         .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(
+                "/actuator/health",
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/error",
+                "/v1/articles/**",
+                "/auth/sign-in",
+                "/auth/sign-up",
+                "/v1/products/**")
+            .permitAll()
+            .anyRequest().authenticated())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterAfter(accountStatusFilter(), BearerTokenAuthenticationFilter.class)
         .oauth2ResourceServer(oauth2 -> oauth2

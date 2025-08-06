@@ -49,6 +49,7 @@ import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.academy.orders.application.TestConstants.IMAGE_NAME;
 import static com.academy.orders.application.TestConstants.IMAGE_URL;
@@ -556,6 +557,36 @@ public class ModelUtils {
         .recipientFirstName(createOrderV2Dto.firstName()).recipientLastName(createOrderV2Dto.lastName())
         .recipientPhone(createOrderV2Dto.phone()).title(createOrderV2Dto.title())
         .account(getAccountV2())
+        .build();
+  }
+
+  public static PostAddressV2 getPostAddressV2() {
+    return PostAddressV2.builder().city("Kharkiv").department("54")
+        .deliveryMethod(DeliveryMethod.NOVA)
+        .recipientFirstName("Jane").recipientLastName("Doe")
+        .recipientPhone("+380960998877").title("permanent: Friend")
+        .account(getAccountV2())
+        .id(UUID.randomUUID())
+        .build();
+  }
+
+  public static PostAddressV2 getPostAddressV2WithCleanedTitle() {
+    return PostAddressV2.builder().city("Kharkiv").department("54")
+        .deliveryMethod(DeliveryMethod.NOVA)
+        .recipientFirstName("Jane").recipientLastName("Doe")
+        .recipientPhone("+380960998877").title("Friend")
+        .account(getAccountV2())
+        .id(UUID.randomUUID())
+        .build();
+  }
+
+  public static PostAddressV2 getPostAddressV2WithNewDataAndCleanedTitle() {
+    return PostAddressV2.builder().city("Lviv").department("77")
+        .deliveryMethod(DeliveryMethod.UKRPOSHTA)
+        .recipientFirstName("John").recipientLastName("Smith")
+        .recipientPhone("+380960008871").title("Home")
+        .account(getAccountV2())
+        .id(UUID.randomUUID())
         .build();
   }
 }
