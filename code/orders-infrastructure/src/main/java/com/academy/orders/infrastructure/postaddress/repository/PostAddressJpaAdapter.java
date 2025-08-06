@@ -1,9 +1,12 @@
 package com.academy.orders.infrastructure.postaddress.repository;
 
 import com.academy.orders.infrastructure.postaddress.entity.PostAddressV2Entity;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,4 +22,17 @@ public interface PostAddressJpaAdapter extends CrudRepository<PostAddressV2Entit
    * @author Oleksandra Bulhakova
    */
   Optional<PostAddressV2Entity> findByTitleAndAccount_Id(String title, Long accountId);
+
+  /**
+   * Retrieves all post address entities for a given account that are marked as permanent. A permanent post address is identified by the
+   * "permanent: " prefix in its title.
+   *
+   * @param accountId the ID of the account whose permanent post addresses are to be retrieved
+   * @return a list of {@link PostAddressV2Entity} entries with titles starting with "permanent: " associated with the given account
+   * @author Oleksandra Bulhakova
+   */
+  @Query("""
+      SELECT p FROM PostAddressV2Entity p WHERE p.account.id = :accountId AND p.title like 'permanent: %'
+      """)
+  List<PostAddressV2Entity> findPermanentPostAddressesByAccountId(@Param("accountId") Long accountId);
 }
