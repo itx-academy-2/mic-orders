@@ -1,6 +1,5 @@
 package com.academy.orders.apirest.passwordreset.controller;
 
-import com.academy.orders.apirest.auth.util.SecurityUtils;
 import com.academy.orders.apirest.common.ErrorHandler;
 import com.academy.orders.apirest.common.TestSecurityConfig;
 import com.academy.orders.domain.passwordreset.dto.PasswordResetRequestDTO;
@@ -41,12 +40,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import(value = {PasswordResetMapper.class, AopAutoConfiguration.class, TestSecurityConfig.class,
-    ErrorHandler.class, SecurityUtils.class})
+@Import(value = {AopAutoConfiguration.class, TestSecurityConfig.class,
+    ErrorHandler.class})
 @ContextConfiguration(classes = {PasswordResetController.class})
 @WebMvcTest(PasswordResetController.class)
 @AutoConfigureMockMvc
-class PasswordResetControllerIT {
+class PasswordResetControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
