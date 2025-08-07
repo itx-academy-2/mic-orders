@@ -12,6 +12,7 @@ import com.academy.orders.domain.order.entity.Order;
 import com.academy.orders.domain.order.entity.OrderItem;
 import com.academy.orders.domain.order.entity.OrderReceiver;
 import com.academy.orders.domain.order.entity.PostAddress;
+import com.academy.orders.domain.order.entity.enumerated.DeliveryMethod;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.orderV2.entity.OrderV2;
 import com.academy.orders.domain.postaddress.entity.PostAddressV2;
@@ -182,5 +183,44 @@ public class ModelUtils {
         .department("№3 Franka street, 7")
         .phone("+380960775434")
         .title("Home");
+  }
+
+  public static PostAddressV2 getPostAddressV2WithPermanentAddress() {
+    return PostAddressV2.builder()
+            .city("Kharkiv")
+            .department("54")
+            .deliveryMethod(DeliveryMethod.NOVA)
+            .recipientFirstName("Jane")
+            .recipientLastName("Doe")
+            .recipientPhone("+380960998877")
+            .title("permanent: Friend")
+            .account(AccountV2.builder().id(2L).build())
+            .build();
+  }
+
+  public static PostAddressV2 getPostAddressV2WithPermanentAddressNewData() {
+    return PostAddressV2.builder()
+            .city("Lviv")
+            .department("22")
+            .deliveryMethod(DeliveryMethod.NOVA)
+            .recipientFirstName("James")
+            .recipientLastName("Smith")
+            .recipientPhone("+380960668877")
+            .title("permanent: Family")
+            .account(AccountV2.builder().id(2L).build())
+            .build();
+  }
+
+  public static PostAddressV2 getPostAddressV2WithTemporaryAddress() {
+    return PostAddressV2.builder()
+            .city("Lviv")
+            .department("26")
+            .deliveryMethod(DeliveryMethod.NOVA)
+            .recipientFirstName("James")
+            .recipientLastName("Smith")
+            .recipientPhone("+380960668877")
+            .title("temp: 550e8400-e29b-41d4-a716-446655440016")
+            .account(AccountV2.builder().id(2L).build())
+            .build();
   }
 }
