@@ -187,40 +187,40 @@ public class ModelUtils {
 
   public static PostAddressV2 getPostAddressV2WithPermanentAddress() {
     return PostAddressV2.builder()
-            .city("Kharkiv")
-            .department("54")
-            .deliveryMethod(DeliveryMethod.NOVA)
-            .recipientFirstName("Jane")
-            .recipientLastName("Doe")
-            .recipientPhone("+380960998877")
-            .title("permanent: Friend")
-            .account(AccountV2.builder().id(2L).build())
-            .build();
+        .city("Kharkiv")
+        .department("54")
+        .deliveryMethod(DeliveryMethod.NOVA)
+        .recipientFirstName("Jane")
+        .recipientLastName("Doe")
+        .recipientPhone("+380960998877")
+        .title("permanent: Friend")
+        .account(AccountV2.builder().id(2L).build())
+        .build();
   }
 
   public static PostAddressV2 getPostAddressV2WithPermanentAddressNewData() {
     return PostAddressV2.builder()
-            .city("Lviv")
-            .department("22")
-            .deliveryMethod(DeliveryMethod.NOVA)
-            .recipientFirstName("James")
-            .recipientLastName("Smith")
-            .recipientPhone("+380960668877")
-            .title("permanent: Family")
-            .account(AccountV2.builder().id(2L).build())
-            .build();
+        .city("Lviv")
+        .department("22")
+        .deliveryMethod(DeliveryMethod.NOVA)
+        .recipientFirstName("James")
+        .recipientLastName("Smith")
+        .recipientPhone("+380960668877")
+        .title("permanent: Family")
+        .account(AccountV2.builder().id(2L).build())
+        .build();
   }
 
   public static PostAddressV2 getPostAddressV2WithTemporaryAddress() {
     return PostAddressV2.builder()
-            .city("Lviv")
-            .department("26")
-            .deliveryMethod(DeliveryMethod.NOVA)
-            .recipientFirstName("James")
-            .recipientLastName("Smith")
-            .recipientPhone("+380960668877")
-            .title("temp: 550e8400-e29b-41d4-a716-446655440016")
-            .account(AccountV2.builder().id(2L).build())
-            .build();
+        .city("Lviv")
+        .department("26")
+        .deliveryMethod(DeliveryMethod.NOVA)
+        .recipientFirstName("James")
+        .recipientLastName("Smith")
+        .recipientPhone("+380960668877")
+        .title("temp: 550e8400-e29b-41d4-a716-446655440016")
+        .account(AccountV2.builder().id(2L).build())
+        .build();
   }
 }
