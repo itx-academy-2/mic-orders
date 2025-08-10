@@ -33,7 +33,7 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
     this.language = language;
     this.sort = sort;
     this.tags = tags;
-    this.bestsellersIds = bestsellersIds;
+    this.bestsellersIds = (bestsellersIds == null) ? List.of() : List.copyOf(bestsellersIds);
   }
 
   @Override
@@ -80,7 +80,7 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
           orders.add(cb.desc(productJoin.get("createdAt")));
         }
         if (field.equals("product.price")) {
-          Expression<Double> discountedPrice = buildDiscountedPriceExpression(cb, productJoin);
+          Expression<?> discountedPrice = buildDiscountedPriceExpression(cb, productJoin);
           if (order.equals("asc")) {
             orders.add(cb.asc(discountedPrice));
           } else if (order.equals("desc")) {
@@ -116,11 +116,11 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
     }
   }
 
-  private Expression<Double> buildDiscountedPriceExpression(CriteriaBuilder cb, Join<ProductTranslationEntity, ProductEntity> productJoin) {
+  private Expression<?> buildDiscountedPriceExpression(CriteriaBuilder cb, Join<ProductTranslationEntity, ProductEntity> productJoin) {
     Join<ProductEntity, DiscountEntity> discountJoin = productJoin.join("discount", JoinType.LEFT);
+    var amountPct = cb.quot(cb.coalesce(discountJoin.get("amount"), cb.literal(0)), cb.literal(100.0));
+    var discount = cb.prod(productJoin.get("price"), amountPct);
 
-    return cb.coalesce(
-        cb.toDouble(cb.diff(productJoin.get("price"), cb.prod(productJoin.get("price"), cb.quot(discountJoin.get("amount"), 100.0D)))),
-        cb.toDouble(productJoin.get("price")));
+    return cb.coalesce(cb.diff(productJoin.get("price"), discount), productJoin.get("price"));
   }
 }
