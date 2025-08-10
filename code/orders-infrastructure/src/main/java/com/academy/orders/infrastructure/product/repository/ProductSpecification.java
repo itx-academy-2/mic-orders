@@ -21,13 +21,13 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class ProductSpecification implements Specification<ProductTranslationEntity> {
-  private String language;
+  private final String language;
 
-  private List<String> sort;
+  private final List<String> sort;
 
-  private List<String> tags;
+  private final List<String> tags;
 
-  private List<UUID> bestsellersIds;
+  private final List<UUID> bestsellersIds;
 
   public ProductSpecification(String language, List<String> sort, List<String> tags, List<UUID> bestsellersIds) {
     this.language = language;
@@ -43,7 +43,6 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
     final Join<ProductTranslationEntity, ProductEntity> productJoin = root.join("product", JoinType.LEFT);
     final Join<ProductTranslationEntity, LanguageEntity> languageJoin = root.join("language", JoinType.LEFT);
     final Join<ProductEntity, TagEntity> tagsJoin = productJoin.join("tags", JoinType.LEFT);
-    final Join<ProductEntity, DiscountEntity> discountJoin = productJoin.join("discount", JoinType.LEFT);
 
     predicates.add(cb.like(productJoin.get("status"), "VISIBLE"));
     predicates.add(cb.like(languageJoin.get("code"), language));
@@ -58,7 +57,9 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
   }
 
   private Predicate combineAllPredicates(final CriteriaBuilder cb, final List<Predicate> predicates) {
-    return predicates.stream().reduce(cb.conjunction(), cb::and);
+    return predicates.stream()
+        .filter(Objects::nonNull)
+        .reduce(cb.conjunction(), cb::and);
   }
 
   private void setSort(final Root<ProductTranslationEntity> root, final CriteriaQuery<?> query, final CriteriaBuilder cb,
@@ -78,11 +79,13 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
         } else if (field.equals("product.createdAt") && order.equals("desc")) {
           orders.add(cb.desc(productJoin.get("createdAt")));
         }
-
-        if (field.equals("product.price") && order.equals("asc")) {
-          orders.add(cb.asc(productJoin.get("price")));
-        } else if (field.equals("product.price") && order.equals("desc")) {
-          orders.add(cb.desc(productJoin.get("price")));
+        if (field.equals("product.price")) {
+          Expression<Double> discountedPrice = buildDiscountedPriceExpression(cb, productJoin);
+          if (order.equals("asc")) {
+            orders.add(cb.asc(discountedPrice));
+          } else if (order.equals("desc")) {
+            orders.add(cb.desc(discountedPrice));
+          }
         }
 
         if (field.equals("percentageOfTotalOrders") && order.equals("asc")) {
@@ -111,5 +114,13 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
         query.orderBy(orders);
       }
     }
+  }
+
+  private Expression<Double> buildDiscountedPriceExpression(CriteriaBuilder cb, Join<ProductTranslationEntity, ProductEntity> productJoin) {
+    Join<ProductEntity, DiscountEntity> discountJoin = productJoin.join("discount", JoinType.LEFT);
+
+    return cb.coalesce(
+        cb.toDouble(cb.diff(productJoin.get("price"), cb.prod(productJoin.get("price"), cb.quot(discountJoin.get("amount"), 100.0D)))),
+        cb.toDouble(productJoin.get("price")));
   }
 }
