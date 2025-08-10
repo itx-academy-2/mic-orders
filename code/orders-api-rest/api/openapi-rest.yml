@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.5.0
+  version: 2.6.0
 servers:
   - url: http://localhost:8080/retail
 
@@ -1077,6 +1077,27 @@ paths:
         '409':
           $ref: '#/components/responses/Conflict'
 
+  /v1/users/{userId}/addresses/{addressId}:
+    delete:
+      tags:
+        - Address
+      summary: Remove a user's permanent post address
+      operationId: removeUserPermanentAddress
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/AddressId'
+      responses:
+        '204':
+          description: Post address was successfully removed from the user's permanent addresses list
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
+
 #COMPONENTS
 #=======================================================================================================================
 components:
@@ -1145,6 +1166,15 @@ components:
       required: true
       schema:
         type: string
+    AddressId:
+      in: path
+      name: addressId
+      required: true
+      description: Id of the post address
+      schema:
+        type: string
+        format: uuid
+        example: '5efbee91-8a0c-407a-a4c0-16bbad40a23e'
   securitySchemes:
     bearerAuth:
       type: http
