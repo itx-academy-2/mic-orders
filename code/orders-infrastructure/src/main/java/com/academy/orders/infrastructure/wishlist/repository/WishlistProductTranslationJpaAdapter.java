@@ -6,10 +6,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -28,6 +30,7 @@ public interface WishlistProductTranslationJpaAdapter extends JpaRepository<Prod
           SELECT pt FROM ProductTranslationEntity pt
           JOIN  pt.product p
           JOIN  pt.language l
+          LEFT JOIN p.discount d
           JOIN WishlistEntity w ON w.id.productId = p.id
           WHERE w.id.accountId = :accountId
             AND l.code = :language
@@ -47,17 +50,20 @@ public interface WishlistProductTranslationJpaAdapter extends JpaRepository<Prod
    * @throws UnsupportedSortFieldException if the sort field is not recognized
    */
   static Pageable remapSort(Pageable original) {
-    Sort remappedSort = Sort.by(original.getSort().stream()
+    List<Sort> sorts = original.getSort().stream()
         .map(order -> {
           String property = order.getProperty();
 
           return switch (property) {
-            case "product.price" -> new Sort.Order(order.getDirection(), "p.price");
-            case "name" -> new Sort.Order(order.getDirection(), "pt.name");
-            case "addedAt" -> new Sort.Order(order.getDirection(), "w.addedAt");
+            case "product.price" -> JpaSort.unsafe(order.getDirection(), "(p.price - (p.price * COALESCE(d.amount, 0) / 100.0))");
+            case "name" -> Sort.by(new Sort.Order(order.getDirection(), "pt.name"));
+            case "addedAt" -> Sort.by(new Sort.Order(order.getDirection(), "w.addedAt"));
             default -> throw new UnsupportedSortFieldException(property);
           };
-        }).toList());
-    return PageRequest.of(original.getPageNumber(), original.getPageSize(), remappedSort);
+        }).toList();
+
+    Sort combinedSort = sorts.stream().reduce(Sort.unsorted(), Sort::and);
+
+    return PageRequest.of(original.getPageNumber(), original.getPageSize(), combinedSort);
   }
 }

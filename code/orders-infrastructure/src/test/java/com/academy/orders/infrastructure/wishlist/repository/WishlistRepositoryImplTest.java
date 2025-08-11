@@ -43,13 +43,13 @@ class WishlistRepositoryImplTest {
 
   private static final UUID PRODUCT_ID = TEST_UUID;
 
-  private static final Pageable PAGEABLE = getPageable(0, 10, List.of("product.price,DESC"));
+  private static final Pageable PAGEABLE = getPageable(0, 10, List.of("name,DESC"));
 
   private static final org.springframework.data.domain.PageRequest PAGEABLE_SPRING =
-      PageRequest.of(0, 10, Sort.by(Sort.Order.desc("product.price")));
+      PageRequest.of(0, 10, Sort.by(Sort.Order.desc("name")));
 
   private static final org.springframework.data.domain.PageRequest PAGEABLE_SPRING_AFTER_REMAP =
-      PageRequest.of(0, 10, Sort.by(Sort.Order.desc("p.price")));
+      PageRequest.of(0, 10, Sort.by(Sort.Order.desc("pt.name")));
 
   @InjectMocks
   private WishlistRepositoryImpl repository;
@@ -151,5 +151,4 @@ class WishlistRepositoryImplTest {
         any(org.springframework.data.domain.Pageable.class));
     verify(productMapper, never()).fromEntity(any(ProductTranslationEntity.class));
   }
-
 }
