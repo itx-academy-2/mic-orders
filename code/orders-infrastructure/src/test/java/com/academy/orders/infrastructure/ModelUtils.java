@@ -20,6 +20,9 @@ import com.academy.orders.domain.order.entity.OrderReceiver;
 import com.academy.orders.domain.order.entity.PostAddress;
 import com.academy.orders.domain.order.entity.enumerated.DeliveryMethod;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
+import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
+import com.academy.orders.domain.passwordreset.entity.enumerated.TokenStatus;
+import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.entity.Language;
 import com.academy.orders.domain.product.entity.Product;
@@ -43,10 +46,13 @@ import com.academy.orders.infrastructure.orderV2.entity.OrderV2Entity;
 import com.academy.orders.infrastructure.orderV2.entity.OrderItemV2Entity;
 import com.academy.orders.infrastructure.postaddress.entity.PostAddressV2Entity;
 import com.academy.orders.infrastructure.order.entity.PostAddressEntity;
+import com.academy.orders.infrastructure.passwordreset.entity.PasswordResetTokenEntity;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationId;
 import com.academy.orders.infrastructure.tag.entity.TagEntity;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import java.math.BigDecimal;
@@ -320,6 +326,32 @@ public class ModelUtils {
         .contents(List.of(getArticleContent()))
         .build();
     return article;
+  }
+
+  public static PasswordResetToken createSampleToken() {
+    return PasswordResetToken.builder()
+        .id(7L)
+        .token("roundtrip-domain")
+        .accountId(200L)
+        .email("roundtripdomain@example.com")
+        .type(TokenType.SECONDARY)
+        .status(TokenStatus.USED)
+        .createdAt(OffsetDateTime.now(ZoneOffset.UTC).minusDays(1))
+        .expiresAt(OffsetDateTime.now(ZoneOffset.UTC).plusDays(1))
+        .build();
+  }
+
+  public static PasswordResetTokenEntity createSampleEntity() {
+    PasswordResetTokenEntity entity = new PasswordResetTokenEntity();
+    entity.setId(5L);
+    entity.setToken("roundtrip");
+    entity.setAccountId(100L);
+    entity.setEmail("roundtrip@example.com");
+    entity.setType(TokenType.PRIMARY);
+    entity.setStatus(TokenStatus.ACTIVE);
+    entity.setCreatedAt(OffsetDateTime.now(ZoneOffset.UTC));
+    entity.setExpiresAt(OffsetDateTime.now(ZoneOffset.UTC).plusHours(2));
+    return entity;
   }
 
   public static OrderV2 getOrderV2() {

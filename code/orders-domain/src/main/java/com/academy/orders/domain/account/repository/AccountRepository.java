@@ -5,6 +5,7 @@ import com.academy.orders.domain.account.entity.Account;
 import com.academy.orders.domain.account.entity.CreateAccountDTO;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
+import com.academy.orders.domain.account.exception.AccountNotFoundException;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 
@@ -74,4 +75,15 @@ public interface AccountRepository {
    * @author Yurii Osovskyi
    */
   Page<Account> getAccounts(AccountManagementFilterDto filter, Pageable pageable);
+
+  /**
+   * Updates the password for an account with the given ID.*
+   *
+   * @param accountId the ID of the account whose password should be updated
+   * @param newPassword the new password (should be pre-hashed)
+   * @throws IllegalArgumentException if accountId is null or newPassword is blank
+   * @throws AccountNotFoundException if no account exists with the given ID
+   * @author DmytroLysenko1
+   */
+  void updatePassword(Long accountId, String newPassword);
 }

@@ -83,6 +83,12 @@ public class AccountRepositoryImpl implements AccountRepository, AccountV2Reposi
   }
 
   @Override
+  @Transactional
+  public void updatePassword(Long accountId, String newPassword) {
+    accountJpaAdapter.updatePasswordById(accountId, newPassword);
+  }
+
+  @Override
   public Optional<AccountV2> findAccountById(Long id) {
     var accountEntity = accountJpaAdapter.findById(id);
     return accountEntity.map(accountV2Mapper::fromEntity);
