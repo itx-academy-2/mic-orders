@@ -94,4 +94,9 @@ public class AccountRepositoryImpl implements AccountRepository, AccountV2Reposi
     log.info("Updating personal info for user with id {}: {}", id, dto);
     accountJpaAdapter.updatePersonalInfo(id, dto.firstName(), dto.lastName(), dto.phone());
   }
+
+  @Override
+  public boolean checkIfAccountExistsById(Long accountId) {
+    return accountJpaAdapter.existsById(accountId);
+  }
 }

@@ -74,4 +74,13 @@ public interface AccountRepository {
    * @author Yurii Osovskyi
    */
   Page<Account> getAccounts(AccountManagementFilterDto filter, Pageable pageable);
+
+  /**
+   * Checks whether an account with the specified ID exists.
+   *
+   * @param accountId the ID of the account to check
+   * @return {@code true} if an account with the given ID exists, {@code false} otherwise
+   * @author Oleksandra Bulhakova
+   */
+  boolean checkIfAccountExistsById(Long accountId);
 }
