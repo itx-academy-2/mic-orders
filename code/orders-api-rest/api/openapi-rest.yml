@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.5.0
+  version: 2.6.0
 servers:
   - url: http://localhost:8080/retail
 
@@ -816,6 +816,220 @@ paths:
         '401':
           description: Unauthorized - authentication required
 
+  /v1/password-reset:
+    post:
+      tags:
+        - PasswordResetController
+      summary: Request password reset
+      description: |
+        Accepts an email and returns 200 status regardless of whether the email exists.
+        This prevents email enumeration attacks while maintaining user experience.
+        
+        **Rate Limits:**
+        - 5 requests per minute per IP address
+        - 3 requests per hour per email address
+        
+        **Common Error Scenarios:**
+        - Invalid email format returns 400
+        - Rate limit exceeded returns 429
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetEmailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetEmailRequest'
+      responses:
+        '200':
+          description: Password reset email sent (or simulated)
+          headers:
+            X-RateLimit-Remaining-IP:
+              description: Remaining requests for this IP
+              schema:
+                type: integer
+            X-RateLimit-Reset-IP:
+              description: Time when IP rate limit resets (Unix timestamp)
+              schema:
+                type: integer
+            X-RateLimit-Remaining-Email:
+              description: Remaining requests for this email
+              schema:
+                type: integer
+            X-RateLimit-Reset-Email:
+              description: Time when email rate limit resets (Unix timestamp)
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordResetSuccessResponse'
+        '400':
+          description: Malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          headers:
+            Retry-After:
+              description: Number of seconds to wait before retrying
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - PasswordResetController
+      summary: Reset password with one-time token
+      description: |
+        Accepts a valid one-time token and new password to reset the user's password.
+        
+        **Password Requirements:**
+        - 8–100 characters
+        - Must include upper and lower case letters, number, and special character
+        - Cannot match current password or be a common password
+        
+        **Security Notes:**
+        - Token is invalidated after use
+        - All active sessions are terminated
+        - Confirmation email is sent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+      responses:
+        '200':
+          description: Password successfully reset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordResetSuccessResponse'
+        '400':
+          description: Invalid request format or password mismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '410':
+          description: Token expired or already used
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Business rule violation (e.g. weak password)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/password-reset/{token}:
+    get:
+      tags:
+        - PasswordResetController
+      summary: Validate password reset token
+      description: |
+        Validates a token and returns its status. Used to enable the password 
+        reset form on the frontend.
+        
+        **Token Requirements:**
+        - Must be a valid UUID v4
+        - Must not be expired (within 10 minutes of creation)
+        - Must not have been used already
+        
+        **Common Error Scenarios:**
+        - Invalid UUID format returns 400
+        - Token not found returns 404
+        - Expired or used token returns 410
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: UUID v4 token from password reset email
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Token is valid and can be used for password reset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenValidResponse'
+        '400':
+          description: Malformed token (invalid UUID format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '410':
+          description: Token expired or already used
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/my-view-history:
+    get:
+      tags:
+        - ViewHistory
+      summary: Get list of viewed products
+      description: The endpoint for getting all viewed products from the database.
+      operationId: getViewedProducts
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/Pageable'
+        - $ref: '#/components/parameters/Language'
+      responses:
+        '200':
+          description: |
+            Retrieves the list of products the user has viewed, sorted by most recently viewed first.
+            Supports pagination and language filtering.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageProducts'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    delete:
+      tags:
+        - ViewHistory
+      summary: Remove all products from the view history
+      operationId: deleteAllViewedProducts
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '204':
+          description: All products removed from the view history.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+
   /v2/my-info:
     get:
       tags:
@@ -858,45 +1072,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '415':
           $ref: '#/components/responses/UnsupportedMediaType'
-
-  /v1/my-view-history:
-    get:
-      tags:
-        - ViewHistory
-      summary: Get list of viewed products
-      description: The endpoint for getting all viewed products from the database.
-      operationId: getViewedProducts
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - $ref: '#/components/parameters/Pageable'
-        - $ref: '#/components/parameters/Language'
-      responses:
-        '200':
-          description: |
-            Retrieves the list of products the user has viewed, sorted by most recently viewed first.
-            Supports pagination and language filtering.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PageProducts'
-        '400':
-          $ref: '#/components/responses/BadRequestResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-    delete:
-      tags:
-        - ViewHistory
-      summary: Remove all products from the view history
-      operationId: deleteAllViewedProducts
-      security:
-        - bearerAuth: [ ]
-      responses:
-        '204':
-          description: All products removed from the view history.
-        '401':
-          $ref: '#/components/responses/Unauthorized'
 
   /v1/my-view-history/{productId}:
     put:
@@ -2495,6 +2670,117 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FilterUsageStatistics'
+
+    PasswordResetEmailRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+          description: Email address to send password reset link to
+          example: user@example.com
+
+    PasswordResetRequest:
+      type: object
+      required:
+        - password
+        - token
+      properties:
+        token:
+          type: string
+          format: uuid
+          description: One-time password reset token
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 100
+          description: |
+            New password. Must contain:
+            - At least 8 characters
+            - At least one uppercase letter
+            - At least one lowercase letter
+            - At least one number
+            - At least one special character
+          example: StrongPass1!
+
+    PasswordResetSuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Human-readable success message
+          example: "Password has been successfully reset"
+        token:
+          type: string
+          description: One-time token used to verify and reset the password
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the response was generated
+          example: "2025-06-27T10:30:00Z"
+
+    TokenValidResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          description: Whether the token is valid and can be used
+          example: true
+        expiresAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the token expires
+          example: "2025-06-27T11:30:00Z"
+        tokenType:
+          type: string
+          description: Type of token (for future extensibility)
+          example: "password_reset"
+        token:
+          type: string
+          description: Original token passed in the path
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        newToken:
+          type: string
+          description: Fresh token to be used in the actual password reset request
+          example: "b3c1f1b3-477e-45c2-9f3c-cccfbb8cd44e"
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the response was generated
+          example: "2025-06-27T10:30:00Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+          example: "Token is invalid or expired"
+        code:
+          type: integer
+          description: HTTP status code
+          example: 400
+        details:
+          type: array
+          items:
+            type: string
+          description: Additional error details or validation failures
+          example: [ "Password must contain at least one uppercase letter" ]
+        token:
+          type: string
+          description: One-time token used to verify and reset the password
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the error occurred
+          example: "2025-06-27T10:30:00Z"
 
     UpdateAccountV2InfoRequest:
       type: object

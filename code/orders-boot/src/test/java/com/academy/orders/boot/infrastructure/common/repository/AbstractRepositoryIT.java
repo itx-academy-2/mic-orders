@@ -1,6 +1,8 @@
 package com.academy.orders.boot.infrastructure.common.repository;
 
+import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.validation.Validator;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -16,4 +18,10 @@ public abstract class AbstractRepositoryIT {
 
   @MockBean
   private MeterRegistry meterRegistry;
+
+  @MockBean
+  private RateLimiterRegistry rateLimiterRegistry;
+
+  @MockBean
+  private Validator validator;
 }
