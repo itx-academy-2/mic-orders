@@ -13,7 +13,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import java.net.URI;
 import java.util.Map;
 
 import static com.academy.orders.ModelUtils.getUpdateAccountV2InfoRequestDTO;
@@ -148,7 +147,7 @@ class UserCabinetControllerIT extends AbstractControllerIT {
     final var url = baseUrl() + V1_ENDPOINT_URI + "/photo";
     String originalPhoto = fetchCurrentPhoto(userId);
     UpdateUserPhotoRequestDTO requestBody = new UpdateUserPhotoRequestDTO();
-    requestBody.setPhoto(URI.create("https://example.com/new-photo.jpg"));
+    requestBody.setPhoto("https://example.com/new-photo.jpg");
 
     // When
     var result = restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(requestBody, headers), Void.class);

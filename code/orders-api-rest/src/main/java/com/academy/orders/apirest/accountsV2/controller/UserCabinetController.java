@@ -18,8 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
-
 @RestController
 @RequiredArgsConstructor
 public class UserCabinetController implements UserPersonalCabinetApi {
@@ -61,15 +59,14 @@ public class UserCabinetController implements UserPersonalCabinetApi {
   public ResponseEntity<GetUserPhoto200ResponseDTO> getUserPhoto() {
     Long userId = securityUtils.getAuthenticatedUserId();
     String photoUrl = getUserProfilePhotoUseCase.getProfilePhoto(userId);
-    return ResponseEntity.ok(new GetUserPhoto200ResponseDTO().photo(photoUrl != null ? URI.create(photoUrl) : null));
+    return ResponseEntity.ok(new GetUserPhoto200ResponseDTO().photo(photoUrl));
   }
 
   @Override
   @PreAuthorize("hasAuthority('ROLE_USER')")
   public ResponseEntity<Void> updateUserPhoto(UpdateUserPhotoRequestDTO updateUserPhotoRequestDTO) {
     Long userId = securityUtils.getAuthenticatedUserId();
-    updateUserProfilePhotoUseCase.updateProfilePhoto(userId,
-        updateUserPhotoRequestDTO.getPhoto() != null ? updateUserPhotoRequestDTO.getPhoto().toString() : null);
+    updateUserProfilePhotoUseCase.updateProfilePhoto(userId, updateUserPhotoRequestDTO.getPhoto());
     return ResponseEntity.noContent().build();
   }
 

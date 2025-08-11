@@ -26,7 +26,7 @@ class UpdateUserProfilePhotoUseCaseImplTest {
   private AccountV2Repository accountV2Repository;
 
   @Test
-  void updateProfilePhotoWhenAccountExists() {
+  void updateProfilePhotoWhenAccountExistsTest() {
     // Given
     Long userId = 1L;
     String photoUrl = "http://example.com/new-photo.jpg";
@@ -41,7 +41,7 @@ class UpdateUserProfilePhotoUseCaseImplTest {
   }
 
   @Test
-  void updateProfilePhotoWhenAccountDoesNotExist() {
+  void updateProfilePhotoWhenAccountDoesNotExistTest() {
     // Given
     Long userId = 2L;
     String photoUrl = "http://example.com/new-photo.jpg";

@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import static com.academy.orders.application.ModelUtils.getAccountV2;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
@@ -27,7 +28,7 @@ class GetUserProfilePhotoUseCaseImplTest {
   private AccountV2Repository accountV2Repository;
 
   @Test
-  void getProfilePhotoWhenAccountExistsWithPhoto() {
+  void getProfilePhotoWhenAccountExistsWithPhotoTest() {
     // Given
     Long userId = 1L;
     AccountV2 account = getAccountV2();
@@ -37,12 +38,13 @@ class GetUserProfilePhotoUseCaseImplTest {
     String result = getUserProfilePhotoUseCase.getProfilePhoto(userId);
 
     // Then
+    assertNotNull(result);
     assertEquals(account.photo(), result);
     verify(accountV2Repository, times(1)).findAccountById(userId);
   }
 
   @Test
-  void getProfilePhotoWhenAccountExistsWithoutPhoto() {
+  void getProfilePhotoWhenAccountExistsWithoutPhotoTest() {
     // Given
     Long userId = 2L;
     AccountV2 account = new AccountV2(userId, null, null, null, null, null, null, null, null, null);
@@ -57,7 +59,7 @@ class GetUserProfilePhotoUseCaseImplTest {
   }
 
   @Test
-  void getProfilePhotoWhenAccountDoesNotExist() {
+  void getProfilePhotoWhenAccountDoesNotExistTest() {
     // Given
     Long userId = 999L;
     when(accountV2Repository.findAccountById(userId)).thenReturn(Optional.empty());

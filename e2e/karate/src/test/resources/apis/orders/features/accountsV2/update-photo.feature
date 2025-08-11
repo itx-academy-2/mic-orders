@@ -32,7 +32,6 @@ Feature: Update User Profile Photo
   Scenario: Attempt to update photo with an invalid payload
     Given headers authHeader
     And path photoPath
-  # Send a non-uri string, which should be a bad request
     And request { photo: 'this-is-not-a-valid-url' }
     When method put
     Then status 400

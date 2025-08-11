@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import java.net.URI;
 
 import static com.academy.orders.apirest.ModelUtils.getAccountV2;
 import static com.academy.orders.apirest.ModelUtils.getJwtRequest;
@@ -197,7 +196,7 @@ class UserCabinetControllerTest {
     // Given
     Long userId = 2L;
     String photoUrl = "https://example.com/new-photo.jpg";
-    var requestDTO = new UpdateUserPhotoRequestDTO().photo(URI.create(photoUrl));
+    var requestDTO = new UpdateUserPhotoRequestDTO().photo(photoUrl);
     when(securityUtils.getAuthenticatedUserId()).thenReturn(userId);
 
     // When

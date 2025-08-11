@@ -877,8 +877,8 @@ paths:
               properties:
                 photo:
                   type: string
-                  format: uri
                   description: URL of the new profile photo
+                  pattern: '^https?://.+$'
               required:
                 - photo
       responses:
@@ -909,7 +909,6 @@ paths:
                 properties:
                   photo:
                     type: string
-                    format: uri
                     description: URL of the user's profile photo
         '401':
           $ref: '#/components/responses/Unauthorized'

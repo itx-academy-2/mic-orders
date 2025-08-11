@@ -21,11 +21,7 @@ public class GetUserProfilePhotoUseCaseImpl implements GetUserProfilePhotoUseCas
         .orElseThrow(() -> new AccountNotFoundException(userId));
 
     String photo = account.photo();
-    if (photo == null) {
-      log.info("User {} has no profile photo set", userId);
-    } else {
-      log.info("Returning profile photo for user {}: {}", userId, photo);
-    }
+    log.info("Returning profile photo for user {}: {}", userId, photo);
     return photo;
   }
 }

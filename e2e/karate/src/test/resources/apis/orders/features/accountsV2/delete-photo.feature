@@ -7,7 +7,7 @@ Feature: Delete User Profile Photo
     * def originalState = callonce read('classpath:apis/orders/helpers/account/get-original-photo.feature') { authHeader: '#(authHeader)' }
     * def originalPhoto = originalState.response.photo
 
-  @GS3-87 @write
+  @GS3-87
   Scenario: Successfully delete a user photo and restore original state
   # 1. SETUP: Ensure there is a photo to delete
     * def photoToDelete = 'https://example.com/photo-to-delete-' + java.util.UUID.randomUUID() + '.jpg'
