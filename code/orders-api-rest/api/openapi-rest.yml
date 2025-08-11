@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.5.0
+  version: 2.5.1
 servers:
   - url: http://localhost:8080/retail
 
@@ -858,6 +858,75 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '415':
           $ref: '#/components/responses/UnsupportedMediaType'
+
+  /v1/my-info/photo:
+    put:
+      tags:
+        - UserPersonalCabinet
+      summary: Update user profile photo
+      description: Update the profile photo URL for the authenticated user.
+      operationId: updateUserPhoto
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                photo:
+                  type: string
+                  format: uri
+                  description: URL of the new profile photo
+              required:
+                - photo
+      responses:
+        '204':
+          description: Profile photo URL successfully updated
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+
+    get:
+      tags:
+        - UserPersonalCabinet
+      summary: Get user profile photo
+      description: Returns the profile photo URL of the authenticated user.
+      operationId: getUserPhoto
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: User profile photo URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photo:
+                    type: string
+                    format: uri
+                    description: URL of the user's profile photo
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    delete:
+      tags:
+        - UserPersonalCabinet
+      summary: Delete user profile photo
+      description: Deletes the profile photo of the authenticated user.
+      operationId: deleteUserPhoto
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '204':
+          description: Profile photo successfully deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
   /v1/my-view-history:
     get:

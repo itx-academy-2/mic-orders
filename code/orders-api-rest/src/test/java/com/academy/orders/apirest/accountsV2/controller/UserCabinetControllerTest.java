@@ -5,8 +5,12 @@ import com.academy.orders.apirest.accountsV2.mapper.AccountV2InfoUpdateMapper;
 import com.academy.orders.apirest.auth.util.SecurityUtils;
 import com.academy.orders.apirest.common.ErrorHandler;
 import com.academy.orders.domain.account.exception.AccountNotFoundException;
+import com.academy.orders.domain.accountv2.usecase.DeleteUserProfilePhotoUseCase;
 import com.academy.orders.domain.accountv2.usecase.GetUserAccountV2InfoUseCase;
+import com.academy.orders.domain.accountv2.usecase.GetUserProfilePhotoUseCase;
 import com.academy.orders.domain.accountv2.usecase.UpdateUserAccountV2InfoUseCase;
+import com.academy.orders.domain.accountv2.usecase.UpdateUserProfilePhotoUseCase;
+import com.academy.orders_api_rest.generated.model.UpdateUserPhotoRequestDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -17,6 +21,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import java.net.URI;
 
 import static com.academy.orders.apirest.ModelUtils.getAccountV2;
 import static com.academy.orders.apirest.ModelUtils.getJwtRequest;
@@ -29,15 +34,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserCabinetController.class)
 @ContextConfiguration(classes = UserCabinetController.class)
 @Import(ErrorHandler.class)
 class UserCabinetControllerTest {
-  private static final String URI = "/v2/my-info";
+  private static final String MY_INFO_URI = "/v2/my-info";
+
+  private static final String PHOTO_URI = "/v1/my-info/photo";
 
   @Autowired
   private MockMvc mockMvc;
@@ -50,6 +60,15 @@ class UserCabinetControllerTest {
 
   @MockBean
   private UpdateUserAccountV2InfoUseCase updateUserAccountV2InfoUseCase;
+
+  @MockBean
+  private GetUserProfilePhotoUseCase getUserProfilePhotoUseCase;
+
+  @MockBean
+  private UpdateUserProfilePhotoUseCase updateUserProfilePhotoUseCase;
+
+  @MockBean
+  private DeleteUserProfilePhotoUseCase deleteUserProfilePhotoUseCase;
 
   @MockBean
   private SecurityUtils securityUtils;
@@ -72,7 +91,7 @@ class UserCabinetControllerTest {
     when(accountV2DTOMapper.toUserAccountInfoDto(accountV2)).thenReturn(userAccountInfoDTO);
 
     // When
-    mockMvc.perform(get(URI)
+    mockMvc.perform(get(MY_INFO_URI)
         .with(getJwtRequest(userId, ROLE_USER)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -95,7 +114,7 @@ class UserCabinetControllerTest {
     when(accountV2InfoUpdateMapper.toUpdateUserAccountV2InfoDto(requestDto)).thenReturn(updateDto);
 
     // When
-    mockMvc.perform(patch(URI)
+    mockMvc.perform(patch(MY_INFO_URI)
         .with(getJwtRequest(userId, ROLE_USER))
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(requestDto)))
@@ -119,7 +138,7 @@ class UserCabinetControllerTest {
     doThrow(new AccountNotFoundException(userId)).when(updateUserAccountV2InfoUseCase).updateUserAccountInfo(userId, updateDto);
 
     // When
-    mockMvc.perform(patch(URI)
+    mockMvc.perform(patch(MY_INFO_URI)
         .with(getJwtRequest(userId, ROLE_USER))
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(requestDto)))
@@ -129,5 +148,104 @@ class UserCabinetControllerTest {
     verify(securityUtils, times(1)).getAuthenticatedUserId();
     verify(accountV2InfoUpdateMapper, times(1)).toUpdateUserAccountV2InfoDto(requestDto);
     verify(updateUserAccountV2InfoUseCase, times(1)).updateUserAccountInfo(userId, updateDto);
+  }
+
+  @Test
+  @SneakyThrows
+  void getUserPhotoReturnsPhotoUrlTest() {
+    // Given
+    Long userId = 2L;
+    String photoUrl = "https://example.com/photo.jpg";
+    when(securityUtils.getAuthenticatedUserId()).thenReturn(userId);
+    when(getUserProfilePhotoUseCase.getProfilePhoto(userId)).thenReturn(photoUrl);
+
+    // When
+    mockMvc.perform(get(PHOTO_URI)
+        .with(getJwtRequest(userId, ROLE_USER)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.photo").value(photoUrl));
+
+    // Then
+    verify(securityUtils, times(1)).getAuthenticatedUserId();
+    verify(getUserProfilePhotoUseCase, times(1)).getProfilePhoto(userId);
+  }
+
+  @Test
+  @SneakyThrows
+  void getUserPhotoReturnsNullPhotoTest() {
+    // Given
+    Long userId = 2L;
+    when(securityUtils.getAuthenticatedUserId()).thenReturn(userId);
+    when(getUserProfilePhotoUseCase.getProfilePhoto(userId)).thenReturn(null);
+
+    // When
+    mockMvc.perform(get(PHOTO_URI)
+        .with(getJwtRequest(userId, ROLE_USER)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.photo").value((String) null));
+
+    // Then
+    verify(securityUtils, times(1)).getAuthenticatedUserId();
+    verify(getUserProfilePhotoUseCase, times(1)).getProfilePhoto(userId);
+  }
+
+  @Test
+  @SneakyThrows
+  void updateUserPhotoWithValidUrlTest() {
+    // Given
+    Long userId = 2L;
+    String photoUrl = "https://example.com/new-photo.jpg";
+    var requestDTO = new UpdateUserPhotoRequestDTO().photo(URI.create(photoUrl));
+    when(securityUtils.getAuthenticatedUserId()).thenReturn(userId);
+
+    // When
+    mockMvc.perform(put(PHOTO_URI)
+        .with(getJwtRequest(userId, ROLE_USER))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(requestDTO)))
+        .andExpect(status().isNoContent());
+
+    // Then
+    verify(securityUtils, times(1)).getAuthenticatedUserId();
+    verify(updateUserProfilePhotoUseCase, times(1)).updateProfilePhoto(userId, photoUrl);
+  }
+
+  @Test
+  @SneakyThrows
+  void deleteUserPhotoReturnsNoContentTest() {
+    // Given
+    Long userId = 2L;
+    when(securityUtils.getAuthenticatedUserId()).thenReturn(userId);
+
+    // When
+    mockMvc.perform(delete(PHOTO_URI)
+        .with(getJwtRequest(userId, ROLE_USER)))
+        .andExpect(status().isNoContent());
+
+    // Then
+    verify(securityUtils, times(1)).getAuthenticatedUserId();
+    verify(deleteUserProfilePhotoUseCase, times(1)).deleteProfilePhoto(userId);
+  }
+
+  @Test
+  @SneakyThrows
+  void updateUserPhotoWithNullUrlTest() {
+    // Given
+    Long userId = 2L;
+    var requestDTO = new UpdateUserPhotoRequestDTO().photo(null);
+    when(securityUtils.getAuthenticatedUserId()).thenReturn(userId);
+
+    // When
+    mockMvc.perform(put(PHOTO_URI)
+        .with(getJwtRequest(userId, ROLE_USER))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(requestDTO)))
+        .andExpect(status().isBadRequest());
+
+    // Then
+    verify(securityUtils, times(0)).getAuthenticatedUserId();
+    verify(updateUserProfilePhotoUseCase, times(0)).updateProfilePhoto(userId, null);
   }
 }
