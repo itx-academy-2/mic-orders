@@ -7,8 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class WishlistProductTranslationJpaAdapterTest {
 
@@ -21,11 +23,19 @@ class WishlistProductTranslationJpaAdapterTest {
     Pageable result = WishlistProductTranslationJpaAdapter.remapSort(input);
 
     // Then
-    Sort.Order remappedOrder = result.getSort().getOrderFor("p.price");
-    assertNotNull(remappedOrder);
-    assertEquals(Sort.Direction.ASC, remappedOrder.getDirection());
+    Sort sort = result.getSort();
+    assertFalse(sort.isUnsorted());
     assertEquals(1, result.getPageNumber());
     assertEquals(20, result.getPageSize());
+
+    // Because it's an unsafe sort, getOrderFor won't work as expected
+    Sort.Order order = sort.stream().findFirst().orElseThrow();
+    assertEquals(Sort.Direction.ASC, order.getDirection());
+
+    // Validate that the property contains the expected raw SQL fragment
+    String property = order.getProperty();
+    assertTrue(property.contains("p.price"));
+    assertTrue(property.contains("COALESCE"));
   }
 
   @Test
