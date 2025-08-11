@@ -9,8 +9,6 @@
   <artifactId>orders-application</artifactId>
   <properties>
     <spring-tx.version>6.1.8</spring-tx.version>
-    <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
-    <spring-web.version>6.2.8</spring-web.version>
   </properties>
 
   <dependencies>
@@ -20,15 +18,9 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-prometheus</artifactId>
     </dependency>
-
     <dependency>
       <groupId>jakarta.persistence</groupId>
       <artifactId>jakarta.persistence-api</artifactId>
@@ -41,25 +33,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-mail</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-      <version>${jakarta.servlet-api.version}</version>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
+
 </project>
