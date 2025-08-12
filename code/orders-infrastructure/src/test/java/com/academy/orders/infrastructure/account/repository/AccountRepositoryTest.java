@@ -219,4 +219,17 @@ class AccountRepositoryTest {
     // Then
     verify(accountJpaAdapter, times(1)).updatePersonalInfo(userId, updateDto.firstName(), updateDto.lastName(), updateDto.phone());
   }
+
+  @Test
+  void updateAccountPhotoTest() {
+    // Given
+    Long userId = TEST_ID;
+    String photoUrl = "http://example.com/photo.jpg";
+
+    // When
+    repository.updateAccountPhoto(userId, photoUrl);
+
+    // Then
+    verify(accountJpaAdapter, times(1)).updatePhotoById(userId, photoUrl);
+  }
 }

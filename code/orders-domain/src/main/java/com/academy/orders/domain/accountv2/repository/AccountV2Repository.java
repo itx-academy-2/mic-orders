@@ -30,4 +30,12 @@ public interface AccountV2Repository {
    * @return {@code true} if an account with the given id exists, otherwise {@code false}.
    */
   Boolean existsById(Long id);
+
+  /**
+   * Updates the profile photo URL of the account with the given ID.
+   *
+   * @param id the ID of the account to update.
+   * @param photoUrl the new profile photo URL, or {@code null} to remove it.
+   */
+  void updateAccountPhoto(Long id, String photoUrl);
 }
