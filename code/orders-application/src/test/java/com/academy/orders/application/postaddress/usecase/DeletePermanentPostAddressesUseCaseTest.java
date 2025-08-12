@@ -40,7 +40,7 @@ public class DeletePermanentPostAddressesUseCaseTest {
         userId = 5L;
         addressId = UUID.fromString("5b08cd5a-a34e-4bf1-aabf-f2e79740919b");
 
-        when(accountRepository.checkIfAccountExistsById(userId)).thenReturn(true);
+        when(accountRepository.existsById(userId)).thenReturn(true);
         when(postAddressV2Repository.checkIfAddressExistsById(addressId)).thenReturn(true);
         when(postAddressV2Repository.checkIfAddressIsPermanent(addressId)).thenReturn(true);
 
@@ -50,7 +50,7 @@ public class DeletePermanentPostAddressesUseCaseTest {
         useCaseImpl.deletePermanentAddress(userId, addressId);
 
         //Then
-        verify(accountRepository).checkIfAccountExistsById(userId);
+        verify(accountRepository).existsById(userId);
         verify(postAddressV2Repository).checkIfAddressExistsById(addressId);
         verify(postAddressV2Repository).checkIfAddressIsPermanent(addressId);
         verify(postAddressV2Repository).deletePermanentAddress(userId, addressId);
@@ -62,13 +62,13 @@ public class DeletePermanentPostAddressesUseCaseTest {
         userId = 6L;
         addressId = UUID.fromString("5b08cd5a-a34e-4bf1-aabf-f2e79740919b");
 
-        when(accountRepository.checkIfAccountExistsById(userId)).thenReturn(false);
+        when(accountRepository.existsById(userId)).thenReturn(false);
 
         //When
         AccountNotFoundException ex = assertThrows(AccountNotFoundException.class, () -> useCaseImpl.deletePermanentAddress(userId, addressId));
 
         //Then
-        verify(accountRepository).checkIfAccountExistsById(userId);
+        verify(accountRepository).existsById(userId);
         verify(postAddressV2Repository, never()).checkIfAddressExistsById(addressId);
         verify(postAddressV2Repository, never()).checkIfAddressIsPermanent(addressId);
         verify(postAddressV2Repository, never()).deletePermanentAddress(userId, addressId);
@@ -81,14 +81,14 @@ public class DeletePermanentPostAddressesUseCaseTest {
         userId = 5L;
         addressId = UUID.fromString("7b08cd5a-a34e-4bf1-aabf-f2e79740919b");
 
-        when(accountRepository.checkIfAccountExistsById(userId)).thenReturn(true);
+        when(accountRepository.existsById(userId)).thenReturn(true);
         when(postAddressV2Repository.checkIfAddressExistsById(addressId)).thenReturn(false);
 
         //When
         PostAddressNotFoundException ex = assertThrows(PostAddressNotFoundException.class, () -> useCaseImpl.deletePermanentAddress(userId, addressId));
 
         //Then
-        verify(accountRepository).checkIfAccountExistsById(userId);
+        verify(accountRepository).existsById(userId);
         verify(postAddressV2Repository).checkIfAddressExistsById(addressId);
         verify(postAddressV2Repository, never()).checkIfAddressIsPermanent(addressId);
         verify(postAddressV2Repository, never()).deletePermanentAddress(userId, addressId);
@@ -101,7 +101,7 @@ public class DeletePermanentPostAddressesUseCaseTest {
         userId = 5L;
         addressId = UUID.fromString("8b08cd5a-a34e-4bf1-aabf-f2e79740919b");
 
-        when(accountRepository.checkIfAccountExistsById(userId)).thenReturn(true);
+        when(accountRepository.existsById(userId)).thenReturn(true);
         when(postAddressV2Repository.checkIfAddressExistsById(addressId)).thenReturn(true);
         when(postAddressV2Repository.checkIfAddressIsPermanent(addressId)).thenReturn(false);
 
@@ -109,7 +109,7 @@ public class DeletePermanentPostAddressesUseCaseTest {
         useCaseImpl.deletePermanentAddress(userId, addressId);
 
         //Then
-        verify(accountRepository).checkIfAccountExistsById(userId);
+        verify(accountRepository).existsById(userId);
         verify(postAddressV2Repository).checkIfAddressExistsById(addressId);
         verify(postAddressV2Repository).checkIfAddressIsPermanent(addressId);
         verify(postAddressV2Repository, never()).deletePermanentAddress(userId, addressId);

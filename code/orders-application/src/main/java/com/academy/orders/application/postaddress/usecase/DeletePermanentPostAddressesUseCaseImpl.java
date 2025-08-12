@@ -23,7 +23,7 @@ public class DeletePermanentPostAddressesUseCaseImpl implements DeletePermanentP
 
     @Override
     public void deletePermanentAddress(Long userId, UUID addressId) {
-        if (!accountRepository.checkIfAccountExistsById(userId)) {
+        if (!accountRepository.existsById(userId)) {
             throw new AccountNotFoundException(userId);
         }
         if (!postAddressV2Repository.checkIfAddressExistsById(addressId)) {

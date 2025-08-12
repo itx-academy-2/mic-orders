@@ -86,13 +86,4 @@ public interface AccountRepository {
    * @author DmytroLysenko1
    */
   void updatePassword(Long accountId, String newPassword);
-
-  /**
-   * Checks whether an account with the specified ID exists.
-   *
-   * @param accountId the ID of the account to check
-   * @return {@code true} if an account with the given ID exists, {@code false} otherwise
-   * @author Oleksandra Bulhakova
-   */
-  boolean checkIfAccountExistsById(Long accountId);
 }
