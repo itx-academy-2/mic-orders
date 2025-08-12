@@ -149,10 +149,11 @@ public class PostAddressesControllerTest {
 
     doNothing().when(deleteUseCase).deletePermanentAddress(userIdWanted, addressId);
 
-    //When
-    var result = mockMvc.perform(delete("/v1/users/{userId}/addresses/{addressId}", userIdWanted, addressId).with(getJwtRequest(userIdExisting, role)));
+    // When
+    var result = mockMvc
+        .perform(delete("/v1/users/{userId}/addresses/{addressId}", userIdWanted, addressId).with(getJwtRequest(userIdExisting, role)));
 
-    //Then
+    // Then
     result.andExpect(status().isNoContent());
     verify(deleteUseCase).deletePermanentAddress(userIdWanted, addressId);
   }
@@ -168,12 +169,13 @@ public class PostAddressesControllerTest {
 
     doThrow(new AccountNotFoundException(userIdWanted)).when(deleteUseCase).deletePermanentAddress(userIdWanted, addressId);
 
-    //When
-    var result = mockMvc.perform(delete("/v1/users/{userId}/addresses/{addressId}", userIdWanted, addressId).with(getJwtRequest(adminId, role)));
+    // When
+    var result =
+        mockMvc.perform(delete("/v1/users/{userId}/addresses/{addressId}", userIdWanted, addressId).with(getJwtRequest(adminId, role)));
 
-    //Then
+    // Then
     result.andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.detail").value("Account with id: 27 is not found"));
+        .andExpect(jsonPath("$.detail").value("Account with id: 27 is not found"));
     verify(deleteUseCase).deletePermanentAddress(userIdWanted, addressId);
   }
 
@@ -188,12 +190,13 @@ public class PostAddressesControllerTest {
 
     doThrow(new PostAddressNotFoundException(addressId)).when(deleteUseCase).deletePermanentAddress(userIdWanted, addressId);
 
-    //When
-    var result = mockMvc.perform(delete("/v1/users/{userId}/addresses/{addressId}", userIdWanted, addressId).with(getJwtRequest(userIdExisting, role)));
+    // When
+    var result = mockMvc
+        .perform(delete("/v1/users/{userId}/addresses/{addressId}", userIdWanted, addressId).with(getJwtRequest(userIdExisting, role)));
 
-    //Then
+    // Then
     result.andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.detail").value("PostAddress with id: 7b08cd5a-a34e-4bf1-aabf-f2e79740919b is not found"));
+        .andExpect(jsonPath("$.detail").value("PostAddress with id: 7b08cd5a-a34e-4bf1-aabf-f2e79740919b is not found"));
     verify(deleteUseCase).deletePermanentAddress(userIdWanted, addressId);
   }
 
@@ -206,10 +209,11 @@ public class PostAddressesControllerTest {
     String role = "ROLE_USER";
     UUID addressId = UUID.fromString("7b08cd5a-a34e-4bf1-aabf-f2e79740919b");
 
-    //When
-    var result = mockMvc.perform(delete("/v1/users/{userId}/addresses/{addressId}", userIdWanted, addressId).with(getJwtRequest(userIdExisting, role)));
+    // When
+    var result = mockMvc
+        .perform(delete("/v1/users/{userId}/addresses/{addressId}", userIdWanted, addressId).with(getJwtRequest(userIdExisting, role)));
 
-    //Then
+    // Then
     result.andExpect(status().isForbidden());
     verify(deleteUseCase, never()).deletePermanentAddress(userIdWanted, addressId);
   }

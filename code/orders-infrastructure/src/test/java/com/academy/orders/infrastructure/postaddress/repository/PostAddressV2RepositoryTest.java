@@ -3,19 +3,25 @@ package com.academy.orders.infrastructure.postaddress.repository;
 import com.academy.orders.infrastructure.postaddress.PostAddressV2Mapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.academy.orders.infrastructure.ModelUtils.getPostAddressV2EntityWithPermanentTitle;
 import static com.academy.orders.infrastructure.ModelUtils.getPostAddressV2WithPermanentTitle;
 import static com.academy.orders.infrastructure.ModelUtils.getPostAddressV2WithCleanedPermanentTitle;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 public class PostAddressV2RepositoryTest {
@@ -76,5 +82,25 @@ public class PostAddressV2RepositoryTest {
 
     verify(postAddressJpaAdapter).findPermanentPostAddressesByAccountId(userId);
     verifyNoInteractions(mapper);
+  }
+
+  @Test
+  void deletePermanentAddress_Success_Test() {
+    // Given
+    var addressId = UUID.fromString("5b08cd5a-a34e-4bf1-aabf-f2e79740919b");
+
+    doNothing().when(postAddressJpaAdapter).setAddressTitleToTemporary(addressId);
+
+    // When
+    postAddressV2Repository.deletePermanentAddress(addressId);
+
+    // Then
+    ArgumentCaptor<UUID> captor = ArgumentCaptor.forClass(UUID.class);
+    verify(postAddressJpaAdapter, times(1)).setAddressTitleToTemporary(captor.capture());
+    UUID captured = captor.getValue();
+    assertThat(captured)
+        .isNotNull()
+        .isEqualTo(addressId);
+    verifyNoMoreInteractions(postAddressJpaAdapter);
   }
 }

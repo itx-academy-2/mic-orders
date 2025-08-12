@@ -17,23 +17,24 @@ import java.util.UUID;
 @Slf4j
 @Transactional
 public class DeletePermanentPostAddressesUseCaseImpl implements DeletePermanentPostAddressesUseCase {
-    private final PostAddressV2Repository postAddressV2Repository;
+  private final PostAddressV2Repository postAddressV2Repository;
 
-    private final AccountRepository accountRepository;
+  private final AccountRepository accountRepository;
 
-    @Override
-    public void deletePermanentAddress(Long userId, UUID addressId) {
-        if (!accountRepository.existsById(userId)) {
-            throw new AccountNotFoundException(userId);
-        }
-        if (!postAddressV2Repository.checkIfAddressExistsById(addressId)) {
-            throw new PostAddressNotFoundException(addressId);
-        }
-        if (!postAddressV2Repository.checkIfAddressIsPermanent(addressId)) {
-            log.info("The given postAddress is already temporary - there is nothing to change");
-            return;
-        }
-        log.info("Delete permanent post addresses with id: {} from the user's list of permanent addresses for the user with id: {}", addressId, userId);
-        postAddressV2Repository.deletePermanentAddress(userId, addressId);
+  @Override
+  public void deletePermanentAddress(Long userId, UUID addressId) {
+    if (!accountRepository.existsById(userId)) {
+      throw new AccountNotFoundException(userId);
     }
+    if (!postAddressV2Repository.checkIfAddressExistsById(addressId)) {
+      throw new PostAddressNotFoundException(addressId);
+    }
+    if (!postAddressV2Repository.checkIfAddressIsPermanent(addressId)) {
+      log.info("The given postAddress is already temporary - there is nothing to change");
+      return;
+    }
+    log.info("Delete permanent post addresses with id: {} from the user's list of permanent addresses for the user with id: {}", addressId,
+        userId);
+    postAddressV2Repository.deletePermanentAddress(addressId);
+  }
 }
