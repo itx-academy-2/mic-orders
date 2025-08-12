@@ -103,4 +103,47 @@ public class PostAddressV2RepositoryTest {
         .isEqualTo(addressId);
     verifyNoMoreInteractions(postAddressJpaAdapter);
   }
+
+  @Test
+  void checkIfAddressExistsById_ReturnsTrueThenFalse_Test() {
+    // Given
+    UUID addressId = UUID.fromString("5b08cd5a-a34e-4bf1-aabf-f2e79740919b");
+    when(postAddressJpaAdapter.existsById(addressId)).thenReturn(true, false);
+
+    // When
+    boolean first = postAddressV2Repository.checkIfAddressExistsById(addressId);
+    boolean second = postAddressV2Repository.checkIfAddressExistsById(addressId);
+
+    // Then
+    assertThat(first).isTrue();
+    assertThat(second).isFalse();
+
+    ArgumentCaptor<UUID> captor = ArgumentCaptor.forClass(UUID.class);
+    verify(postAddressJpaAdapter, times(2)).existsById(captor.capture());
+    assertThat(captor.getAllValues()).containsExactly(addressId, addressId);
+    verifyNoMoreInteractions(postAddressJpaAdapter);
+  }
+
+  @Test
+  void checkIfAddressIsPermanent_ReturnsTrueThenFalse_Test() {
+    // Given
+    UUID addressId = UUID.fromString("5b08cd5a-a34e-4bf1-aabf-f2e79740919b");
+    when(postAddressJpaAdapter.existsByIdAndTitleStartingWith(addressId, "permanent: ")).thenReturn(true, false);
+
+    // When
+    boolean first = postAddressV2Repository.checkIfAddressIsPermanent(addressId);
+    boolean second = postAddressV2Repository.checkIfAddressIsPermanent(addressId);
+
+    // Then
+    assertThat(first).isTrue();
+    assertThat(second).isFalse();
+
+    ArgumentCaptor<UUID> idCaptor = ArgumentCaptor.forClass(UUID.class);
+    ArgumentCaptor<String> prefixCaptor = ArgumentCaptor.forClass(String.class);
+    verify(postAddressJpaAdapter, times(2))
+        .existsByIdAndTitleStartingWith(idCaptor.capture(), prefixCaptor.capture());
+    assertThat(idCaptor.getAllValues()).containsExactly(addressId, addressId);
+    assertThat(prefixCaptor.getAllValues()).containsExactly("permanent: ", "permanent: ");
+    verifyNoMoreInteractions(postAddressJpaAdapter);
+  }
 }
