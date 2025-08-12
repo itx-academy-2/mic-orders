@@ -44,7 +44,7 @@ public class DeletePermanentPostAddressesUseCaseTest {
     when(postAddressV2Repository.checkIfAddressExistsById(addressId)).thenReturn(true);
     when(postAddressV2Repository.checkIfAddressIsPermanent(addressId)).thenReturn(true);
 
-    doNothing().when(postAddressV2Repository).deletePermanentAddress(addressId);
+    doNothing().when(postAddressV2Repository).deletePermanentAddress(userId, addressId);
 
     // When
     useCaseImpl.deletePermanentAddress(userId, addressId);
@@ -53,7 +53,7 @@ public class DeletePermanentPostAddressesUseCaseTest {
     verify(accountRepository).existsById(userId);
     verify(postAddressV2Repository).checkIfAddressExistsById(addressId);
     verify(postAddressV2Repository).checkIfAddressIsPermanent(addressId);
-    verify(postAddressV2Repository).deletePermanentAddress(addressId);
+    verify(postAddressV2Repository).deletePermanentAddress(userId, addressId);
   }
 
   @Test
@@ -71,7 +71,7 @@ public class DeletePermanentPostAddressesUseCaseTest {
     verify(accountRepository).existsById(userId);
     verify(postAddressV2Repository, never()).checkIfAddressExistsById(addressId);
     verify(postAddressV2Repository, never()).checkIfAddressIsPermanent(addressId);
-    verify(postAddressV2Repository, never()).deletePermanentAddress(addressId);
+    verify(postAddressV2Repository, never()).deletePermanentAddress(userId, addressId);
     assertEquals("Account with id: 6 is not found", ex.getMessage());
   }
 
@@ -92,7 +92,7 @@ public class DeletePermanentPostAddressesUseCaseTest {
     verify(accountRepository).existsById(userId);
     verify(postAddressV2Repository).checkIfAddressExistsById(addressId);
     verify(postAddressV2Repository, never()).checkIfAddressIsPermanent(addressId);
-    verify(postAddressV2Repository, never()).deletePermanentAddress(addressId);
+    verify(postAddressV2Repository, never()).deletePermanentAddress(userId, addressId);
     assertEquals("PostAddress with id: 7b08cd5a-a34e-4bf1-aabf-f2e79740919b is not found", ex.getMessage());
   }
 
@@ -113,6 +113,6 @@ public class DeletePermanentPostAddressesUseCaseTest {
     verify(accountRepository).existsById(userId);
     verify(postAddressV2Repository).checkIfAddressExistsById(addressId);
     verify(postAddressV2Repository).checkIfAddressIsPermanent(addressId);
-    verify(postAddressV2Repository, never()).deletePermanentAddress(addressId);
+    verify(postAddressV2Repository, never()).deletePermanentAddress(userId, addressId);
   }
 }

@@ -37,8 +37,8 @@ public class PostAddressV2RepositoryImpl implements PostAddressV2Repository {
   }
 
   @Override
-  public void deletePermanentAddress(UUID addressId) {
-    postAddressJpaAdapter.setAddressTitleToTemporary(addressId);
+  public void deletePermanentAddress(Long userId, UUID addressId) {
+    postAddressJpaAdapter.setAddressTitleToTemporary(userId, addressId);
   }
 
   @Override

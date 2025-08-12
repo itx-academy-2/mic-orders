@@ -87,20 +87,24 @@ public class PostAddressV2RepositoryTest {
   @Test
   void deletePermanentAddress_Success_Test() {
     // Given
+    var userId = 1L;
     var addressId = UUID.fromString("5b08cd5a-a34e-4bf1-aabf-f2e79740919b");
 
-    doNothing().when(postAddressJpaAdapter).setAddressTitleToTemporary(addressId);
+    doNothing().when(postAddressJpaAdapter).setAddressTitleToTemporary(userId, addressId);
 
     // When
-    postAddressV2Repository.deletePermanentAddress(addressId);
+    postAddressV2Repository.deletePermanentAddress(userId, addressId);
 
     // Then
-    ArgumentCaptor<UUID> captor = ArgumentCaptor.forClass(UUID.class);
-    verify(postAddressJpaAdapter, times(1)).setAddressTitleToTemporary(captor.capture());
-    UUID captured = captor.getValue();
-    assertThat(captured)
-        .isNotNull()
-        .isEqualTo(addressId);
+    ArgumentCaptor<Long> userIdCaptor = ArgumentCaptor.forClass(Long.class);
+    ArgumentCaptor<UUID> addressIdCaptor = ArgumentCaptor.forClass(UUID.class);
+
+    verify(postAddressJpaAdapter, times(1))
+        .setAddressTitleToTemporary(userIdCaptor.capture(), addressIdCaptor.capture());
+
+    assertThat(userIdCaptor.getValue()).isNotNull().isEqualTo(userId);
+    assertThat(addressIdCaptor.getValue()).isNotNull().isEqualTo(addressId);
+
     verifyNoMoreInteractions(postAddressJpaAdapter);
   }
 

@@ -33,8 +33,10 @@ public class DeletePermanentPostAddressesUseCaseImpl implements DeletePermanentP
       log.info("The given postAddress is already temporary - there is nothing to change");
       return;
     }
-    log.info("Delete permanent post addresses with id: {} from the user's list of permanent addresses for the user with id: {}", addressId,
+    log.info(
+        "Delete permanent post addresses with id: {} from the user's list of permanent addresses for the user with id: {}, if this address belongs to this user",
+        addressId,
         userId);
-    postAddressV2Repository.deletePermanentAddress(addressId);
+    postAddressV2Repository.deletePermanentAddress(userId, addressId);
   }
 }

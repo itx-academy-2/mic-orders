@@ -52,12 +52,13 @@ public interface PostAddressJpaAdapter extends CrudRepository<PostAddressV2Entit
    * "temp: " prefix with a randomly generated UUID. This operation is executed as an update query and does not load the entity into the
    * persistence context.
    *
+   * @param userId the ID of the user whose address we want to delete
    * @param addressId the UUID of the post address to update
    * @author Oleksandra Bulhakova
    */
   @Modifying
   @Query("""
-      UPDATE PostAddressV2Entity p SET p.title = CONCAT ('temp: ', FUNCTION('gen_random_uuid')) WHERE p.id = :addressId AND p.title like 'permanent: %'
+      UPDATE PostAddressV2Entity p SET p.title = CONCAT ('temp: ', FUNCTION('gen_random_uuid')) WHERE p.id = :addressId AND p.account.id =:userId AND p.title like 'permanent: %'
       """)
-  void setAddressTitleToTemporary(@Param("addressId") UUID addressId);
+  void setAddressTitleToTemporary(@Param("userId") Long userId, @Param("addressId") UUID addressId);
 }

@@ -24,10 +24,11 @@ public interface PostAddressV2Repository {
    * "permanent: " prefix in its title. Instead of physically deleting the address from the database, this operation updates the title to
    * remove the "permanent: " prefix, effectively marking it as temporary.
    *
+   * @param userId the ID of the user
    * @param addressId the UUID of the post address to be removed from the permanent list
    * @author Oleksandra Bulhakova
    */
-  void deletePermanentAddress(UUID addressId);
+  void deletePermanentAddress(Long userId, UUID addressId);
 
   /**
    * Checks whether a post address with the specified ID exists.
