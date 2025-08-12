@@ -15,12 +15,16 @@ public class UpdateUserProfilePhotoUseCaseImpl implements UpdateUserProfilePhoto
 
   @Override
   public void updateProfilePhoto(Long userId, String photoUrl) {
+    if (photoUrl == null || photoUrl.isBlank()) {
+      throw new IllegalArgumentException("photoUrl must not be null or blank");
+    }
+    photoUrl = photoUrl.trim();
     log.debug("Checking existence of account for user {}", userId);
     if (!accountV2Repository.existsById(userId)) {
       log.warn("Account not found for user {}", userId);
       throw new AccountNotFoundException(userId);
     }
-    log.info("Updating profile photo for user {} with photo URL: {}", userId, photoUrl);
+    log.info("Updating profile photo for user {}", userId);
     accountV2Repository.updateAccountPhoto(userId, photoUrl);
   }
 }

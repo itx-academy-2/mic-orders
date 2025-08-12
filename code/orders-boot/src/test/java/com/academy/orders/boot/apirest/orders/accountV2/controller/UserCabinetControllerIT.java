@@ -17,7 +17,9 @@ import java.util.Map;
 
 import static com.academy.orders.ModelUtils.getUpdateAccountV2InfoRequestDTO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserCabinetControllerIT extends AbstractControllerIT {
   @Value("${auth.users[0].username}")
@@ -124,6 +126,8 @@ class UserCabinetControllerIT extends AbstractControllerIT {
 
     // Then
     assertEquals(200, result.getStatusCode().value());
+    assertNotNull(result.getBody());
+    assertTrue(result.getBody().contains("\"photo\""));
   }
 
   @Test
@@ -148,17 +152,19 @@ class UserCabinetControllerIT extends AbstractControllerIT {
     String originalPhoto = fetchCurrentPhoto(userId);
     UpdateUserPhotoRequestDTO requestBody = new UpdateUserPhotoRequestDTO();
     requestBody.setPhoto("https://example.com/new-photo.jpg");
+    try {
+      // When
+      var result = restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(requestBody, headers), Void.class);
 
-    // When
-    var result = restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(requestBody, headers), Void.class);
+      // Then
+      assertEquals(204, result.getStatusCode().value());
+      String updatedPhoto = fetchCurrentPhoto(userId);
+      assertEquals("https://example.com/new-photo.jpg", updatedPhoto);
 
-    // Then
-    assertEquals(204, result.getStatusCode().value());
-    String updatedPhoto = fetchCurrentPhoto(userId);
-    assertEquals("https://example.com/new-photo.jpg", updatedPhoto);
-
-    // Restore original photo
-    restorePhoto(userId, originalPhoto);
+    } finally {
+      // Restore original photo
+      restorePhoto(userId, originalPhoto);
+    }
   }
 
   @Test
@@ -166,7 +172,7 @@ class UserCabinetControllerIT extends AbstractControllerIT {
     // Given
     final var url = baseUrl() + V1_ENDPOINT_URI + "/photo";
     String newPhotoUrl = "https://example.com/new-photo.jpg";
-    var requestBody = Map.of("photoUrl", newPhotoUrl);
+    var requestBody = Map.of("photo", newPhotoUrl);
     final HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -184,17 +190,18 @@ class UserCabinetControllerIT extends AbstractControllerIT {
     final HttpHeaders headers = buildAuthHeaders(user);
     final var url = baseUrl() + V1_ENDPOINT_URI + "/photo";
     String originalPhoto = fetchCurrentPhoto(userId);
+    try {
+      // When
+      var result = restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);
 
-    // When
-    var result = restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);
-
-    // Then
-    assertEquals(204, result.getStatusCode().value());
-    String afterDeletePhoto = fetchCurrentPhoto(userId);
-    assertNull(afterDeletePhoto);
-
-    // Restore original photo
-    restorePhoto(userId, originalPhoto);
+      // Then
+      assertEquals(204, result.getStatusCode().value());
+      String afterDeletePhoto = fetchCurrentPhoto(userId);
+      assertNull(afterDeletePhoto);
+    } finally {
+      // Restore original photo
+      restorePhoto(userId, originalPhoto);
+    }
   }
 
   @Test

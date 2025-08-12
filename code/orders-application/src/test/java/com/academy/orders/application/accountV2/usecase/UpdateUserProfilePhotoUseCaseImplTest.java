@@ -56,4 +56,36 @@ class UpdateUserProfilePhotoUseCaseImplTest {
     verify(accountV2Repository, times(1)).existsById(userId);
     verify(accountV2Repository, never()).updateAccountPhoto(anyLong(), anyString());
   }
+
+  @Test
+  void updateProfilePhotoWhenPhotoUrlIsNullTest() {
+    // Given
+    Long userId = 1L;
+    String photoUrl = null;
+
+    // When
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> updateUserProfilePhotoUseCase.updateProfilePhoto(userId, photoUrl));
+
+    // Then
+    assertEquals("photoUrl must not be null or blank", ex.getMessage());
+    verify(accountV2Repository, never()).existsById(anyLong());
+    verify(accountV2Repository, never()).updateAccountPhoto(anyLong(), anyString());
+  }
+
+  @Test
+  void updateProfilePhotoWhenPhotoUrlIsBlankTest() {
+    // Given
+    Long userId = 1L;
+    String photoUrl = "   ";
+
+    // When
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> updateUserProfilePhotoUseCase.updateProfilePhoto(userId, photoUrl));
+
+    // Then
+    assertEquals("photoUrl must not be null or blank", ex.getMessage());
+    verify(accountV2Repository, never()).existsById(anyLong());
+    verify(accountV2Repository, never()).updateAccountPhoto(anyLong(), anyString());
+  }
 }

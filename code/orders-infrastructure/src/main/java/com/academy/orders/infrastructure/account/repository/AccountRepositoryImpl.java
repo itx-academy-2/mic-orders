@@ -104,7 +104,7 @@ public class AccountRepositoryImpl implements AccountRepository, AccountV2Reposi
   @Override
   @Transactional
   public void updateAccountPhoto(Long id, String photoUrl) {
-    log.info("Updating photo for user with id {}: {}", id, photoUrl);
+    log.info("Updating photo for user with id: {}", id);
     accountJpaAdapter.updatePhotoById(id, photoUrl);
   }
 }
