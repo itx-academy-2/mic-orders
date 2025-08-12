@@ -11,7 +11,7 @@ Feature: Get User Profile Photo
     And path photoPath
     When method get
     Then status 200
-    * if (response.photo != null) karate.match(response.photo, '#string')
+    * match response.photo == '#? _ == null || typeof _ == "string"'
 
   @GS3-87
   Scenario: Attempt to get user photo without authorization
