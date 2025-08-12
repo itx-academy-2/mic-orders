@@ -3,19 +3,25 @@ package com.academy.orders.infrastructure.postaddress.repository;
 import com.academy.orders.infrastructure.postaddress.PostAddressV2Mapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.academy.orders.infrastructure.ModelUtils.getPostAddressV2EntityWithPermanentTitle;
 import static com.academy.orders.infrastructure.ModelUtils.getPostAddressV2WithPermanentTitle;
 import static com.academy.orders.infrastructure.ModelUtils.getPostAddressV2WithCleanedPermanentTitle;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 public class PostAddressV2RepositoryTest {
@@ -76,5 +82,72 @@ public class PostAddressV2RepositoryTest {
 
     verify(postAddressJpaAdapter).findPermanentPostAddressesByAccountId(userId);
     verifyNoInteractions(mapper);
+  }
+
+  @Test
+  void deletePermanentAddress_Success_Test() {
+    // Given
+    var userId = 1L;
+    var addressId = UUID.fromString("5b08cd5a-a34e-4bf1-aabf-f2e79740919b");
+
+    doNothing().when(postAddressJpaAdapter).setAddressTitleToTemporary(userId, addressId);
+
+    // When
+    postAddressV2Repository.deletePermanentAddress(userId, addressId);
+
+    // Then
+    ArgumentCaptor<Long> userIdCaptor = ArgumentCaptor.forClass(Long.class);
+    ArgumentCaptor<UUID> addressIdCaptor = ArgumentCaptor.forClass(UUID.class);
+
+    verify(postAddressJpaAdapter, times(1))
+        .setAddressTitleToTemporary(userIdCaptor.capture(), addressIdCaptor.capture());
+
+    assertThat(userIdCaptor.getValue()).isNotNull().isEqualTo(userId);
+    assertThat(addressIdCaptor.getValue()).isNotNull().isEqualTo(addressId);
+
+    verifyNoMoreInteractions(postAddressJpaAdapter);
+  }
+
+  @Test
+  void checkIfAddressExistsById_ReturnsTrueThenFalse_Test() {
+    // Given
+    UUID addressId = UUID.fromString("5b08cd5a-a34e-4bf1-aabf-f2e79740919b");
+    when(postAddressJpaAdapter.existsById(addressId)).thenReturn(true, false);
+
+    // When
+    boolean first = postAddressV2Repository.checkIfAddressExistsById(addressId);
+    boolean second = postAddressV2Repository.checkIfAddressExistsById(addressId);
+
+    // Then
+    assertThat(first).isTrue();
+    assertThat(second).isFalse();
+
+    ArgumentCaptor<UUID> captor = ArgumentCaptor.forClass(UUID.class);
+    verify(postAddressJpaAdapter, times(2)).existsById(captor.capture());
+    assertThat(captor.getAllValues()).containsExactly(addressId, addressId);
+    verifyNoMoreInteractions(postAddressJpaAdapter);
+  }
+
+  @Test
+  void checkIfAddressIsPermanent_ReturnsTrueThenFalse_Test() {
+    // Given
+    UUID addressId = UUID.fromString("5b08cd5a-a34e-4bf1-aabf-f2e79740919b");
+    when(postAddressJpaAdapter.existsByIdAndTitleStartingWith(addressId, "permanent: ")).thenReturn(true, false);
+
+    // When
+    boolean first = postAddressV2Repository.checkIfAddressIsPermanent(addressId);
+    boolean second = postAddressV2Repository.checkIfAddressIsPermanent(addressId);
+
+    // Then
+    assertThat(first).isTrue();
+    assertThat(second).isFalse();
+
+    ArgumentCaptor<UUID> idCaptor = ArgumentCaptor.forClass(UUID.class);
+    ArgumentCaptor<String> prefixCaptor = ArgumentCaptor.forClass(String.class);
+    verify(postAddressJpaAdapter, times(2))
+        .existsByIdAndTitleStartingWith(idCaptor.capture(), prefixCaptor.capture());
+    assertThat(idCaptor.getAllValues()).containsExactly(addressId, addressId);
+    assertThat(prefixCaptor.getAllValues()).containsExactly("permanent: ", "permanent: ");
+    verifyNoMoreInteractions(postAddressJpaAdapter);
   }
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -33,5 +34,20 @@ public class PostAddressV2RepositoryImpl implements PostAddressV2Repository {
             .orders(postAddressV2.orders())
             .build())
         .toList();
+  }
+
+  @Override
+  public void deletePermanentAddress(Long userId, UUID addressId) {
+    postAddressJpaAdapter.setAddressTitleToTemporary(userId, addressId);
+  }
+
+  @Override
+  public boolean checkIfAddressExistsById(UUID addressId) {
+    return postAddressJpaAdapter.existsById(addressId);
+  }
+
+  @Override
+  public boolean checkIfAddressIsPermanent(UUID addressId) {
+    return postAddressJpaAdapter.existsByIdAndTitleStartingWith(addressId, "permanent: ");
   }
 }
