@@ -87,40 +87,40 @@ public class PostAddressV2RepositoryIT extends AbstractRepositoryIT {
 
   @Test
   void checkIfAddressExistsById_ReturnsTrue_Test() {
-    //Given
+    // Given
     PostAddressV2 postAddressV2ToSave = getPostAddressV2WithPermanentAddress();
     PostAddressV2Entity savedEntity = postAddressJpaAdapter.save(postAddressV2Mapper.toEntity(postAddressV2ToSave));
 
-    //When
+    // When
     var result = postAddressV2Repository.checkIfAddressExistsById(savedEntity.getId());
 
-    //Then
+    // Then
     assertNotNull(savedEntity.getId());
     assertTrue(result);
   }
 
   @Test
   void checkIfAddressExistsById_ReturnsFalse_Test() {
-    //Given
+    // Given
     var noneExistentAddressId = UUID.randomUUID();
 
-    //When
+    // When
     var result = postAddressV2Repository.checkIfAddressExistsById(noneExistentAddressId);
 
-    //Then
+    // Then
     assertFalse(result);
   }
 
   @Test
   void checkIfAddressIsPermanent_ReturnsTrue_Test() {
-    //Given
+    // Given
     PostAddressV2 postAddressV2ToSave = getPostAddressV2WithPermanentAddress();
     PostAddressV2Entity savedEntity = postAddressJpaAdapter.save(postAddressV2Mapper.toEntity(postAddressV2ToSave));
 
-    //When
+    // When
     var result = postAddressV2Repository.checkIfAddressIsPermanent(savedEntity.getId());
 
-    //Then
+    // Then
     assertNotNull(savedEntity.getId());
     assertEquals("permanent: Friend", savedEntity.getTitle());
     assertTrue(result);
@@ -128,14 +128,14 @@ public class PostAddressV2RepositoryIT extends AbstractRepositoryIT {
 
   @Test
   void checkIfAddressIsPermanent_ReturnsFalse_Test() {
-    //Given
+    // Given
     PostAddressV2 postAddressV2ToSave = getPostAddressV2WithTemporaryAddress();
     PostAddressV2Entity savedEntity = postAddressJpaAdapter.save(postAddressV2Mapper.toEntity(postAddressV2ToSave));
 
-    //When
+    // When
     var result = postAddressV2Repository.checkIfAddressIsPermanent(savedEntity.getId());
 
-    //Then
+    // Then
     assertNotNull(savedEntity.getId());
     assertEquals("temp: 550e8400-e29b-41d4-a716-446655440016", savedEntity.getTitle());
     assertFalse(result);
@@ -143,14 +143,14 @@ public class PostAddressV2RepositoryIT extends AbstractRepositoryIT {
 
   @Test
   void deletePermanentAddress_Success_Test() {
-    //Given
+    // Given
     PostAddressV2 postAddressV2ToSave = getPostAddressV2WithPermanentAddress();
     PostAddressV2Entity savedEntity = postAddressJpaAdapter.save(postAddressV2Mapper.toEntity(postAddressV2ToSave));
 
-    //When
+    // When
     postAddressV2Repository.deletePermanentAddress(savedEntity.getAccount().getId(), savedEntity.getId());
 
-    //Then
+    // Then
     assertNotNull(savedEntity.getId());
     assertEquals("permanent: Friend", savedEntity.getTitle());
     entityManager.flush();
@@ -161,14 +161,14 @@ public class PostAddressV2RepositoryIT extends AbstractRepositoryIT {
 
   @Test
   void deletePermanentAddress_IsIdempotentTitleChangedOnlyOnce_Test() {
-    //Given
+    // Given
     PostAddressV2 postAddressV2ToSave = getPostAddressV2WithPermanentAddress();
     PostAddressV2Entity savedEntity = postAddressJpaAdapter.save(postAddressV2Mapper.toEntity(postAddressV2ToSave));
 
-    //When: first update
+    // When: first update
     postAddressV2Repository.deletePermanentAddress(savedEntity.getAccount().getId(), savedEntity.getId());
 
-    //Then: changed title to temp
+    // Then: changed title to temp
     assertNotNull(savedEntity.getId());
     assertEquals("permanent: Friend", savedEntity.getTitle());
     entityManager.flush();
@@ -176,10 +176,10 @@ public class PostAddressV2RepositoryIT extends AbstractRepositoryIT {
     var reloadedEntity = postAddressJpaAdapter.findById(savedEntity.getId()).orElseThrow();
     assertTrue(reloadedEntity.getTitle().startsWith("temp: "));
 
-    //When: attempt of second update
+    // When: attempt of second update
     postAddressV2Repository.deletePermanentAddress(savedEntity.getAccount().getId(), savedEntity.getId());
 
-    //Then: the title wasn't changed again - the operation was idempotent
+    // Then: the title wasn't changed again - the operation was idempotent
     entityManager.flush();
     entityManager.clear();
     var reloadedEntityAfterOneMoreAttempt = postAddressJpaAdapter.findById(savedEntity.getId()).orElseThrow();

@@ -213,7 +213,8 @@ public class PostAddressesControllerIT extends AbstractControllerIT {
     prepareTestPostAddresses();
 
     var listOfUserPostAddresses = getUserPostAddresses(accountId);
-    var permanentAddressIdForTest = listOfUserPostAddresses.stream().filter(e -> e.getTitle().startsWith("permanent: ")).findFirst().orElseThrow().getId();
+    var permanentAddressIdForTest =
+        listOfUserPostAddresses.stream().filter(e -> e.getTitle().startsWith("permanent: ")).findFirst().orElseThrow().getId();
 
     final var url = baseUrl() + format(ENDPOINT_DELETE, accountId, permanentAddressIdForTest);
     final HttpHeaders headers = buildAuthHeaders(username);
@@ -223,7 +224,7 @@ public class PostAddressesControllerIT extends AbstractControllerIT {
 
     // When
     final var response =
-            restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Void.class);
+        restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Void.class);
 
     // Then
     assertEquals(204, response.getStatusCode().value());
@@ -239,7 +240,8 @@ public class PostAddressesControllerIT extends AbstractControllerIT {
     prepareTestPostAddresses();
 
     var listOfUserPostAddresses = getUserPostAddresses(accountId);
-    var originalPostAddressWithTemporaryTitle = listOfUserPostAddresses.stream().filter(e -> e.getTitle().startsWith("temp: ")).findFirst().orElseThrow();
+    var originalPostAddressWithTemporaryTitle =
+        listOfUserPostAddresses.stream().filter(e -> e.getTitle().startsWith("temp: ")).findFirst().orElseThrow();
     var temporaryAddressIdForTest = originalPostAddressWithTemporaryTitle.getId();
 
     final var url = baseUrl() + format(ENDPOINT_DELETE, accountId, temporaryAddressIdForTest);
@@ -250,7 +252,7 @@ public class PostAddressesControllerIT extends AbstractControllerIT {
 
     // When
     final var response =
-            restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Void.class);
+        restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Void.class);
 
     // Then
     assertEquals(204, response.getStatusCode().value());
@@ -272,7 +274,7 @@ public class PostAddressesControllerIT extends AbstractControllerIT {
 
     // When
     final var response =
-            restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
+        restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
 
     // Then
     assertEquals(404, response.getStatusCode().value());
@@ -294,7 +296,7 @@ public class PostAddressesControllerIT extends AbstractControllerIT {
 
     // When
     final var response =
-            restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
+        restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
 
     // Then
     assertEquals(404, response.getStatusCode().value());
@@ -314,7 +316,7 @@ public class PostAddressesControllerIT extends AbstractControllerIT {
 
     // When
     final var response =
-            restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Void.class);
+        restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Void.class);
 
     // Then
     assertEquals(403, response.getStatusCode().value());
@@ -332,7 +334,7 @@ public class PostAddressesControllerIT extends AbstractControllerIT {
 
     // When
     final var response =
-            restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Void.class);
+        restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, Void.class);
 
     // Then
     assertEquals(401, response.getStatusCode().value());
@@ -340,19 +342,19 @@ public class PostAddressesControllerIT extends AbstractControllerIT {
 
   private List<PostAddressV2Entity> getUserPostAddresses(Long userId) {
     return jdbcClient.sql("""
-SELECT * FROM post_addresses_v2 WHERE account_id = :userId
-""")
-            .param("userId", userId)
-            .query(PostAddressV2Entity.class)
-            .list();
+        SELECT * FROM post_addresses_v2 WHERE account_id = :userId
+        """)
+        .param("userId", userId)
+        .query(PostAddressV2Entity.class)
+        .list();
   }
 
   private Optional<PostAddressV2Entity> getPostAddressV2EntityById(UUID addressId) {
     return jdbcClient.sql("""
-SELECT * FROM post_addresses_v2 WHERE id = :addressId
-""")
-            .param("addressId", addressId)
-            .query(PostAddressV2Entity.class)
-            .optional();
+        SELECT * FROM post_addresses_v2 WHERE id = :addressId
+        """)
+        .param("addressId", addressId)
+        .query(PostAddressV2Entity.class)
+        .optional();
   }
 }
