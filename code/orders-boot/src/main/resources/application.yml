@@ -65,3 +65,6 @@ images:
 prometheus:
   stage: ${PROMETHEUS_STAGE}
   url: ${PROMETHEUS_URL}
+
+password-reset:
+  base-path: /v1/password-reset/

@@ -1,5 +1,6 @@
 package com.academy.orders.boot.config;
 
+import com.academy.orders.boot.config.security.PasswordResetTokenFilter;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -34,6 +35,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -68,7 +70,8 @@ public class SecurityConfig {
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerExceptionResolver handlerExceptionResolver)
+  public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerExceptionResolver handlerExceptionResolver,
+      PasswordResetTokenFilter passwordResetTokenFilter)
       throws Exception {
     return http
         .cors(configurer -> {
@@ -91,11 +94,13 @@ public class SecurityConfig {
                 "/v1/articles/**",
                 "/auth/sign-in",
                 "/auth/sign-up",
-                "/v1/products/**")
+                "/v1/products/**",
+                "v1/password-reset/**")
             .permitAll()
             .anyRequest().authenticated())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterAfter(accountStatusFilter(), BearerTokenAuthenticationFilter.class)
+        .addFilterBefore(passwordResetTokenFilter, UsernamePasswordAuthenticationFilter.class)
         .oauth2ResourceServer(oauth2 -> oauth2
             .jwt(Customizer.withDefaults())
             .authenticationEntryPoint(authenticationEntryPoint(handlerExceptionResolver)))
