@@ -68,7 +68,7 @@ public class PasswordResetTokenFilter extends OncePerRequestFilter {
       try {
         UUID.fromString(token);
       } catch (IllegalArgumentException e) {
-        log.warn("Invalid token format: {}", token);
+        log.warn("Invalid token format");
         response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid token format");
         return;
       }
