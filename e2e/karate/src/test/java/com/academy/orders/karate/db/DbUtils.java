@@ -103,4 +103,42 @@ public class DbUtils {
             throw new RuntimeException("Failed to fetch post_address_v2_id", e);
         }
     }
+
+    public UUID getPostAddressIdByTitle(String title) {
+        String sql = "SELECT id FROM post_addresses_v2 WHERE title = ?";
+        try (var connection = getConnection(url, username, password);
+             var statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, title);
+
+            try (var resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getObject("id", java.util.UUID.class);
+                } else {
+                    return null;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to get post address id by title", e);
+        }
+    }
+
+    public String getPostAddressTitleById(UUID id) {
+        String sql = "SELECT title FROM post_addresses_v2 WHERE id = ?";
+        try (var connection = getConnection(url, username, password);
+             var statement = connection.prepareStatement(sql)) {
+
+            statement.setObject(1, id);
+
+            try (var resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("title");
+                } else {
+                    return null;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to get post address title by id", e);
+        }
+    }
 }
