@@ -95,7 +95,7 @@ public class SecurityConfig {
                 "/auth/sign-in",
                 "/auth/sign-up",
                 "/v1/products/**",
-                "v1/password-reset/**")
+                "/v1/password-reset/**")
             .permitAll()
             .anyRequest().authenticated())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
