@@ -11,11 +11,13 @@ import com.academy.orders.domain.wishlist.usecase.GetUserWishlistUseCase;
 import com.academy.orders.domain.wishlist.usecase.RemoveFromWishlistUseCase;
 import com.academy.orders_api_rest.generated.model.PageProductsDTO;
 import com.academy.orders_api_rest.generated.model.PageableDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import java.util.UUID;
@@ -29,12 +31,14 @@ import static com.academy.orders.apirest.TestConstants.LANGUAGE_EN;
 import static com.academy.orders.apirest.TestConstants.ROLE_USER;
 import static com.academy.orders.apirest.TestConstants.TEST_ID;
 import static com.academy.orders.apirest.TestConstants.TEST_UUID;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserWishlistController.class)
@@ -109,20 +113,24 @@ class UserWishlistControllerTest {
     Page<Product> page = getProductsPage();
     PageProductsDTO responseDto = getPageProductsDTO();
     when(securityUtils.getAuthenticatedUserId()).thenReturn(USER_ID);
-    when(pageableDTOMapper.fromDto(dto)).thenReturn(pageable);
+    when(pageableDTOMapper.fromDto(any(PageableDTO.class))).thenReturn(pageable);
     when(getUserWishlistUseCase.getProductsInUserWishlist(USER_ID, LANGUAGE_EN, pageable)).thenReturn(page);
     when(productPreviewDTOMapper.toPageProductsDTO(page)).thenReturn(responseDto);
 
     // When
     mockMvc.perform(get(MY_WISHLIST_PATH)
         .param("lang", LANGUAGE_EN)
+        .param("page", "0")
+        .param("size", "10")
         .with(getJwtRequest(USER_ID, ROLE_USER)))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().json(new ObjectMapper().writeValueAsString(responseDto)));
 
     // Then
-    verify(securityUtils, times(1)).getAuthenticatedUserId();
-    verify(pageableDTOMapper, times(1)).fromDto(dto);
-    verify(getUserWishlistUseCase, times(1)).getProductsInUserWishlist(USER_ID, LANGUAGE_EN, pageable);
-    verify(productPreviewDTOMapper, times(1)).toPageProductsDTO(page);
+    verify(securityUtils).getAuthenticatedUserId();
+    verify(pageableDTOMapper).fromDto(any(PageableDTO.class));
+    verify(getUserWishlistUseCase).getProductsInUserWishlist(USER_ID, LANGUAGE_EN, pageable);
+    verify(productPreviewDTOMapper).toPageProductsDTO(page);
   }
 }
