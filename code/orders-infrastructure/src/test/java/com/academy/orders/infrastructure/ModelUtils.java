@@ -273,8 +273,16 @@ public class ModelUtils {
     return LanguageEntity.builder().id(1L).code(code).build();
   }
 
+  public static LanguageEntity getLanguageEntity(String code, Long id) {
+    return LanguageEntity.builder().id(id).code(code).build();
+  }
+
   public static Language getLanguage() {
     return Language.builder().id(1L).code("en").build();
+  }
+
+  public static Language getLanguage(String code, Long id) {
+    return Language.builder().id(id).code(code).build();
   }
 
   public static Page<Account> getAccountPage(List<Account> accountDomains, Pageable pageableDomain,

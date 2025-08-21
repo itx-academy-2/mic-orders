@@ -13,6 +13,9 @@ Feature: Create Product
     Then match responseStatus == <response>
     And match response == read(<testDataFile>)
 
+    # Cleanup (only if product was created)
+    * if (<response> == 201) karate.call('classpath:apis/orders/helpers/product/delete-product.feature', { id: response.id })
+
     Examples:
       | response   | username                  | password                  | role      |testDataFile                                                         |
       | 201        | '#(manager.username)'     | '#(manager.password)'     | 'MANAGER' |'classpath:apis/orders/test-data/responses/createProduct_201.json'   |

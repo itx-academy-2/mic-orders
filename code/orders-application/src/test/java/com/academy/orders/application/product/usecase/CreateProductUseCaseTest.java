@@ -4,7 +4,9 @@ import com.academy.orders.application.ModelUtils;
 import com.academy.orders.domain.common.exception.BadRequestException;
 import com.academy.orders.domain.language.exception.LanguageNotFoundException;
 import com.academy.orders.domain.language.repository.LanguageRepository;
+import com.academy.orders.domain.product.dto.ProductRequestDto;
 import com.academy.orders.domain.product.entity.ProductManagement;
+import com.academy.orders.domain.product.exception.MissingTranslationsException;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUseCase;
 import com.academy.orders.domain.tag.repository.TagRepository;
@@ -16,7 +18,8 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -35,6 +38,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -167,5 +171,68 @@ class CreateProductUseCaseTest {
     var imageLink = productManagementArgumentCaptor.getAllValues().get(0).image();
     assertNotNull(imageLink);
     assertEquals(defaultImageUrl, imageLink);
+  }
+
+  @Test
+  void createProductWhenTranslationsMissingTest() {
+    // Given
+    var request = ModelUtils.getProductRequestWithSingleTranslation();
+    when(languageRepository.findAll()).thenReturn(List.of(ModelUtils.getLanguageEn(), ModelUtils.getLanguage()));
+
+    // When
+    assertThrows(MissingTranslationsException.class, () -> createProductUseCase.createProduct(request));
+
+    // Then
+    verifyNoInteractions(tagRepository, productRepository);
+  }
+
+  @Test
+  void createProductWithAllTranslationsTest() {
+    // Given
+    var request = ModelUtils.getProductRequestWithAllTranslations();
+    when(languageRepository.findAll()).thenReturn(List.of(ModelUtils.getLanguageEn(), ModelUtils.getLanguage()));
+    when(tagRepository.getTagsByIds(request.tagIds())).thenReturn(Set.of(ModelUtils.getTag()));
+    when(languageRepository.findByCode("en")).thenReturn(Optional.of(ModelUtils.getLanguageEn()));
+    when(languageRepository.findByCode("uk")).thenReturn(Optional.of(ModelUtils.getLanguage()));
+    var product = ModelUtils.getProductWithImageLink();
+    when(productRepository.save(any(ProductManagement.class))).thenReturn(product);
+
+    // When
+    var result = createProductUseCase.createProduct(request);
+
+    // Then
+    assertEquals(product, result);
+    verify(tagRepository).getTagsByIds(request.tagIds());
+    verify(productRepository).save(any(ProductManagement.class));
+    verify(languageRepository).findByCode("en");
+    verify(languageRepository).findByCode("uk");
+  }
+
+  @Test
+  void createProductWhenTranslationsEmptyTest() {
+    // Given
+    var request = ProductRequestDto.builder()
+        .productTranslations(new HashSet<>())
+        .build();
+
+    // When
+    assertThrows(MissingTranslationsException.class, () -> createProductUseCase.createProduct(request));
+
+    // Then
+    verifyNoInteractions(tagRepository, productRepository);
+    verify(languageRepository, never()).findAll();
+  }
+
+  @Test
+  void createProductWhenTranslationsNullTest() {
+    // Given
+    var request = ProductRequestDto.builder().build();
+
+    // When
+    assertThrows(MissingTranslationsException.class, () -> createProductUseCase.createProduct(request));
+
+    // Then
+    verifyNoInteractions(tagRepository, productRepository);
+    verify(languageRepository, never()).findAll();
   }
 }

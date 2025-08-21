@@ -1,6 +1,6 @@
 {
   "status": "VISIBLE",
-  "image": "image",
+  "image": "http://image.jpg",
   "quantity": 10,
   "price": 10.99,
   "productTranslations": [
@@ -8,6 +8,11 @@
       "name": "Name",
       "description": "Desc",
       "languageCode": "en"
+    },
+    {
+      "name": "Ім'я",
+      "description": "Опис",
+      "languageCode": "uk"
     }
   ]
 }

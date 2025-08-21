@@ -12,6 +12,7 @@ import com.academy.orders.domain.order.exception.InvalidOrderStatusTransitionExc
 import com.academy.orders.domain.order.exception.OrderFinalStateException;
 import com.academy.orders.domain.passwordreset.exception.InvalidTokenException;
 import com.academy.orders.domain.passwordreset.exception.TokenNotFoundException;
+import com.academy.orders.domain.product.exception.MissingTranslationsException;
 import com.academy.orders.domain.wishlist.exception.UnsupportedSortFieldException;
 import com.academy.orders.domain.postaddress.exception.PostAddressTitleAlreadyExistsException;
 import com.academy.orders_api_rest.generated.model.ErrorObjectDTO;
@@ -293,5 +294,20 @@ class ErrorHandlerTest {
     assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
     assertEquals(HttpStatus.NOT_FOUND.getReasonPhrase(), response.getTitle());
     assertNull(response.getDetail());
+  }
+
+  @Test
+  void handleMissingTranslationsException_ShouldReturnProperError() {
+    // Given
+    var ex = new MissingTranslationsException("Missing translations for languages: en, uk");
+
+    // When
+    var response = errorHandler.handleMissingTranslationsException(ex);
+
+    // Then
+    assertNotNull(response);
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), response.getStatus());
+    assertEquals("Missing Product Translations", response.getTitle());
+    assertEquals("Missing translations for languages: en, uk", response.getDetail());
   }
 }

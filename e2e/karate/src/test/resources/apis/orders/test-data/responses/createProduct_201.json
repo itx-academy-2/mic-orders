@@ -2,9 +2,12 @@
   "id": "#string",
   "status": "#string",
   "image": "#string",
-  "createdAt": "#string",
+  "createdAt": "##string",
   "quantity": "#number",
   "price": "#number",
+  "discount": "##number",
+  "priceWithDiscount": "##number",
+  "percentageOfTotalOrders": "##number",
   "tags": "#array",
   "productTranslations": "#array"
 }
