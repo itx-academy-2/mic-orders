@@ -371,16 +371,50 @@ public class ModelUtils {
         .build();
   }
 
-  public static ProductRequestDto getEmptyProductRequestDto() {
-    return ProductRequestDto.builder().tagIds(List.of(1L))
-        .productTranslations(Set.of(ProductTranslationDto.builder().languageCode("en").build())).build();
-  }
-
   public static ProductRequestDto getProductRequestDtoWithInvalidLanguageCode() {
     return ProductRequestDto.builder().status(String.valueOf(ProductStatus.VISIBLE)).image(IMAGE_URL)
         .quantity(TEST_QUANTITY).price(TEST_PRICE).tagIds(List.of(1L))
         .productTranslations(Set.of(ProductTranslationDto.builder().name("Name").description("Description")
             .languageCode("invalid").build()))
+        .build();
+  }
+
+  public static ProductRequestDto getProductRequestWithSingleTranslation() {
+    return ProductRequestDto.builder()
+        .status("VISIBLE")
+        .image(IMAGE_URL)
+        .quantity(TEST_QUANTITY)
+        .price(TEST_PRICE)
+        .discount(null)
+        .tagIds(List.of(1L))
+        .productTranslations(Set.of(
+            ProductTranslationDto.builder()
+                .name("Name EN")
+                .description("Description EN")
+                .languageCode("en")
+                .build()))
+        .build();
+  }
+
+  public static ProductRequestDto getProductRequestWithAllTranslations() {
+    return ProductRequestDto.builder()
+        .status("VISIBLE")
+        .image(IMAGE_URL)
+        .quantity(TEST_QUANTITY)
+        .price(TEST_PRICE)
+        .discount(null)
+        .tagIds(List.of(1L))
+        .productTranslations(Set.of(
+            ProductTranslationDto.builder()
+                .name("Name EN")
+                .description("Description EN")
+                .languageCode("en")
+                .build(),
+            ProductTranslationDto.builder()
+                .name("Name UK")
+                .description("Description UK")
+                .languageCode("uk")
+                .build()))
         .build();
   }
 

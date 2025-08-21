@@ -141,4 +141,29 @@ public class DbUtils {
             throw new RuntimeException("Failed to get post address title by id", e);
         }
     }
+
+    public void deleteProductById(String id) {
+        try (var connection = getConnection(url, username, password)) {
+            connection.setAutoCommit(false);
+
+            try (var deleteTranslations = connection.prepareStatement(
+                    "DELETE FROM products_translations WHERE product_id = ?")) {
+                deleteTranslations.setObject(1, UUID.fromString(id), java.sql.Types.OTHER);
+                deleteTranslations.executeUpdate();
+            }
+
+            try (var deleteProduct = connection.prepareStatement(
+                    "DELETE FROM products WHERE id = ?")) {
+                deleteProduct.setObject(1, UUID.fromString(id), java.sql.Types.OTHER);
+                int rows = deleteProduct.executeUpdate();
+                if (rows == 0) {
+                    throw new RuntimeException("No product deleted with id: " + id);
+                }
+            }
+
+            connection.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to delete product with id: " + id, e);
+        }
+    }
 }

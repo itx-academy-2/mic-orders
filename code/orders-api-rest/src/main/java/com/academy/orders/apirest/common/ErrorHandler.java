@@ -12,6 +12,7 @@ import com.academy.orders.domain.order.exception.InvalidOrderStatusTransitionExc
 import com.academy.orders.domain.order.exception.OrderFinalStateException;
 import com.academy.orders.domain.passwordreset.exception.InvalidTokenException;
 import com.academy.orders.domain.passwordreset.exception.TokenNotFoundException;
+import com.academy.orders.domain.product.exception.MissingTranslationsException;
 import com.academy.orders.domain.wishlist.exception.UnsupportedSortFieldException;
 import com.academy.orders.domain.postaddress.exception.PostAddressTitleAlreadyExistsException;
 import com.academy.orders_api_rest.generated.model.ErrorObjectDTO;
@@ -229,6 +230,14 @@ public class ErrorHandler {
   public ErrorObjectDTO handlePostAddressTitleAlreadyExistsException(final PostAddressTitleAlreadyExistsException ex) {
     log.warn("PostAddress title already exists ", ex);
     return new ErrorObjectDTO().status(HttpStatus.CONFLICT.value()).title(HttpStatus.CONFLICT.getReasonPhrase())
+        .detail(ex.getMessage());
+  }
+
+  @ExceptionHandler(MissingTranslationsException.class)
+  @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+  public final ErrorObjectDTO handleMissingTranslationsException(MissingTranslationsException ex) {
+    log.warn("Missing product translations", ex);
+    return new ErrorObjectDTO().status(HttpStatus.UNPROCESSABLE_ENTITY.value()).title("Missing Product Translations")
         .detail(ex.getMessage());
   }
 }

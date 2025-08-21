@@ -6,11 +6,13 @@ import com.academy.orders.domain.discount.entity.Discount;
 import com.academy.orders.domain.language.exception.LanguageNotFoundException;
 import com.academy.orders.domain.language.repository.LanguageRepository;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
+import com.academy.orders.domain.product.dto.ProductTranslationDto;
 import com.academy.orders.domain.product.entity.Language;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
+import com.academy.orders.domain.product.exception.MissingTranslationsException;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.CreateProductUseCase;
 import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUseCase;
@@ -18,7 +20,7 @@ import com.academy.orders.domain.tag.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,6 +61,9 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
           +
           "Please remove a discount from one or more products.") {};
     }
+
+    validateTranslations(request.productTranslations());
+
     var tags = tagRepository.getTagsByIds(request.tagIds());
 
     final String imageUrl = (request.image() != null) ? request.image() : defaultImageUrl;
@@ -75,5 +80,27 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
         .discount(request.discount()).productTranslationManagement(productTranslations).build();
 
     return productRepository.save(product);
+  }
+
+  private void validateTranslations(Set<ProductTranslationDto> translations) {
+    if (translations == null || translations.isEmpty()) {
+      throw new MissingTranslationsException("Product translations cannot be empty");
+    }
+
+    var allLanguages = languageRepository.findAll();
+    var languageCodesInRequest = translations.stream()
+        .map(ProductTranslationDto::languageCode)
+        .map(code -> code.toLowerCase(java.util.Locale.ROOT))
+        .collect(Collectors.toSet());
+
+    var missingLanguages = allLanguages.stream()
+        .map(lang -> lang.code().toLowerCase(java.util.Locale.ROOT))
+        .filter(code -> !languageCodesInRequest.contains(code))
+        .sorted()
+        .toList();
+
+    if (!missingLanguages.isEmpty()) {
+      throw new MissingTranslationsException("Missing translations for languages: " + String.join(", ", missingLanguages));
+    }
   }
 }

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import java.util.List;
 import java.util.Optional;
 
 import static com.academy.orders.infrastructure.ModelUtils.getLanguage;
@@ -50,5 +50,28 @@ class LanguageRepositoryTest {
     when(languageJpaAdapter.findByCode(code)).thenThrow(LanguageNotFoundException.class);
     assertThrows(LanguageNotFoundException.class, () -> languageRepository.findByCode(code));
     verify(languageJpaAdapter).findByCode(code);
+  }
+
+  @Test
+  void findAllTest() {
+    // Given
+    var entity1 = getLanguageEntity("en", 1L);
+    var entity2 = getLanguageEntity("uk", 2L);
+    var language1 = getLanguage("en", 1L);
+    var language2 = getLanguage("uk", 2L);
+    when(languageJpaAdapter.findAll()).thenReturn(List.of(entity1, entity2));
+    when(languageMapper.fromEntity(entity1)).thenReturn(language1);
+    when(languageMapper.fromEntity(entity2)).thenReturn(language2);
+
+    // When
+    var result = languageRepository.findAll();
+
+    // Then
+    Assertions.assertEquals(2, result.size());
+    Assertions.assertTrue(result.contains(language1));
+    Assertions.assertTrue(result.contains(language2));
+    verify(languageJpaAdapter).findAll();
+    verify(languageMapper).fromEntity(entity1);
+    verify(languageMapper).fromEntity(entity2);
   }
 }

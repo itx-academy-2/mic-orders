@@ -6,7 +6,7 @@ import com.academy.orders.infrastructure.language.LanguageMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,5 +21,13 @@ public class LanguageRepositoryImpl implements LanguageRepository {
   public Optional<Language> findByCode(String code) {
     var languageEntity = languageJpaAdapter.findByCode(code);
     return languageEntity.map(languageMapper::fromEntity);
+  }
+
+  @Override
+  public List<Language> findAll() {
+    var languageEntities = languageJpaAdapter.findAll();
+    return languageEntities.stream()
+        .map(languageMapper::fromEntity)
+        .toList();
   }
 }

@@ -5,11 +5,13 @@ import com.academy.orders.domain.language.repository.LanguageRepository;
 import com.academy.orders.domain.product.entity.Language;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import java.util.List;
 import java.util.Optional;
 
 import static com.academy.orders.boot.TestConstants.LANGUAGE_UK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LanguageRepositoryIT extends AbstractRepositoryIT {
@@ -30,5 +32,15 @@ class LanguageRepositoryIT extends AbstractRepositoryIT {
     Optional<Language> language = languageRepository.findByCode("--");
 
     assertTrue(language.isEmpty());
+  }
+
+  @Test
+  void findAllTest() {
+    // When
+    List<Language> languages = languageRepository.findAll();
+
+    // Then
+    assertNotNull(languages);
+    assertFalse(languages.isEmpty());
   }
 }
