@@ -84,22 +84,23 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
 
   private void validateTranslations(Set<ProductTranslationDto> translations) {
     if (translations == null || translations.isEmpty()) {
-      throw new MissingTranslationsException("Product translations cannot be empty") {};
+      throw new MissingTranslationsException("Product translations cannot be empty");
     }
 
     var allLanguages = languageRepository.findAll();
     var languageCodesInRequest = translations.stream()
         .map(ProductTranslationDto::languageCode)
-        .map(String::toLowerCase)
+        .map(code -> code.toLowerCase(java.util.Locale.ROOT))
         .collect(Collectors.toSet());
 
     var missingLanguages = allLanguages.stream()
-        .map(lang -> lang.code().toLowerCase())
+        .map(lang -> lang.code().toLowerCase(java.util.Locale.ROOT))
         .filter(code -> !languageCodesInRequest.contains(code))
+        .sorted()
         .toList();
 
     if (!missingLanguages.isEmpty()) {
-      throw new MissingTranslationsException("Missing translations for languages: " + String.join(", ", missingLanguages)) {};
+      throw new MissingTranslationsException("Missing translations for languages: " + String.join(", ", missingLanguages));
     }
   }
 }

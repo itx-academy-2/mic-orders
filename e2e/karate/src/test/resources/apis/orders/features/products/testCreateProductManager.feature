@@ -1,7 +1,22 @@
 Feature: Create Product
+
   Background:
     * url urls.retailApiUrl
+    # Automatically cleanup created products after each scenario
+    * configure afterScenario =
+    """
+    function() {
+        var status = karate.get('responseStatus');
+        if (status == 201) {
+            var id = karate.get('response.id');
+            if (id) {
+                karate.call('classpath:apis/orders/helpers/product/delete-product.feature', { id: id });
+            }
+        }
+    }
+    """
 
+  @GS3-11
   Scenario Outline: Create Product
     * def credentials = { username: <username>, password: <password> }
     * def authHeader = call read('classpath:karate-auth.js')
@@ -12,9 +27,6 @@ Feature: Create Product
     When method POST
     Then match responseStatus == <response>
     And match response == read(<testDataFile>)
-
-    # Cleanup (only if product was created)
-    * if (<response> == 201) karate.call('classpath:apis/orders/helpers/product/delete-product.feature', { id: response.id })
 
     Examples:
       | response   | username                  | password                  | role      |testDataFile                                                         |
