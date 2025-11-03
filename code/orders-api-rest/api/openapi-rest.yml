@@ -2493,29 +2493,45 @@ components:
           $ref: '#/components/schemas/ProductTags'
         discount:
           type: boolean
-          description: Include only discounted products
+          description: |
+            Include discounted products. Can be combined with non-discount to include both types.
+            - discount=true only: returns discounted products
+            - discount=true, non-discount=true: returns all products
+            - neither set: no discount filtering applied
           example: true
         non-discount:
           type: boolean
-          description: Include only non-discounted products
+          description: |
+            Include non-discounted products. Can be combined with discount to include both types.
+            - non-discount=true only: returns non-discounted products  
+            - discount=true, non-discount=true: returns all products
+            - neither set: no discount filtering applied
           example: false
         priceMin:
           type: integer
           description: Minimum price filter
-          exclusiveMinimum: 0
+          minimum: 0
           example: 100
         priceMax:
           type: integer
           description: Maximum price filter
-          exclusiveMinimum: 0
+          minimum: 0
           example: 1000
         availability:
           type: boolean
-          description: Include only available products
+          description: |
+            Include available products. Can be combined with non-availability to include both types.
+            - availability=true only: returns available products
+            - discount=true, non-availability=true: returns all products
+            - neither set: no availability filtering applied
           example: true
         non-availability:
           type: boolean
-          description: Include only unavailable products
+          description: |
+            Include non-available products. Can be combined with availability to include both types.
+            - non-availability=true only: returns non-available products  
+            - availability=true, non-availability=true: returns all products
+            - neither set: no availability filtering applied
           example: false
         deliveryNovaPost:
           type: boolean
