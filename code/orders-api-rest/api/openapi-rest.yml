@@ -2509,12 +2509,12 @@ components:
           example: false
         priceMin:
           type: integer
-          description: Minimum price filter
+          description: Minimum price filter.
           minimum: 0
           example: 100
         priceMax:
           type: integer
-          description: Maximum price filter
+          description: Maximum price filter. Should be greater than or equal to priceMin.
           minimum: 0
           example: 1000
         availability:
@@ -2522,7 +2522,7 @@ components:
           description: |
             Include available products. Can be combined with non-availability to include both types.
             - availability=true only: returns available products
-            - discount=true, non-availability=true: returns all products
+            - availability=true, non-availability=true: returns all products
             - neither set: no availability filtering applied
           example: true
         non-availability:
