@@ -2491,6 +2491,56 @@ components:
       properties:
         tags:
           $ref: '#/components/schemas/ProductTags'
+        discount:
+          type: boolean
+          description: |
+            Include discounted products. Can be combined with non-discount to include both types.
+            - discount=true only: returns discounted products
+            - discount=true, non-discount=true: returns all products
+            - neither set: no discount filtering applied
+          example: true
+        non-discount:
+          type: boolean
+          description: |
+            Include non-discounted products. Can be combined with discount to include both types.
+            - non-discount=true only: returns non-discounted products  
+            - discount=true, non-discount=true: returns all products
+            - neither set: no discount filtering applied
+          example: false
+        priceMin:
+          type: integer
+          description: Minimum price filter.
+          minimum: 0
+          example: 100
+        priceMax:
+          type: integer
+          description: Maximum price filter. Should be greater than or equal to priceMin.
+          minimum: 0
+          example: 1000
+        availability:
+          type: boolean
+          description: |
+            Include available products. Can be combined with non-availability to include both types.
+            - availability=true only: returns available products
+            - availability=true, non-availability=true: returns all products
+            - neither set: no availability filtering applied
+          example: true
+        non-availability:
+          type: boolean
+          description: |
+            Include non-available products. Can be combined with availability to include both types.
+            - non-availability=true only: returns non-available products  
+            - availability=true, non-availability=true: returns all products
+            - neither set: no availability filtering applied
+          example: false
+        deliveryNovaPost:
+          type: boolean
+          description: Include products available via Nova Post
+          example: true
+        deliveryUkrPost:
+          type: boolean
+          description: Include products available via Ukr Post. If any delivery filter is selected, this is the default.
+          example: true
 
     ProductsOnSaleFilter:
       type: object
