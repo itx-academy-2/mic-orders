@@ -26,6 +26,7 @@ import com.academy.orders.domain.order.entity.PostAddress;
 import com.academy.orders.domain.order.entity.enumerated.DeliveryMethod;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.postaddress.entity.PostAddressV2;
+import com.academy.orders.domain.product.dto.ProductFilterDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
 import com.academy.orders.domain.product.dto.ProductTranslationDto;
@@ -611,6 +612,20 @@ public class ModelUtils {
         .minimumPriceWithDiscount(BigDecimal.valueOf(400))
         .maximumPriceWithDiscount(BigDecimal.valueOf(1045))
         .pageProducts(getPageProductsWithDiscountDTO());
+  }
+
+  public static ProductFilterDto getProductFilterDto() {
+    return ProductFilterDto.builder()
+        .tags(singletonList(TAG_NAME))
+        .discount(true)
+        .nonDiscount(false)
+        .priceMin(BigDecimal.valueOf(100))
+        .priceMax(BigDecimal.valueOf(1000))
+        .availability(true)
+        .nonAvailability(false)
+        .deliveryNovaPost(true)
+        .deliveryUkrPost(false)
+        .build();
   }
 
   public static ProductsOnSaleFilterDto getProductsOnSaleFilterDto() {

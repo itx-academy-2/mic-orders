@@ -5,6 +5,7 @@ import com.academy.orders.apirest.common.TestSecurityConfig;
 import com.academy.orders.apirest.common.mapper.PageableDTOMapper;
 import com.academy.orders.apirest.products.mapper.PageProductSearchResultDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductDetailsResponseDTOMapper;
+import com.academy.orders.apirest.products.mapper.ProductFilterDtoMapper;
 import com.academy.orders.apirest.products.mapper.ProductPreviewDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductsOnSaleFilterMapper;
 import com.academy.orders.apirest.products.mapper.ProductsOnSaleResponseDTOMapper;
@@ -28,13 +29,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-
-import java.util.List;
 import java.util.Optional;
 
 import static com.academy.orders.apirest.ModelUtils.*;
 import static com.academy.orders.apirest.TestConstants.*;
-import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -61,6 +59,9 @@ class ProductsControllerTest {
 
   @MockBean
   private ProductsOnSaleFilterMapper productsOnSaleFilterMapper;
+
+  @MockBean
+  private ProductFilterDtoMapper productFilterDtoMapper;
 
   @MockBean
   private ProductsOnSaleResponseDTOMapper productsOnSaleResponseDTOMapper;
@@ -95,18 +96,57 @@ class ProductsControllerTest {
     var pageable = getPageable();
     var pageProducts = getProductsPage();
     var pageProductsDTO = getPageProductsDTO();
-    List<String> tags = emptyList();
+    var productFilterDto = getProductFilterDto();
 
+    when(productFilterDtoMapper.fromProductFilterDTO(any())).thenReturn(productFilterDto);
     when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
-    when(getAllProductsUseCase.getAllProducts(LANGUAGE_UK, pageable, tags)).thenReturn(pageProducts);
+    when(getAllProductsUseCase.getAllProducts(LANGUAGE_UK, pageable, productFilterDto)).thenReturn(pageProducts);
     when(productPreviewDTOMapper.toPageProductsDTO(pageProducts)).thenReturn(pageProductsDTO);
 
     mockMvc.perform(get(GET_ALL_PRODUCTS_URL).param("lang", LANGUAGE_UK).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().json(objectMapper.writeValueAsString(pageProductsDTO)));
 
+    verify(productFilterDtoMapper).fromProductFilterDTO(any());
     verify(pageableDTOMapper).fromDto(pageableDTO);
-    verify(getAllProductsUseCase).getAllProducts(LANGUAGE_UK, pageable, emptyList());
+    verify(getAllProductsUseCase).getAllProducts(LANGUAGE_UK, pageable, productFilterDto);
+    verify(productPreviewDTOMapper).toPageProductsDTO(pageProducts);
+  }
+
+  @Test
+  void getProductsWithFiltersTest() throws Exception {
+    var pageableDTO = getPageableDTO();
+    var pageable = getPageable();
+    var pageProducts = getProductsPage();
+    var pageProductsDTO = getPageProductsDTO();
+    var productFilterDto = getProductFilterDto();
+
+    when(productFilterDtoMapper.fromProductFilterDTO(any())).thenReturn(productFilterDto);
+    when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
+    when(getAllProductsUseCase.getAllProducts(LANGUAGE_UK, pageable, productFilterDto)).thenReturn(pageProducts);
+    when(productPreviewDTOMapper.toPageProductsDTO(pageProducts)).thenReturn(pageProductsDTO);
+
+    mockMvc.perform(get(GET_ALL_PRODUCTS_URL)
+        .param("lang", LANGUAGE_UK)
+        .param("size", String.valueOf(pageableDTO.getSize()))
+        .param("page", String.valueOf(pageableDTO.getPage()))
+        .param("sort", String.join(",", pageableDTO.getSort()))
+        .param("tags", String.join(",", productFilterDto.tags()))
+        .param("priceMin", productFilterDto.priceMin().toString())
+        .param("priceMax", productFilterDto.priceMax().toString())
+        .param("discount", productFilterDto.discount().toString())
+        .param("nonDiscount", productFilterDto.nonDiscount().toString())
+        .param("availability", productFilterDto.availability().toString())
+        .param("nonAvailability", productFilterDto.nonAvailability().toString())
+        .param("deliveryNovaPost", productFilterDto.deliveryNovaPost().toString())
+        .param("deliveryUkrPost", productFilterDto.deliveryUkrPost().toString())
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().json(objectMapper.writeValueAsString(pageProductsDTO)));
+
+    verify(productFilterDtoMapper).fromProductFilterDTO(any());
+    verify(pageableDTOMapper).fromDto(pageableDTO);
+    verify(getAllProductsUseCase).getAllProducts(LANGUAGE_UK, pageable, productFilterDto);
     verify(productPreviewDTOMapper).toPageProductsDTO(pageProducts);
   }
 

@@ -2499,7 +2499,7 @@ components:
             - discount=true, non-discount=true: returns all products
             - neither set: no discount filtering applied
           example: true
-        non-discount:
+        nonDiscount:
           type: boolean
           description: |
             Include non-discounted products. Can be combined with discount to include both types.
@@ -2525,7 +2525,7 @@ components:
             - availability=true, non-availability=true: returns all products
             - neither set: no availability filtering applied
           example: true
-        non-availability:
+        nonAvailability:
           type: boolean
           description: |
             Include non-available products. Can be combined with availability to include both types.

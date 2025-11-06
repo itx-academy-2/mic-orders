@@ -32,6 +32,7 @@ import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenStatus;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
 import com.academy.orders.domain.product.dto.DiscountAndPriceWithDiscountRangeDto;
+import com.academy.orders.domain.product.dto.ProductFilterDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
 import com.academy.orders.domain.product.dto.ProductTranslationDto;
@@ -69,6 +70,7 @@ import static com.academy.orders.application.TestConstants.TEST_QUANTITY;
 import static com.academy.orders.application.TestConstants.TEST_START_DATE;
 import static com.academy.orders.application.TestConstants.TEST_UUID;
 import static com.academy.orders.domain.order.entity.enumerated.DeliveryMethod.NOVA;
+import static java.util.Collections.singletonList;
 
 public class ModelUtils {
   private static final LocalDateTime DATE_TIME = LocalDateTime.of(1, 1, 1, 1, 1, 1);
@@ -415,6 +417,20 @@ public class ModelUtils {
                 .description("Description UK")
                 .languageCode("uk")
                 .build()))
+        .build();
+  }
+
+  public static ProductFilterDto getProductFilterDto() {
+    return ProductFilterDto.builder()
+        .tags(singletonList(TAG_NAME))
+        .discount(true)
+        .nonDiscount(false)
+        .priceMin(BigDecimal.valueOf(100))
+        .priceMax(BigDecimal.valueOf(1000))
+        .availability(true)
+        .nonAvailability(false)
+        .deliveryNovaPost(true)
+        .deliveryUkrPost(false)
         .build();
   }
 

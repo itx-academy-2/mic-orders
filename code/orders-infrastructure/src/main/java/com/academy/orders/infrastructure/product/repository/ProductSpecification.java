@@ -1,7 +1,9 @@
 package com.academy.orders.infrastructure.product.repository;
 
+import com.academy.orders.domain.product.dto.ProductFilterDto;
 import com.academy.orders.infrastructure.discount.entity.DiscountEntity;
 import com.academy.orders.infrastructure.language.entity.LanguageEntity;
+import com.academy.orders.infrastructure.order.entity.OrderItemEntity;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
 import com.academy.orders.infrastructure.tag.entity.TagEntity;
@@ -14,25 +16,25 @@ import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public class ProductSpecification implements Specification<ProductTranslationEntity> {
+
   private final String language;
 
   private final List<String> sort;
 
-  private final List<String> tags;
+  private final ProductFilterDto filter;
 
   private final List<UUID> bestsellersIds;
 
-  public ProductSpecification(String language, List<String> sort, List<String> tags, List<UUID> bestsellersIds) {
+  public ProductSpecification(String language, List<String> sort, ProductFilterDto filter, List<UUID> bestsellersIds) {
     this.language = language;
     this.sort = sort;
-    this.tags = tags;
+    this.filter = filter;
     this.bestsellersIds = (bestsellersIds == null) ? List.of() : List.copyOf(bestsellersIds);
   }
 
@@ -44,14 +46,42 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
     final Join<ProductTranslationEntity, LanguageEntity> languageJoin = root.join("language", JoinType.LEFT);
     final Join<ProductEntity, TagEntity> tagsJoin = productJoin.join("tags", JoinType.LEFT);
 
-    predicates.add(cb.like(productJoin.get("status"), "VISIBLE"));
-    predicates.add(cb.like(languageJoin.get("code"), language));
+    predicates.add(cb.equal(productJoin.get("status"), "VISIBLE"));
+    predicates.add(cb.equal(languageJoin.get("code"), language));
 
-    if (tags != null && !tags.isEmpty()) {
-      predicates.add(tagsJoin.get("name").in(tags));
+    // Tags
+    if (filter.tags() != null && !filter.tags().isEmpty()) {
+      predicates.add(tagsJoin.get("name").in(filter.tags()));
     }
 
-    setSort(root, query, cb, productJoin);
+    // Price range
+    if (filter.priceMin() != null && filter.priceMax() != null) {
+      predicates.add(cb.between(productJoin.get("price"), filter.priceMin(), filter.priceMax()));
+    } else if (filter.priceMin() != null) {
+      predicates.add(cb.greaterThanOrEqualTo(productJoin.get("price"), filter.priceMin()));
+    } else if (filter.priceMax() != null) {
+      predicates.add(cb.lessThanOrEqualTo(productJoin.get("price"), filter.priceMax()));
+    }
+
+    // Discount
+    if (Boolean.TRUE.equals(filter.discount()) && Boolean.TRUE.equals(filter.nonDiscount())) {
+      // Both true → no filter applied
+    } else if (Boolean.TRUE.equals(filter.discount())) {
+      predicates.add(cb.isNotNull(productJoin.get("discount")));
+    } else if (Boolean.TRUE.equals(filter.nonDiscount())) {
+      predicates.add(cb.isNull(productJoin.get("discount")));
+    }
+
+    // Availability
+    if (Boolean.TRUE.equals(filter.availability()) && Boolean.TRUE.equals(filter.nonAvailability())) {
+      // Both true → no filter applied
+    } else if (Boolean.TRUE.equals(filter.availability())) {
+      predicates.add(cb.greaterThan(productJoin.get("quantity"), 0));
+    } else if (Boolean.TRUE.equals(filter.nonAvailability())) {
+      predicates.add(cb.equal(productJoin.get("quantity"), 0));
+    }
+
+    setSort(root, query, cb, productJoin, languageJoin);
 
     return combineAllPredicates(cb, predicates);
   }
@@ -63,56 +93,51 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
   }
 
   private void setSort(final Root<ProductTranslationEntity> root, final CriteriaQuery<?> query, final CriteriaBuilder cb,
-      Join<ProductTranslationEntity, ProductEntity> productJoin) {
-    if (Objects.nonNull(sort) && !sort.isEmpty()) {
-      final List<Order> orders = new ArrayList<>();
+      Join<ProductTranslationEntity, ProductEntity> productJoin, Join<ProductTranslationEntity, LanguageEntity> languageJoin) {
+    final List<Order> orders = new ArrayList<>();
+
+    if (sort != null && !sort.isEmpty()) {
+      // Dynamic sorting logic
       for (int i = 0; i < sort.size(); i += 2) {
-        final String field = sort.get(i);
-        final String order = sort.get(i + 1);
-        if (field.equals("name") && order.equals("asc")) {
-          orders.add(cb.asc(root.get(field)));
-        } else if (field.equals("name") && order.equals("desc")) {
-          orders.add(cb.desc(root.get(field)));
-        }
-        if (field.equals("product.createdAt") && order.equals("asc")) {
-          orders.add(cb.asc(productJoin.get("createdAt")));
-        } else if (field.equals("product.createdAt") && order.equals("desc")) {
-          orders.add(cb.desc(productJoin.get("createdAt")));
-        }
-        if (field.equals("product.price")) {
+        String field = sort.get(i);
+        String order = sort.get(i + 1);
+
+        if (field.equals("name")) {
+          orders.add(order.equals("asc") ? cb.asc(root.get(field)) : cb.desc(root.get(field)));
+        } else if (field.equals("product.createdAt")) {
+          orders.add(order.equals("asc") ? cb.asc(productJoin.get("createdAt")) : cb.desc(productJoin.get("createdAt")));
+        } else if (field.equals("product.price")) {
           Expression<?> discountedPrice = buildDiscountedPriceExpression(cb, productJoin);
-          if (order.equals("asc")) {
-            orders.add(cb.asc(discountedPrice));
-          } else if (order.equals("desc")) {
-            orders.add(cb.desc(discountedPrice));
-          }
-        }
-
-        if (field.equals("percentageOfTotalOrders") && order.equals("asc")) {
-
-          final CriteriaBuilder.Case<Integer> uuidExpression = cb.selectCase();
-
-          for (int j = 0; j < bestsellersIds.size(); j++) {
-            Expression<Integer> exp =
-                uuidExpression.when(cb.equal(root.get("product").get("id"), bestsellersIds.get(j)),
-                    bestsellersIds.size() - j).otherwise(Integer.MAX_VALUE);
-            orders.add(cb.asc(exp));
-          }
-        } else if (field.equals("percentageOfTotalOrders") && order.equals("desc")) {
-
-          final CriteriaBuilder.Case<Integer> uuidExpression = cb.selectCase();
-
-          for (int j = 0; j < bestsellersIds.size(); j++) {
-            Expression<Integer> exp =
-                uuidExpression.when(cb.equal(root.get("product").get("id"), bestsellersIds.get(j)),
-                    j).otherwise(Integer.MAX_VALUE);
-            orders.add(cb.asc(exp));
-          }
+          orders.add(order.equals("asc") ? cb.asc(discountedPrice) : cb.desc(discountedPrice));
+        } else if (field.equals("percentageOfTotalOrders")) {
+          addBestsellerSorting(cb, orders, order);
         }
       }
-      if (!orders.isEmpty()) {
-        query.orderBy(orders);
-      }
+    } else {
+      // Default sorting logic: bestsellers first, then product ID
+      Join<ProductEntity, OrderItemEntity> orderItemsJoin = productJoin.join("orderItems", JoinType.LEFT);
+
+      query.groupBy(
+          root.get("productTranslationId").get("productId"),
+          root.get("productTranslationId").get("languageId"),
+          productJoin.get("id"),
+          languageJoin.get("id"));
+
+      orders.add(cb.desc(cb.count(orderItemsJoin.get("orderItemId").get("productId"))));
+      orders.add(cb.desc(productJoin.get("id")));
+    }
+
+    if (!orders.isEmpty()) {
+      query.orderBy(orders);
+    }
+  }
+
+  private void addBestsellerSorting(CriteriaBuilder cb, List<Order> orders, String order) {
+    CriteriaBuilder.Case<Integer> uuidExpression = cb.selectCase();
+    for (int j = 0; j < bestsellersIds.size(); j++) {
+      Expression<Integer> exp = uuidExpression.when(cb.equal(cb.literal(bestsellersIds.get(j)), bestsellersIds.get(j)),
+          order.equals("asc") ? bestsellersIds.size() - j : j).otherwise(Integer.MAX_VALUE);
+      orders.add(cb.asc(exp));
     }
   }
 

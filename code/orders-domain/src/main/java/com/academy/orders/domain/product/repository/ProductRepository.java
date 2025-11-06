@@ -2,11 +2,7 @@ package com.academy.orders.domain.product.repository;
 
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
-import com.academy.orders.domain.product.dto.DiscountAndPriceWithDiscountRangeDto;
-import com.academy.orders.domain.product.dto.ProductBestsellersDto;
-import com.academy.orders.domain.product.dto.ProductLanguageDto;
-import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
-import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
+import com.academy.orders.domain.product.dto.*;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductManagement;
 import com.academy.orders.domain.product.entity.ProductTranslationManagement;
@@ -42,24 +38,13 @@ public interface ProductRepository {
    *
    * @param language The language code to filter products by.
    * @param pageable The pagination information (page number, size, sorting).
-   * @param tags A list of tags to filter products by. If empty, no filtering is applied.
+   * @param filterDto the {@link ProductFilterDto} containing filtering criteria (for example tags). Can be empty to retrieve products
+   *        without additional filtering.
    * @param bestsellersIds A list of product IDs
    *
    * @return A paginated list of products matching the specified criteria.
    */
-  Page<Product> findAllProducts(String language, Pageable pageable, List<String> tags, List<UUID> bestsellersIds);
-
-  /**
-   * Retrieves a paginated list of products based on the provided language and pageable information sorted by default. Sorting in pageable
-   * will be ignored.
-   *
-   * @param language the language code to filter the products.
-   * @param pageable the pageable information for pagination.
-   * @param tags list of tag's names for filtering.
-   * @return a page containing the products that match the criteria.
-   * @author Denys Liubchenko
-   */
-  Page<Product> findAllProductsWithDefaultSorting(String language, Pageable pageable, List<String> tags);
+  Page<Product> findAllProducts(String language, Pageable pageable, ProductFilterDto filterDto, List<UUID> bestsellersIds);
 
   /**
    * Method sets new quantity of products.

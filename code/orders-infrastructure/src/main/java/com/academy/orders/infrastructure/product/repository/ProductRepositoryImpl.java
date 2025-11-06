@@ -4,6 +4,7 @@ import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.dto.DiscountAndPriceWithDiscountRangeDto;
 import com.academy.orders.domain.product.dto.ProductBestsellersDto;
+import com.academy.orders.domain.product.dto.ProductFilterDto;
 import com.academy.orders.domain.product.dto.ProductLanguageDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
@@ -28,7 +29,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -73,11 +73,10 @@ public class ProductRepositoryImpl implements ProductRepository {
   }
 
   @Override
-  public Page<Product> findAllProducts(String language, Pageable pageable, List<String> tags, List<UUID> bestsellersIds) {
+  public Page<Product> findAllProducts(String language, Pageable pageable, ProductFilterDto filter, List<UUID> bestsellersIds) {
     var pageableSpring = pageableMapper.fromDomain(pageable).withSort(Sort.unsorted());
     var translations =
-        productTranslationJpaAdapter.findAll(new ProductSpecification(language, pageable.sort(), tags, bestsellersIds), pageableSpring);
-
+        productTranslationJpaAdapter.findAll(new ProductSpecification(language, pageable.sort(), filter, bestsellersIds), pageableSpring);
     return productPageMapper.fromProductTranslationEntity(translations);
   }
 
@@ -88,18 +87,6 @@ public class ProductRepositoryImpl implements ProductRepository {
     var translations = productTranslationJpaAdapter.findAll(new ProductTranslationSpecification(filter, pageable.sort(),
         language, bestsellersIds), pageableSpring);
     return productPageMapper.fromProductTranslationEntity(translations);
-  }
-
-  @Override
-  public Page<Product> findAllProductsWithDefaultSorting(String language, Pageable pageable, List<String> tags) {
-    List<String> tagList = isNull(tags) ? emptyList() : tags;
-    var pageableSpring = pageableMapper.fromDomain(pageable);
-    var productEntities = productJpaAdapter.findAllByLanguageCodeAndStatusVisibleOrderedByDefault(language,
-        pageableSpring, tagList);
-    productJpaAdapter.findAllByIdAndLanguageCode(
-        productEntities.getContent().stream().map(ProductEntity::getId).toList(), language);
-
-    return productPageMapper.toDomain(productEntities);
   }
 
   @Override
