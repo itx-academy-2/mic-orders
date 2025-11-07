@@ -64,20 +64,16 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
     }
 
     // Discount
-    if (Boolean.TRUE.equals(filter.discount()) && Boolean.TRUE.equals(filter.nonDiscount())) {
-      // Both true → no filter applied
-    } else if (Boolean.TRUE.equals(filter.discount())) {
+    if (Boolean.TRUE.equals(filter.discount()) && !Boolean.TRUE.equals(filter.nonDiscount())) {
       predicates.add(cb.isNotNull(productJoin.get("discount")));
-    } else if (Boolean.TRUE.equals(filter.nonDiscount())) {
+    } else if (Boolean.TRUE.equals(filter.nonDiscount()) && !Boolean.TRUE.equals(filter.discount())) {
       predicates.add(cb.isNull(productJoin.get("discount")));
     }
 
     // Availability
-    if (Boolean.TRUE.equals(filter.availability()) && Boolean.TRUE.equals(filter.nonAvailability())) {
-      // Both true → no filter applied
-    } else if (Boolean.TRUE.equals(filter.availability())) {
+    if (Boolean.TRUE.equals(filter.availability()) && !Boolean.TRUE.equals(filter.nonAvailability())) {
       predicates.add(cb.greaterThan(productJoin.get("quantity"), 0));
-    } else if (Boolean.TRUE.equals(filter.nonAvailability())) {
+    } else if (Boolean.TRUE.equals(filter.nonAvailability()) && !Boolean.TRUE.equals(filter.availability())) {
       predicates.add(cb.equal(productJoin.get("quantity"), 0));
     }
 
@@ -102,15 +98,15 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
         String field = sort.get(i);
         String order = sort.get(i + 1);
 
-        if (field.equals("name")) {
-          orders.add(order.equals("asc") ? cb.asc(root.get(field)) : cb.desc(root.get(field)));
-        } else if (field.equals("product.createdAt")) {
-          orders.add(order.equals("asc") ? cb.asc(productJoin.get("createdAt")) : cb.desc(productJoin.get("createdAt")));
-        } else if (field.equals("product.price")) {
-          Expression<?> discountedPrice = buildDiscountedPriceExpression(cb, productJoin);
-          orders.add(order.equals("asc") ? cb.asc(discountedPrice) : cb.desc(discountedPrice));
-        } else if (field.equals("percentageOfTotalOrders")) {
-          addBestsellerSorting(cb, orders, order);
+        switch (field) {
+          case "name" -> orders.add(order.equals("asc") ? cb.asc(root.get(field)) : cb.desc(root.get(field)));
+          case "product.createdAt" -> orders
+              .add(order.equals("asc") ? cb.asc(productJoin.get("createdAt")) : cb.desc(productJoin.get("createdAt")));
+          case "product.price" -> {
+            Expression<?> discountedPrice = buildDiscountedPriceExpression(cb, productJoin);
+            orders.add(order.equals("asc") ? cb.asc(discountedPrice) : cb.desc(discountedPrice));
+          }
+          case "percentageOfTotalOrders" -> addBestsellerSorting(cb, orders, order);
         }
       }
     } else {

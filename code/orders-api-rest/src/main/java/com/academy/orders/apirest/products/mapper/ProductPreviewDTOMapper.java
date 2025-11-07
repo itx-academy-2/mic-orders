@@ -1,6 +1,7 @@
 package com.academy.orders.apirest.products.mapper;
 
 import com.academy.orders.domain.common.Page;
+import com.academy.orders.domain.product.dto.PageProductsDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders_api_rest.generated.model.PageProductsDTO;
 import com.academy.orders_api_rest.generated.model.ProductPreviewDTO;
@@ -19,4 +20,6 @@ public interface ProductPreviewDTOMapper extends ProductMapper {
   ProductPreviewDTO toDto(Product product);
 
   PageProductsDTO toPageProductsDTO(Page<Product> products);
+
+  PageProductsDTO toPageProductsDTO(PageProductsDto<Product> products);
 }

@@ -26,6 +26,7 @@ import com.academy.orders.domain.order.entity.PostAddress;
 import com.academy.orders.domain.order.entity.enumerated.DeliveryMethod;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.postaddress.entity.PostAddressV2;
+import com.academy.orders.domain.product.dto.PageProductsDto;
 import com.academy.orders.domain.product.dto.ProductFilterDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
@@ -152,6 +153,12 @@ public class ModelUtils {
   public static Page<Product> getProductsPage() {
     List<Product> productList = List.of(getProduct());
     return new Page<>(1L, 1, true, true, 1, productList.size(), productList.size(), false, productList);
+  }
+
+  public static PageProductsDto<Product> getPageProductsDto() {
+    List<Product> productList = List.of(getProduct());
+    return new PageProductsDto<>(1L, 1, true, true, 1, productList.size(), productList.size(), false, BigDecimal.valueOf(100),
+        BigDecimal.valueOf(10000), productList);
   }
 
   public static Page<Article> getArticlesPage() {

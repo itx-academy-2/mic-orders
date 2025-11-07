@@ -94,7 +94,7 @@ class ProductsControllerTest {
   void getProductsTest() throws Exception {
     var pageableDTO = getPageableDTO();
     var pageable = getPageable();
-    var pageProducts = getProductsPage();
+    var pageProducts = getPageProductsDto();
     var pageProductsDTO = getPageProductsDTO();
     var productFilterDto = getProductFilterDto();
 
@@ -117,7 +117,7 @@ class ProductsControllerTest {
   void getProductsWithFiltersTest() throws Exception {
     var pageableDTO = getPageableDTO();
     var pageable = getPageable();
-    var pageProducts = getProductsPage();
+    var pageProducts = getPageProductsDto();
     var pageProductsDTO = getPageProductsDTO();
     var productFilterDto = getProductFilterDto();
 

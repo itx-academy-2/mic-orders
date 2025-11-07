@@ -2,6 +2,7 @@ package com.academy.orders.infrastructure.product.repository;
 
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
+import com.academy.orders.infrastructure.product.dto.PriceRangeProjection;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
 import jakarta.persistence.Tuple;
@@ -221,6 +222,22 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
       WHERE p.status = 'VISIBLE'
       """)
   Tuple findDiscountAndPriceWithDiscountRange();
+
+  /**
+   * Returns the minimal and maximal product price among products that are currently visible.
+   *
+   * This method performs an aggregate query and returns a single scalar result containing the minimal price and maximal price found across
+   * all {@code ProductEntity} records whose {@code status} is {@code VISIBLE}.
+   *
+   * @return {@link PriceRangeProjection} containing {@code min} and {@code max} product prices, or {@code null} if there are no visible
+   *         products in the database.
+   */
+  @Query("""
+          SELECT new com.academy.orders.infrastructure.product.dto.PriceRangeProjection(min(p.price), max(p.price))
+          FROM ProductEntity p
+          WHERE p.status = 'VISIBLE'
+      """)
+  PriceRangeProjection findMinMaxPriceVisibleProducts();
 
   /**
    * Retrieves a list of ids of the most sold products within the specified date range, along with their percentage of the total orders for

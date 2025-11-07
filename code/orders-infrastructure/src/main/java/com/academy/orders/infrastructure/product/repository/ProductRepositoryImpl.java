@@ -3,6 +3,7 @@ package com.academy.orders.infrastructure.product.repository;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
 import com.academy.orders.domain.product.dto.DiscountAndPriceWithDiscountRangeDto;
+import com.academy.orders.domain.product.dto.PriceRangeDto;
 import com.academy.orders.domain.product.dto.ProductBestsellersDto;
 import com.academy.orders.domain.product.dto.ProductFilterDto;
 import com.academy.orders.domain.product.dto.ProductLanguageDto;
@@ -19,6 +20,7 @@ import com.academy.orders.infrastructure.product.ProductManagementMapper;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.product.ProductPageMapper;
 import com.academy.orders.infrastructure.product.ProductTranslationManagementMapper;
+import com.academy.orders.infrastructure.product.dto.PriceRangeProjection;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
 import jakarta.persistence.Tuple;
@@ -169,6 +171,12 @@ public class ProductRepositoryImpl implements ProductRepository {
         .minimumDiscount(tuple.get(2, Integer.class))
         .maximumDiscount(tuple.get(3, Integer.class))
         .build();
+  }
+
+  @Override
+  public PriceRangeDto findMinMaxVisibleProductPrice() {
+    PriceRangeProjection result = productJpaAdapter.findMinMaxPriceVisibleProducts();
+    return new PriceRangeDto(result.minPrice(), result.maxPrice());
   }
 
   @Override

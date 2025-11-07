@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.7.0
+  version: 2.7.1
 servers:
   - url: http://localhost:8080/retail
 
@@ -1546,6 +1546,18 @@ components:
           type: integer
         empty:
           type: boolean
+        minProductPrice:
+          type: number
+          format: decimal
+          description: The minimum price of a product before discount to filter the products.
+          example: 80.00
+          minimum: 0
+        maxProductPrice:
+          type: number
+          format: decimal
+          description: The maximum price of a product before discount to filter the products.
+          example: 150.00
+          minimum: 0
         content:
           type: array
           items: { }

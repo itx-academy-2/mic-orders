@@ -170,6 +170,13 @@ public interface ProductRepository {
   DiscountAndPriceWithDiscountRangeDto findDiscountAndPriceWithDiscountRange();
 
   /**
+   * Returns the price range (min / max) of visible products.
+   *
+   * @return {@link PriceRangeDto}
+   */
+  PriceRangeDto findMinMaxVisibleProductPrice();
+
+  /**
    * Retrieves a list of the most sold products within the specified date range and quantity.
    */
   List<ProductBestsellersDto> getIdsOfMostSoldProducts(LocalDateTime fromDate, LocalDateTime endDate, int quantity);

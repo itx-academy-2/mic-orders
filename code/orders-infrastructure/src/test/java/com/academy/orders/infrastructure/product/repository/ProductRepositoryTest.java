@@ -13,6 +13,7 @@ import com.academy.orders.infrastructure.product.ProductManagementMapper;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.product.ProductPageMapper;
 import com.academy.orders.infrastructure.product.ProductTranslationManagementMapper;
+import com.academy.orders.infrastructure.product.dto.PriceRangeProjection;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
 import jakarta.persistence.Tuple;
@@ -439,5 +440,23 @@ class ProductRepositoryTest {
     verify(pageableMapper).fromDomain(pageableDomain);
     verify(productJpaAdapter).findMostSoldProductsByTagAndPeriod(pageable, lang, from, to, tag);
     verify(productPageMapper).fromProductTranslationEntity(page);
+  }
+
+  @Test
+  void findMinMaxVisibleProductPriceTest() {
+    // Given
+    final BigDecimal minPrice = BigDecimal.valueOf(10.00);
+    final BigDecimal maxPrice = BigDecimal.valueOf(500.00);
+    final PriceRangeProjection projection = new PriceRangeProjection(minPrice, maxPrice);
+    when(productJpaAdapter.findMinMaxPriceVisibleProducts()).thenReturn(projection);
+
+    // When
+    final var result = productRepository.findMinMaxVisibleProductPrice();
+
+    // Then
+    assertNotNull(result);
+    assertEquals(minPrice, result.minPrice());
+    assertEquals(maxPrice, result.maxPrice());
+    verify(productJpaAdapter).findMinMaxPriceVisibleProducts();
   }
 }
