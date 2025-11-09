@@ -142,7 +142,7 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
 
     Expression<Integer> rankingExpression = caseExpr.otherwise(Integer.MAX_VALUE);
 
-    orders.add(cb.asc(rankingExpression));
+    orders.add(order.equals("asc") ? cb.asc(rankingExpression) : cb.desc(rankingExpression));
   }
 
   private Expression<?> buildDiscountedPriceExpression(CriteriaBuilder cb, Join<ProductTranslationEntity, ProductEntity> productJoin) {

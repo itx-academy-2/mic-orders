@@ -340,6 +340,7 @@ class ProductSpecificationTest {
 
     // Then
     assertNotNull(p);
+    verify(cb).asc(any());
     verify(cb).selectCase();
   }
 
@@ -355,6 +356,7 @@ class ProductSpecificationTest {
 
     // Then
     assertNotNull(p);
+    verify(cb).desc(any());
     verify(cb).selectCase();
   }
 
