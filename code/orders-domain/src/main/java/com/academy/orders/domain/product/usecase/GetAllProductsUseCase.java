@@ -1,7 +1,7 @@
 package com.academy.orders.domain.product.usecase;
 
 import com.academy.orders.domain.common.Pageable;
-import com.academy.orders.domain.product.dto.PageProductsDto;
+import com.academy.orders.domain.product.dto.PageProductsWithPriceRangeDto;
 import com.academy.orders.domain.product.dto.ProductFilterDto;
 import com.academy.orders.domain.product.entity.Product;
 
@@ -16,9 +16,9 @@ public interface GetAllProductsUseCase {
    * @param pageable the {@link Pageable} object for pagination and sorting information.
    * @param filter the {@link ProductFilterDto} containing filtering criteria (for example tags). Can be empty to retrieve products without
    *        additional filtering.
-   * @return a {@link PageProductsDto} of {@link Product} objects that match the specified criteria.
+   * @return a {@link PageProductsWithPriceRangeDto} of {@link Product} objects that match the specified criteria.
    * @author Anton Bodnar, Yurii Osovskyi, Denys Ryhal
    */
 
-  PageProductsDto<Product> getAllProducts(String language, Pageable pageable, ProductFilterDto filter);
+  PageProductsWithPriceRangeDto<Product> getAllProducts(String language, Pageable pageable, ProductFilterDto filter);
 }

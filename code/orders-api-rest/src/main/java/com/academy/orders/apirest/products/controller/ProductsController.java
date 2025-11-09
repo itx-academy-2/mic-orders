@@ -74,12 +74,12 @@ public class ProductsController implements ProductsApi {
   }
 
   @Override
-  public ResponseEntity<PageProductsDTO> getProducts(ProductFilterDTO productFilter, PageableDTO dto, String lang) {
+  public ResponseEntity<PageProductsWithPriceRangeDTO> getProducts(ProductFilterDTO productFilter, PageableDTO dto, String lang) {
     log.debug("Get all products by language code: {}", lang);
     final ProductFilterDto productFilterDto = productFilterDtoMapper.fromProductFilterDTO(productFilter);
     var pageable = pageableDTOMapper.fromDto(dto);
     var products = getAllProductsUseCase.getAllProducts(lang, pageable, productFilterDto);
-    return ResponseEntity.ok(productPreviewDTOMapper.toPageProductsDTO(products));
+    return ResponseEntity.ok(productPreviewDTOMapper.toPageProductsWithPriceRangeDTO(products));
   }
 
   @Override

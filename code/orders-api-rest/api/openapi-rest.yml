@@ -426,7 +426,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PageProducts'
+                $ref: '#/components/schemas/PageProductsWithPriceRange'
 
   /v1/products/search:
     get:
@@ -1546,18 +1546,6 @@ components:
           type: integer
         empty:
           type: boolean
-        minProductPrice:
-          type: number
-          format: decimal
-          description: The minimum price of a product before discount to filter the products.
-          example: 80.00
-          minimum: 0
-        maxProductPrice:
-          type: number
-          format: decimal
-          description: The maximum price of a product before discount to filter the products.
-          example: 150.00
-          minimum: 0
         content:
           type: array
           items: { }
@@ -2156,6 +2144,33 @@ components:
     PageProducts:
       type: object
       allOf:
+        - $ref: '#/components/schemas/AbstractPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProductPreview'
+
+    PriceRangeFilterValues:
+      type: object
+      properties:
+        minProductPrice:
+          type: number
+          format: decimal
+          minimum: 0
+          description: The minimum price of a product before discount to filter the products.
+          example: 80.00
+        maxProductPrice:
+          type: number
+          format: decimal
+          minimum: 0
+          description: The maximum price of a product before discount to filter the products.
+          example: 150.00
+
+    PageProductsWithPriceRange:
+      allOf:
+        - $ref: '#/components/schemas/PriceRangeFilterValues'
         - $ref: '#/components/schemas/AbstractPage'
         - type: object
           properties:

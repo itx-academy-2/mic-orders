@@ -3,7 +3,7 @@ package com.academy.orders.domain.product.dto;
 import java.math.BigDecimal;
 import java.util.List;
 
-public record PageProductsDto<T> (
+public record PageProductsWithPriceRangeDto<T> (
     Long totalElements,
     Integer totalPages,
     Boolean first,

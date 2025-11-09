@@ -2,7 +2,7 @@ package com.academy.orders.application.product.usecase;
 
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
-import com.academy.orders.domain.product.dto.PageProductsDto;
+import com.academy.orders.domain.product.dto.PageProductsWithPriceRangeDto;
 import com.academy.orders.domain.product.dto.PriceRangeDto;
 import com.academy.orders.domain.product.dto.ProductBestsellersDto;
 import com.academy.orders.domain.product.dto.ProductFilterDto;
@@ -29,7 +29,7 @@ public class GetAllProductsUseCaseImpl implements GetAllProductsUseCase {
   private final SetPercentageOfTotalOrdersUseCase setPercentageOfTotalOrdersUseCase;
 
   @Override
-  public PageProductsDto<Product> getAllProducts(String language, Pageable pageable, ProductFilterDto filter) {
+  public PageProductsWithPriceRangeDto<Product> getAllProducts(String language, Pageable pageable, ProductFilterDto filter) {
     validatePriceRange(filter);
 
     List<UUID> bestsellersId = getBestsellersIds();
@@ -38,7 +38,7 @@ public class GetAllProductsUseCaseImpl implements GetAllProductsUseCase {
     PriceRangeDto priceRange = productRepository.findMinMaxVisibleProductPrice();
     setPercentageOfTotalOrdersUseCase.setPercentOfTotalOrders(products.content());
 
-    return new PageProductsDto<Product>(
+    return new PageProductsWithPriceRangeDto<Product>(
         products.totalElements(),
         products.totalPages(),
         products.first(),

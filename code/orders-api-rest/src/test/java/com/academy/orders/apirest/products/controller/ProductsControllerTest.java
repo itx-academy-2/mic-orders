@@ -94,37 +94,37 @@ class ProductsControllerTest {
   void getProductsTest() throws Exception {
     var pageableDTO = getPageableDTO();
     var pageable = getPageable();
-    var pageProducts = getPageProductsDto();
-    var pageProductsDTO = getPageProductsDTO();
+    var pageProducts = getPageProductsWithPriceRangeDto();
+    var pageProductsWithPriceRangeDTO = getPageProductsWithPriceRangeDTO();
     var productFilterDto = getProductFilterDto();
 
     when(productFilterDtoMapper.fromProductFilterDTO(any())).thenReturn(productFilterDto);
     when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
     when(getAllProductsUseCase.getAllProducts(LANGUAGE_UK, pageable, productFilterDto)).thenReturn(pageProducts);
-    when(productPreviewDTOMapper.toPageProductsDTO(pageProducts)).thenReturn(pageProductsDTO);
+    when(productPreviewDTOMapper.toPageProductsWithPriceRangeDTO(pageProducts)).thenReturn(pageProductsWithPriceRangeDTO);
 
     mockMvc.perform(get(GET_ALL_PRODUCTS_URL).param("lang", LANGUAGE_UK).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(content().json(objectMapper.writeValueAsString(pageProductsDTO)));
+        .andExpect(content().json(objectMapper.writeValueAsString(pageProductsWithPriceRangeDTO)));
 
     verify(productFilterDtoMapper).fromProductFilterDTO(any());
     verify(pageableDTOMapper).fromDto(pageableDTO);
     verify(getAllProductsUseCase).getAllProducts(LANGUAGE_UK, pageable, productFilterDto);
-    verify(productPreviewDTOMapper).toPageProductsDTO(pageProducts);
+    verify(productPreviewDTOMapper).toPageProductsWithPriceRangeDTO(pageProducts);
   }
 
   @Test
   void getProductsWithFiltersTest() throws Exception {
     var pageableDTO = getPageableDTO();
     var pageable = getPageable();
-    var pageProducts = getPageProductsDto();
-    var pageProductsDTO = getPageProductsDTO();
+    var pageProducts = getPageProductsWithPriceRangeDto();
+    var pageProductsWithPriceRangeDTO = getPageProductsWithPriceRangeDTO();
     var productFilterDto = getProductFilterDto();
 
     when(productFilterDtoMapper.fromProductFilterDTO(any())).thenReturn(productFilterDto);
     when(pageableDTOMapper.fromDto(pageableDTO)).thenReturn(pageable);
     when(getAllProductsUseCase.getAllProducts(LANGUAGE_UK, pageable, productFilterDto)).thenReturn(pageProducts);
-    when(productPreviewDTOMapper.toPageProductsDTO(pageProducts)).thenReturn(pageProductsDTO);
+    when(productPreviewDTOMapper.toPageProductsWithPriceRangeDTO(pageProducts)).thenReturn(pageProductsWithPriceRangeDTO);
 
     mockMvc.perform(get(GET_ALL_PRODUCTS_URL)
         .param("lang", LANGUAGE_UK)
@@ -142,12 +142,12 @@ class ProductsControllerTest {
         .param("deliveryUkrPost", productFilterDto.deliveryUkrPost().toString())
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(content().json(objectMapper.writeValueAsString(pageProductsDTO)));
+        .andExpect(content().json(objectMapper.writeValueAsString(pageProductsWithPriceRangeDTO)));
 
     verify(productFilterDtoMapper).fromProductFilterDTO(any());
     verify(pageableDTOMapper).fromDto(pageableDTO);
     verify(getAllProductsUseCase).getAllProducts(LANGUAGE_UK, pageable, productFilterDto);
-    verify(productPreviewDTOMapper).toPageProductsDTO(pageProducts);
+    verify(productPreviewDTOMapper).toPageProductsWithPriceRangeDTO(pageProducts);
   }
 
   @Test

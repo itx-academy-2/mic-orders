@@ -1,9 +1,10 @@
 package com.academy.orders.apirest.products.mapper;
 
 import com.academy.orders.domain.common.Page;
-import com.academy.orders.domain.product.dto.PageProductsDto;
+import com.academy.orders.domain.product.dto.PageProductsWithPriceRangeDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders_api_rest.generated.model.PageProductsDTO;
+import com.academy.orders_api_rest.generated.model.PageProductsWithPriceRangeDTO;
 import com.academy.orders_api_rest.generated.model.ProductPreviewDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -21,5 +22,5 @@ public interface ProductPreviewDTOMapper extends ProductMapper {
 
   PageProductsDTO toPageProductsDTO(Page<Product> products);
 
-  PageProductsDTO toPageProductsDTO(PageProductsDto<Product> products);
+  PageProductsWithPriceRangeDTO toPageProductsWithPriceRangeDTO(PageProductsWithPriceRangeDto<Product> products);
 }
