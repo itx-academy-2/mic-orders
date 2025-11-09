@@ -309,7 +309,7 @@ class ProductSpecificationTest {
 
     // Then
     assertNotNull(predicateResult);
-    verify(cb).asc(any());
+    verify(cb).selectCase();
   }
 
   @Test

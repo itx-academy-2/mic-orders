@@ -2520,12 +2520,14 @@ components:
             - neither set: no discount filtering applied
           example: false
         priceMin:
-          type: integer
+          type: number
+          format: decimal
           description: Minimum price filter.
           minimum: 0
           example: 100
         priceMax:
-          type: integer
+          type: number
+          format: decimal
           description: Maximum price filter. Should be greater than or equal to priceMin.
           minimum: 0
           example: 1000
