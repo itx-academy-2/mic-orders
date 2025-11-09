@@ -459,4 +459,20 @@ class ProductRepositoryTest {
     assertEquals(maxPrice, result.maxPrice());
     verify(productJpaAdapter).findMinMaxPriceVisibleProducts();
   }
+
+  @Test
+  void findMinMaxVisibleProductPriceReturnsZeroWhenNullTest() {
+    // Given
+    when(productJpaAdapter.findMinMaxPriceVisibleProducts()).thenReturn(null);
+
+    // When
+    var result = productRepository.findMinMaxVisibleProductPrice();
+
+    // Then
+    assertNotNull(result);
+    assertEquals(BigDecimal.ZERO, result.minPrice());
+    assertEquals(BigDecimal.ZERO, result.maxPrice());
+
+    verify(productJpaAdapter).findMinMaxPriceVisibleProducts();
+  }
 }

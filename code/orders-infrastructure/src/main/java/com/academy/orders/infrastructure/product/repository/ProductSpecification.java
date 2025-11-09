@@ -106,7 +106,11 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
             Expression<?> discountedPrice = buildDiscountedPriceExpression(cb, productJoin);
             orders.add(order.equals("asc") ? cb.asc(discountedPrice) : cb.desc(discountedPrice));
           }
-          case "percentageOfTotalOrders" -> addBestsellerSorting(cb, orders, order);
+          case "percentageOfTotalOrders" -> {
+            if (!bestsellersIds.isEmpty()) {
+              addBestsellerSorting(root, cb, orders, order);
+            }
+          }
         }
       }
     } else {
@@ -128,13 +132,17 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
     }
   }
 
-  private void addBestsellerSorting(CriteriaBuilder cb, List<Order> orders, String order) {
-    CriteriaBuilder.Case<Integer> uuidExpression = cb.selectCase();
+  private void addBestsellerSorting(Root<ProductTranslationEntity> root, CriteriaBuilder cb, List<Order> orders, String order) {
+    CriteriaBuilder.Case<Integer> caseExpr = cb.selectCase();
+
     for (int j = 0; j < bestsellersIds.size(); j++) {
-      Expression<Integer> exp = uuidExpression.when(cb.equal(cb.literal(bestsellersIds.get(j)), bestsellersIds.get(j)),
-          order.equals("asc") ? bestsellersIds.size() - j : j).otherwise(Integer.MAX_VALUE);
-      orders.add(cb.asc(exp));
+      int value = order.equals("asc") ? (bestsellersIds.size() - j) : j;
+      caseExpr = caseExpr.when(cb.equal(root.get("product").get("id"), bestsellersIds.get(j)), value);
     }
+
+    Expression<Integer> rankingExpression = caseExpr.otherwise(Integer.MAX_VALUE);
+
+    orders.add(cb.asc(rankingExpression));
   }
 
   private Expression<?> buildDiscountedPriceExpression(CriteriaBuilder cb, Join<ProductTranslationEntity, ProductEntity> productJoin) {

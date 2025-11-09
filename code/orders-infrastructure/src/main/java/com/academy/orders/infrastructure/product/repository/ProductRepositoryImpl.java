@@ -176,7 +176,7 @@ public class ProductRepositoryImpl implements ProductRepository {
   @Override
   public PriceRangeDto findMinMaxVisibleProductPrice() {
     PriceRangeProjection result = productJpaAdapter.findMinMaxPriceVisibleProducts();
-    return new PriceRangeDto(result.minPrice(), result.maxPrice());
+    return result == null ? new PriceRangeDto(BigDecimal.ZERO, BigDecimal.ZERO) : new PriceRangeDto(result.minPrice(), result.maxPrice());
   }
 
   @Override

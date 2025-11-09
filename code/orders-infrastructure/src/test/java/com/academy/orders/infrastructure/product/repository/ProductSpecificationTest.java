@@ -34,9 +34,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -299,21 +299,7 @@ class ProductSpecificationTest {
   }
 
   @Test
-  void sortByPercentageOfTotalOrdersAscendingTest() {
-    // Given
-    sort.add("percentageOfTotalOrders");
-    sort.add("asc");
-
-    // When
-    Predicate predicateResult = spec.toPredicate(root, query, cb);
-
-    // Then
-    assertNotNull(predicateResult);
-    verify(cb, atLeast(bestsellersIds.size())).asc(any());
-  }
-
-  @Test
-  void sortByPercentageOfTotalOrdersDescendingTest() {
+  void sortByPercentageOfTotalOrdersTest() {
     // Given
     sort.add("percentageOfTotalOrders");
     sort.add("desc");
@@ -323,7 +309,53 @@ class ProductSpecificationTest {
 
     // Then
     assertNotNull(predicateResult);
-    verify(cb, atLeast(bestsellersIds.size())).asc(any());
+    verify(cb).asc(any());
+  }
+
+  @Test
+  void sortPercentageWhenBestsellersEmptyTest() {
+    // Given
+    List<UUID> empty = List.of();
+    sort.add("percentageOfTotalOrders");
+    sort.add("asc");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, empty);
+
+    // When
+    Predicate p = spec.toPredicate(root, query, cb);
+
+    // Then
+    assertNotNull(p);
+    verify(cb, never()).selectCase();
+  }
+
+  @Test
+  void sortByBestsellersAscTest() {
+    // Given
+    sort.add("percentageOfTotalOrders");
+    sort.add("asc");
+    ProductSpecification specAsc = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    // When
+    Predicate p = specAsc.toPredicate(root, query, cb);
+
+    // Then
+    assertNotNull(p);
+    verify(cb).selectCase();
+  }
+
+  @Test
+  void sortByBestsellersDescTest() {
+    // Given
+    sort.add("percentageOfTotalOrders");
+    sort.add("desc");
+    ProductSpecification specDesc = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    // When
+    Predicate p = specDesc.toPredicate(root, query, cb);
+
+    // Then
+    assertNotNull(p);
+    verify(cb).selectCase();
   }
 
   @Test
