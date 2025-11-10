@@ -93,18 +93,21 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
     final List<Order> orders = new ArrayList<>();
 
     if (sort != null && !sort.isEmpty()) {
+      if (sort.size() % 2 != 0) {
+        throw new IllegalArgumentException("Sort list must contain field-direction pairs (e.g. [\"price\",\"asc\"]).");
+      }
       // Dynamic sorting logic
       for (int i = 0; i < sort.size(); i += 2) {
         String field = sort.get(i);
         String order = sort.get(i + 1);
 
         switch (field) {
-          case "name" -> orders.add(order.equals("asc") ? cb.asc(root.get(field)) : cb.desc(root.get(field)));
+          case "name" -> orders.add("asc".equalsIgnoreCase(order) ? cb.asc(root.get(field)) : cb.desc(root.get(field)));
           case "product.createdAt" -> orders
-              .add(order.equals("asc") ? cb.asc(productJoin.get("createdAt")) : cb.desc(productJoin.get("createdAt")));
+              .add("asc".equalsIgnoreCase(order) ? cb.asc(productJoin.get("createdAt")) : cb.desc(productJoin.get("createdAt")));
           case "product.price" -> {
             Expression<?> discountedPrice = buildDiscountedPriceExpression(cb, productJoin);
-            orders.add(order.equals("asc") ? cb.asc(discountedPrice) : cb.desc(discountedPrice));
+            orders.add("asc".equalsIgnoreCase(order) ? cb.asc(discountedPrice) : cb.desc(discountedPrice));
           }
           case "percentageOfTotalOrders" -> {
             if (!bestsellersIds.isEmpty()) {

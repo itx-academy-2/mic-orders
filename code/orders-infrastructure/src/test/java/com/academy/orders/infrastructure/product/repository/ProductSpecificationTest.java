@@ -31,6 +31,7 @@ import java.util.UUID;
 import static com.academy.orders.infrastructure.ModelUtils.getProductFilterDto;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -243,6 +244,30 @@ class ProductSpecificationTest {
   }
 
   @Test
+  void sortByPriceUppercaseAscIsRecognized() {
+    sort.add("product.price");
+    sort.add("ASC");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    Predicate p = spec.toPredicate(root, query, cb);
+
+    assertNotNull(p);
+    verify(cb).asc(any());
+  }
+
+  @Test
+  void sortByPriceUppercaseDescIsRecognized() {
+    sort.add("product.price");
+    sort.add("DESC");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    Predicate p = spec.toPredicate(root, query, cb);
+
+    assertNotNull(p);
+    verify(cb).desc(any());
+  }
+
+  @Test
   void sortByNameAscendingTest() {
     // Given
     sort.add("name");
@@ -271,6 +296,30 @@ class ProductSpecificationTest {
   }
 
   @Test
+  void sortByNameUppercaseAscIsRecognized() {
+    sort.add("name");
+    sort.add("ASC");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    Predicate p = spec.toPredicate(root, query, cb);
+
+    assertNotNull(p);
+    verify(cb).asc(any());
+  }
+
+  @Test
+  void sortByNameUppercaseDescIsRecognized() {
+    sort.add("name");
+    sort.add("DESC");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    Predicate p = spec.toPredicate(root, query, cb);
+
+    assertNotNull(p);
+    verify(cb).desc(any());
+  }
+
+  @Test
   void sortByProductCreatedAtAscendingTest() {
     // Given
     sort.add("product.createdAt");
@@ -295,6 +344,30 @@ class ProductSpecificationTest {
 
     // Then
     assertNotNull(predicateResult);
+    verify(cb).desc(any());
+  }
+
+  @Test
+  void sortByCreatedAtUppercaseAscIsRecognized() {
+    sort.add("product.createdAt");
+    sort.add("ASC");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    Predicate p = spec.toPredicate(root, query, cb);
+
+    assertNotNull(p);
+    verify(cb).asc(any()); // verifying ordering direction, not the exact expression
+  }
+
+  @Test
+  void sortByCreatedAtUppercaseDescIsRecognized() {
+    sort.add("product.createdAt");
+    sort.add("DESC");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    Predicate p = spec.toPredicate(root, query, cb);
+
+    assertNotNull(p);
     verify(cb).desc(any());
   }
 
@@ -383,5 +456,16 @@ class ProductSpecificationTest {
 
     // Then
     assertNotNull(predicateResult);
+  }
+
+  @Test
+  void sortListOddSizeThrowsExceptionTest() {
+    // Given
+    sort.add("price"); // only field, missing direction
+
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    // When / Then
+    assertThrows(IllegalArgumentException.class, () -> spec.toPredicate(root, query, cb));
   }
 }
