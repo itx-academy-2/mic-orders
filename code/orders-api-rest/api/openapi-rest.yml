@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 2.7.0
+  version: 3.0.0
 servers:
   - url: http://localhost:8080/retail
 
@@ -44,6 +44,9 @@ tags:
 
   - name: OrdersV2
     description: Orders endpoints, version 2
+
+  - name: Reservations
+    description: User's reservation endpoints
 
 #ENDPOINTS
 #=======================================================================================================================
@@ -1342,6 +1345,74 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFoundResponse'
+
+  /v1/my-reservations:
+    get:
+      tags:
+        - Reservations
+      summary: Get current user's reserved products
+      description: Retrieves the list of products reserved by the authenticated user.
+      operationId: getUserReservations
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/Language'
+      responses:
+        '200':
+          description: Paginated list of reserved products
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageProducts'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /v1/my-reservations/{productId}:
+    put:
+      tags:
+        - Reservations
+      summary: Add a product to reservation list
+      description: Adds a product to the authenticated user's reservation list.
+      operationId: addToReservations
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '204':
+          description: Product reserved successfully
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Product not found
+
+    delete:
+      tags:
+        - Reservations
+      summary: Remove a product from reservation list
+      description: Removes a product from the authenticated user's reservation list.
+      operationId: removeFromReservations
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '204':
+          description: Product removed successfully
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Product not found
 
 #COMPONENTS
 #=======================================================================================================================
