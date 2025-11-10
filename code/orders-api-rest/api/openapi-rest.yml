@@ -1363,7 +1363,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PageProducts'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductPreview'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
