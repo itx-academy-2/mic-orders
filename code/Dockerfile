@@ -1,7 +1,7 @@
 FROM maven:3.8.5-openjdk-17 AS BUILDER
 
-WORKDIR /opt/app/build
-COPY . ./
+WORKDIR /opt/app
+COPY . .
 
 RUN mvn -B -e clean install -DskipTests
 
