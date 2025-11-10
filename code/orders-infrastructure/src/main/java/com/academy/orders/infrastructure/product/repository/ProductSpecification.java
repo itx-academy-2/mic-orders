@@ -136,9 +136,10 @@ public class ProductSpecification implements Specification<ProductTranslationEnt
     boolean ascending = "asc".equalsIgnoreCase(order);
     CriteriaBuilder.Case<Integer> caseExpr = cb.selectCase();
     for (int idx = 0; idx < bestsellersIds.size(); idx++) {
-      caseExpr = caseExpr.when(cb.equal(root.get("product").get("id"), bestsellersIds.get(idx)), idx);
+      int rank = ascending ? (bestsellersIds.size() - idx) : (bestsellersIds.size() - 1 - idx);
+      caseExpr = caseExpr.when(cb.equal(root.get("product").get("id"), bestsellersIds.get(idx)), rank);
     }
-    int fallback = ascending ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+    int fallback = ascending ? 0 : Integer.MIN_VALUE;
     Expression<Integer> rankingExpression = caseExpr.otherwise(fallback);
     orders.add(ascending ? cb.asc(rankingExpression) : cb.desc(rankingExpression));
   }
