@@ -43,7 +43,7 @@ Options to enable/disable different test types:
 
 - `-DskipUnitTests` skips unit tests but executes integration tests
 
-- `-DskipIntegrationTests` skips integration tests but executes unit tests
+- `-DskipITs` skips integration tests but executes unit tests
 
 <b>To run integration tests docker-compose should be up.</b>
 

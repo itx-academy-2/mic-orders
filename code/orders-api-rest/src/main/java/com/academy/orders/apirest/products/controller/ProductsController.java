@@ -3,11 +3,13 @@ package com.academy.orders.apirest.products.controller;
 import com.academy.orders.apirest.common.mapper.PageableDTOMapper;
 import com.academy.orders.apirest.products.mapper.PageProductSearchResultDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductDetailsResponseDTOMapper;
+import com.academy.orders.apirest.products.mapper.ProductFilterDtoMapper;
 import com.academy.orders.apirest.products.mapper.ProductPreviewDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductsOnSaleFilterMapper;
 import com.academy.orders.apirest.products.mapper.ProductsOnSaleResponseDTOMapper;
 import com.academy.orders.domain.common.Page;
 import com.academy.orders.domain.common.Pageable;
+import com.academy.orders.domain.product.dto.ProductFilterDto;
 import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.usecase.GetAllProductsUseCase;
@@ -47,6 +49,8 @@ public class ProductsController implements ProductsApi {
 
   private final ProductsOnSaleFilterMapper productsOnSaleFilterMapper;
 
+  private final ProductFilterDtoMapper productFilterDtoMapper;
+
   private final ProductsOnSaleResponseDTOMapper productsOnSaleResponseDTOMapper;
 
   private final ProductDetailsResponseDTOMapper productDetailsResponseDTOMapper;
@@ -70,11 +74,12 @@ public class ProductsController implements ProductsApi {
   }
 
   @Override
-  public ResponseEntity<PageProductsDTO> getProducts(ProductFilterDTO productFilter, PageableDTO dto, String lang) {
+  public ResponseEntity<PageProductsWithPriceRangeDTO> getProducts(ProductFilterDTO productFilter, PageableDTO dto, String lang) {
     log.debug("Get all products by language code: {}", lang);
+    final ProductFilterDto productFilterDto = productFilterDtoMapper.fromProductFilterDTO(productFilter);
     var pageable = pageableDTOMapper.fromDto(dto);
-    var products = getAllProductsUseCase.getAllProducts(lang, pageable, productFilter.getTags());
-    return ResponseEntity.ok(productPreviewDTOMapper.toPageProductsDTO(products));
+    var products = getAllProductsUseCase.getAllProducts(lang, pageable, productFilterDto);
+    return ResponseEntity.ok(productPreviewDTOMapper.toPageProductsWithPriceRangeDTO(products));
   }
 
   @Override
