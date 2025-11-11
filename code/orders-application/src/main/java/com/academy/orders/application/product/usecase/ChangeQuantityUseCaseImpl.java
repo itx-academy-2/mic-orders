@@ -17,7 +17,7 @@ public class ChangeQuantityUseCaseImpl implements ChangeQuantityUseCase {
 
   @Override
   public void changeQuantityOfProduct(Product product, int delta) {
-    int newQuantity = product.getQuantity() - delta; // subtracting delta (so +delta reduces)
+    int newQuantity = product.getQuantity() - delta;
 
     if (newQuantity < 0) {
       throw new InsufficientProductQuantityException(product.getId());
