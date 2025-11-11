@@ -8,6 +8,7 @@ import com.academy.orders_api_rest.generated.model.PageProductsWithPriceRangeDTO
 import com.academy.orders_api_rest.generated.model.ProductPreviewDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ProductPreviewDTOMapper extends ProductMapper {
@@ -23,4 +24,6 @@ public interface ProductPreviewDTOMapper extends ProductMapper {
   PageProductsDTO toPageProductsDTO(Page<Product> products);
 
   PageProductsWithPriceRangeDTO toPageProductsWithPriceRangeDTO(PageProductsWithPriceRangeDto<Product> products);
+
+  List<ProductPreviewDTO> toProductPreviewListDTO(List<Product> products);
 }

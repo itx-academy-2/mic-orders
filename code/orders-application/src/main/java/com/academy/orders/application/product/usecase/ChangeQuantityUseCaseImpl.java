@@ -12,23 +12,17 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ChangeQuantityUseCaseImpl implements ChangeQuantityUseCase {
+
   private final ProductRepository productRepository;
 
   @Override
-  public void changeQuantityOfProduct(Product product, Integer orderedQuantity) {
-    var quantityOfProductsLeft = getQuantityOfProductsLeft(product, orderedQuantity);
-    setNewQuantity(product.getId(), quantityOfProductsLeft);
-  }
+  public void changeQuantityOfProduct(Product product, int delta) {
+    int newQuantity = product.getQuantity() - delta; // subtracting delta (so +delta reduces)
 
-  private int getQuantityOfProductsLeft(Product product, Integer orderedQuantity) {
-    var quantityDifference = product.getQuantity() - orderedQuantity;
-    if (quantityDifference < 0 || orderedQuantity <= 0)
+    if (newQuantity < 0) {
       throw new InsufficientProductQuantityException(product.getId());
+    }
 
-    return quantityDifference;
-  }
-
-  private void setNewQuantity(UUID productId, Integer quantity) {
-    productRepository.setNewProductQuantity(productId, quantity);
+    productRepository.setNewProductQuantity(product.getId(), newQuantity);
   }
 }
