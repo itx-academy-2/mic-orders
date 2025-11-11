@@ -1,7 +1,5 @@
 package com.academy.orders.application.reservation.usecase;
 
-import com.academy.orders.domain.product.entity.Product;
-import com.academy.orders.domain.product.exception.ProductNotFoundException;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.ChangeQuantityUseCase;
 import com.academy.orders.domain.reservation.repository.ReservationsRepository;
@@ -31,11 +29,18 @@ public class RemoveFromUserReservationsUseCaseImpl implements RemoveFromUserRese
       return;
     }
 
-    Product product = productRepository.getById(productId)
-        .orElseThrow(() -> new ProductNotFoundException(productId));
+    var productOpt = productRepository.getById(productId);
 
+    if (productOpt.isEmpty()) {
+      log.warn("Product {} not found in catalog, removing orphaned reservation for user {}", productId, userId);
+      reservationsRepository.removeProductFromReservations(userId, productId);
+      return;
+    }
+
+    var product = productOpt.get();
     changeQuantityUseCase.changeQuantityOfProduct(product, -1);
     reservationsRepository.removeProductFromReservations(userId, productId);
     log.info("Product {} removed from reservations for user {}", productId, userId);
   }
+
 }

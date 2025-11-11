@@ -1,7 +1,6 @@
 package com.academy.orders.application.reservation.usecase;
 
 import com.academy.orders.domain.product.entity.Product;
-import com.academy.orders.domain.product.exception.ProductNotFoundException;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.ChangeQuantityUseCase;
 import com.academy.orders.domain.reservation.repository.ReservationsRepository;
@@ -15,7 +14,6 @@ import java.util.UUID;
 
 import static com.academy.orders.application.TestConstants.TEST_ID;
 import static com.academy.orders.application.TestConstants.TEST_UUID;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
@@ -83,13 +81,10 @@ class RemoveFromUserReservationsUseCaseImplTest {
     when(productRepository.getById(TEST_PRODUCT_ID)).thenReturn(Optional.empty());
 
     // When
-    assertThrows(ProductNotFoundException.class,
-        () -> removeFromUserReservationsUseCase.removeProductFromReservations(TEST_USER_ID, TEST_PRODUCT_ID));
+    removeFromUserReservationsUseCase.removeProductFromReservations(TEST_USER_ID, TEST_PRODUCT_ID);
 
     // Then
-    verify(reservationsRepository, times(1)).exists(TEST_USER_ID, TEST_PRODUCT_ID);
-    verify(productRepository, times(1)).getById(TEST_PRODUCT_ID);
     verify(changeQuantityUseCase, never()).changeQuantityOfProduct(any(), anyInt());
-    verify(reservationsRepository, never()).removeProductFromReservations(any(), any());
+    verify(reservationsRepository, times(1)).removeProductFromReservations(TEST_USER_ID, TEST_PRODUCT_ID);
   }
 }

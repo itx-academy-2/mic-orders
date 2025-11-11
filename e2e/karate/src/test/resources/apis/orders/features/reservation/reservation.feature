@@ -9,7 +9,7 @@ Feature: Add product to reservations → Verify it appears → Remove it
     * def reservationsPath = '/v1/my-reservations'
 
   @GS2-217
-  Scenario: Add product to reservations → Verify it appears in reservations → Clean up
+  Scenario: Add product to reservations → Verify it appears → Remove it
     # Add to reservations
     Given headers authHeader
     And path reservationsPath, productId
@@ -29,3 +29,11 @@ Feature: Add product to reservations → Verify it appears → Remove it
     And path reservationsPath, productId
     When method delete
     Then status 204
+
+    # Verify removal
+    Given headers authHeader
+    And path reservationsPath
+    And param lang = 'en'
+    When method get
+    Then status 200
+    * match response[*].id !contains productId
