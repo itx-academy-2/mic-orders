@@ -1,7 +1,9 @@
 package com.academy.orders.infrastructure.product.repository;
 
+import com.academy.orders.domain.product.dto.ProductFilterDto;
 import com.academy.orders.infrastructure.discount.entity.DiscountEntity;
 import com.academy.orders.infrastructure.language.entity.LanguageEntity;
+import com.academy.orders.infrastructure.order.entity.OrderItemEntity;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
 import com.academy.orders.infrastructure.tag.entity.TagEntity;
@@ -20,17 +22,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import static com.academy.orders.infrastructure.ModelUtils.getProductFilterDto;
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -61,6 +65,9 @@ class ProductSpecificationTest {
   private Join<ProductEntity, DiscountEntity> discountJoin;
 
   @Mock
+  private Join<ProductEntity, OrderItemEntity> orderItemsJoin;
+
+  @Mock
   private Predicate predicate;
 
   @Mock(answer = Answers.RETURNS_SELF)
@@ -70,26 +77,35 @@ class ProductSpecificationTest {
 
   private final String language = "en";
 
-  private final List<String> sort = new ArrayList<>();
-
-  private final List<String> tags = List.of("tag1", "tag2");
+  private List<String> sort = new ArrayList<>();
 
   private final List<UUID> bestsellersIds = List.of(UUID.randomUUID(), UUID.randomUUID());
 
+  private final ProductFilterDto filterDto = getProductFilterDto();
+
   @BeforeEach
   void setUp() {
-    spec = new ProductSpecification(language, sort, tags, bestsellersIds);
+    spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+    sort.clear();
 
     lenient().when(root.join(eq("product"), eq(JoinType.LEFT))).thenReturn((Join) productJoin);
     lenient().when(root.join(eq("language"), eq(JoinType.LEFT))).thenReturn((Join) languageJoin);
+    lenient().when(root.get("productTranslationId")).thenReturn(mock(Path.class));
+    lenient().when(root.get("productId")).thenReturn(mock(Path.class));
+    lenient().when(root.get("languageId")).thenReturn(mock(Path.class));
+    lenient().when(productJoin.get("id")).thenReturn(mock(Path.class));
     lenient().when(productJoin.join(eq("tags"), eq(JoinType.LEFT))).thenReturn((Join) tagsJoin);
     lenient().when(productJoin.join(eq("discount"), eq(JoinType.LEFT))).thenReturn((Join) discountJoin);
+    lenient().when(productJoin.join(eq("orderItems"), eq(JoinType.LEFT))).thenReturn((Join) orderItemsJoin);
     lenient().when(productJoin.get("status")).thenReturn(mock(Path.class));
     lenient().when(languageJoin.get("code")).thenReturn(mock(Path.class));
+    lenient().when(languageJoin.get("id")).thenReturn(mock(Path.class));
     lenient().when(tagsJoin.get("name")).thenReturn(mock(Path.class));
     lenient().when(productJoin.get("createdAt")).thenReturn(mock(Path.class));
     lenient().when(productJoin.get("price")).thenReturn(mock(Path.class));
     lenient().when(discountJoin.get("amount")).thenReturn(mock(Path.class));
+    lenient().when(orderItemsJoin.get("orderItemId")).thenReturn(mock(Path.class));
+    lenient().when(orderItemsJoin.get("productId")).thenReturn(mock(Path.class));
     lenient().when(root.get("product")).thenReturn(mock(Path.class));
     lenient().when(cb.like(any(Expression.class), anyString())).thenReturn(predicate);
     lenient().when(cb.conjunction()).thenReturn(predicate);
@@ -101,15 +117,17 @@ class ProductSpecificationTest {
     lenient().when(cb.quot(any(Expression.class), any(Double.class))).thenReturn(mock(Expression.class));
     lenient().when(cb.coalesce(any(Expression.class), any(Expression.class))).thenReturn(mock(Expression.class));
     lenient().when(cb.toDouble(any(Expression.class))).thenReturn(mock(Expression.class));
+    lenient().when(cb.count(any(Expression.class))).thenReturn(mock(Expression.class));
     lenient().doReturn(caseMock).when(cb).selectCase();
     lenient().doReturn(mock(Expression.class)).when(caseMock).otherwise(any(Integer.class));
   }
 
   @Test
-  void toPredicateWithTagsAndSortTest() {
+  void toPredicateWithFiltersAllTrueAndSortTest() {
     // Given
     sort.add("product.price");
     sort.add("asc");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
 
     // When
     Predicate predicateResult = spec.toPredicate(root, query, cb);
@@ -120,8 +138,95 @@ class ProductSpecificationTest {
     verify(root).join("language", JoinType.LEFT);
     verify(productJoin).join("tags", JoinType.LEFT);
     verify(productJoin).join("discount", JoinType.LEFT);
-    verify(cb, atLeastOnce()).like(any(), eq("VISIBLE"));
-    verify(cb, atLeastOnce()).like(any(), eq(language));
+    verify(cb).equal(any(), eq("VISIBLE"));
+    verify(cb).equal(any(), eq(language));
+  }
+
+  @Test
+  void toPredicateWithFilterDiscountTrueAvailabilityTruePriceMinNullSortNullAndBestsellersNullTest() {
+    // Given
+    ProductFilterDto customFilter = ProductFilterDto.builder()
+        .tags(singletonList("category:mobile"))
+        .discount(true)
+        .nonDiscount(false)
+        .priceMin(null)
+        .priceMax(BigDecimal.valueOf(1000))
+        .availability(true)
+        .nonAvailability(false)
+        .build();
+    ProductSpecification spec = new ProductSpecification(language, null, customFilter, null);
+
+    // When
+    Predicate predicateResult = spec.toPredicate(root, query, cb);
+
+    // Then
+    assertNotNull(predicateResult);
+    verify(root).join("product", JoinType.LEFT);
+    verify(root).join("language", JoinType.LEFT);
+    verify(productJoin).join("tags", JoinType.LEFT);
+    verify(cb).equal(any(), eq("VISIBLE"));
+    verify(cb).equal(any(), eq(language));
+    verify(cb).lessThanOrEqualTo(productJoin.get("price"), customFilter.priceMax());
+    verify(cb).isNotNull(productJoin.get("discount"));
+    verify(cb).greaterThan(productJoin.get("quantity"), 0);
+  }
+
+  @Test
+  void toPredicateWithFilterWithNullFieldsTest() {
+    // Given
+    ProductFilterDto customFilter = ProductFilterDto.builder()
+        .tags(null)
+        .discount(null)
+        .nonDiscount(null)
+        .priceMin(null)
+        .priceMax(null)
+        .availability(null)
+        .nonAvailability(null)
+        .build();
+    ProductSpecification spec = new ProductSpecification(language, sort, customFilter, null);
+
+    // When
+    Predicate predicateResult = spec.toPredicate(root, query, cb);
+
+    // Then
+    assertNotNull(predicateResult);
+    verify(root).join("product", JoinType.LEFT);
+    verify(root).join("language", JoinType.LEFT);
+    verify(productJoin).join("tags", JoinType.LEFT);
+    verify(cb).equal(any(), eq("VISIBLE"));
+    verify(cb).equal(any(), eq(language));
+  }
+
+  @Test
+  void toPredicateWithFilterNonDiscountFalseNonAvailabilityFalsePriceMaxNullEmptyTagsAndSortTest() {
+    // Given
+    sort.add("product.price");
+    sort.add("asc");
+    ProductFilterDto customFilter = ProductFilterDto.builder()
+        .tags(Collections.emptyList())
+        .discount(false)
+        .nonDiscount(true)
+        .priceMin(BigDecimal.valueOf(100))
+        .priceMax(null)
+        .availability(false)
+        .nonAvailability(true)
+        .build();
+    ProductSpecification spec = new ProductSpecification(language, sort, customFilter, bestsellersIds);
+
+    // When
+    Predicate predicateResult = spec.toPredicate(root, query, cb);
+
+    // Then
+    assertNotNull(predicateResult);
+    verify(root).join("product", JoinType.LEFT);
+    verify(root).join("language", JoinType.LEFT);
+    verify(productJoin).join("tags", JoinType.LEFT);
+    verify(productJoin).join("discount", JoinType.LEFT);
+    verify(cb).equal(any(), eq("VISIBLE"));
+    verify(cb).equal(any(), eq(language));
+    verify(cb).greaterThanOrEqualTo(productJoin.get("price"), customFilter.priceMin());
+    verify(cb).isNull(productJoin.get("discount"));
+    verify(cb).equal(productJoin.get("quantity"), 0);
   }
 
   @Test
@@ -135,6 +240,30 @@ class ProductSpecificationTest {
 
     // Then
     assertNotNull(predicateResult);
+    verify(cb).desc(any());
+  }
+
+  @Test
+  void sortByPriceUppercaseAscIsRecognized() {
+    sort.add("product.price");
+    sort.add("ASC");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    Predicate p = spec.toPredicate(root, query, cb);
+
+    assertNotNull(p);
+    verify(cb).asc(any());
+  }
+
+  @Test
+  void sortByPriceUppercaseDescIsRecognized() {
+    sort.add("product.price");
+    sort.add("DESC");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    Predicate p = spec.toPredicate(root, query, cb);
+
+    assertNotNull(p);
     verify(cb).desc(any());
   }
 
@@ -167,6 +296,30 @@ class ProductSpecificationTest {
   }
 
   @Test
+  void sortByNameUppercaseAscIsRecognized() {
+    sort.add("name");
+    sort.add("ASC");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    Predicate p = spec.toPredicate(root, query, cb);
+
+    assertNotNull(p);
+    verify(cb).asc(any());
+  }
+
+  @Test
+  void sortByNameUppercaseDescIsRecognized() {
+    sort.add("name");
+    sort.add("DESC");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    Predicate p = spec.toPredicate(root, query, cb);
+
+    assertNotNull(p);
+    verify(cb).desc(any());
+  }
+
+  @Test
   void sortByProductCreatedAtAscendingTest() {
     // Given
     sort.add("product.createdAt");
@@ -195,21 +348,31 @@ class ProductSpecificationTest {
   }
 
   @Test
-  void sortByPercentageOfTotalOrdersAscendingTest() {
-    // Given
-    sort.add("percentageOfTotalOrders");
-    sort.add("asc");
+  void sortByCreatedAtUppercaseAscIsRecognized() {
+    sort.add("product.createdAt");
+    sort.add("ASC");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
 
-    // When
-    Predicate predicateResult = spec.toPredicate(root, query, cb);
+    Predicate p = spec.toPredicate(root, query, cb);
 
-    // Then
-    assertNotNull(predicateResult);
-    verify(cb, atLeast(bestsellersIds.size())).asc(any());
+    assertNotNull(p);
+    verify(cb).asc(any()); // verifying ordering direction, not the exact expression
   }
 
   @Test
-  void sortByPercentageOfTotalOrdersDescendingTest() {
+  void sortByCreatedAtUppercaseDescIsRecognized() {
+    sort.add("product.createdAt");
+    sort.add("DESC");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    Predicate p = spec.toPredicate(root, query, cb);
+
+    assertNotNull(p);
+    verify(cb).desc(any());
+  }
+
+  @Test
+  void sortByPercentageOfTotalOrdersTest() {
     // Given
     sort.add("percentageOfTotalOrders");
     sort.add("desc");
@@ -219,7 +382,68 @@ class ProductSpecificationTest {
 
     // Then
     assertNotNull(predicateResult);
-    verify(cb, atLeast(bestsellersIds.size())).asc(any()); // note: your code calls asc() even for desc order here
+    verify(cb).selectCase();
+  }
+
+  @Test
+  void sortPercentageWhenBestsellersEmptyTest() {
+    // Given
+    List<UUID> empty = List.of();
+    sort.add("percentageOfTotalOrders");
+    sort.add("asc");
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, empty);
+
+    // When
+    Predicate p = spec.toPredicate(root, query, cb);
+
+    // Then
+    assertNotNull(p);
+    verify(cb, never()).selectCase();
+  }
+
+  @Test
+  void sortByBestsellersAscTest() {
+    // Given
+    sort.add("percentageOfTotalOrders");
+    sort.add("asc");
+    ProductSpecification specAsc = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    // When
+    Predicate p = specAsc.toPredicate(root, query, cb);
+
+    // Then
+    assertNotNull(p);
+    verify(cb).asc(any());
+    verify(cb).selectCase();
+  }
+
+  @Test
+  void sortByBestsellersDescTest() {
+    // Given
+    sort.add("percentageOfTotalOrders");
+    sort.add("desc");
+    ProductSpecification specDesc = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    // When
+    Predicate p = specDesc.toPredicate(root, query, cb);
+
+    // Then
+    assertNotNull(p);
+    verify(cb).desc(any());
+    verify(cb).selectCase();
+  }
+
+  @Test
+  void sortByUnknownFieldTest() {
+    // Given
+    sort.add("unknownField");
+    sort.add("desc");
+
+    // When
+    Predicate predicateResult = spec.toPredicate(root, query, cb);
+
+    // Then
+    assertNotNull(predicateResult);
   }
 
   @Test
@@ -232,6 +456,16 @@ class ProductSpecificationTest {
 
     // Then
     assertNotNull(predicateResult);
-    verify(query, never()).orderBy(anyList());
+  }
+
+  @Test
+  void sortListOddSizeThrowsExceptionTest() {
+    // Given
+    sort.add("price"); // only field, missing direction
+
+    ProductSpecification spec = new ProductSpecification(language, sort, filterDto, bestsellersIds);
+
+    // When / Then
+    assertThrows(IllegalArgumentException.class, () -> spec.toPredicate(root, query, cb));
   }
 }

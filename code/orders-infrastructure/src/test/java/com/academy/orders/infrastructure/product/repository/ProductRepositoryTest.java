@@ -13,6 +13,7 @@ import com.academy.orders.infrastructure.product.ProductManagementMapper;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.product.ProductPageMapper;
 import com.academy.orders.infrastructure.product.ProductTranslationManagementMapper;
+import com.academy.orders.infrastructure.product.dto.PriceRangeProjection;
 import com.academy.orders.infrastructure.product.entity.ProductEntity;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
 import jakarta.persistence.Tuple;
@@ -28,7 +29,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,7 +51,9 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -133,30 +135,25 @@ class ProductRepositoryTest {
     verify(productPageMapper).fromProductTranslationEntity(page);
   }
 
-  @ParameterizedTest
-  @MethodSource("findAllProductsMethodSourceProvider")
-  void findAllProductsWithDefaultSortingTest(List<String> tagsParams, List<String> mockedTags) {
-    var pageable = getPageable();
-    var productEntity = getProductEntity();
-    var product = getProduct();
-    var pageDomain = getPageOf(product);
-    var page = getPageImplOf(productEntity);
+  @Test
+  void findAllProductsWithFiltersTest() {
+    var pageableDomain = getPageable();
+    var filterDto = getProductFilterDto();
+    var bestsellersIds = List.of(TEST_UUID);
     var pageRequest = getPageRequest();
 
-    when(pageableMapper.fromDomain(pageable)).thenReturn(pageRequest);
-    when(productJpaAdapter.findAllByLanguageCodeAndStatusVisibleOrderedByDefault(LANGUAGE_EN, pageRequest,
-        mockedTags)).thenReturn(page);
-    when(productJpaAdapter.findAllByIdAndLanguageCode(List.of(productEntity.getId()), LANGUAGE_EN))
-        .thenReturn(List.of(productEntity));
-    when(productPageMapper.toDomain(page)).thenReturn(pageDomain);
-    var products = productRepository.findAllProductsWithDefaultSorting(LANGUAGE_EN, pageable, tagsParams);
+    when(pageableMapper.fromDomain(pageableDomain)).thenReturn(pageRequest);
+    doReturn(getPageImplOf(getProductTranslationEntity())).when(productTranslationJpaAdapter).findAll(any(ProductSpecification.class),
+        any(org.springframework.data.domain.Pageable.class));
+    when(productPageMapper.fromProductTranslationEntity(any(PageImpl.class))).thenReturn(getPageOf(getProduct()));
 
-    assertEquals(pageDomain, products);
-    verify(pageableMapper).fromDomain(pageable);
-    verify(productJpaAdapter).findAllByLanguageCodeAndStatusVisibleOrderedByDefault(LANGUAGE_EN, pageRequest,
-        mockedTags);
-    verify(productJpaAdapter).findAllByIdAndLanguageCode(List.of(productEntity.getId()), LANGUAGE_EN);
-    verify(productPageMapper).toDomain(page);
+    Page<Product> result = productRepository.findAllProducts(LANGUAGE_EN, pageableDomain, filterDto, bestsellersIds);
+
+    assertNotNull(result);
+    verify(pageableMapper, times(1)).fromDomain(pageableDomain);
+    verify(productTranslationJpaAdapter, times(1)).findAll(any(ProductSpecification.class),
+        any(org.springframework.data.domain.Pageable.class));
+    verify(productPageMapper, times(1)).fromProductTranslationEntity(any(PageImpl.class));
   }
 
   @Test
@@ -443,5 +440,39 @@ class ProductRepositoryTest {
     verify(pageableMapper).fromDomain(pageableDomain);
     verify(productJpaAdapter).findMostSoldProductsByTagAndPeriod(pageable, lang, from, to, tag);
     verify(productPageMapper).fromProductTranslationEntity(page);
+  }
+
+  @Test
+  void findMinMaxVisibleProductPriceTest() {
+    // Given
+    final BigDecimal minPrice = BigDecimal.valueOf(10.00);
+    final BigDecimal maxPrice = BigDecimal.valueOf(500.00);
+    final PriceRangeProjection projection = new PriceRangeProjection(minPrice, maxPrice);
+    when(productJpaAdapter.findMinMaxPriceVisibleProducts()).thenReturn(projection);
+
+    // When
+    final var result = productRepository.findMinMaxVisibleProductPrice();
+
+    // Then
+    assertNotNull(result);
+    assertEquals(minPrice, result.minPrice());
+    assertEquals(maxPrice, result.maxPrice());
+    verify(productJpaAdapter).findMinMaxPriceVisibleProducts();
+  }
+
+  @Test
+  void findMinMaxVisibleProductPriceReturnsZeroWhenNullTest() {
+    // Given
+    when(productJpaAdapter.findMinMaxPriceVisibleProducts()).thenReturn(null);
+
+    // When
+    var result = productRepository.findMinMaxVisibleProductPrice();
+
+    // Then
+    assertNotNull(result);
+    assertEquals(BigDecimal.ZERO, result.minPrice());
+    assertEquals(BigDecimal.ZERO, result.maxPrice());
+
+    verify(productJpaAdapter).findMinMaxPriceVisibleProducts();
   }
 }

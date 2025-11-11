@@ -310,4 +310,20 @@ class ErrorHandlerTest {
     assertEquals("Missing Product Translations", response.getTitle());
     assertEquals("Missing translations for languages: en, uk", response.getDetail());
   }
+
+  @Test
+  void handleIllegalArgumentException_ShouldReturnProperError() {
+    // Given
+    String message = "priceMin must be less than or equal to priceMax";
+    var ex = new IllegalArgumentException(message);
+
+    // When
+    var response = errorHandler.handleIllegalArgumentException(ex);
+
+    // Then
+    assertNotNull(response);
+    assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    assertEquals(HttpStatus.BAD_REQUEST.getReasonPhrase(), response.getTitle());
+    assertEquals(message, response.getDetail());
+  }
 }

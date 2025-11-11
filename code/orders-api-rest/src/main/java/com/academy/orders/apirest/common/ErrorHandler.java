@@ -240,4 +240,12 @@ public class ErrorHandler {
     return new ErrorObjectDTO().status(HttpStatus.UNPROCESSABLE_ENTITY.value()).title("Missing Product Translations")
         .detail(ex.getMessage());
   }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  public ErrorObjectDTO handleIllegalArgumentException(final IllegalArgumentException ex) {
+    log.warn("Illegal Argument", ex);
+    return new ErrorObjectDTO().status(HttpStatus.BAD_REQUEST.value())
+        .title(HttpStatus.BAD_REQUEST.getReasonPhrase()).detail(ex.getMessage());
+  }
 }

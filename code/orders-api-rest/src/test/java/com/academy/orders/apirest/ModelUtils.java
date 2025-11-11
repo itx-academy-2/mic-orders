@@ -26,6 +26,8 @@ import com.academy.orders.domain.order.entity.PostAddress;
 import com.academy.orders.domain.order.entity.enumerated.DeliveryMethod;
 import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.postaddress.entity.PostAddressV2;
+import com.academy.orders.domain.product.dto.PageProductsWithPriceRangeDto;
+import com.academy.orders.domain.product.dto.ProductFilterDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.dto.ProductRequestDto;
 import com.academy.orders.domain.product.dto.ProductTranslationDto;
@@ -36,6 +38,7 @@ import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductTranslation;
 import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
+import com.academy.orders_api_rest.generated.model.PageProductsWithPriceRangeDTO;
 import com.academy.orders_api_rest.generated.model.UserPostAddressResponseDTO;
 import com.academy.orders_api_rest.generated.model.AccountResponseDTO;
 import com.academy.orders_api_rest.generated.model.ArticleDetailsDTO;
@@ -151,6 +154,12 @@ public class ModelUtils {
   public static Page<Product> getProductsPage() {
     List<Product> productList = List.of(getProduct());
     return new Page<>(1L, 1, true, true, 1, productList.size(), productList.size(), false, productList);
+  }
+
+  public static PageProductsWithPriceRangeDto<Product> getPageProductsWithPriceRangeDto() {
+    List<Product> productList = List.of(getProduct());
+    return new PageProductsWithPriceRangeDto<>(1L, 1, true, true, 1, productList.size(), productList.size(), false, BigDecimal.valueOf(100),
+        BigDecimal.valueOf(10000), productList);
   }
 
   public static Page<Article> getArticlesPage() {
@@ -613,6 +622,20 @@ public class ModelUtils {
         .pageProducts(getPageProductsWithDiscountDTO());
   }
 
+  public static ProductFilterDto getProductFilterDto() {
+    return ProductFilterDto.builder()
+        .tags(singletonList(TAG_NAME))
+        .discount(true)
+        .nonDiscount(false)
+        .priceMin(BigDecimal.valueOf(100))
+        .priceMax(BigDecimal.valueOf(1000))
+        .availability(true)
+        .nonAvailability(false)
+        .deliveryNovaPost(true)
+        .deliveryUkrPost(false)
+        .build();
+  }
+
   public static ProductsOnSaleFilterDto getProductsOnSaleFilterDto() {
     return ProductsOnSaleFilterDto.builder()
         .minimumDiscount(10)
@@ -630,6 +653,22 @@ public class ModelUtils {
     pageProductsDTO.numberOfElements(1);
     pageProductsDTO.size(1);
     pageProductsDTO.empty(false);
+    return pageProductsDTO;
+  }
+
+  public static PageProductsWithPriceRangeDTO getPageProductsWithPriceRangeDTO() {
+    var pageProductsDTO = new PageProductsWithPriceRangeDTO();
+    pageProductsDTO.setContent(singletonList(getProductPreviewDTO()));
+    pageProductsDTO.setTotalElements(1L);
+    pageProductsDTO.totalPages(1);
+    pageProductsDTO.first(true);
+    pageProductsDTO.last(true);
+    pageProductsDTO.number(1);
+    pageProductsDTO.numberOfElements(1);
+    pageProductsDTO.size(1);
+    pageProductsDTO.empty(false);
+    pageProductsDTO.minProductPrice(BigDecimal.valueOf(100));
+    pageProductsDTO.maxProductPrice(BigDecimal.valueOf(1000));
     return pageProductsDTO;
   }
 

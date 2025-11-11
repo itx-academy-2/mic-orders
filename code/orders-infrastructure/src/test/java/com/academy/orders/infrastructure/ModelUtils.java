@@ -23,6 +23,7 @@ import com.academy.orders.domain.order.entity.enumerated.OrderStatus;
 import com.academy.orders.domain.passwordreset.entity.PasswordResetToken;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenStatus;
 import com.academy.orders.domain.passwordreset.entity.enumerated.TokenType;
+import com.academy.orders.domain.product.dto.ProductFilterDto;
 import com.academy.orders.domain.product.dto.ProductManagementFilterDto;
 import com.academy.orders.domain.product.entity.Language;
 import com.academy.orders.domain.product.entity.Product;
@@ -71,6 +72,7 @@ import static com.academy.orders.infrastructure.TestConstants.TEST_LAST_NAME;
 import static com.academy.orders.infrastructure.TestConstants.TEST_PHONE_NUMBER;
 import static com.academy.orders.infrastructure.TestConstants.TEST_START_DATE;
 import static com.academy.orders.infrastructure.TestConstants.TEST_UUID;
+import static java.util.Collections.singletonList;
 
 public class ModelUtils {
   public static final String TEST_IMAGE_LINK = "http://localhost:8080/image-1";
@@ -156,6 +158,20 @@ public class ModelUtils {
     return Product.builder().id(UUID.fromString("c39314ce-b659-4776-86b9-8201b05bb339"))
         .status(ProductStatus.VISIBLE).image(TEST_IMAGE_NAME).createdAt(DATE_TIME).quantity(100)
         .price(BigDecimal.valueOf(100.00)).build();
+  }
+
+  public static ProductFilterDto getProductFilterDto() {
+    return ProductFilterDto.builder()
+        .tags(singletonList("category:mobile"))
+        .discount(true)
+        .nonDiscount(true)
+        .priceMin(BigDecimal.valueOf(100))
+        .priceMax(BigDecimal.valueOf(1000))
+        .availability(true)
+        .nonAvailability(true)
+        .deliveryNovaPost(true)
+        .deliveryUkrPost(true)
+        .build();
   }
 
   public static OrderEntity getOrderEntity() {

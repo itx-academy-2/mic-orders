@@ -5,7 +5,7 @@ COPY . ./
 
 RUN mvn -B -e clean install -DskipTests
 
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk-jammy
 
 WORKDIR /opt/app
 COPY --from=BUILDER /opt/app/build/orders-boot/target/orders-boot-*.jar ./app.jar
