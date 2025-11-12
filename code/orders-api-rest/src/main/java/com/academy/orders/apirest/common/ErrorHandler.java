@@ -13,6 +13,10 @@ import com.academy.orders.domain.order.exception.OrderFinalStateException;
 import com.academy.orders.domain.passwordreset.exception.InvalidTokenException;
 import com.academy.orders.domain.passwordreset.exception.TokenNotFoundException;
 import com.academy.orders.domain.product.exception.MissingTranslationsException;
+import com.academy.orders.domain.product.exception.ProductNotVisibleException;
+import com.academy.orders.domain.product.exception.ProductOutOfStockException;
+import com.academy.orders.domain.reservation.exception.ReservationLimitExceededException;
+import com.academy.orders.domain.reservation.exception.ReservationTotalCostExceededException;
 import com.academy.orders.domain.wishlist.exception.UnsupportedSortFieldException;
 import com.academy.orders.domain.postaddress.exception.PostAddressTitleAlreadyExistsException;
 import com.academy.orders_api_rest.generated.model.ErrorObjectDTO;
@@ -247,5 +251,33 @@ public class ErrorHandler {
     log.warn("Illegal Argument", ex);
     return new ErrorObjectDTO().status(HttpStatus.BAD_REQUEST.value())
         .title(HttpStatus.BAD_REQUEST.getReasonPhrase()).detail(ex.getMessage());
+  }
+
+  @ExceptionHandler(ProductNotVisibleException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorObjectDTO handleProductNotVisibleException(ProductNotVisibleException ex) {
+    log.warn("Product not visible", ex);
+    return new ErrorObjectDTO().status(HttpStatus.BAD_REQUEST.value()).title("Product Not Visible").detail(ex.getMessage());
+  }
+
+  @ExceptionHandler(ProductOutOfStockException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorObjectDTO handleProductOutOfStockException(ProductOutOfStockException ex) {
+    log.warn("Product out of stock", ex);
+    return new ErrorObjectDTO().status(HttpStatus.BAD_REQUEST.value()).title("Product Out Of Stock").detail(ex.getMessage());
+  }
+
+  @ExceptionHandler(ReservationLimitExceededException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorObjectDTO handleReservationLimitExceeded(ReservationLimitExceededException ex) {
+    log.warn("Reservation limit exceeded", ex);
+    return new ErrorObjectDTO().status(HttpStatus.BAD_REQUEST.value()).title("Reservation Limit Exceeded").detail(ex.getMessage());
+  }
+
+  @ExceptionHandler(ReservationTotalCostExceededException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorObjectDTO handleReservationTotalCostExceeded(ReservationTotalCostExceededException ex) {
+    log.warn("Reservation total cost exceeded", ex);
+    return new ErrorObjectDTO().status(HttpStatus.BAD_REQUEST.value()).title("Reservation Total Cost Exceeded").detail(ex.getMessage());
   }
 }

@@ -13,6 +13,10 @@ import com.academy.orders.domain.order.exception.OrderFinalStateException;
 import com.academy.orders.domain.passwordreset.exception.InvalidTokenException;
 import com.academy.orders.domain.passwordreset.exception.TokenNotFoundException;
 import com.academy.orders.domain.product.exception.MissingTranslationsException;
+import com.academy.orders.domain.product.exception.ProductNotVisibleException;
+import com.academy.orders.domain.product.exception.ProductOutOfStockException;
+import com.academy.orders.domain.reservation.exception.ReservationLimitExceededException;
+import com.academy.orders.domain.reservation.exception.ReservationTotalCostExceededException;
 import com.academy.orders.domain.wishlist.exception.UnsupportedSortFieldException;
 import com.academy.orders.domain.postaddress.exception.PostAddressTitleAlreadyExistsException;
 import com.academy.orders_api_rest.generated.model.ErrorObjectDTO;
@@ -33,6 +37,7 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
@@ -325,5 +330,69 @@ class ErrorHandlerTest {
     assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
     assertEquals(HttpStatus.BAD_REQUEST.getReasonPhrase(), response.getTitle());
     assertEquals(message, response.getDetail());
+  }
+
+  @Test
+  void handleProductNotVisibleException_ShouldReturnProperError() {
+    // Given
+    UUID productId = UUID.randomUUID();
+    var ex = new ProductNotVisibleException(productId);
+
+    // When
+    ErrorObjectDTO response = errorHandler.handleProductNotVisibleException(ex);
+
+    // Then
+    assertNotNull(response);
+    assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    assertEquals("Product Not Visible", response.getTitle());
+    assertEquals("Product is not visible: " + productId, response.getDetail());
+  }
+
+  @Test
+  void handleProductOutOfStockException_ShouldReturnProperError() {
+    // Given
+    UUID productId = UUID.randomUUID();
+    var ex = new ProductOutOfStockException(productId);
+
+    // When
+    ErrorObjectDTO response = errorHandler.handleProductOutOfStockException(ex);
+
+    // Then
+    assertNotNull(response);
+    assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    assertEquals("Product Out Of Stock", response.getTitle());
+    assertEquals("Product is out of stock: " + productId, response.getDetail());
+  }
+
+  @Test
+  void handleReservationLimitExceeded_ShouldReturnProperError() {
+    // Given
+    int maxAllowed = 5;
+    var ex = new ReservationLimitExceededException(maxAllowed);
+
+    // When
+    ErrorObjectDTO response = errorHandler.handleReservationLimitExceeded(ex);
+
+    // Then
+    assertNotNull(response);
+    assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    assertEquals("Reservation Limit Exceeded", response.getTitle());
+    assertEquals("User can reserve maximum " + maxAllowed + " products", response.getDetail());
+  }
+
+  @Test
+  void handleReservationTotalCostExceeded_ShouldReturnProperError() {
+    // Given
+    BigDecimal maxAllowed = BigDecimal.valueOf(5000);
+    var ex = new ReservationTotalCostExceededException(maxAllowed);
+
+    // When
+    ErrorObjectDTO response = errorHandler.handleReservationTotalCostExceeded(ex);
+
+    // Then
+    assertNotNull(response);
+    assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    assertEquals("Reservation Total Cost Exceeded", response.getTitle());
+    assertEquals("Reservation total cost limit exceeded: max allowed " + maxAllowed, response.getDetail());
   }
 }

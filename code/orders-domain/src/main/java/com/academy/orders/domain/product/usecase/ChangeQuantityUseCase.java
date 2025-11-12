@@ -3,15 +3,18 @@ package com.academy.orders.domain.product.usecase;
 import com.academy.orders.domain.product.entity.Product;
 
 /**
- * Use case interface for changing quantity of product.
+ * Use case interface for changing product quantity.
  */
 public interface ChangeQuantityUseCase {
+
   /**
-   * Method changes the quantity of the product.
+   * Adjusts product quantity by a given delta.
+   *
+   * <ul> <li>Positive delta → decreases quantity (e.g. product reserved or ordered)</li> <li>Negative delta → increases quantity (e.g.
+   * reservation canceled)</li> </ul>
    *
    * @param product the {@link Product} whose quantity should be changed
-   * @param orderedQuantity the {@link Integer} quantity of the product chosen by the user to order
-   * @author Denys Ryhal
+   * @param delta the number of units to subtract (positive) or add (negative)
    */
-  void changeQuantityOfProduct(Product product, Integer orderedQuantity);
+  void changeQuantityOfProduct(Product product, int delta);
 }
