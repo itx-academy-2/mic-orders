@@ -410,6 +410,7 @@ paths:
             application/json:
               schema:
                 type: array
+                maxItems: 8
                 items:
                   type: string
                   description: Direct URL to the image.
