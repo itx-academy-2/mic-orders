@@ -68,5 +68,10 @@ prometheus:
   stage: ${PROMETHEUS_STAGE}
   url: ${PROMETHEUS_URL}
 
+pexels:
+  api-key: ${PEXELS_API_KEY}
+  base-url: https://api.pexels.com/v1
+  per-page: 8
+
 password-reset:
   base-path: /v1/password-reset/

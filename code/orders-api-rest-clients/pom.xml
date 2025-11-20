@@ -9,6 +9,10 @@
 
   <artifactId>orders-api-rest-clients</artifactId>
   <packaging>pom</packaging>
+  <modules>
+    <module>pexels-api</module>
+    <module>prometheus-api</module>
+  </modules>
 
   <dependencies>
 

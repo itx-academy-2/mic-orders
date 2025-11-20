@@ -7,6 +7,7 @@ import com.academy.orders.apirest.products.mapper.ManagementProductMapper;
 import com.academy.orders.apirest.products.mapper.ProductRequestDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductResponseDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductStatusDTOMapper;
+import com.academy.orders.domain.pexels.usecase.PexelsImageSearchUseCase;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.product.usecase.CreateProductUseCase;
 import com.academy.orders.domain.product.usecase.GetCountOfDiscountedProductsUseCase;
@@ -29,7 +30,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-
+import java.util.List;
 import java.util.UUID;
 
 import static com.academy.orders.apirest.ModelUtils.getProduct;
@@ -40,10 +41,10 @@ import static com.academy.orders.apirest.ModelUtils.getProductResponseDTO;
 import static com.academy.orders.apirest.TestConstants.GET_PRODUCT_BY_ID_URL;
 import static com.academy.orders.apirest.TestConstants.LANGUAGE_EN;
 import static com.academy.orders.apirest.TestConstants.ROLE_MANAGER;
+import static com.academy.orders.apirest.TestConstants.SEARCH_PRODUCT_IMAGES_URL;
 import static com.academy.orders.apirest.TestConstants.TEST_UUID;
 import static com.academy.orders.apirest.TestConstants.UPDATE_PRODUCT_URL;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -94,6 +95,9 @@ class ProductsManagementControllerTest {
 
   @MockBean
   private GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
+
+  @MockBean
+  private PexelsImageSearchUseCase pexelsImageSearchUseCase;
 
   @MockBean
   private ProductResponseDTOMapper productResponseDTOMapper;
@@ -218,5 +222,27 @@ class ProductsManagementControllerTest {
         .andExpect(jsonPath("$").value(discountedProductsCount));
 
     verify(getCountOfDiscountedProductsUseCase).getCountOfDiscountedProducts();
+  }
+
+  @Test
+  @SneakyThrows
+  @WithMockUser(authorities = {"ROLE_MANAGER"})
+  void searchProductImagesCandidatesTest() {
+    // Given
+    String query = "iphone";
+    List<String> mockImages = List.of("https://example.com/img1.jpg", "https://example.com/img2.jpg");
+    when(pexelsImageSearchUseCase.searchImages(query)).thenReturn(mockImages);
+
+    // When
+    mockMvc.perform(get(SEARCH_PRODUCT_IMAGES_URL)
+        .param("query", query))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.length()").value(mockImages.size()))
+        .andExpect(jsonPath("$[0]").value(mockImages.get(0)))
+        .andExpect(jsonPath("$[1]").value(mockImages.get(1)));
+
+    // Then
+    verify(pexelsImageSearchUseCase).searchImages(query);
   }
 }

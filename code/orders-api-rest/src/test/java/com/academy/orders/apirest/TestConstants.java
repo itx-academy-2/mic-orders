@@ -21,6 +21,8 @@ public class TestConstants {
 
   public static final String GET_PRODUCT_BY_ID_URL = "/v1/management/products/{productId}";
 
+  public static final String SEARCH_PRODUCT_IMAGES_URL = "/v1/management/products/images/search";
+
   public static final String GET_PRODUCT_DETAILS_URL = "/v1/products/{productId}";
 
   public static final String GET_PRODUCTS_ON_SALES_URL = "/v1/products/sales";
