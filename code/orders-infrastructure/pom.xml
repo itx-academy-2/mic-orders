@@ -18,6 +18,11 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>pexels-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>prometheus-api</artifactId>
     </dependency>
 

@@ -12,6 +12,7 @@ import com.academy.orders.domain.order.exception.InvalidOrderStatusTransitionExc
 import com.academy.orders.domain.order.exception.OrderFinalStateException;
 import com.academy.orders.domain.passwordreset.exception.InvalidTokenException;
 import com.academy.orders.domain.passwordreset.exception.TokenNotFoundException;
+import com.academy.orders.domain.pexels.exception.ImageSearchUnavailableException;
 import com.academy.orders.domain.product.exception.MissingTranslationsException;
 import com.academy.orders.domain.product.exception.ProductNotVisibleException;
 import com.academy.orders.domain.product.exception.ProductOutOfStockException;
@@ -279,5 +280,13 @@ public class ErrorHandler {
   public ErrorObjectDTO handleReservationTotalCostExceeded(ReservationTotalCostExceededException ex) {
     log.warn("Reservation total cost exceeded", ex);
     return new ErrorObjectDTO().status(HttpStatus.BAD_REQUEST.value()).title("Reservation Total Cost Exceeded").detail(ex.getMessage());
+  }
+
+  @ExceptionHandler(ImageSearchUnavailableException.class)
+  @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+  public ErrorObjectDTO handleImageSearchUnavailable(ImageSearchUnavailableException ex) {
+    log.warn("External image search unavailable", ex);
+    return new ErrorObjectDTO().status(HttpStatus.SERVICE_UNAVAILABLE.value()).title("Image Search Unavailable")
+        .detail("Image search service is temporarily unavailable. Please try again later.");
   }
 }

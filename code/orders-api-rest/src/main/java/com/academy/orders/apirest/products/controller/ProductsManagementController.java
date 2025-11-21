@@ -5,6 +5,7 @@ import com.academy.orders.apirest.products.mapper.ManagementProductMapper;
 import com.academy.orders.apirest.products.mapper.ProductRequestDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductResponseDTOMapper;
 import com.academy.orders.apirest.products.mapper.ProductStatusDTOMapper;
+import com.academy.orders.domain.pexels.usecase.PexelsImageSearchUseCase;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.product.usecase.CreateProductUseCase;
@@ -26,7 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
-
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -44,6 +45,8 @@ public class ProductsManagementController implements ProductsManagementApi {
   private final GetProductByIdUseCase getProductByIdUseCase;
 
   private final GetCountOfDiscountedProductsUseCase getCountOfDiscountedProductsUseCase;
+
+  private final PexelsImageSearchUseCase pexelsImageSearchUseCase;
 
   private final ProductStatusDTOMapper productStatusDTOMapper;
 
@@ -103,5 +106,11 @@ public class ProductsManagementController implements ProductsManagementApi {
   public ResponseEntity<Integer> getCountOfDiscountedProducts() {
     Integer discountedProductCount = getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts();
     return ResponseEntity.ok(discountedProductCount);
+  }
+
+  @Override
+  @PreAuthorize("hasAuthority('ROLE_MANAGER')")
+  public ResponseEntity<List<String>> searchProductImagesCandidates(String query) {
+    return ResponseEntity.ok(pexelsImageSearchUseCase.searchImages(query));
   }
 }
