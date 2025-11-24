@@ -7,7 +7,10 @@ import org.springframework.stereotype.Component;
 public class ProductStockStatusMapper {
 
   public String map(Product product) {
+    if (product == null) {
+      throw new IllegalArgumentException("Product cannot be null");
+    }
     Integer quantity = product.getQuantity();
-    return quantity > 0 ? "AVAILABLE" : "ENDED";
+    return quantity != null && quantity > 0 ? "AVAILABLE" : "ENDED";
   }
 }

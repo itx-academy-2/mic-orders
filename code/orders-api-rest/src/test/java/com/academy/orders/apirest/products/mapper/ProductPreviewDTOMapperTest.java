@@ -1,14 +1,19 @@
 package com.academy.orders.apirest.products.mapper;
 
 import com.academy.orders.domain.product.entity.Product;
+import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders_api_rest.generated.model.ProductPreviewDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.springframework.test.util.ReflectionTestUtils;
+import java.math.BigDecimal;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.academy.orders.apirest.ModelUtils.getProduct;
+import static com.academy.orders.apirest.ModelUtils.getProductTranslation;
 import static com.academy.orders.apirest.ModelUtils.getProductWithDiscount;
 import static com.academy.orders.apirest.ModelUtils.getProductWithEmptyTags;
 import static com.academy.orders.apirest.ModelUtils.getProductWithEmptyTranslations;
@@ -108,6 +113,31 @@ class ProductPreviewDTOMapperTest {
     // Then
     Assertions.assertNull(dto.getName());
     Assertions.assertNull(dto.getDescription());
+    Assertions.assertEquals(1, dto.getTags().size());
+    Assertions.assertEquals(TAG_NAME, dto.getTags().get(0));
+    Assertions.assertNull(dto.getDiscount());
+    Assertions.assertNull(dto.getPriceWithDiscount());
+    assertStatus(product, dto);
+  }
+
+  @Test
+  void toDtoWithNullQuantityTest() {
+    // Given
+    var product = Product.builder()
+        .id(UUID.randomUUID())
+        .image("some-image.jpg")
+        .price(BigDecimal.valueOf(100))
+        .quantity(null) // explicitly null
+        .tags(Set.of(new Tag(1L, TAG_NAME)))
+        .productTranslations(Set.of(getProductTranslation()))
+        .build();
+
+    // When
+    var dto = productPreviewDTOMapper.toDto(product);
+
+    // Then
+    Assertions.assertEquals(PRODUCT_NAME, dto.getName());
+    Assertions.assertEquals(PRODUCT_DESCRIPTION, dto.getDescription());
     Assertions.assertEquals(1, dto.getTags().size());
     Assertions.assertEquals(TAG_NAME, dto.getTags().get(0));
     Assertions.assertNull(dto.getDiscount());
