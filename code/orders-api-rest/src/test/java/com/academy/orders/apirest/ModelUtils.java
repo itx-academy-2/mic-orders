@@ -151,6 +151,17 @@ public class ModelUtils {
         .productTranslations(Set.of(getProductTranslation())).build();
   }
 
+  public static Product getProductWithQuantity(int quantity) {
+    return Product.builder().id(TEST_UUID).status(ProductStatus.VISIBLE).image(IMAGE_URL).createdAt(DATE_TIME)
+        .quantity(quantity).price(TEST_PRICE).tags(Set.of(getTag()))
+        .productTranslations(Set.of(getProductTranslation())).build();
+  }
+
+  public static Page<Product> getProductsPageWithQuantities(Product... products) {
+    return Page.<Product>builder().content(List.of(products)).empty(products.length == 0).first(true).last(true).number(1)
+        .numberOfElements(products.length).totalPages(1).totalElements((long) products.length).size(products.length).build();
+  }
+
   public static Page<Product> getProductsPage() {
     List<Product> productList = List.of(getProduct());
     return new Page<>(1L, 1, true, true, 1, productList.size(), productList.size(), false, productList);
@@ -679,6 +690,7 @@ public class ModelUtils {
     productDetailsResponseDTO.image(IMAGE_URL);
     productDetailsResponseDTO.tags(List.of("tag1", "tag2"));
     productDetailsResponseDTO.quantity(TEST_QUANTITY);
+    productDetailsResponseDTO.status(ProductDetailsResponseDTO.StatusEnum.valueOf("AVAILABLE"));
     productDetailsResponseDTO.price(TEST_PRICE);
     return productDetailsResponseDTO;
   }

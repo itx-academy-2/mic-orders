@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 3.0.1
+  version: 3.0.2
 servers:
   - url: http://localhost:8080/retail
 
@@ -1868,6 +1868,13 @@ components:
         quantity:
           type: integer
           example: 10
+        status:
+          type: string
+          enum:
+            - AVAILABLE
+            - ENDED
+          example: AVAILABLE
+          description: Derived status based on quantity (AVAILABLE or ENDED)
         price:
           type: number
           example: 90.00
@@ -1896,6 +1903,13 @@ components:
           type: string
           example: APPLE iPhone
           description: Name of the product.
+        status:
+          type: string
+          enum:
+            - AVAILABLE
+            - ENDED
+          example: AVAILABLE
+          description: Derived status based on quantity (AVAILABLE or ENDED)
 
     Tag:
       type: object

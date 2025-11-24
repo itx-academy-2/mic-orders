@@ -112,3 +112,41 @@ Feature: Get list of all products
     * def maxPrice = response.maxProductPrice
     * assert minPrice >= 0
     * assert maxPrice <= 10000
+
+  @GS2-239
+  Scenario: Validate structure of returned products
+    Given path pathBase
+    And params baseParams
+    When method GET
+    Then status 200
+    And match response ==
+    """
+    {
+      minProductPrice: '#number',
+      maxProductPrice: '#number',
+      totalElements: '#number',
+      totalPages: '#number',
+      first: '#boolean',
+      last: '#boolean',
+      number: '#number',
+      numberOfElements: '#number',
+      size: '#number',
+      empty: '#boolean',
+      content: '##array'
+    }
+    """
+    And match each response.content ==
+      """
+      {
+        id: '#string? _.length > 0',
+        name: '#string? _.length > 0',
+        description: '#string',
+        status: '#regex (AVAILABLE|END_SOON|ENDED)',
+        tags: '##array',
+        image: '#string? _.length > 0',
+        price: '#number? _ >= 0',
+        discount: '#? _ == null || (typeof _ === "number" && _ >= 0 && _ <= 100)',
+        priceWithDiscount: '#? _ == null || typeof _ === "number"',
+        percentageOfTotalOrders: '#? _ == null || typeof _ === "number"'
+      }
+    """
