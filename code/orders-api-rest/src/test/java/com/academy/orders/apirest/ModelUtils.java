@@ -122,6 +122,7 @@ import static com.academy.orders.apirest.TestConstants.TEST_PRICE;
 import static com.academy.orders.apirest.TestConstants.TEST_PRICE_WITH_DISCOUNT;
 import static com.academy.orders.apirest.TestConstants.TEST_QUANTITY;
 import static com.academy.orders.apirest.TestConstants.TEST_START_DATE;
+import static com.academy.orders.apirest.TestConstants.TEST_STATUS_AVAILABLE;
 import static com.academy.orders.apirest.TestConstants.TEST_UUID;
 import static com.academy.orders.apirest.TestConstants.TEST_ADDRESS_TITLE;
 import static com.academy.orders_api_rest.generated.model.DeliveryMethodDTO.NOVA;
@@ -133,8 +134,6 @@ public class ModelUtils {
   public static final OffsetDateTime OFFSET_DATE_TIME = OffsetDateTime.of(1, 1, 1, 1, 1, 1, 1, ZoneOffset.UTC);
 
   private static final LocalDateTime DATE_TIME = LocalDateTime.of(1, 1, 1, 1, 1);
-
-  private static final int DEFAULT_PAGE_SIZE = 8;
 
   public static Discount getDiscount() {
     return Discount.builder().amount(TEST_AMOUNT).startDate(TEST_START_DATE).endDate(TEST_END_DATE).build();
@@ -681,7 +680,7 @@ public class ModelUtils {
     productDetailsResponseDTO.image(IMAGE_URL);
     productDetailsResponseDTO.tags(List.of("tag1", "tag2"));
     productDetailsResponseDTO.quantity(TEST_QUANTITY);
-    productDetailsResponseDTO.availability(ProductDetailsResponseDTO.AvailabilityEnum.valueOf("AVAILABLE"));
+    productDetailsResponseDTO.availability(ProductDetailsResponseDTO.AvailabilityEnum.valueOf(TEST_STATUS_AVAILABLE));
     productDetailsResponseDTO.price(TEST_PRICE);
     return productDetailsResponseDTO;
   }

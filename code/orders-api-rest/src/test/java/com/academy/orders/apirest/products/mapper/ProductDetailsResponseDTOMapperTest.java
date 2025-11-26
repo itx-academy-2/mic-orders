@@ -39,6 +39,7 @@ class ProductDetailsResponseDTOMapperTest {
     assertEquals(PRODUCT_DESCRIPTION, dto.getDescription());
     assertEquals(product.getImage(), dto.getImage());
     assertIterableEquals(product.getTags().stream().map(Tag::name).toList(), dto.getTags());
+    assertEquals(product.getQuantity(), dto.getQuantity());
     assertEquals(TEST_STATUS_AVAILABLE, dto.getAvailability().getValue().toUpperCase());
     assertEquals(product.getPrice(), dto.getPrice());
     assertNull(dto.getDiscount());

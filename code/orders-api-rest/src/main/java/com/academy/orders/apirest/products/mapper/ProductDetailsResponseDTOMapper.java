@@ -7,6 +7,7 @@ import com.academy.orders_api_rest.generated.model.ProductDetailsResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+
 import java.util.List;
 import java.util.Set;
 
