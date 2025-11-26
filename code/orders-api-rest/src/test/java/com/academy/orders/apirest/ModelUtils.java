@@ -134,6 +134,8 @@ public class ModelUtils {
 
   private static final LocalDateTime DATE_TIME = LocalDateTime.of(1, 1, 1, 1, 1);
 
+  private static final int DEFAULT_PAGE_SIZE = 8;
+
   public static Discount getDiscount() {
     return Discount.builder().amount(TEST_AMOUNT).startDate(TEST_START_DATE).endDate(TEST_END_DATE).build();
   }
@@ -149,17 +151,6 @@ public class ModelUtils {
     return Product.builder().id(TEST_UUID).status(ProductStatus.VISIBLE).image(IMAGE_URL).createdAt(DATE_TIME)
         .quantity(TEST_QUANTITY).price(TEST_PRICE).discount(getDiscount()).tags(Set.of(getTag()))
         .productTranslations(Set.of(getProductTranslation())).build();
-  }
-
-  public static Product getProductWithQuantity(int quantity) {
-    return Product.builder().id(TEST_UUID).status(ProductStatus.VISIBLE).image(IMAGE_URL).createdAt(DATE_TIME)
-        .quantity(quantity).price(TEST_PRICE).tags(Set.of(getTag()))
-        .productTranslations(Set.of(getProductTranslation())).build();
-  }
-
-  public static Page<Product> getProductsPageWithQuantities(Product... products) {
-    return Page.<Product>builder().content(List.of(products)).empty(products.length == 0).first(true).last(true).number(1)
-        .numberOfElements(products.length).totalPages(1).totalElements((long) products.length).size(products.length).build();
   }
 
   public static Page<Product> getProductsPage() {
@@ -222,7 +213,7 @@ public class ModelUtils {
     productDTO.setDescription(PRODUCT_DESCRIPTION);
     productDTO.setPrice(TEST_PRICE);
     productDTO.setTags(List.of(TAG_NAME));
-    productDTO.setStatus(ProductPreviewDTO.StatusEnum.AVAILABLE);
+    productDTO.setAvailability(ProductPreviewDTO.AvailabilityEnum.AVAILABLE);
     productDTO.setPercentageOfTotalOrders(PERCENTAGE_OF_TOTAL_ORDERS);
 
     return productDTO;
@@ -239,7 +230,7 @@ public class ModelUtils {
     productDTO.setDiscount(TEST_AMOUNT);
     productDTO.setPriceWithDiscount(TEST_PRICE_WITH_DISCOUNT);
     productDTO.setTags(List.of(TAG_NAME));
-    productDTO.setStatus(ProductPreviewDTO.StatusEnum.AVAILABLE);
+    productDTO.setAvailability(ProductPreviewDTO.AvailabilityEnum.AVAILABLE);
 
     return productDTO;
   }
@@ -690,7 +681,7 @@ public class ModelUtils {
     productDetailsResponseDTO.image(IMAGE_URL);
     productDetailsResponseDTO.tags(List.of("tag1", "tag2"));
     productDetailsResponseDTO.quantity(TEST_QUANTITY);
-    productDetailsResponseDTO.status(ProductDetailsResponseDTO.StatusEnum.valueOf("AVAILABLE"));
+    productDetailsResponseDTO.availability(ProductDetailsResponseDTO.AvailabilityEnum.valueOf("AVAILABLE"));
     productDetailsResponseDTO.price(TEST_PRICE);
     return productDetailsResponseDTO;
   }

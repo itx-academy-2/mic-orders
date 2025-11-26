@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import org.springframework.test.util.ReflectionTestUtils;
 import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
@@ -28,7 +27,6 @@ class ProductPreviewDTOMapperTest {
   @BeforeEach
   void setUp() {
     productPreviewDTOMapper = Mappers.getMapper(ProductPreviewDTOMapper.class);
-    ReflectionTestUtils.setField(productPreviewDTOMapper, "productStockStatusMapper", new ProductStockStatusMapper());
   }
 
   @Test
@@ -150,6 +148,6 @@ class ProductPreviewDTOMapperTest {
         ? "AVAILABLE"
         : "ENDED";
 
-    Assertions.assertEquals(expected, dto.getStatus().getValue().toUpperCase());
+    Assertions.assertEquals(expected, dto.getAvailability().getValue().toUpperCase());
   }
 }

@@ -86,4 +86,6 @@ public class TestConstants {
   public static final int TEST_COUNT = 10;
 
   public static final String TEST_ADDRESS_TITLE = "Home";
+
+  public static final String TEST_STATUS_AVAILABLE = "AVAILABLE";
 }

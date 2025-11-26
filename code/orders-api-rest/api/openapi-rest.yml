@@ -1868,7 +1868,7 @@ components:
         quantity:
           type: integer
           example: 10
-        status:
+        availability:
           type: string
           enum:
             - AVAILABLE
@@ -1903,7 +1903,7 @@ components:
           type: string
           example: APPLE iPhone
           description: Name of the product.
-        status:
+        availability:
           type: string
           enum:
             - AVAILABLE
@@ -2337,7 +2337,7 @@ components:
           type: string
           example: Device type, operation system, etc.
           description: Product description
-        status:
+        availability:
           type: string
           default: AVAILABLE
           enum:

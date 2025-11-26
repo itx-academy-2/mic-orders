@@ -10,14 +10,13 @@ import org.mapstruct.Named;
 import java.util.List;
 import java.util.Set;
 
-@Mapper(componentModel = "spring", uses = {ProductStockStatusMapper.class})
+@Mapper(componentModel = "spring")
 public interface ProductDetailsResponseDTOMapper {
   @Mapping(source = "productTranslations", target = "name", qualifiedByName = "mapName")
   @Mapping(source = "productTranslations", target = "description", qualifiedByName = "mapDescription")
   @Mapping(source = "image", target = "image")
   @Mapping(source = "tags", target = "tags", qualifiedByName = "mapTags")
   @Mapping(source = "quantity", target = "quantity")
-  @Mapping(target = "status", source = "product")
   @Mapping(target = "priceWithDiscount", expression = "java(product.getPriceWithDiscount())")
   @Mapping(source = "discount.amount", target = "discount")
   ProductDetailsResponseDTO toDTO(Product product);
