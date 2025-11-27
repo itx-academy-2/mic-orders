@@ -1,18 +1,14 @@
 package com.academy.orders.apirest.products.mapper;
 
 import com.academy.orders.domain.product.entity.Product;
-import com.academy.orders.domain.product.entity.Tag;
+import com.academy.orders_api_rest.generated.model.ProductAvailabilityDTO;
 import com.academy.orders_api_rest.generated.model.ProductPreviewDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import java.math.BigDecimal;
-import java.util.Set;
-import java.util.UUID;
 
 import static com.academy.orders.apirest.ModelUtils.getProduct;
-import static com.academy.orders.apirest.ModelUtils.getProductTranslation;
 import static com.academy.orders.apirest.ModelUtils.getProductWithDiscount;
 import static com.academy.orders.apirest.ModelUtils.getProductWithEmptyTags;
 import static com.academy.orders.apirest.ModelUtils.getProductWithEmptyTranslations;
@@ -119,10 +115,11 @@ class ProductPreviewDTOMapperTest {
   }
 
   private void assertStatus(Product product, ProductPreviewDTO dto) {
-    String expected = (product.getQuantity() != null && product.getQuantity() > 0)
-        ? "AVAILABLE"
-        : "ENDED";
+    ProductAvailabilityDTO expected =
+        (product.getQuantity() != null && product.getQuantity() > 0)
+            ? ProductAvailabilityDTO.AVAILABLE
+            : ProductAvailabilityDTO.ENDED;
 
-    Assertions.assertEquals(expected, dto.getAvailability().getValue().toUpperCase());
+    Assertions.assertEquals(expected, dto.getAvailability());
   }
 }

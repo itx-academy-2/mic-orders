@@ -1869,12 +1869,7 @@ components:
           type: integer
           example: 10
         availability:
-          type: string
-          enum:
-            - AVAILABLE
-            - ENDED
-          example: AVAILABLE
-          description: Derived status based on quantity (AVAILABLE or ENDED)
+          $ref: '#/components/schemas/ProductAvailability'
         price:
           type: number
           example: 90.00
@@ -1904,12 +1899,7 @@ components:
           example: APPLE iPhone
           description: Name of the product.
         availability:
-          type: string
-          enum:
-            - AVAILABLE
-            - ENDED
-          example: AVAILABLE
-          description: Derived status based on quantity (AVAILABLE or ENDED)
+          $ref: '#/components/schemas/ProductAvailability'
 
     Tag:
       type: object
@@ -2338,14 +2328,7 @@ components:
           example: Device type, operation system, etc.
           description: Product description
         availability:
-          type: string
-          default: AVAILABLE
-          enum:
-            - AVAILABLE
-            - END_SOON
-            - ENDED
-          example: AVAILABLE
-          description: Status of the product's quantity
+          $ref: '#/components/schemas/ProductAvailability'
         tags:
           type: array
           description: List of tags associated with the product
@@ -2379,6 +2362,14 @@ components:
         - HIDDEN
       example: VISIBLE
       description: Status of the product's visibility for users
+
+    ProductAvailability:
+      type: string
+      enum:
+        - AVAILABLE
+        - END_SOON
+        - ENDED
+      description: Availability based on quantity rules.
 
     PlaceOrderRequest:
       type: object

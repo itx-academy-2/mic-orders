@@ -39,6 +39,7 @@ import com.academy.orders.domain.product.entity.ProductTranslation;
 import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders_api_rest.generated.model.PageProductsWithPriceRangeDTO;
+import com.academy.orders_api_rest.generated.model.ProductAvailabilityDTO;
 import com.academy.orders_api_rest.generated.model.UserPostAddressResponseDTO;
 import com.academy.orders_api_rest.generated.model.AccountResponseDTO;
 import com.academy.orders_api_rest.generated.model.ArticleDetailsDTO;
@@ -122,7 +123,6 @@ import static com.academy.orders.apirest.TestConstants.TEST_PRICE;
 import static com.academy.orders.apirest.TestConstants.TEST_PRICE_WITH_DISCOUNT;
 import static com.academy.orders.apirest.TestConstants.TEST_QUANTITY;
 import static com.academy.orders.apirest.TestConstants.TEST_START_DATE;
-import static com.academy.orders.apirest.TestConstants.TEST_STATUS_AVAILABLE;
 import static com.academy.orders.apirest.TestConstants.TEST_UUID;
 import static com.academy.orders.apirest.TestConstants.TEST_ADDRESS_TITLE;
 import static com.academy.orders_api_rest.generated.model.DeliveryMethodDTO.NOVA;
@@ -212,7 +212,7 @@ public class ModelUtils {
     productDTO.setDescription(PRODUCT_DESCRIPTION);
     productDTO.setPrice(TEST_PRICE);
     productDTO.setTags(List.of(TAG_NAME));
-    productDTO.setAvailability(ProductPreviewDTO.AvailabilityEnum.AVAILABLE);
+    productDTO.setAvailability(ProductAvailabilityDTO.AVAILABLE);
     productDTO.setPercentageOfTotalOrders(PERCENTAGE_OF_TOTAL_ORDERS);
 
     return productDTO;
@@ -229,7 +229,7 @@ public class ModelUtils {
     productDTO.setDiscount(TEST_AMOUNT);
     productDTO.setPriceWithDiscount(TEST_PRICE_WITH_DISCOUNT);
     productDTO.setTags(List.of(TAG_NAME));
-    productDTO.setAvailability(ProductPreviewDTO.AvailabilityEnum.AVAILABLE);
+    productDTO.setAvailability(ProductAvailabilityDTO.AVAILABLE);
 
     return productDTO;
   }
@@ -680,7 +680,7 @@ public class ModelUtils {
     productDetailsResponseDTO.image(IMAGE_URL);
     productDetailsResponseDTO.tags(List.of("tag1", "tag2"));
     productDetailsResponseDTO.quantity(TEST_QUANTITY);
-    productDetailsResponseDTO.availability(ProductDetailsResponseDTO.AvailabilityEnum.valueOf(TEST_STATUS_AVAILABLE));
+    productDetailsResponseDTO.availability(ProductAvailabilityDTO.AVAILABLE);
     productDetailsResponseDTO.price(TEST_PRICE);
     return productDetailsResponseDTO;
   }

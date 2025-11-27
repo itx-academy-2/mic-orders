@@ -1,6 +1,10 @@
 package com.academy.orders.apirest.products.mapper;
 
+import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.Tag;
+import com.academy.orders_api_rest.generated.model.ProductAvailabilityDTO;
+import com.academy.orders_api_rest.generated.model.ProductDetailsResponseDTO;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -13,7 +17,6 @@ import static com.academy.orders.apirest.ModelUtils.getProductWithEmptyTranslati
 import static com.academy.orders.apirest.TestConstants.PRODUCT_DESCRIPTION;
 import static com.academy.orders.apirest.TestConstants.PRODUCT_NAME;
 import static com.academy.orders.apirest.TestConstants.TAG_NAME;
-import static com.academy.orders.apirest.TestConstants.TEST_STATUS_AVAILABLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -40,10 +43,10 @@ class ProductDetailsResponseDTOMapperTest {
     assertEquals(product.getImage(), dto.getImage());
     assertIterableEquals(product.getTags().stream().map(Tag::name).toList(), dto.getTags());
     assertEquals(product.getQuantity(), dto.getQuantity());
-    assertEquals(TEST_STATUS_AVAILABLE, dto.getAvailability().getValue().toUpperCase());
     assertEquals(product.getPrice(), dto.getPrice());
     assertNull(dto.getDiscount());
     assertNull(dto.getPriceWithDiscount());
+    assertStatus(product, dto);
   }
 
   @Test
@@ -60,10 +63,10 @@ class ProductDetailsResponseDTOMapperTest {
     assertEquals(product.getImage(), dto.getImage());
     assertIterableEquals(product.getTags().stream().map(Tag::name).toList(), dto.getTags());
     assertEquals(product.getQuantity(), dto.getQuantity());
-    assertEquals(TEST_STATUS_AVAILABLE, dto.getAvailability().getValue().toUpperCase());
     assertEquals(product.getPrice(), dto.getPrice());
     assertEquals(product.getDiscount().getAmount(), dto.getDiscount());
     assertEquals(product.getPriceWithDiscount(), dto.getPriceWithDiscount());
+    assertStatus(product, dto);
   }
 
   @Test
@@ -81,10 +84,10 @@ class ProductDetailsResponseDTOMapperTest {
     assertEquals(1, dto.getTags().size());
     assertEquals(TAG_NAME, dto.getTags().get(0));
     assertEquals(product.getQuantity(), dto.getQuantity());
-    assertEquals(TEST_STATUS_AVAILABLE, dto.getAvailability().getValue().toUpperCase());
     assertEquals(product.getPrice(), dto.getPrice());
     assertNull(dto.getDiscount());
     assertNull(dto.getPriceWithDiscount());
+    assertStatus(product, dto);
   }
 
   @Test
@@ -101,9 +104,18 @@ class ProductDetailsResponseDTOMapperTest {
     assertEquals(product.getImage(), dto.getImage());
     assertEquals(Collections.EMPTY_LIST, dto.getTags());
     assertEquals(product.getQuantity(), dto.getQuantity());
-    assertEquals(TEST_STATUS_AVAILABLE, dto.getAvailability().getValue().toUpperCase());
     assertEquals(product.getPrice(), dto.getPrice());
     assertNull(dto.getDiscount());
     assertEquals(product.getPriceWithDiscount(), dto.getPriceWithDiscount());
+    assertStatus(product, dto);
+  }
+
+  private void assertStatus(Product product, ProductDetailsResponseDTO dto) {
+    ProductAvailabilityDTO expected =
+        (product.getQuantity() != null && product.getQuantity() > 0)
+            ? ProductAvailabilityDTO.AVAILABLE
+            : ProductAvailabilityDTO.ENDED;
+
+    Assertions.assertEquals(expected, dto.getAvailability());
   }
 }
