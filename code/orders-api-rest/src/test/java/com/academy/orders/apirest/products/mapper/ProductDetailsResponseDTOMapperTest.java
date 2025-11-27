@@ -31,7 +31,6 @@ class ProductDetailsResponseDTOMapperTest {
     ProductAvailabilityMapper productAvailabilityMapper = Mappers.getMapper(ProductAvailabilityMapper.class);
 
     ReflectionTestUtils.setField(productDetailsResponseDTOMapper, "productAvailabilityMapper", productAvailabilityMapper);
-
   }
 
   @Test
