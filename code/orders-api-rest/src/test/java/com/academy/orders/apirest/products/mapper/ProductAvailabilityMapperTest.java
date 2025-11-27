@@ -31,7 +31,6 @@ class ProductAvailabilityMapperTest {
     assertEquals(ProductAvailabilityStatusDTO.AVAILABLE, status);
   }
 
-
   @Test
   void mapWithEndedProductTest() {
     // Given
