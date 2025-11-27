@@ -46,7 +46,7 @@ class ProductDetailsResponseDTOMapperTest {
     assertEquals(product.getPrice(), dto.getPrice());
     assertNull(dto.getDiscount());
     assertNull(dto.getPriceWithDiscount());
-    assertStatus(product, dto);
+    assertAvailability(product, dto);
   }
 
   @Test
@@ -66,7 +66,7 @@ class ProductDetailsResponseDTOMapperTest {
     assertEquals(product.getPrice(), dto.getPrice());
     assertEquals(product.getDiscount().getAmount(), dto.getDiscount());
     assertEquals(product.getPriceWithDiscount(), dto.getPriceWithDiscount());
-    assertStatus(product, dto);
+    assertAvailability(product, dto);
   }
 
   @Test
@@ -87,7 +87,7 @@ class ProductDetailsResponseDTOMapperTest {
     assertEquals(product.getPrice(), dto.getPrice());
     assertNull(dto.getDiscount());
     assertNull(dto.getPriceWithDiscount());
-    assertStatus(product, dto);
+    assertAvailability(product, dto);
   }
 
   @Test
@@ -107,10 +107,10 @@ class ProductDetailsResponseDTOMapperTest {
     assertEquals(product.getPrice(), dto.getPrice());
     assertNull(dto.getDiscount());
     assertEquals(product.getPriceWithDiscount(), dto.getPriceWithDiscount());
-    assertStatus(product, dto);
+    assertAvailability(product, dto);
   }
 
-  private void assertStatus(Product product, ProductDetailsResponseDTO dto) {
+  private void assertAvailability(Product product, ProductDetailsResponseDTO dto) {
     ProductAvailabilityDTO expected =
         (product.getQuantity() != null && product.getQuantity() > 0)
             ? ProductAvailabilityDTO.AVAILABLE
