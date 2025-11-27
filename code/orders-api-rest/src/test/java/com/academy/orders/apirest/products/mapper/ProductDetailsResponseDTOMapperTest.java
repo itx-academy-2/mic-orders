@@ -2,12 +2,13 @@ package com.academy.orders.apirest.products.mapper;
 
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.Tag;
-import com.academy.orders_api_rest.generated.model.ProductAvailabilityDTO;
+import com.academy.orders_api_rest.generated.model.ProductAvailabilityStatusDTO;
 import com.academy.orders_api_rest.generated.model.ProductDetailsResponseDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import org.springframework.test.util.ReflectionTestUtils;
 import java.util.Collections;
 
 import static com.academy.orders.apirest.ModelUtils.getProduct;
@@ -27,6 +28,10 @@ class ProductDetailsResponseDTOMapperTest {
   @BeforeEach
   void setUp() {
     productDetailsResponseDTOMapper = Mappers.getMapper(ProductDetailsResponseDTOMapper.class);
+    ProductAvailabilityMapper productAvailabilityMapper = Mappers.getMapper(ProductAvailabilityMapper.class);
+
+    ReflectionTestUtils.setField(productDetailsResponseDTOMapper, "productAvailabilityMapper", productAvailabilityMapper);
+
   }
 
   @Test
@@ -46,7 +51,7 @@ class ProductDetailsResponseDTOMapperTest {
     assertEquals(product.getPrice(), dto.getPrice());
     assertNull(dto.getDiscount());
     assertNull(dto.getPriceWithDiscount());
-    assertAvailability(product, dto);
+    assertAvailabilityStatus(product, dto);
   }
 
   @Test
@@ -66,7 +71,7 @@ class ProductDetailsResponseDTOMapperTest {
     assertEquals(product.getPrice(), dto.getPrice());
     assertEquals(product.getDiscount().getAmount(), dto.getDiscount());
     assertEquals(product.getPriceWithDiscount(), dto.getPriceWithDiscount());
-    assertAvailability(product, dto);
+    assertAvailabilityStatus(product, dto);
   }
 
   @Test
@@ -87,7 +92,7 @@ class ProductDetailsResponseDTOMapperTest {
     assertEquals(product.getPrice(), dto.getPrice());
     assertNull(dto.getDiscount());
     assertNull(dto.getPriceWithDiscount());
-    assertAvailability(product, dto);
+    assertAvailabilityStatus(product, dto);
   }
 
   @Test
@@ -107,15 +112,15 @@ class ProductDetailsResponseDTOMapperTest {
     assertEquals(product.getPrice(), dto.getPrice());
     assertNull(dto.getDiscount());
     assertEquals(product.getPriceWithDiscount(), dto.getPriceWithDiscount());
-    assertAvailability(product, dto);
+    assertAvailabilityStatus(product, dto);
   }
 
-  private void assertAvailability(Product product, ProductDetailsResponseDTO dto) {
-    ProductAvailabilityDTO expected =
+  private void assertAvailabilityStatus(Product product, ProductDetailsResponseDTO dto) {
+    ProductAvailabilityStatusDTO expected =
         (product.getQuantity() != null && product.getQuantity() > 0)
-            ? ProductAvailabilityDTO.AVAILABLE
-            : ProductAvailabilityDTO.ENDED;
+            ? ProductAvailabilityStatusDTO.AVAILABLE
+            : ProductAvailabilityStatusDTO.ENDED;
 
-    Assertions.assertEquals(expected, dto.getAvailability());
+    Assertions.assertEquals(expected, dto.getStatus());
   }
 }

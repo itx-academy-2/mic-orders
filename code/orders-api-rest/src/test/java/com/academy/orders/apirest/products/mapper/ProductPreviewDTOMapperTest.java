@@ -1,12 +1,13 @@
 package com.academy.orders.apirest.products.mapper;
 
 import com.academy.orders.domain.product.entity.Product;
-import com.academy.orders_api_rest.generated.model.ProductAvailabilityDTO;
+import com.academy.orders_api_rest.generated.model.ProductAvailabilityStatusDTO;
 import com.academy.orders_api_rest.generated.model.ProductPreviewDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static com.academy.orders.apirest.ModelUtils.getProduct;
 import static com.academy.orders.apirest.ModelUtils.getProductWithDiscount;
@@ -23,6 +24,9 @@ class ProductPreviewDTOMapperTest {
   @BeforeEach
   void setUp() {
     productPreviewDTOMapper = Mappers.getMapper(ProductPreviewDTOMapper.class);
+    ProductAvailabilityMapper productAvailabilityMapper = Mappers.getMapper(ProductAvailabilityMapper.class);
+
+    ReflectionTestUtils.setField(productPreviewDTOMapper, "productAvailabilityMapper", productAvailabilityMapper);
   }
 
   @Test
@@ -40,7 +44,7 @@ class ProductPreviewDTOMapperTest {
     Assertions.assertEquals(TAG_NAME, dto.getTags().get(0));
     Assertions.assertNull(dto.getDiscount());
     Assertions.assertNull(dto.getPriceWithDiscount());
-    assertAvailability(product, dto);
+    assertAvailabilityStatus(product, dto);
   }
 
   @Test
@@ -58,7 +62,7 @@ class ProductPreviewDTOMapperTest {
     Assertions.assertEquals(TAG_NAME, dto.getTags().get(0));
     Assertions.assertEquals(product.getDiscount().getAmount(), dto.getDiscount());
     Assertions.assertEquals(product.getPriceWithDiscount(), dto.getPriceWithDiscount());
-    assertAvailability(product, dto);
+    assertAvailabilityStatus(product, dto);
   }
 
   @Test
@@ -76,7 +80,7 @@ class ProductPreviewDTOMapperTest {
     Assertions.assertEquals(TAG_NAME, dto.getTags().get(0));
     Assertions.assertNull(dto.getDiscount());
     Assertions.assertNull(dto.getPriceWithDiscount());
-    assertAvailability(product, dto);
+    assertAvailabilityStatus(product, dto);
   }
 
   @Test
@@ -93,7 +97,7 @@ class ProductPreviewDTOMapperTest {
     Assertions.assertEquals(0, dto.getTags().size());
     Assertions.assertNull(dto.getDiscount());
     Assertions.assertNull(dto.getPriceWithDiscount());
-    assertAvailability(product, dto);
+    assertAvailabilityStatus(product, dto);
   }
 
   @Test
@@ -111,15 +115,15 @@ class ProductPreviewDTOMapperTest {
     Assertions.assertEquals(TAG_NAME, dto.getTags().get(0));
     Assertions.assertNull(dto.getDiscount());
     Assertions.assertNull(dto.getPriceWithDiscount());
-    assertAvailability(product, dto);
+    assertAvailabilityStatus(product, dto);
   }
 
-  private void assertAvailability(Product product, ProductPreviewDTO dto) {
-    ProductAvailabilityDTO expected =
+  private void assertAvailabilityStatus(Product product, ProductPreviewDTO dto) {
+    ProductAvailabilityStatusDTO expected =
         (product.getQuantity() != null && product.getQuantity() > 0)
-            ? ProductAvailabilityDTO.AVAILABLE
-            : ProductAvailabilityDTO.ENDED;
+            ? ProductAvailabilityStatusDTO.AVAILABLE
+            : ProductAvailabilityStatusDTO.ENDED;
 
-    Assertions.assertEquals(expected, dto.getAvailability());
+    Assertions.assertEquals(expected, dto.getStatus());
   }
 }

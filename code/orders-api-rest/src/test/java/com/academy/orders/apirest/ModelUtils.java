@@ -39,7 +39,7 @@ import com.academy.orders.domain.product.entity.ProductTranslation;
 import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders_api_rest.generated.model.PageProductsWithPriceRangeDTO;
-import com.academy.orders_api_rest.generated.model.ProductAvailabilityDTO;
+import com.academy.orders_api_rest.generated.model.ProductAvailabilityStatusDTO;
 import com.academy.orders_api_rest.generated.model.UserPostAddressResponseDTO;
 import com.academy.orders_api_rest.generated.model.AccountResponseDTO;
 import com.academy.orders_api_rest.generated.model.ArticleDetailsDTO;
@@ -212,7 +212,7 @@ public class ModelUtils {
     productDTO.setDescription(PRODUCT_DESCRIPTION);
     productDTO.setPrice(TEST_PRICE);
     productDTO.setTags(List.of(TAG_NAME));
-    productDTO.setAvailability(ProductAvailabilityDTO.AVAILABLE);
+    productDTO.setStatus(ProductAvailabilityStatusDTO.AVAILABLE);
     productDTO.setPercentageOfTotalOrders(PERCENTAGE_OF_TOTAL_ORDERS);
 
     return productDTO;
@@ -229,7 +229,7 @@ public class ModelUtils {
     productDTO.setDiscount(TEST_AMOUNT);
     productDTO.setPriceWithDiscount(TEST_PRICE_WITH_DISCOUNT);
     productDTO.setTags(List.of(TAG_NAME));
-    productDTO.setAvailability(ProductAvailabilityDTO.AVAILABLE);
+    productDTO.setStatus(ProductAvailabilityStatusDTO.AVAILABLE);
 
     return productDTO;
   }
@@ -680,7 +680,7 @@ public class ModelUtils {
     productDetailsResponseDTO.image(IMAGE_URL);
     productDetailsResponseDTO.tags(List.of("tag1", "tag2"));
     productDetailsResponseDTO.quantity(TEST_QUANTITY);
-    productDetailsResponseDTO.availability(ProductAvailabilityDTO.AVAILABLE);
+    productDetailsResponseDTO.status(ProductAvailabilityStatusDTO.AVAILABLE);
     productDetailsResponseDTO.price(TEST_PRICE);
     return productDetailsResponseDTO;
   }

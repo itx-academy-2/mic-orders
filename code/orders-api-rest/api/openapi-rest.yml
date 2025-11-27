@@ -1868,8 +1868,8 @@ components:
         quantity:
           type: integer
           example: 10
-        availability:
-          $ref: '#/components/schemas/ProductAvailability'
+        status:
+          $ref: '#/components/schemas/ProductAvailabilityStatus'
         price:
           type: number
           example: 90.00
@@ -1898,8 +1898,8 @@ components:
           type: string
           example: APPLE iPhone
           description: Name of the product.
-        availability:
-          $ref: '#/components/schemas/ProductAvailability'
+        status:
+          $ref: '#/components/schemas/ProductAvailabilityStatus'
 
     Tag:
       type: object
@@ -2327,8 +2327,8 @@ components:
           type: string
           example: Device type, operation system, etc.
           description: Product description
-        availability:
-          $ref: '#/components/schemas/ProductAvailability'
+        status:
+          $ref: '#/components/schemas/ProductAvailabilityStatus'
         tags:
           type: array
           description: List of tags associated with the product
@@ -2363,7 +2363,7 @@ components:
       example: VISIBLE
       description: Status of the product's visibility for users
 
-    ProductAvailability:
+    ProductAvailabilityStatus:
       type: string
       enum:
         - AVAILABLE
