@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 3.0.2
+  version: 4.0.0
 servers:
   - url: http://localhost:8080/retail
 
@@ -47,6 +47,9 @@ tags:
 
   - name: Reservations
     description: User's reservation endpoints
+
+  - name: ReservationsManagement
+    description: Endpoints for reservations management page
 
 #ENDPOINTS
 #=======================================================================================================================
@@ -1454,6 +1457,34 @@ paths:
         '404':
           description: Product not found
 
+  /v1/management/products/{productId}/reservations:
+    get:
+      tags:
+        - ReservationsManagement
+      summary: Get detailed product reservation information
+      description: Endpoint retrieves paginated list of users who have reserved the product with detailed reservation information including username, email, quantity, and reservation timestamp.
+      operationId: getProductReservationsInfo
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+        - $ref: '#/components/parameters/Pageable'
+      responses:
+        '200':
+          description: Paginated list of product reservation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageProductReservationDetails'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
+
 #COMPONENTS
 #=======================================================================================================================
 components:
@@ -2293,6 +2324,46 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/ProductPreview'
+
+    ProductReservationDetails:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Username of the user who reserved the product
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          description: Email address of the user who reserved the product
+          example: "john.doe@example.com"
+        quantity:
+          type: integer
+          description: Quantity of the product reserved by the user
+          example: 2
+          minimum: 1
+        addedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the product was reserved
+          example: "2025-01-15T10:30:00Z"
+      required:
+        - username
+        - email
+        - quantity
+        - addedAt
+
+    PageProductReservationDetails:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractPage'
+        - type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProductReservationDetails'
+              description: List of product reservation details in the page
 
     ProductsOnSaleResponse:
       type: object
