@@ -2351,7 +2351,7 @@ components:
         - username
         - email
         - quantity
-        - reservedAt
+        - addedAt
 
     PageProductReservationDetails:
       type: object
