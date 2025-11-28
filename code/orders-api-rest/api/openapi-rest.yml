@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Retail API
   description: Retail service API
-  version: 3.0.1
+  version: 3.0.2
 servers:
   - url: http://localhost:8080/retail
 
@@ -1868,6 +1868,8 @@ components:
         quantity:
           type: integer
           example: 10
+        status:
+          $ref: '#/components/schemas/ProductAvailabilityStatus'
         price:
           type: number
           example: 90.00
@@ -1896,6 +1898,8 @@ components:
           type: string
           example: APPLE iPhone
           description: Name of the product.
+        status:
+          $ref: '#/components/schemas/ProductAvailabilityStatus'
 
     Tag:
       type: object
@@ -2324,14 +2328,7 @@ components:
           example: Device type, operation system, etc.
           description: Product description
         status:
-          type: string
-          default: AVAILABLE
-          enum:
-            - AVAILABLE
-            - END_SOON
-            - ENDED
-          example: AVAILABLE
-          description: Status of the product's quantity
+          $ref: '#/components/schemas/ProductAvailabilityStatus'
         tags:
           type: array
           description: List of tags associated with the product
@@ -2365,6 +2362,14 @@ components:
         - HIDDEN
       example: VISIBLE
       description: Status of the product's visibility for users
+
+    ProductAvailabilityStatus:
+      type: string
+      enum:
+        - AVAILABLE
+        - END_SOON
+        - ENDED
+      description: Availability based on quantity rules.
 
     PlaceOrderRequest:
       type: object

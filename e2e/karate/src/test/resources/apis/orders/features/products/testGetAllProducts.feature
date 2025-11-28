@@ -112,3 +112,12 @@ Feature: Get list of all products
     * def maxPrice = response.maxProductPrice
     * assert minPrice >= 0
     * assert maxPrice <= 10000
+
+  @GS2-239
+  Scenario: Validate structure of returned products
+    Given path pathBase
+    And params baseParams
+    When method GET
+    Then status 200
+    And match response == read('classpath:apis/orders/test-data/responses/product/productSearchPageSchema.json')
+    And match each response.content == read('classpath:apis/orders/test-data/responses/product/productPreviewSchema.json')

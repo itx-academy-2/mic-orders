@@ -10,13 +10,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ProductAvailabilityMapper.class})
 public interface ProductPreviewDTOMapper extends ProductMapper {
 
   @Mapping(target = "name", source = "product.productTranslations", qualifiedByName = "mapProductName")
   @Mapping(target = "description", source = "product.productTranslations", qualifiedByName = "mapProductDescription")
   @Mapping(source = "product.tags", target = "tags", qualifiedByName = "mapTags")
-  @Mapping(target = "status", ignore = true) // Ignoring status until impl calculating amount statuses
+  @Mapping(target = "status", source = "product")
   @Mapping(target = "discount", source = "discount.amount")
   @Mapping(target = "priceWithDiscount", expression = "java(product.getPriceWithDiscount())")
   ProductPreviewDTO toDto(Product product);

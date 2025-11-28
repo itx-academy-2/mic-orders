@@ -1,6 +1,7 @@
 package com.academy.orders.domain.product.entity;
 
 import com.academy.orders.domain.discount.entity.Discount;
+import com.academy.orders.domain.product.entity.enumerated.ProductAvailability;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -62,5 +63,12 @@ public class Product {
       return null;
     }
     return discount.getAmount();
+  }
+
+  public ProductAvailability getAvailability() {
+    if (quantity == null || quantity <= 0) {
+      return ProductAvailability.ENDED;
+    }
+    return ProductAvailability.AVAILABLE;
   }
 }

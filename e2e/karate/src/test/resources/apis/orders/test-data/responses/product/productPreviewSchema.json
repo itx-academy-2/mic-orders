@@ -1,11 +1,11 @@
 {
-  "name": "#string",
+  "id": "#string? _.length > 0",
+  "name": "#string? _.length > 0",
   "description": "#string",
-  "image": "#string",
-  "tags": "#array",
-  "quantity": "#number",
-  "status": "#regex (AVAILABLE|ENDED)",
-  "price": "#number",
+  "status": "#regex (AVAILABLE|END_SOON|ENDED)",
+  "tags": "##array",
+  "image": "#string? _.length > 0",
+  "price": "#number? _ >= 0",
   "discount": "#? _ == null || (typeof _ === 'number' && _ >= 0 && _ <= 100)",
   "priceWithDiscount": "#? _ == null || typeof _ === 'number'",
   "percentageOfTotalOrders": "#? _ == null || typeof _ === 'number'"
