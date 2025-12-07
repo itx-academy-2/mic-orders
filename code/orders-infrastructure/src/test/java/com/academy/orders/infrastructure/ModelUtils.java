@@ -33,6 +33,7 @@ import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.orderV2.entity.OrderV2;
 import com.academy.orders.domain.postaddress.entity.PostAddressV2;
+import com.academy.orders.domain.reservation.entity.ProductReservationDetails;
 import com.academy.orders.infrastructure.account.entity.AccountEntity;
 import com.academy.orders.infrastructure.article.entity.ArticleContentEntity;
 import com.academy.orders.infrastructure.article.entity.ArticleEntity;
@@ -78,6 +79,8 @@ public class ModelUtils {
   public static final String TEST_IMAGE_LINK = "http://localhost:8080/image-1";
 
   private static final LocalDateTime DATE_TIME = LocalDateTime.of(1, 1, 1, 1, 1);
+
+  public static final OffsetDateTime OFFSET_DATE_TIME = OffsetDateTime.of(2025, 4, 28, 1, 1, 1, 1, ZoneOffset.UTC);
 
   private static final String TEST_IMAGE_NAME = "image-1";
 
@@ -172,6 +175,10 @@ public class ModelUtils {
         .deliveryNovaPost(true)
         .deliveryUkrPost(true)
         .build();
+  }
+
+  public static ProductReservationDetails createProductReservationDetails() {
+    return new ProductReservationDetails("john_doe", "john.doe@example.com", 1, OFFSET_DATE_TIME.toInstant());
   }
 
   public static OrderEntity getOrderEntity() {

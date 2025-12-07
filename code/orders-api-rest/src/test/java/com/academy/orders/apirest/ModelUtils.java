@@ -38,8 +38,11 @@ import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.ProductTranslation;
 import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
+import com.academy.orders.domain.reservation.entity.ProductReservationDetails;
+import com.academy.orders_api_rest.generated.model.PageProductReservationDetailsDTO;
 import com.academy.orders_api_rest.generated.model.PageProductsWithPriceRangeDTO;
 import com.academy.orders_api_rest.generated.model.ProductAvailabilityStatusDTO;
+import com.academy.orders_api_rest.generated.model.ProductReservationDetailsDTO;
 import com.academy.orders_api_rest.generated.model.UserPostAddressResponseDTO;
 import com.academy.orders_api_rest.generated.model.AccountResponseDTO;
 import com.academy.orders_api_rest.generated.model.ArticleDetailsDTO;
@@ -188,6 +191,57 @@ public class ModelUtils {
     return Product.builder().id(TEST_UUID).status(ProductStatus.VISIBLE).image(IMAGE_URL).createdAt(DATE_TIME)
         .quantity(TEST_QUANTITY).price(TEST_PRICE).tags(emptySet())
         .productTranslations(Set.of(getProductTranslation())).build();
+  }
+
+  public static ProductReservationDetails createProductReservationDetails() {
+    return new ProductReservationDetails("john_doe", "john.doe@example.com", 1, OFFSET_DATE_TIME.toInstant());
+  }
+
+  public static ProductReservationDetailsDTO createProductReservationDetailsDTO() {
+    return new ProductReservationDetailsDTO().username("john_doe").email("john.doe@example.com").quantity(1).addedAt(OFFSET_DATE_TIME);
+  }
+
+  public static Page<ProductReservationDetails> getProductReservationDetailsPage(List<ProductReservationDetails> content, int page,
+      int size) {
+    long totalElements = content.size();
+    int totalPages = (int) Math.ceil((double) totalElements / size);
+    boolean first = page == 0;
+    boolean last = page == totalPages - 1;
+    boolean empty = content.isEmpty();
+    int numberOfElements = content.size();
+
+    return Page.<ProductReservationDetails>builder()
+        .totalElements(totalElements)
+        .totalPages(totalPages)
+        .first(first)
+        .last(last)
+        .number(page)
+        .numberOfElements(numberOfElements)
+        .size(size)
+        .empty(empty)
+        .content(content)
+        .build();
+  }
+
+  public static PageProductReservationDetailsDTO getProductReservationDetailsDtoPage(List<ProductReservationDetailsDTO> content, int page,
+      int size) {
+    long totalElements = content.size();
+    int totalPages = (int) Math.ceil((double) totalElements / size);
+    boolean first = page == 0;
+    boolean last = page == totalPages - 1;
+    boolean empty = content.isEmpty();
+    int numberOfElements = content.size();
+
+    return new PageProductReservationDetailsDTO()
+        .totalElements(totalElements)
+        .totalPages(totalPages)
+        .first(first)
+        .last(last)
+        .number(page)
+        .numberOfElements(numberOfElements)
+        .size(size)
+        .empty(empty)
+        .content(content);
   }
 
   public static Tag getTag() {

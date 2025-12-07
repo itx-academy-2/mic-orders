@@ -42,6 +42,7 @@ import com.academy.orders.domain.product.entity.ProductTranslation;
 import com.academy.orders.domain.product.entity.ProductTranslationManagement;
 import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
+import com.academy.orders.domain.reservation.entity.ProductReservationDetails;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -74,6 +75,8 @@ import static java.util.Collections.singletonList;
 
 public class ModelUtils {
   private static final LocalDateTime DATE_TIME = LocalDateTime.of(1, 1, 1, 1, 1, 1);
+
+  public static final OffsetDateTime OFFSET_DATE_TIME = OffsetDateTime.of(2025, 4, 28, 1, 1, 1, 1, ZoneOffset.UTC);
 
   public static Discount getDiscount() {
     return Discount.builder().id(TEST_UUID).amount(TEST_QUANTITY).startDate(TEST_START_DATE).endDate(TEST_END_DATE)
@@ -117,6 +120,32 @@ public class ModelUtils {
     return Product.builder().id(TEST_UUID).status(ProductStatus.VISIBLE).image(IMAGE_NAME).quantity(TEST_QUANTITY)
         .price(TEST_PRICE).discount(getDiscount()).tags(Set.of(getTag()))
         .productTranslations(Set.of(getProductTranslation())).build();
+  }
+
+  public static ProductReservationDetails createProductReservationDetails() {
+    return new ProductReservationDetails("john_doe", "john.doe@example.com", 1, OFFSET_DATE_TIME.toInstant());
+  }
+
+  public static Page<ProductReservationDetails> getProductReservationDetailsPage(List<ProductReservationDetails> content, int page,
+      int size) {
+    long totalElements = content.size();
+    int totalPages = (int) Math.ceil((double) totalElements / size);
+    boolean first = page == 0;
+    boolean last = page == totalPages - 1;
+    boolean empty = content.isEmpty();
+    int numberOfElements = content.size();
+
+    return Page.<ProductReservationDetails>builder()
+        .totalElements(totalElements)
+        .totalPages(totalPages)
+        .first(first)
+        .last(last)
+        .number(page)
+        .numberOfElements(numberOfElements)
+        .size(size)
+        .empty(empty)
+        .content(content)
+        .build();
   }
 
   public static Tag getTag() {
