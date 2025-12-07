@@ -31,6 +31,6 @@ public interface ReservationsManagementJpaAdapter extends JpaRepository<Reservat
       JOIN AccountEntity a ON a.id = r.id.userId
       WHERE r.id.productId = :productId
       """,
-      countQuery = "SELECT COUNT(r) FROM ReservationEntity r WHERE r.id.productId = :productI")
+      countQuery = "SELECT COUNT(r) FROM ReservationEntity r WHERE r.id.productId = :productId")
   Page<ReservationWithUserProjection> findByProductId(@Param("productId") UUID productId, Pageable pageable);
 }

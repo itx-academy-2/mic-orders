@@ -39,7 +39,7 @@ class GetProductReservationsInfoUseCaseImplTest {
   void getProductReservationsInfoWhenProductExistsTest() {
     // Given
     var reservation = createProductReservationDetails();
-    var expectedPage = getProductReservationDetailsPage(List.of(reservation), 1, 10);
+    var expectedPage = getProductReservationDetailsPage(List.of(reservation), 0, 10);
     when(productRepository.existById(TEST_PRODUCT_ID)).thenReturn(true);
     when(reservationManagementRepository.getProductReservations(TEST_PRODUCT_ID, pageable)).thenReturn(expectedPage);
 
