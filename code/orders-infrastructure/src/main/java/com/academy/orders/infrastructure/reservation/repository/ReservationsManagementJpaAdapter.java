@@ -20,12 +20,24 @@ import java.util.UUID;
 @Repository
 public interface ReservationsManagementJpaAdapter extends JpaRepository<ReservationEntity, ReservationId> {
 
-  /**
-   * Retrieves paginated reservation details for a specific product. This uses a projection to return: - username of the reserving user -
-   * email of the reserving user - quantity (always 1 in your schema, but included for future extensibility) - timestamp when reservation
-   * was added
-   */
-  @Query(value = """
+    /**
+     * Retrieves paginated reservation details for a specific product.
+     *
+     * <p>This query returns a projection containing:
+     * <ul>
+     *   <li>the reserving user's full name (`username`)</li>
+     *   <li>the user's email</li>
+     *   <li>the timestamp when the reservation was created (`addedAt`)</li>
+     *   <li>the `quantity` value, which is <b>not</b> stored in the database but
+     *       provided as a constant (default method returning {@code 1}) in the
+     *       {@link ReservationWithUserProjection} interface</li>
+     * </ul>
+     *
+     * <p>The `quantity` field is included for domain consistency and potential
+     * future extensibility, but it is not selected from the database in this query.
+     */
+
+    @Query(value = """
       SELECT CONCAT(a.firstName, ' ', a.lastName) AS username, a.email AS email, r.addedAt AS addedAt
       FROM ReservationEntity r
       JOIN AccountEntity a ON a.id = r.id.userId
