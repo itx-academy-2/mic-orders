@@ -1,0 +1,7 @@
+{
+  "username": "#string? _.length > 0",
+  "email": "#string? _.length > 0",
+  "quantity": "#number? _ >= 1",
+  "addedAt": "#string"
+}
+
