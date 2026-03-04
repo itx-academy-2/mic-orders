@@ -1,5 +1,6 @@
 package com.academy.orders.boot.infrastructure.common.repository;
 
+import com.academy.orders.application.reservation.usecase.config.ReservationProperties;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.validation.Validator;
@@ -24,4 +25,7 @@ public abstract class AbstractRepositoryIT {
 
   @MockBean
   private Validator validator;
+
+  @MockBean
+  private ReservationProperties reservationProperties;
 }

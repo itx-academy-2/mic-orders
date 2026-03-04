@@ -2,17 +2,19 @@ package com.academy.orders.apirest.reservation.controller;
 
 import com.academy.orders.apirest.auth.util.SecurityUtils;
 import com.academy.orders.apirest.products.mapper.ProductPreviewDTOMapper;
+import com.academy.orders.apirest.reservation.mapper.UserReservationsMetadataMapper;
 import com.academy.orders.domain.reservation.usecase.AddToUserReservationsUseCase;
+import com.academy.orders.domain.reservation.usecase.GetUserReservationsMetadataUseCase;
 import com.academy.orders.domain.reservation.usecase.GetUserReservationsUseCase;
 import com.academy.orders.domain.reservation.usecase.RemoveFromUserReservationsUseCase;
 import com.academy.orders_api_rest.generated.api.ReservationsApi;
 import com.academy.orders_api_rest.generated.model.ProductPreviewDTO;
+import com.academy.orders_api_rest.generated.model.UserReservationsMetadataDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -27,9 +29,13 @@ public class UserReservationController implements ReservationsApi {
 
   private final GetUserReservationsUseCase getUserReservationsUseCase;
 
+  private final GetUserReservationsMetadataUseCase getUserReservationsMetadataUseCase;
+
   private final SecurityUtils securityUtils;
 
   private final ProductPreviewDTOMapper productPreviewDTOMapper;
+
+  private final UserReservationsMetadataMapper userReservationsMetadataMapper;
 
   @Override
   @PreAuthorize("hasAuthority('ROLE_USER')")
@@ -56,5 +62,14 @@ public class UserReservationController implements ReservationsApi {
     log.info("User [{}] is removing product [{}] from reservations", userId, productId);
     removeFromUserReservationsUseCase.removeProductFromReservations(userId, productId);
     return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  @PreAuthorize("hasAuthority('ROLE_USER')")
+  public ResponseEntity<UserReservationsMetadataDTO> getUserReservationsMetadata() {
+    var userId = securityUtils.getAuthenticatedUserId();
+    log.info("User [{}] is fetching reservations metadata", userId);
+    var domainMetadata = getUserReservationsMetadataUseCase.getUserReservationsMetadata(userId);
+    return ResponseEntity.ok(userReservationsMetadataMapper.toDTO(domainMetadata));
   }
 }

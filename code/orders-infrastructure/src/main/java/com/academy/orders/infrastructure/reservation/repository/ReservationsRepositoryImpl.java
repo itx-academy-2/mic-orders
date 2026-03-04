@@ -1,6 +1,7 @@
 package com.academy.orders.infrastructure.reservation.repository;
 
 import com.academy.orders.domain.product.entity.Product;
+import com.academy.orders.domain.reservation.entity.ReservationMetadata;
 import com.academy.orders.domain.reservation.repository.ReservationsRepository;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity;
@@ -47,6 +48,13 @@ public class ReservationsRepositoryImpl implements ReservationsRepository {
 
     return entities.stream()
         .map(productMapper::fromEntity)
+        .toList();
+  }
+
+  @Override
+  public List<ReservationMetadata> getUserReservationMetadata(Long accountId) {
+    return reservationsJpa.findByIdUserId(accountId).stream()
+        .map(entity -> new ReservationMetadata(entity.getId().getProductId(), entity.getAddedAt()))
         .toList();
   }
 

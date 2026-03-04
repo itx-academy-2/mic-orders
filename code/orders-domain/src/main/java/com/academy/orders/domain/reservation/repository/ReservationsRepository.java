@@ -1,6 +1,7 @@
 package com.academy.orders.domain.reservation.repository;
 
 import com.academy.orders.domain.product.entity.Product;
+import com.academy.orders.domain.reservation.entity.ReservationMetadata;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +35,14 @@ public interface ReservationsRepository {
    * @return list of {@link Product}
    */
   List<Product> getReservationProducts(Long accountId, String language);
+
+  /**
+   * Retrieves all reservation metadata for the user.
+   *
+   * @param accountId the {@link Long} ID of the user.
+   * @return list of {@link ReservationMetadata}
+   */
+  List<ReservationMetadata> getUserReservationMetadata(Long accountId);
 
   /**
    * Returns total count of distinct reserved products. Used to validate maximum 5 products rule.

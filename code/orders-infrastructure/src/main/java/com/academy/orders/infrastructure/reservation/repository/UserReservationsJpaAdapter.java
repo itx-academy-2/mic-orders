@@ -40,12 +40,7 @@ public interface UserReservationsJpaAdapter extends JpaRepository<ReservationEnt
   BigDecimal totalCostOfReservations(@Param("userId") Long userId);
 
   /**
-   * Returns only product IDs of the user's reserved items. Handy for GET use case to later fetch products / preview data.
+   * Retrieves all reservation records for the given user.
    */
-  @Query("""
-      SELECT r.id.productId
-        FROM ReservationEntity r
-       WHERE r.id.userId = :userId
-      """)
-  List<UUID> findProductIdsByUserId(@Param("userId") Long userId);
+  List<ReservationEntity> findByIdUserId(Long userId);
 }
