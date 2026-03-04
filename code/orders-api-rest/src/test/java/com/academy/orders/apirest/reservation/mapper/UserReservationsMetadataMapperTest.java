@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,13 +36,13 @@ class UserReservationsMetadataMapperTest {
 
     // Then
     assertNotNull(dto);
-    assertEquals(1500d, dto.getRemainingMoney());
+    assertEquals("1500", dto.getRemainingMoney());
     assertEquals(2, dto.getRemainingItems());
     assertEquals(1, dto.getReservations().size());
 
     var reservedProduct = dto.getReservations().get(0);
     assertEquals(reservationMetadata.productId(), reservedProduct.getId());
-    assertEquals(reservationMetadata.reservedAt().toString(), reservedProduct.getReservedAt());
+    assertEquals(reservationMetadata.reservedAt().atOffset(ZoneOffset.UTC), reservedProduct.getReservedAt());
   }
 
   @Test
@@ -54,7 +55,7 @@ class UserReservationsMetadataMapperTest {
 
     // Then
     assertEquals(reservationMetadata.productId(), dto.getId());
-    assertEquals(reservationMetadata.reservedAt().toString(), dto.getReservedAt());
+    assertEquals(reservationMetadata.reservedAt().atOffset(ZoneOffset.UTC), dto.getReservedAt());
   }
 
   private ReservationMetadata createReservationMetadata() {

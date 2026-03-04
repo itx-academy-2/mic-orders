@@ -2880,10 +2880,10 @@ components:
       description: Metadata about the user's reserved products.
       properties:
         remainingMoney:
-          type: number
-          format: double
-          example: 899.25
-          description: Remaining amount of money the user can use for reservations.
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          description: Remaining reservation budget in major currency units.
+          example: "899.25"
         remainingItems:
           type: integer
           example: 3
@@ -2905,7 +2905,7 @@ components:
           description: Identifier of the reserved product.
         reservedAt:
           type: string
-          format: date-type
+          format: date-time
           example: '2026-02-24T13:42:38.196466'
           description: Date and time when the product was reserved (ISO 8601).
       required:

@@ -52,6 +52,7 @@ public class ReservationsRepositoryImpl implements ReservationsRepository {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<ReservationMetadata> getUserReservationMetadata(Long accountId) {
     return reservationsJpa.findByIdUserId(accountId).stream()
         .map(entity -> new ReservationMetadata(entity.getId().getProductId(), entity.getAddedAt()))
