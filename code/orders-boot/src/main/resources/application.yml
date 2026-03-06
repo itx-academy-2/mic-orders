@@ -75,3 +75,7 @@ pexels:
 
 password-reset:
   base-path: /v1/password-reset/
+
+reservations:
+  max-reserved-products: 5
+  max-total-cost: 5000.00

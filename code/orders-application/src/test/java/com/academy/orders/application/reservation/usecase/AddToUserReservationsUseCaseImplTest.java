@@ -1,5 +1,6 @@
 package com.academy.orders.application.reservation.usecase;
 
+import com.academy.orders.application.reservation.usecase.config.ReservationProperties;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.product.exception.ProductNotFoundException;
@@ -10,6 +11,7 @@ import com.academy.orders.domain.product.usecase.ChangeQuantityUseCase;
 import com.academy.orders.domain.reservation.exception.ReservationLimitExceededException;
 import com.academy.orders.domain.reservation.exception.ReservationTotalCostExceededException;
 import com.academy.orders.domain.reservation.repository.ReservationsRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -48,6 +50,16 @@ class AddToUserReservationsUseCaseImplTest {
 
   @Mock
   private ChangeQuantityUseCase changeQuantityUseCase;
+
+  @BeforeEach
+  void setUp() {
+    ReservationProperties reservationProperties = new ReservationProperties();
+    reservationProperties.setMaxReservedProducts(5);
+    reservationProperties.setMaxTotalCost(BigDecimal.valueOf(5000));
+
+    addToUserReservationsUseCase =
+        new AddToUserReservationsUseCaseImpl(reservationProperties, productRepository, reservationsRepository, changeQuantityUseCase);
+  }
 
   @Test
   void addProductToReservationsWhenProductNotFoundTest() {

@@ -1457,6 +1457,27 @@ paths:
         '404':
           description: Product not found
 
+  /v1/my-reservations/metadata:
+    get:
+      tags:
+        - Reservations
+      summary: Get current user's reservation metadata
+      description: Retrieves metadata about the authenticated user's reserved products, including remaining limits and reservation timestamps.
+      operationId: getUserReservationsMetadata
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: Reservation metadata successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserReservationsMetadata'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /v1/management/products/{productId}/reservations:
     get:
       tags:
@@ -2853,6 +2874,43 @@ components:
         - HIDDEN
       example: VISIBLE
       description: Status of the product
+
+    UserReservationsMetadata:
+      type: object
+      description: Metadata about the user's reserved products.
+      properties:
+        remainingMoney:
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          description: Remaining reservation budget in major currency units.
+          example: "899.25"
+        remainingItems:
+          type: integer
+          example: 3
+          description: Remaining number of products the user can reserve.
+        reservations:
+          type: array
+          description: List of metadata for each reserved product.
+          items:
+            $ref: '#/components/schemas/ReservedProductMetadata'
+
+    ReservedProductMetadata:
+      type: object
+      description: Metadata for a single reserved product.
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: b8be6872-b25e-4c1a-b845-df2f0150b4f2
+          description: Identifier of the reserved product.
+        reservedAt:
+          type: string
+          format: date-time
+          example: '2026-02-24T13:42:38.196466'
+          description: Date and time when the product was reserved (ISO 8601).
+      required:
+        - id
+        - reservedAt
 
     PageAccounts:
       type: object

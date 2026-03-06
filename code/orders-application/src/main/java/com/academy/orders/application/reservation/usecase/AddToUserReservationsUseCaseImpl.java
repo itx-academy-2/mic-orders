@@ -1,5 +1,6 @@
 package com.academy.orders.application.reservation.usecase;
 
+import com.academy.orders.application.reservation.usecase.config.ReservationProperties;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.product.exception.ProductNotFoundException;
 import com.academy.orders.domain.product.exception.ProductNotVisibleException;
@@ -22,9 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AddToUserReservationsUseCaseImpl implements AddToUserReservationsUseCase {
 
-  private static final int MAX_RESERVED_PRODUCTS = 5;
-
-  private static final BigDecimal MAX_TOTAL_COST = new BigDecimal("5000");
+  private final ReservationProperties reservationProperties;
 
   private final ProductRepository productRepository;
 
@@ -59,17 +58,19 @@ public class AddToUserReservationsUseCaseImpl implements AddToUserReservationsUs
     }
 
     int currentCount = reservationsRepository.countReservedProducts(userId);
-    if (currentCount >= MAX_RESERVED_PRODUCTS) {
-      log.warn("User {} cannot reserve more than {} products", userId, MAX_RESERVED_PRODUCTS);
-      throw new ReservationLimitExceededException(MAX_RESERVED_PRODUCTS);
+    int maxReservedItems = reservationProperties.getMaxReservedProducts();
+    BigDecimal maxReservedMoney = reservationProperties.getMaxTotalCost();
+    if (currentCount >= maxReservedItems) {
+      log.warn("User {} cannot reserve more than {} products", userId, maxReservedItems);
+      throw new ReservationLimitExceededException(maxReservedItems);
     }
 
     BigDecimal currentTotal = reservationsRepository.calculateTotalReservationCost(userId);
     BigDecimal newTotal = currentTotal.add(product.getPrice());
-    if (newTotal.compareTo(MAX_TOTAL_COST) > 0) {
+    if (newTotal.compareTo(maxReservedMoney) > 0) {
       log.warn("User {} cannot exceed reservation cost of {}, current={} new={}",
-          userId, MAX_TOTAL_COST, currentTotal, newTotal);
-      throw new ReservationTotalCostExceededException(MAX_TOTAL_COST);
+          userId, maxReservedMoney, currentTotal, newTotal);
+      throw new ReservationTotalCostExceededException(maxReservedMoney);
     }
 
     log.info("User {} is adding product {} to reservations", userId, productId);

@@ -95,6 +95,40 @@ class ReservationsRepositoryImplTest {
   }
 
   @Test
+  void getUserReservationMetadataTest() {
+    // Given
+    UUID productId = UUID.randomUUID();
+    Instant addedAt = Instant.parse("2025-03-03T10:15:30Z");
+
+    ReservationId reservationId = new ReservationId(ACCOUNT_ID, productId);
+    ReservationEntity entity = new ReservationEntity(reservationId, addedAt);
+
+    when(reservationsJpa.findByIdUserId(ACCOUNT_ID)).thenReturn(List.of(entity));
+
+    // When
+    var result = repository.getUserReservationMetadata(ACCOUNT_ID);
+
+    // Then
+    assertEquals(1, result.size());
+    assertEquals(productId, result.get(0).productId());
+    assertEquals(addedAt, result.get(0).reservedAt());
+    verify(reservationsJpa, times(1)).findByIdUserId(ACCOUNT_ID);
+  }
+
+  @Test
+  void getUserReservationsShouldReturnEmptyListWhenNoReservationMetadataTest() {
+    // Given
+    when(reservationsJpa.findByIdUserId(ACCOUNT_ID)).thenReturn(List.of());
+
+    // When
+    var result = repository.getUserReservationMetadata(ACCOUNT_ID);
+
+    // Then
+    assertTrue(result.isEmpty());
+    verify(reservationsJpa, times(1)).findByIdUserId(ACCOUNT_ID);
+  }
+
+  @Test
   void countReservedProductsTest() {
     // Given
     when(reservationsJpa.countByIdUserId(ACCOUNT_ID)).thenReturn(3L);
