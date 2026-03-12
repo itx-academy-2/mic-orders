@@ -2834,6 +2834,12 @@ components:
           format: int64
           example: 10
           minimum: 0
+        reservedQuantity:
+          type: number
+          format: int64
+          example: 3
+          minimum: 0
+          description: Amount of product items currently reserved by users and not purchased yet.
         price:
           type: number
           example: 90.00

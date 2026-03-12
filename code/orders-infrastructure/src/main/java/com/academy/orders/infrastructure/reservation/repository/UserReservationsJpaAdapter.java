@@ -2,6 +2,7 @@ package com.academy.orders.infrastructure.reservation.repository;
 
 import com.academy.orders.infrastructure.reservation.entity.ReservationEntity;
 import com.academy.orders.infrastructure.reservation.entity.ReservationId;
+import jakarta.persistence.Tuple;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -43,4 +44,19 @@ public interface UserReservationsJpaAdapter extends JpaRepository<ReservationEnt
    * Retrieves all reservation records for the given user.
    */
   List<ReservationEntity> findByIdUserId(Long userId);
+
+  /**
+   * Counts how many times each product is reserved.
+   *
+   * @param productIds list of product IDs to count reservations for
+   * @return a list of tuples where: <ul> <li><b>productId</b> – the product identifier</li> <li><b>reservedCount</b> – number of
+   *         reservations for that product</li> </ul>
+   */
+  @Query("""
+          SELECT r.id.productId as productId, COUNT(r) as reservedCount
+          FROM ReservationEntity r
+          WHERE r.id.productId IN :productIds
+          GROUP BY r.id.productId
+      """)
+  List<Tuple> countReservedProductsByProductIds(List<UUID> productIds);
 }

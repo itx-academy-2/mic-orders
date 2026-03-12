@@ -128,15 +128,18 @@ class ProductsManagementControllerTest {
   @WithMockUser(authorities = ROLE_MANAGER)
   @SneakyThrows
   void updateProductTest() {
+    // Given
     var dto = getProductRequestDTO();
     var request = getProductRequestDto();
 
     when(productRequestDTOMapper.fromDTO(dto)).thenReturn(request);
     doNothing().when(updateProductUseCase).updateProduct(TEST_UUID, request);
 
+    // When
     mockMvc.perform(patch(UPDATE_PRODUCT_URL, TEST_UUID).param("lang", LANGUAGE_EN).contentType("application/json")
         .content(objectMapper.writeValueAsString(dto))).andExpect(status().isOk());
 
+    // Then
     verify(productRequestDTOMapper).fromDTO(dto);
     verify(updateProductUseCase).updateProduct(TEST_UUID, request);
   }
@@ -145,32 +148,37 @@ class ProductsManagementControllerTest {
   @WithMockUser(authorities = ROLE_MANAGER)
   @SneakyThrows
   void getProductsForManagerTest() {
+    // Given
     var lang = "uk";
     var pageable = ModelUtils.getPageable();
     var filter = ModelUtils.getManagementFilterDto();
-    var pageOfProducts = ModelUtils.getPageOf(getProduct());
+    var product = getProduct();
+    var productManagementView = ModelUtils.getProductManagementView(product, 2);
+    var pageOfManagementViewPage = ModelUtils.getPageOf(productManagementView);
     var productManagementPageDTO = getProductManagementPageDTO();
 
     when(pageableDTOMapper.fromDto(any(PageableDTO.class))).thenReturn(pageable);
-    when(managementProductMapper.fromProductManagementFilterDTO(any(ProductManagementFilterDTO.class)))
-        .thenReturn(filter);
-    when(managerProductsUseCase.getManagerProducts(pageable, filter, lang)).thenReturn(pageOfProducts);
-    when(managementProductMapper.fromProductPage(pageOfProducts)).thenReturn(productManagementPageDTO);
+    when(managementProductMapper.fromProductManagementFilterDTO(any(ProductManagementFilterDTO.class))).thenReturn(filter);
+    when(managerProductsUseCase.getManagerProducts(pageable, filter, lang)).thenReturn(pageOfManagementViewPage);
+    when(managementProductMapper.fromProductManagementViewPage(pageOfManagementViewPage)).thenReturn(productManagementPageDTO);
 
+    // When
     mockMvc.perform(get("/v1/management/products").queryParam("lang", lang)).andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().json(objectMapper.writeValueAsString(productManagementPageDTO)));
 
+    // Then
     verify(pageableDTOMapper).fromDto(any(PageableDTO.class));
     verify(managementProductMapper).fromProductManagementFilterDTO(any(ProductManagementFilterDTO.class));
     verify(managerProductsUseCase).getManagerProducts(pageable, filter, lang);
-    verify(managementProductMapper).fromProductPage(pageOfProducts);
+    verify(managementProductMapper).fromProductManagementViewPage(pageOfManagementViewPage);
   }
 
   @Test
   @WithMockUser(authorities = {"ROLE_MANAGER"})
   @SneakyThrows
   void createProductTest() {
+    // Given
     var createProductRequestDTO = getProductRequestDTO();
     var createProductRequest = productRequestDTOMapper.fromDTO(createProductRequestDTO);
     var createdProduct = ModelUtils.getProduct();
@@ -180,11 +188,13 @@ class ProductsManagementControllerTest {
     when(createProductUseCase.createProduct(createProductRequest)).thenReturn(createdProduct);
     when(productResponseDTOMapper.toDTO(createdProduct)).thenReturn(productResponseDTO);
 
+    // When
     mockMvc.perform(post("/v1/management/products").contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(createProductRequestDTO))).andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().json(objectMapper.writeValueAsString(productResponseDTO)));
 
+    // Then
     verify(productRequestDTOMapper, times(2)).fromDTO(createProductRequestDTO);
     verify(createProductUseCase).createProduct(createProductRequest);
     verify(productResponseDTOMapper).toDTO(createdProduct);
@@ -194,16 +204,19 @@ class ProductsManagementControllerTest {
   @WithMockUser(authorities = {"ROLE_MANAGER"})
   @SneakyThrows
   void getProductByIdTest() {
+    // Given
     var product = getProduct();
     var response = getProductResponseDTO();
 
     when(productResponseDTOMapper.toDTO(product)).thenReturn(response);
     when(getProductByIdUseCase.getProductById(TEST_UUID)).thenReturn(product);
 
+    // When
     mockMvc.perform(get(GET_PRODUCT_BY_ID_URL, TEST_UUID)).andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().json(objectMapper.writeValueAsString(response)));
 
+    // Then
     verify(productResponseDTOMapper).toDTO(product);
     verify(getProductByIdUseCase).getProductById(TEST_UUID);
   }
@@ -212,15 +225,18 @@ class ProductsManagementControllerTest {
   @SneakyThrows
   @WithMockUser(authorities = {"ROLE_MANAGER"})
   void getCountOfDiscountedProducts() {
+    // Given
     var discountedProductsCount = 7;
 
     when(getCountOfDiscountedProductsUseCase.getCountOfDiscountedProducts()).thenReturn(discountedProductsCount);
 
+    // When
     mockMvc.perform(get("/v1/management/products/discounted/count"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$").value(discountedProductsCount));
 
+    // Then
     verify(getCountOfDiscountedProductsUseCase).getCountOfDiscountedProducts();
   }
 

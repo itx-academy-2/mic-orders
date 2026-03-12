@@ -35,6 +35,7 @@ import com.academy.orders.domain.product.dto.ProductsOnSaleFilterDto;
 import com.academy.orders.domain.product.dto.ProductsOnSaleResponseDto;
 import com.academy.orders.domain.product.entity.Language;
 import com.academy.orders.domain.product.entity.Product;
+import com.academy.orders.domain.product.entity.ProductManagementView;
 import com.academy.orders.domain.product.entity.ProductTranslation;
 import com.academy.orders.domain.product.entity.Tag;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
@@ -42,6 +43,7 @@ import com.academy.orders.domain.reservation.entity.ProductReservationDetails;
 import com.academy.orders_api_rest.generated.model.PageProductReservationDetailsDTO;
 import com.academy.orders_api_rest.generated.model.PageProductsWithPriceRangeDTO;
 import com.academy.orders_api_rest.generated.model.ProductAvailabilityStatusDTO;
+import com.academy.orders_api_rest.generated.model.ProductManagementFilterDTO;
 import com.academy.orders_api_rest.generated.model.ProductReservationDetailsDTO;
 import com.academy.orders_api_rest.generated.model.UserPostAddressResponseDTO;
 import com.academy.orders_api_rest.generated.model.AccountResponseDTO;
@@ -146,6 +148,13 @@ public class ModelUtils {
     return Product.builder().id(TEST_UUID).status(ProductStatus.VISIBLE).image(IMAGE_URL).createdAt(DATE_TIME)
         .quantity(TEST_QUANTITY).price(TEST_PRICE).tags(Set.of(getTag()))
         .productTranslations(Set.of(getProductTranslation())).percentageOfTotalOrders(PERCENTAGE_OF_TOTAL_ORDERS)
+        .build();
+  }
+
+  public static ProductManagementView getProductManagementView(Product product, Integer reservedQuantity) {
+    return ProductManagementView.builder()
+        .product(product)
+        .reservedQuantity(reservedQuantity)
         .build();
   }
 
@@ -516,6 +525,19 @@ public class ModelUtils {
         .createdAfter(DATE_TIME).priceMore(BigDecimal.ZERO).priceLess(BigDecimal.TEN).build();
   }
 
+  public static ProductManagementFilterDTO getProductManagementFilterDTO() {
+    return new ProductManagementFilterDTO()
+        .status(ProductManagementStatusDTO.VISIBLE)
+        .searchByName("some name")
+        .priceMore(2000.0)
+        .priceLess(10000.0)
+        .quantityMore(BigDecimal.ONE)
+        .quantityLess(BigDecimal.TEN)
+        .createdAfter(OffsetDateTime.of(2025, 1, 1, 10, 10, 10, 10, ZoneOffset.UTC))
+        .createdBefore(OffsetDateTime.now())
+        .tags(Collections.emptyList());
+  }
+
   public static ProductManagementContentDTO getProductManagementContentDTO() {
     var content = new ProductManagementContentDTO();
     content.setId(TEST_UUID);
@@ -526,7 +548,22 @@ public class ModelUtils {
     content.setStatus(ProductManagementStatusDTO.VISIBLE);
     content.createdAt(OFFSET_DATE_TIME);
     content.setTags(emptyList());
+    content.setReservedQuantity(BigDecimal.ONE);
     return content;
+  }
+
+  public static ProductManagementContentDTO getProductManagementContentDTO(ProductManagementView productManagementView) {
+    return new ProductManagementContentDTO()
+        .id(productManagementView.getProduct().getId())
+        .name(productManagementView.getProduct().getProductTranslations().iterator().next().name())
+        .imageLink(productManagementView.getProduct().getImage())
+        .quantity(BigDecimal.valueOf(productManagementView.getProduct().getQuantity()))
+        .price(productManagementView.getProduct().getPrice())
+        .status(ProductManagementStatusDTO.valueOf(productManagementView.getProduct().getStatus().name()))
+        .createdAt(OffsetDateTime.of(productManagementView.getProduct().getCreatedAt(), ZoneOffset.UTC))
+        .tags(productManagementView.getProduct().getTags().stream().map(Tag::name).toList())
+        .reservedQuantity(BigDecimal.valueOf(productManagementView.getReservedQuantity()))
+        .percentageOfTotalOrders(productManagementView.getProduct().getPercentageOfTotalOrders());
   }
 
   public static ProductManagementPageDTO getProductManagementPageDTO() {

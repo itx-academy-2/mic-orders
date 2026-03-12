@@ -80,9 +80,8 @@ public class ProductsManagementController implements ProductsManagementApi {
       String lang, PageableDTO pageable) {
     var pageableDomain = pageableDTOMapper.fromDto(pageable);
     var filter = managementProductMapper.fromProductManagementFilterDTO(productFilter);
-    var productTranslationPage = managerProductsUseCase.getManagerProducts(pageableDomain, filter, lang);
-    ProductManagementPageDTO pageDTO = managementProductMapper.fromProductPage(productTranslationPage);
-    return ResponseEntity.ok(pageDTO);
+    var productPage = managerProductsUseCase.getManagerProducts(pageableDomain, filter, lang);
+    return ResponseEntity.ok(managementProductMapper.fromProductManagementViewPage(productPage));
   }
 
   @Override
