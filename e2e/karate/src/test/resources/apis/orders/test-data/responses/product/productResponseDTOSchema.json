@@ -1,0 +1,14 @@
+{
+  "id": "#uuid",
+  "name": "#string",
+  "imageLink": "#string",
+  "quantity": "#number",
+  "reservedQuantity": "#number",
+  "price": "#number",
+  "discount": "##number",
+  "priceWithDiscount": "##number",
+  "createdAt": "#string",
+  "status": "#string",
+  "tags": "#[]",
+  "percentageOfTotalOrders": "##number"
+}
