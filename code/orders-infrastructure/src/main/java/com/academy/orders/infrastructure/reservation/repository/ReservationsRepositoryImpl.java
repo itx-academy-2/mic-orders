@@ -8,13 +8,16 @@ import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity
 import com.academy.orders.infrastructure.product.repository.ProductTranslationJpaAdapter;
 import com.academy.orders.infrastructure.reservation.entity.ReservationEntity;
 import com.academy.orders.infrastructure.reservation.entity.ReservationId;
+import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -75,5 +78,20 @@ public class ReservationsRepositoryImpl implements ReservationsRepository {
   @Transactional(readOnly = true)
   public boolean exists(Long accountId, UUID productId) {
     return reservationsJpa.existsById(new ReservationId(accountId, productId));
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Map<UUID, Long> getReservedQuantitiesByProductIds(List<UUID> productIds) {
+    if (productIds == null || productIds.isEmpty()) {
+      return Map.of();
+    }
+
+    List<Tuple> tuples = reservationsJpa.countReservedProductsByProductIds(productIds);
+
+    return tuples.stream()
+        .collect(Collectors.toMap(
+            tuple -> tuple.get("productId", UUID.class),
+            tuple -> tuple.get("reservedCount", Long.class)));
   }
 }

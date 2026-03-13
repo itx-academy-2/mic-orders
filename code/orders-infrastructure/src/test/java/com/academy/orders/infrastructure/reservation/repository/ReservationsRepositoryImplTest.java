@@ -6,6 +6,7 @@ import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity
 import com.academy.orders.infrastructure.product.repository.ProductTranslationJpaAdapter;
 import com.academy.orders.infrastructure.reservation.entity.ReservationEntity;
 import com.academy.orders.infrastructure.reservation.entity.ReservationId;
+import jakarta.persistence.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -181,5 +183,61 @@ class ReservationsRepositoryImplTest {
     // Then
     assertFalse(result);
     verify(reservationsJpa, times(1)).existsById(reservationId);
+  }
+
+  @Test
+  void getReservedQuantitiesByProductIdsTest() {
+    // Given
+    UUID productId = UUID.randomUUID();
+    List<UUID> productIds = List.of(productId);
+
+    Tuple tuple = mock(Tuple.class);
+    when(tuple.get("productId", UUID.class)).thenReturn(productId);
+    when(tuple.get("reservedCount", Long.class)).thenReturn(2L);
+    when(reservationsJpa.countReservedProductsByProductIds(productIds)).thenReturn(List.of(tuple));
+
+    // When
+    var result = repository.getReservedQuantitiesByProductIds(productIds);
+
+    // Then
+    assertEquals(1, result.size());
+    assertEquals(2L, result.get(productId));
+    verify(reservationsJpa, times(1)).countReservedProductsByProductIds(productIds);
+  }
+
+  @Test
+  void getReservedQuantitiesByProductIdsShouldReturnEmptyMapWhenInputEmptyTest() {
+    // When
+    var result = repository.getReservedQuantitiesByProductIds(List.of());
+
+    // Then
+    assertTrue(result.isEmpty());
+    verify(reservationsJpa, never()).countReservedProductsByProductIds(any());
+  }
+
+  @Test
+  void getReservedQuantitiesByProductIdsShouldReturnEmptyMapWhenInputNullTest() {
+    // When
+    var result = repository.getReservedQuantitiesByProductIds(null);
+
+    // Then
+    assertTrue(result.isEmpty());
+    verify(reservationsJpa, never()).countReservedProductsByProductIds(any());
+  }
+
+  @Test
+  void getReservedQuantitiesByProductIdsShouldReturnEmptyMapWhenDbReturnsNothingTest() {
+    // Given
+    UUID productId = UUID.randomUUID();
+    List<UUID> productIds = List.of(productId);
+
+    when(reservationsJpa.countReservedProductsByProductIds(productIds)).thenReturn(List.of());
+
+    // When
+    var result = repository.getReservedQuantitiesByProductIds(productIds);
+
+    // Then
+    assertTrue(result.isEmpty());
+    verify(reservationsJpa, times(1)).countReservedProductsByProductIds(productIds);
   }
 }

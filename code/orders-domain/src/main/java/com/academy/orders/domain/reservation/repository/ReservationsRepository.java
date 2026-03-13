@@ -4,6 +4,7 @@ import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.reservation.entity.ReservationMetadata;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -68,4 +69,13 @@ public interface ReservationsRepository {
    * @return true if product is already reserved
    */
   boolean exists(Long accountId, UUID productId);
+
+  /**
+   * Returns reserved quantity for given products.
+   *
+   * @param productIds list of product ids
+   * @return map where key = productId and value = reserved quantity
+   */
+  Map<UUID, Long> getReservedQuantitiesByProductIds(List<UUID> productIds);
+
 }
