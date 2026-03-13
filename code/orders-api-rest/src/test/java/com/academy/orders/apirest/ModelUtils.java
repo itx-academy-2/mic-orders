@@ -102,6 +102,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -552,18 +553,28 @@ public class ModelUtils {
     return content;
   }
 
-  public static ProductManagementContentDTO getProductManagementContentDTO(ProductManagementView productManagementView) {
+  public static ProductManagementContentDTO getProductManagementContentDTO(ProductManagementView view) {
+    var product = view.getProduct();
+    var name = Optional.ofNullable(product.getProductTranslations())
+        .flatMap(t -> t.stream().map(ProductTranslation::name)
+            .findFirst())
+        .orElse(null);
+    var tags = Optional.ofNullable(product.getTags()).orElse(Set.of())
+        .stream()
+        .map(Tag::name)
+        .toList();
+
     return new ProductManagementContentDTO()
-        .id(productManagementView.getProduct().getId())
-        .name(productManagementView.getProduct().getProductTranslations().iterator().next().name())
-        .imageLink(productManagementView.getProduct().getImage())
-        .quantity(BigDecimal.valueOf(productManagementView.getProduct().getQuantity()))
-        .price(productManagementView.getProduct().getPrice())
-        .status(ProductManagementStatusDTO.valueOf(productManagementView.getProduct().getStatus().name()))
-        .createdAt(OffsetDateTime.of(productManagementView.getProduct().getCreatedAt(), ZoneOffset.UTC))
-        .tags(productManagementView.getProduct().getTags().stream().map(Tag::name).toList())
-        .reservedQuantity(BigDecimal.valueOf(productManagementView.getReservedQuantity()))
-        .percentageOfTotalOrders(productManagementView.getProduct().getPercentageOfTotalOrders());
+        .id(product.getId())
+        .name(name)
+        .imageLink(product.getImage())
+        .quantity(BigDecimal.valueOf(product.getQuantity()))
+        .price(product.getPrice())
+        .status(ProductManagementStatusDTO.valueOf(product.getStatus().name()))
+        .createdAt(OffsetDateTime.of(product.getCreatedAt(), ZoneOffset.UTC))
+        .tags(tags)
+        .reservedQuantity(BigDecimal.valueOf(view.getReservedQuantity()))
+        .percentageOfTotalOrders(product.getPercentageOfTotalOrders());
   }
 
   public static ProductManagementPageDTO getProductManagementPageDTO() {

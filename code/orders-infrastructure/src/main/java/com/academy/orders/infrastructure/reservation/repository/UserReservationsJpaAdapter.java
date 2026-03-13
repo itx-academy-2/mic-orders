@@ -58,5 +58,5 @@ public interface UserReservationsJpaAdapter extends JpaRepository<ReservationEnt
           WHERE r.id.productId IN :productIds
           GROUP BY r.id.productId
       """)
-  List<Tuple> countReservedProductsByProductIds(List<UUID> productIds);
+  List<Tuple> countReservedProductsByProductIds(@Param("productIds") List<UUID> productIds);
 }
