@@ -573,7 +573,7 @@ public class ModelUtils {
         .status(ProductManagementStatusDTO.valueOf(product.getStatus().name()))
         .createdAt(OffsetDateTime.of(product.getCreatedAt(), ZoneOffset.UTC))
         .tags(tags)
-        .reservedQuantity(BigDecimal.valueOf(view.getReservedQuantity()))
+        .reservedQuantity(view.getReservedQuantity() == null ? null : BigDecimal.valueOf(view.getReservedQuantity()))
         .percentageOfTotalOrders(product.getPercentageOfTotalOrders());
   }
 
