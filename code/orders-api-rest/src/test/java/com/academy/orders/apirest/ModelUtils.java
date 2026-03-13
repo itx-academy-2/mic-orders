@@ -574,7 +574,9 @@ public class ModelUtils {
         .createdAt(OffsetDateTime.of(product.getCreatedAt(), ZoneOffset.UTC))
         .tags(tags)
         .reservedQuantity(view.getReservedQuantity() == null ? null : BigDecimal.valueOf(view.getReservedQuantity()))
-        .percentageOfTotalOrders(product.getPercentageOfTotalOrders());
+        .percentageOfTotalOrders(product.getPercentageOfTotalOrders())
+        .discount(product.getDiscountAmount())
+        .priceWithDiscount(product.getPriceWithDiscount());
   }
 
   public static ProductManagementPageDTO getProductManagementPageDTO() {
