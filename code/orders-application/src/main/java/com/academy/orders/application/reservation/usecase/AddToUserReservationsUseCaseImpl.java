@@ -47,26 +47,22 @@ public class AddToUserReservationsUseCaseImpl implements AddToUserReservationsUs
       throw new ProductNotVisibleException(productId);
     }
 
-    if (reservationsRepository.exists(userId, productId)) {
-      log.info("Product {} is already reserved for user {}, skipping", productId, userId);
-      return;
-    }
-
     if (product.getQuantity() <= 0) {
       log.warn("Product {} is out of stock for user {}", productId, userId);
       throw new ProductOutOfStockException(productId);
     }
 
-    int currentCount = reservationsRepository.countReservedProducts(userId);
+    int currentQuantity = reservationsRepository.sumReservedQuantity(userId);
     int maxReservedItems = reservationProperties.getMaxReservedProducts();
-    BigDecimal maxReservedMoney = reservationProperties.getMaxTotalCost();
-    if (currentCount >= maxReservedItems) {
-      log.warn("User {} cannot reserve more than {} products", userId, maxReservedItems);
+
+    if (currentQuantity >= maxReservedItems) {
+      log.warn("User {} cannot reserve more than {} items", userId, maxReservedItems);
       throw new ReservationLimitExceededException(maxReservedItems);
     }
 
     BigDecimal currentTotal = reservationsRepository.calculateTotalReservationCost(userId);
     BigDecimal newTotal = currentTotal.add(product.getPrice());
+    BigDecimal maxReservedMoney = reservationProperties.getMaxTotalCost();
     if (newTotal.compareTo(maxReservedMoney) > 0) {
       log.warn("User {} cannot exceed reservation cost of {}, current={} new={}",
           userId, maxReservedMoney, currentTotal, newTotal);

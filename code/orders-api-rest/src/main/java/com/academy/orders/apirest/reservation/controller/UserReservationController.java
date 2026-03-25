@@ -4,6 +4,7 @@ import com.academy.orders.apirest.auth.util.SecurityUtils;
 import com.academy.orders.apirest.products.mapper.ProductPreviewDTOMapper;
 import com.academy.orders.apirest.reservation.mapper.UserReservationsMetadataMapper;
 import com.academy.orders.domain.reservation.usecase.AddToUserReservationsUseCase;
+import com.academy.orders.domain.reservation.usecase.DecreaseProductReservationQuantityUseCase;
 import com.academy.orders.domain.reservation.usecase.GetUserReservationsMetadataUseCase;
 import com.academy.orders.domain.reservation.usecase.GetUserReservationsUseCase;
 import com.academy.orders.domain.reservation.usecase.RemoveFromUserReservationsUseCase;
@@ -26,6 +27,8 @@ public class UserReservationController implements ReservationsApi {
   private final AddToUserReservationsUseCase addToUserReservationsUseCase;
 
   private final RemoveFromUserReservationsUseCase removeFromUserReservationsUseCase;
+
+  private final DecreaseProductReservationQuantityUseCase decreaseProductReservationQuantityUseCase;
 
   private final GetUserReservationsUseCase getUserReservationsUseCase;
 
@@ -61,6 +64,15 @@ public class UserReservationController implements ReservationsApi {
     var userId = securityUtils.getAuthenticatedUserId();
     log.info("User [{}] is removing product [{}] from reservations", userId, productId);
     removeFromUserReservationsUseCase.removeProductFromReservations(userId, productId);
+    return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  @PreAuthorize("hasAuthority('ROLE_USER')")
+  public ResponseEntity<Void> decrementReservation(UUID productId) {
+    var userId = securityUtils.getAuthenticatedUserId();
+    log.info("User [{}] is decreasing reservation quantity for product [{}]", userId, productId);
+    decreaseProductReservationQuantityUseCase.decreaseReservationQuantity(userId, productId);
     return ResponseEntity.noContent().build();
   }
 

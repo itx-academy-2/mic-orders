@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.academy.orders.infrastructure.TestConstants.TEST_ID;
@@ -24,8 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -52,17 +55,55 @@ class ReservationsRepositoryImplTest {
   private ProductMapper productMapper;
 
   @Test
-  void addProductToReservationsTest() {
+  void addProductToReservationsShouldCreateNewReservationTest() {
     // Given
     ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
-    var entity = new ReservationEntity(reservationId, Instant.now());
-    when(reservationsJpa.save(any(ReservationEntity.class))).thenReturn(entity);
+    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.empty());
 
     // When
     repository.addProductToReservations(ACCOUNT_ID, PRODUCT_ID);
 
     // Then
-    verify(reservationsJpa, times(1)).save(argThat(saved -> saved.getId().equals(reservationId) && saved.getAddedAt() != null));
+    verify(reservationsJpa, times(1)).save(argThat(entity -> entity.getId().equals(reservationId)
+        && entity.getQuantity() == 1
+        && entity.getAddedAt() != null));
+  }
+
+  @Test
+  void addProductToReservationsShouldIncreaseQuantityTest() {
+    // Given
+    ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
+    ReservationEntity entity = mock(ReservationEntity.class);
+
+    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.of(entity));
+
+    // When
+    repository.addProductToReservations(ACCOUNT_ID, PRODUCT_ID);
+
+    // Then
+    verify(entity, times(1)).increaseQuantity(1);
+    verify(reservationsJpa, never()).save(any());
+  }
+
+  @Test
+  void addProductToReservationsShouldNotChangeAddedAtWhenIncreasingQuantityTest() {
+    // Given
+    ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
+    Instant initialAddedAt = Instant.parse("2025-03-03T10:15:30Z");
+
+    ReservationEntity entity = spy(ReservationEntity.class);
+
+    doReturn(initialAddedAt).when(entity).getAddedAt();
+    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.of(entity));
+
+    // When
+    repository.addProductToReservations(ACCOUNT_ID, PRODUCT_ID);
+
+    // Then
+    verify(entity, times(1)).increaseQuantity(1);
+    verify(reservationsJpa, never()).save(any());
+
+    assertEquals(initialAddedAt, entity.getAddedAt());
   }
 
   @Test
@@ -78,12 +119,65 @@ class ReservationsRepositoryImplTest {
   }
 
   @Test
+  void decrementProductQuantityShouldDecreaseQuantityWhenGreaterThanOneTest() {
+    // Given
+    ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
+    ReservationEntity entity = ReservationEntity.builder()
+        .id(reservationId)
+        .addedAt(Instant.now())
+        .quantity(3)
+        .build();
+    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.of(entity));
+
+    // When
+    repository.decrementProductReservationQuantity(ACCOUNT_ID, PRODUCT_ID);
+
+    // Then
+    assertEquals(2, entity.getQuantity());
+    verify(reservationsJpa, times(1)).findById(reservationId);
+    verify(reservationsJpa, never()).deleteById(any());
+  }
+
+  @Test
+  void decrementProductQuantityShouldDeleteWhenQuantityIsOneTest() {
+    // Given
+    ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
+    ReservationEntity entity = ReservationEntity.builder()
+        .id(reservationId)
+        .addedAt(Instant.now())
+        .quantity(1)
+        .build();
+    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.of(entity));
+
+    // When
+    repository.decrementProductReservationQuantity(ACCOUNT_ID, PRODUCT_ID);
+
+    // Then
+    verify(reservationsJpa, times(1)).deleteById(reservationId);
+    verify(reservationsJpa, times(1)).findById(reservationId);
+  }
+
+  @Test
+  void decrementProductQuantityShouldDoNothingWhenReservationDoesNotExistTest() {
+    // Given
+    ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
+    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.empty());
+
+    // When
+    repository.decrementProductReservationQuantity(ACCOUNT_ID, PRODUCT_ID);
+
+    // Then
+    verify(reservationsJpa, times(1)).findById(reservationId);
+    verify(reservationsJpa, never()).deleteById(any());
+  }
+
+  @Test
   void getReservationProductsTest() {
     // Given
     var translationEntity = mock(ProductTranslationEntity.class);
     var domainProduct = mock(Product.class);
-    when(productTranslationJpa.findTranslationsForReservations(ACCOUNT_ID, LANGUAGE_EN))
-        .thenReturn(List.of(translationEntity));
+
+    when(productTranslationJpa.findTranslationsForReservations(ACCOUNT_ID, LANGUAGE_EN)).thenReturn(List.of(translationEntity));
     when(productMapper.fromEntity(translationEntity)).thenReturn(domainProduct);
 
     // When
@@ -92,7 +186,8 @@ class ReservationsRepositoryImplTest {
     // Then
     assertEquals(1, result.size());
     assertEquals(domainProduct, result.get(0));
-    verify(productTranslationJpa, times(1)).findTranslationsForReservations(ACCOUNT_ID, LANGUAGE_EN);
+    verify(productTranslationJpa, times(1))
+        .findTranslationsForReservations(ACCOUNT_ID, LANGUAGE_EN);
     verify(productMapper, times(1)).fromEntity(translationEntity);
   }
 
@@ -103,7 +198,11 @@ class ReservationsRepositoryImplTest {
     Instant addedAt = Instant.parse("2025-03-03T10:15:30Z");
 
     ReservationId reservationId = new ReservationId(ACCOUNT_ID, productId);
-    ReservationEntity entity = new ReservationEntity(reservationId, addedAt);
+    ReservationEntity entity = mock(ReservationEntity.class);
+
+    when(entity.getId()).thenReturn(reservationId);
+    when(entity.getAddedAt()).thenReturn(addedAt);
+    when(entity.getQuantity()).thenReturn(3);
 
     when(reservationsJpa.findByIdUserId(ACCOUNT_ID)).thenReturn(List.of(entity));
 
@@ -114,6 +213,7 @@ class ReservationsRepositoryImplTest {
     assertEquals(1, result.size());
     assertEquals(productId, result.get(0).productId());
     assertEquals(addedAt, result.get(0).reservedAt());
+    assertEquals(3, result.get(0).reservedQuantity());
     verify(reservationsJpa, times(1)).findByIdUserId(ACCOUNT_ID);
   }
 
@@ -131,16 +231,16 @@ class ReservationsRepositoryImplTest {
   }
 
   @Test
-  void countReservedProductsTest() {
+  void sumReservedQuantityTest() {
     // Given
-    when(reservationsJpa.countByIdUserId(ACCOUNT_ID)).thenReturn(3L);
+    when(reservationsJpa.sumReservedQuantity(ACCOUNT_ID)).thenReturn(3);
 
     // When
-    int count = repository.countReservedProducts(ACCOUNT_ID);
+    int result = repository.sumReservedQuantity(ACCOUNT_ID);
 
     // Then
-    assertEquals(3, count);
-    verify(reservationsJpa, times(1)).countByIdUserId(ACCOUNT_ID);
+    assertEquals(3, result);
+    verify(reservationsJpa, times(1)).sumReservedQuantity(ACCOUNT_ID);
   }
 
   @Test
@@ -193,8 +293,8 @@ class ReservationsRepositoryImplTest {
 
     Tuple tuple = mock(Tuple.class);
     when(tuple.get("productId", UUID.class)).thenReturn(productId);
-    when(tuple.get("reservedCount", Long.class)).thenReturn(2L);
-    when(reservationsJpa.countReservedProductsByProductIds(productIds)).thenReturn(List.of(tuple));
+    when(tuple.get("reservedQuantity", Long.class)).thenReturn(2L);
+    when(reservationsJpa.sumReservedProductsByProductIds(productIds)).thenReturn(List.of(tuple));
 
     // When
     var result = repository.getReservedQuantitiesByProductIds(productIds);
@@ -202,7 +302,43 @@ class ReservationsRepositoryImplTest {
     // Then
     assertEquals(1, result.size());
     assertEquals(2L, result.get(productId));
-    verify(reservationsJpa, times(1)).countReservedProductsByProductIds(productIds);
+    verify(reservationsJpa, times(1)).sumReservedProductsByProductIds(productIds);
+  }
+
+  @Test
+  void getReservedQuantityShouldReturnQuantityWhenReservationExistsTest() {
+    // Given
+    int quantity = 3;
+    ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
+    ReservationEntity entity = ReservationEntity.builder()
+        .id(reservationId)
+        .addedAt(Instant.now())
+        .quantity(quantity)
+        .build();
+
+    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.of(entity));
+
+    // When
+    int result = repository.getReservedQuantity(ACCOUNT_ID, PRODUCT_ID);
+
+    // Then
+    assertEquals(quantity, result);
+    verify(reservationsJpa, times(1)).findById(reservationId);
+  }
+
+  @Test
+  void getReservedQuantityShouldReturnZeroWhenReservationDoesNotExistTest() {
+    // Given
+    ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
+
+    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.empty());
+
+    // When
+    int result = repository.getReservedQuantity(ACCOUNT_ID, PRODUCT_ID);
+
+    // Then
+    assertEquals(0, result);
+    verify(reservationsJpa, times(1)).findById(reservationId);
   }
 
   @Test
@@ -212,7 +348,7 @@ class ReservationsRepositoryImplTest {
 
     // Then
     assertTrue(result.isEmpty());
-    verify(reservationsJpa, never()).countReservedProductsByProductIds(any());
+    verify(reservationsJpa, never()).sumReservedProductsByProductIds(any());
   }
 
   @Test
@@ -222,7 +358,7 @@ class ReservationsRepositoryImplTest {
 
     // Then
     assertTrue(result.isEmpty());
-    verify(reservationsJpa, never()).countReservedProductsByProductIds(any());
+    verify(reservationsJpa, never()).sumReservedProductsByProductIds(any());
   }
 
   @Test
@@ -231,13 +367,14 @@ class ReservationsRepositoryImplTest {
     UUID productId = UUID.randomUUID();
     List<UUID> productIds = List.of(productId);
 
-    when(reservationsJpa.countReservedProductsByProductIds(productIds)).thenReturn(List.of());
+    when(reservationsJpa.sumReservedProductsByProductIds(productIds))
+        .thenReturn(List.of());
 
     // When
     var result = repository.getReservedQuantitiesByProductIds(productIds);
 
     // Then
     assertTrue(result.isEmpty());
-    verify(reservationsJpa, times(1)).countReservedProductsByProductIds(productIds);
+    verify(reservationsJpa, times(1)).sumReservedProductsByProductIds(productIds);
   }
 }

@@ -59,6 +59,6 @@ class UserReservationsMetadataMapperTest {
   }
 
   private ReservationMetadata createReservationMetadata() {
-    return new ReservationMetadata(UUID.randomUUID(), Instant.parse("2025-03-03T10:15:30Z"));
+    return new ReservationMetadata(UUID.randomUUID(), Instant.parse("2025-03-03T10:15:30Z"), 1);
   }
 }

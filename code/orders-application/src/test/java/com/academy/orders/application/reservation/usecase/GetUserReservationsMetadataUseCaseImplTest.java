@@ -37,10 +37,10 @@ class GetUserReservationsMetadataUseCaseImplTest {
     // Given
     UUID reservationId = UUID.randomUUID();
     Instant reservedAt = Instant.parse("2025-03-03T10:15:30Z");
-    var reservation = new ReservationMetadata(reservationId, reservedAt);
+    var reservation = new ReservationMetadata(reservationId, reservedAt, 2);
 
     when(reservationsRepository.getUserReservationMetadata(TEST_USER_ID)).thenReturn(List.of(reservation));
-    when(reservationsRepository.countReservedProducts(TEST_USER_ID)).thenReturn(2);
+    when(reservationsRepository.sumReservedQuantity(TEST_USER_ID)).thenReturn(2);
     when(reservationsRepository.calculateTotalReservationCost(TEST_USER_ID)).thenReturn(BigDecimal.valueOf(300));
     when(reservationProperties.getMaxReservedProducts()).thenReturn(5);
     when(reservationProperties.getMaxTotalCost()).thenReturn(BigDecimal.valueOf(1000));
@@ -54,16 +54,18 @@ class GetUserReservationsMetadataUseCaseImplTest {
     assertEquals(1, result.reservations().size());
     assertEquals(reservationId, result.reservations().get(0).productId());
     assertEquals(reservedAt, result.reservations().get(0).reservedAt());
+    assertEquals(2, result.reservations().get(0).reservedQuantity());
+
     verify(reservationsRepository, times(1)).getUserReservationMetadata(TEST_USER_ID);
-    verify(reservationsRepository, times(1)).countReservedProducts(TEST_USER_ID);
+    verify(reservationsRepository, times(1)).sumReservedQuantity(TEST_USER_ID);
     verify(reservationsRepository, times(1)).calculateTotalReservationCost(TEST_USER_ID);
   }
 
   @Test
-  void getUserReservationsMetadataWhenReservedCountExceedsLimitTest() {
+  void getUserReservationsMetadataWhenReservedQuantityExceedsLimitTest() {
     // Given
     when(reservationsRepository.getUserReservationMetadata(TEST_USER_ID)).thenReturn(List.of());
-    when(reservationsRepository.countReservedProducts(TEST_USER_ID)).thenReturn(10);
+    when(reservationsRepository.sumReservedQuantity(TEST_USER_ID)).thenReturn(10);
     when(reservationsRepository.calculateTotalReservationCost(TEST_USER_ID)).thenReturn(BigDecimal.ZERO);
     when(reservationProperties.getMaxReservedProducts()).thenReturn(5);
     when(reservationProperties.getMaxTotalCost()).thenReturn(BigDecimal.valueOf(1000));
@@ -79,7 +81,7 @@ class GetUserReservationsMetadataUseCaseImplTest {
   void getUserReservationsMetadataWhenReservedMoneyExceedsLimitTest() {
     // Given
     when(reservationsRepository.getUserReservationMetadata(TEST_USER_ID)).thenReturn(List.of());
-    when(reservationsRepository.countReservedProducts(TEST_USER_ID)).thenReturn(1);
+    when(reservationsRepository.sumReservedQuantity(TEST_USER_ID)).thenReturn(1);
     when(reservationsRepository.calculateTotalReservationCost(TEST_USER_ID)).thenReturn(BigDecimal.valueOf(2000));
     when(reservationProperties.getMaxReservedProducts()).thenReturn(5);
     when(reservationProperties.getMaxTotalCost()).thenReturn(BigDecimal.valueOf(1000));

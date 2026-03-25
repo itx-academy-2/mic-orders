@@ -16,7 +16,6 @@ import static com.academy.orders.application.TestConstants.TEST_ID;
 import static com.academy.orders.application.TestConstants.TEST_UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -46,10 +45,10 @@ class RemoveFromUserReservationsUseCaseImplTest {
   void removeProductFromReservationsWhenProductExistsTest() {
     // Given
     var product = new Product();
+    int reservedQuantity = 3;
     when(reservationsRepository.exists(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(true);
+    when(reservationsRepository.getReservedQuantity(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(reservedQuantity);
     when(productRepository.getById(TEST_PRODUCT_ID)).thenReturn(Optional.of(product));
-    doNothing().when(changeQuantityUseCase).changeQuantityOfProduct(product, -1);
-    doNothing().when(reservationsRepository).removeProductFromReservations(TEST_USER_ID, TEST_PRODUCT_ID);
 
     // When
     removeFromUserReservationsUseCase.removeProductFromReservations(TEST_USER_ID, TEST_PRODUCT_ID);
@@ -57,7 +56,7 @@ class RemoveFromUserReservationsUseCaseImplTest {
     // Then
     verify(reservationsRepository, times(1)).exists(TEST_USER_ID, TEST_PRODUCT_ID);
     verify(productRepository, times(1)).getById(TEST_PRODUCT_ID);
-    verify(changeQuantityUseCase, times(1)).changeQuantityOfProduct(product, -1);
+    verify(changeQuantityUseCase, times(1)).changeQuantityOfProduct(product, -reservedQuantity);
     verify(reservationsRepository, times(1)).removeProductFromReservations(TEST_USER_ID, TEST_PRODUCT_ID);
   }
 
@@ -84,6 +83,8 @@ class RemoveFromUserReservationsUseCaseImplTest {
     removeFromUserReservationsUseCase.removeProductFromReservations(TEST_USER_ID, TEST_PRODUCT_ID);
 
     // Then
+    verify(reservationsRepository, times(1)).exists(TEST_USER_ID, TEST_PRODUCT_ID);
+    verify(productRepository, times(1)).getById(TEST_PRODUCT_ID);
     verify(changeQuantityUseCase, never()).changeQuantityOfProduct(any(), anyInt());
     verify(reservationsRepository, times(1)).removeProductFromReservations(TEST_USER_ID, TEST_PRODUCT_ID);
   }

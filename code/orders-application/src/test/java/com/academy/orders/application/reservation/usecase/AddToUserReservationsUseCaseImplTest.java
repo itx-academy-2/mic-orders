@@ -97,27 +97,6 @@ class AddToUserReservationsUseCaseImplTest {
   }
 
   @Test
-  void addProductToReservationsWhenProductAlreadyReservedTest() {
-    // Given
-    Product product = Product.builder()
-        .id(TEST_PRODUCT_ID)
-        .status(ProductStatus.VISIBLE)
-        .price(BigDecimal.TEN)
-        .quantity(10)
-        .build();
-    when(productRepository.getById(TEST_PRODUCT_ID)).thenReturn(Optional.of(product));
-    when(reservationsRepository.exists(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(true);
-
-    // When
-    addToUserReservationsUseCase.addProductToReservations(TEST_USER_ID, TEST_PRODUCT_ID);
-
-    // Then
-    verify(reservationsRepository, times(1)).exists(TEST_USER_ID, TEST_PRODUCT_ID);
-    verify(reservationsRepository, never()).addProductToReservations(any(), any());
-    verifyNoInteractions(changeQuantityUseCase);
-  }
-
-  @Test
   void addProductToReservationsWhenProductOutOfStockTest() {
     // Given
     Product product = Product.builder()
@@ -127,7 +106,6 @@ class AddToUserReservationsUseCaseImplTest {
         .price(BigDecimal.TEN)
         .build();
     when(productRepository.getById(TEST_PRODUCT_ID)).thenReturn(Optional.of(product));
-    when(reservationsRepository.exists(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(false);
 
     // When
     assertThrows(ProductOutOfStockException.class,
@@ -148,8 +126,7 @@ class AddToUserReservationsUseCaseImplTest {
         .price(BigDecimal.TEN)
         .build();
     when(productRepository.getById(TEST_PRODUCT_ID)).thenReturn(Optional.of(product));
-    when(reservationsRepository.exists(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(false);
-    when(reservationsRepository.countReservedProducts(TEST_USER_ID)).thenReturn(5);
+    when(reservationsRepository.sumReservedQuantity(TEST_USER_ID)).thenReturn(5);
 
     // When
     assertThrows(ReservationLimitExceededException.class,
@@ -157,6 +134,7 @@ class AddToUserReservationsUseCaseImplTest {
 
     // Then
     verify(reservationsRepository, never()).addProductToReservations(any(), any());
+    verifyNoInteractions(changeQuantityUseCase);
   }
 
   @Test
@@ -169,8 +147,7 @@ class AddToUserReservationsUseCaseImplTest {
         .price(new BigDecimal("1000"))
         .build();
     when(productRepository.getById(TEST_PRODUCT_ID)).thenReturn(Optional.of(product));
-    when(reservationsRepository.exists(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(false);
-    when(reservationsRepository.countReservedProducts(TEST_USER_ID)).thenReturn(2);
+    when(reservationsRepository.sumReservedQuantity(TEST_USER_ID)).thenReturn(2);
     when(reservationsRepository.calculateTotalReservationCost(TEST_USER_ID))
         .thenReturn(new BigDecimal("4500"));
 
@@ -180,6 +157,7 @@ class AddToUserReservationsUseCaseImplTest {
 
     // Then
     verify(reservationsRepository, never()).addProductToReservations(any(), any());
+    verifyNoInteractions(changeQuantityUseCase);
   }
 
   @Test
@@ -192,8 +170,7 @@ class AddToUserReservationsUseCaseImplTest {
         .price(new BigDecimal("100"))
         .build();
     when(productRepository.getById(TEST_PRODUCT_ID)).thenReturn(Optional.of(product));
-    when(reservationsRepository.exists(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(false);
-    when(reservationsRepository.countReservedProducts(TEST_USER_ID)).thenReturn(2);
+    when(reservationsRepository.sumReservedQuantity(TEST_USER_ID)).thenReturn(2);
     when(reservationsRepository.calculateTotalReservationCost(TEST_USER_ID)).thenReturn(BigDecimal.ZERO);
 
     // When

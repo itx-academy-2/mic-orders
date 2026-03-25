@@ -7,6 +7,7 @@ import com.academy.orders.apirest.reservation.mapper.UserReservationsMetadataMap
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.reservation.entity.UserReservationsMetadata;
 import com.academy.orders.domain.reservation.usecase.AddToUserReservationsUseCase;
+import com.academy.orders.domain.reservation.usecase.DecreaseProductReservationQuantityUseCase;
 import com.academy.orders.domain.reservation.usecase.GetUserReservationsMetadataUseCase;
 import com.academy.orders.domain.reservation.usecase.GetUserReservationsUseCase;
 import com.academy.orders.domain.reservation.usecase.RemoveFromUserReservationsUseCase;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,6 +50,9 @@ class UserReservationControllerTest {
 
   @MockBean
   private RemoveFromUserReservationsUseCase removeFromUserReservationsUseCase;
+
+  @MockBean
+  private DecreaseProductReservationQuantityUseCase decreaseProductReservationQuantityUseCase;
 
   @MockBean
   private GetUserReservationsUseCase getUserReservationsUseCase;
@@ -100,6 +105,23 @@ class UserReservationControllerTest {
     // Then
     verify(securityUtils, times(1)).getAuthenticatedUserId();
     verify(removeFromUserReservationsUseCase, times(1)).removeProductFromReservations(USER_ID, productId);
+  }
+
+  @SneakyThrows
+  @Test
+  void decreaseReservationQuantityTest() {
+    // Given
+    UUID productId = UUID.randomUUID();
+    when(securityUtils.getAuthenticatedUserId()).thenReturn(USER_ID);
+
+    // When
+    mockMvc.perform(patch("/v1/my-reservations/{productId}/decrement", productId)
+        .with(getJwtRequest(USER_ID, ROLE_USER)))
+        .andExpect(status().isNoContent());
+
+    // Then
+    verify(securityUtils, times(1)).getAuthenticatedUserId();
+    verify(decreaseProductReservationQuantityUseCase, times(1)).decreaseReservationQuantity(USER_ID, productId);
   }
 
   @SneakyThrows

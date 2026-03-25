@@ -12,7 +12,7 @@ import java.time.ZoneOffset;
 public interface UserReservationsMetadataMapper {
 
   default ReservedProductMetadataDTO toDTO(ReservationMetadata metadata) {
-    return new ReservedProductMetadataDTO(metadata.productId(), metadata.reservedAt().atOffset(ZoneOffset.UTC));
+    return new ReservedProductMetadataDTO(metadata.productId(), metadata.reservedAt().atOffset(ZoneOffset.UTC), metadata.reservedQuantity());
   }
 
   default UserReservationsMetadataDTO toDTO(UserReservationsMetadata domain) {

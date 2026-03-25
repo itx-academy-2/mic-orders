@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,14 +32,32 @@ public class ReservationsRepositoryImpl implements ReservationsRepository {
   @Override
   public void addProductToReservations(Long accountId, UUID productId) {
     ReservationId id = new ReservationId(accountId, productId);
-    ReservationEntity entity = new ReservationEntity(id, Instant.now());
-    reservationsJpa.save(entity);
+
+    reservationsJpa.findById(id).ifPresentOrElse(
+        entity -> entity.increaseQuantity(1),
+        () -> {
+          ReservationEntity entity = ReservationEntity.create(accountId, productId);
+          reservationsJpa.save(entity);
+        });
   }
 
   @Override
   public void removeProductFromReservations(Long accountId, UUID productId) {
     ReservationId id = new ReservationId(accountId, productId);
     reservationsJpa.deleteById(id);
+  }
+
+  @Override
+  public void decrementProductReservationQuantity(Long accountId, UUID productId) {
+    ReservationId id = new ReservationId(accountId, productId);
+
+    reservationsJpa.findById(id).ifPresent(entity -> {
+      if (entity.getQuantity() > 1) {
+        entity.decreaseQuantity(1);
+      } else {
+        reservationsJpa.deleteById(id);
+      }
+    });
   }
 
   @Override
@@ -58,14 +75,14 @@ public class ReservationsRepositoryImpl implements ReservationsRepository {
   @Transactional(readOnly = true)
   public List<ReservationMetadata> getUserReservationMetadata(Long accountId) {
     return reservationsJpa.findByIdUserId(accountId).stream()
-        .map(entity -> new ReservationMetadata(entity.getId().getProductId(), entity.getAddedAt()))
+        .map(entity -> new ReservationMetadata(entity.getId().getProductId(), entity.getAddedAt(), entity.getQuantity()))
         .toList();
   }
 
   @Override
   @Transactional(readOnly = true)
-  public int countReservedProducts(Long accountId) {
-    return Math.toIntExact(reservationsJpa.countByIdUserId(accountId));
+  public int sumReservedQuantity(Long accountId) {
+    return reservationsJpa.sumReservedQuantity(accountId);
   }
 
   @Override
@@ -82,16 +99,26 @@ public class ReservationsRepositoryImpl implements ReservationsRepository {
 
   @Override
   @Transactional(readOnly = true)
+  public int getReservedQuantity(Long accountId, UUID productId) {
+    ReservationId id = new ReservationId(accountId, productId);
+
+    return reservationsJpa.findById(id)
+        .map(ReservationEntity::getQuantity)
+        .orElse(0);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
   public Map<UUID, Long> getReservedQuantitiesByProductIds(List<UUID> productIds) {
     if (productIds == null || productIds.isEmpty()) {
       return Map.of();
     }
 
-    List<Tuple> tuples = reservationsJpa.countReservedProductsByProductIds(productIds);
+    List<Tuple> tuples = reservationsJpa.sumReservedProductsByProductIds(productIds);
 
     return tuples.stream()
         .collect(Collectors.toMap(
             tuple -> tuple.get("productId", UUID.class),
-            tuple -> tuple.get("reservedCount", Long.class)));
+            tuple -> tuple.get("reservedQuantity", Long.class)));
   }
 }

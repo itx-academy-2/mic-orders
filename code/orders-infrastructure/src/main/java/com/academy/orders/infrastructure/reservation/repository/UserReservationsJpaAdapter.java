@@ -20,20 +20,20 @@ import java.util.UUID;
 public interface UserReservationsJpaAdapter extends JpaRepository<ReservationEntity, ReservationId> {
 
   /**
-   * Checks if the given product is already reserved by the user.
-   */
-  boolean existsByIdUserIdAndIdProductId(Long userId, UUID productId);
-
-  /**
-   * Counts how many products the user has currently reserved.
-   */
-  long countByIdUserId(Long userId);
-
-  /**
-   * Computes the total price of all user's reserved products. Uses product.price directly.
+   * Returns total quantity of all reserved items for the user.
    */
   @Query("""
-      SELECT COALESCE(SUM(p.price), 0)
+      SELECT COALESCE(SUM(r.quantity), 0)
+      FROM ReservationEntity r
+      WHERE r.id.userId = :userId
+      """)
+  int sumReservedQuantity(@Param("userId") Long userId);
+
+  /**
+   * Computes the total price of all user's reserved products.
+   */
+  @Query("""
+      SELECT COALESCE(SUM(p.price * r.quantity), 0)
         FROM ReservationEntity r
         JOIN ProductEntity p ON p.id = r.id.productId
        WHERE r.id.userId = :userId
@@ -46,17 +46,16 @@ public interface UserReservationsJpaAdapter extends JpaRepository<ReservationEnt
   List<ReservationEntity> findByIdUserId(Long userId);
 
   /**
-   * Counts how many times each product is reserved.
+   * Returns total reserved quantity for each product.
    *
-   * @param productIds list of product IDs to count reservations for
-   * @return a list of tuples where: <ul> <li><b>productId</b> – the product identifier</li> <li><b>reservedCount</b> – number of
-   *         reservations for that product</li> </ul>
+   * @param productIds list of product IDs
+   * @return tuples: productId + reservedQuantity
    */
   @Query("""
-          SELECT r.id.productId as productId, COUNT(r) as reservedCount
-          FROM ReservationEntity r
-          WHERE r.id.productId IN :productIds
-          GROUP BY r.id.productId
+      SELECT r.id.productId as productId, SUM(r.quantity) as reservedQuantity
+      FROM ReservationEntity r
+      WHERE r.id.productId IN :productIds
+      GROUP BY r.id.productId
       """)
-  List<Tuple> countReservedProductsByProductIds(@Param("productIds") List<UUID> productIds);
+  List<Tuple> sumReservedProductsByProductIds(@Param("productIds") List<UUID> productIds);
 }
