@@ -34,6 +34,9 @@ public class AddToUserReservationsUseCaseImpl implements AddToUserReservationsUs
   @Override
   @Transactional
   public void addProductToReservations(Long userId, UUID productId) {
+
+    reservationsRepository.lockUserReservations(userId);
+
     log.debug("Checking existence of product {} for user {}", productId, userId);
 
     var product = productRepository.getById(productId)

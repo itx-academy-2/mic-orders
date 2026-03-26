@@ -24,11 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,55 +52,24 @@ class ReservationsRepositoryImplTest {
   private ProductMapper productMapper;
 
   @Test
-  void addProductToReservationsShouldCreateNewReservationTest() {
+  void lockUserReservationsTest() {
     // Given
-    ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
-    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.empty());
+    when(reservationsJpa.lockAllByUserId(ACCOUNT_ID)).thenReturn(List.of());
 
     // When
-    repository.addProductToReservations(ACCOUNT_ID, PRODUCT_ID);
+    repository.lockUserReservations(ACCOUNT_ID);
 
     // Then
-    verify(reservationsJpa, times(1)).save(argThat(entity -> entity.getId().equals(reservationId)
-        && entity.getQuantity() == 1
-        && entity.getAddedAt() != null));
+    verify(reservationsJpa, times(1)).lockAllByUserId(ACCOUNT_ID);
   }
 
   @Test
-  void addProductToReservationsShouldIncreaseQuantityTest() {
-    // Given
-    ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
-    ReservationEntity entity = mock(ReservationEntity.class);
-
-    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.of(entity));
-
+  void addProductToReservationsShouldCallUpsertTest() {
     // When
     repository.addProductToReservations(ACCOUNT_ID, PRODUCT_ID);
 
     // Then
-    verify(entity, times(1)).increaseQuantity(1);
-    verify(reservationsJpa, never()).save(any());
-  }
-
-  @Test
-  void addProductToReservationsShouldNotChangeAddedAtWhenIncreasingQuantityTest() {
-    // Given
-    ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
-    Instant initialAddedAt = Instant.parse("2025-03-03T10:15:30Z");
-
-    ReservationEntity entity = spy(ReservationEntity.class);
-
-    doReturn(initialAddedAt).when(entity).getAddedAt();
-    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.of(entity));
-
-    // When
-    repository.addProductToReservations(ACCOUNT_ID, PRODUCT_ID);
-
-    // Then
-    verify(entity, times(1)).increaseQuantity(1);
-    verify(reservationsJpa, never()).save(any());
-
-    assertEquals(initialAddedAt, entity.getAddedAt());
+    verify(reservationsJpa, times(1)).upsertAndIncrement(ACCOUNT_ID, PRODUCT_ID);
   }
 
   @Test

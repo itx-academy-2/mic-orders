@@ -1526,8 +1526,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFoundResponse'
 
 #COMPONENTS
 #=======================================================================================================================
@@ -2939,6 +2937,7 @@ components:
           description: Date and time when the product was reserved (ISO 8601).
         reservedQuantity:
           type: integer
+          minimum: 1
           example: 3
           description: Number of units reserved for this product.
       required:

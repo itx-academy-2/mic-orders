@@ -6,7 +6,3 @@ ALTER TABLE user_reservations
 ALTER TABLE user_reservations
     ADD CONSTRAINT chk_user_reservations_quantity_positive
         CHECK (quantity > 0);
-
--- Add version column for optimistic locking
-ALTER TABLE user_reservations
-    ADD COLUMN version BIGINT NOT NULL DEFAULT 0;

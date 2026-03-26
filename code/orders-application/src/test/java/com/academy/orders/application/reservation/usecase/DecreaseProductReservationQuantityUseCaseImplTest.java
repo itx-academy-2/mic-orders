@@ -42,22 +42,21 @@ class DecreaseProductReservationQuantityUseCaseImplTest {
   private ChangeQuantityUseCase changeQuantityUseCase;
 
   @Test
-  void decreaseReservationQuantityWhenProductNotReservedTest() {
+  void decreaseReservationQuantityWhenNothingReservedTest() {
     // Given
-    when(reservationsRepository.exists(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(false);
+    when(reservationsRepository.getReservedQuantity(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(0);
 
     // When
     useCase.decreaseReservationQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
 
     // Then
-    verify(reservationsRepository, times(1)).exists(TEST_USER_ID, TEST_PRODUCT_ID);
+    verify(reservationsRepository, times(1)).getReservedQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
     verifyNoInteractions(productRepository, changeQuantityUseCase);
   }
 
   @Test
   void decreaseReservationQuantityWhenProductNotFoundTest() {
     // Given
-    when(reservationsRepository.exists(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(true);
     when(reservationsRepository.getReservedQuantity(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(2);
     when(productRepository.getById(TEST_PRODUCT_ID)).thenReturn(Optional.empty());
 
@@ -73,7 +72,6 @@ class DecreaseProductReservationQuantityUseCaseImplTest {
   void decreaseReservationQuantityWhenQuantityGreaterThanOneTest() {
     // Given
     Product product = new Product();
-    when(reservationsRepository.exists(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(true);
     when(reservationsRepository.getReservedQuantity(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(3);
     when(productRepository.getById(TEST_PRODUCT_ID)).thenReturn(Optional.of(product));
 
@@ -81,7 +79,7 @@ class DecreaseProductReservationQuantityUseCaseImplTest {
     useCase.decreaseReservationQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
 
     // Then
-    verify(changeQuantityUseCase, times(1)).changeQuantityOfProduct(product, 1);
+    verify(changeQuantityUseCase, times(1)).changeQuantityOfProduct(product, -1);
     verify(reservationsRepository, times(1)).decrementProductReservationQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
     verify(reservationsRepository, never()).removeProductFromReservations(any(), any());
   }
@@ -90,7 +88,6 @@ class DecreaseProductReservationQuantityUseCaseImplTest {
   void decreaseReservationQuantityWhenQuantityEqualsOneTest() {
     // Given
     Product product = new Product();
-    when(reservationsRepository.exists(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(true);
     when(reservationsRepository.getReservedQuantity(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(1);
     when(productRepository.getById(TEST_PRODUCT_ID)).thenReturn(Optional.of(product));
 
@@ -98,7 +95,7 @@ class DecreaseProductReservationQuantityUseCaseImplTest {
     useCase.decreaseReservationQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
 
     // Then
-    verify(changeQuantityUseCase, times(1)).changeQuantityOfProduct(product, 1);
+    verify(changeQuantityUseCase, times(1)).changeQuantityOfProduct(product, -1);
     verify(reservationsRepository, times(1)).removeProductFromReservations(TEST_USER_ID, TEST_PRODUCT_ID);
     verify(reservationsRepository, never()).decrementProductReservationQuantity(any(), any());
   }

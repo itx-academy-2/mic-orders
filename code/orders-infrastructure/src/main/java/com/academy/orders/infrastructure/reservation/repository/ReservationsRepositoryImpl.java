@@ -30,15 +30,13 @@ public class ReservationsRepositoryImpl implements ReservationsRepository {
   private final ProductMapper productMapper;
 
   @Override
-  public void addProductToReservations(Long accountId, UUID productId) {
-    ReservationId id = new ReservationId(accountId, productId);
+  public void lockUserReservations(Long accountId) {
+    reservationsJpa.lockAllByUserId(accountId);
+  }
 
-    reservationsJpa.findById(id).ifPresentOrElse(
-        entity -> entity.increaseQuantity(1),
-        () -> {
-          ReservationEntity entity = ReservationEntity.create(accountId, productId);
-          reservationsJpa.save(entity);
-        });
+  @Override
+  public void addProductToReservations(Long accountId, UUID productId) {
+    reservationsJpa.upsertAndIncrement(accountId, productId);
   }
 
   @Override

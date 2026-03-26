@@ -25,12 +25,14 @@ public class DecreaseProductReservationQuantityUseCaseImpl implements DecreasePr
   @Transactional
   public void decreaseReservationQuantity(Long userId, UUID productId) {
 
-    if (!reservationsRepository.exists(userId, productId)) {
+    reservationsRepository.lockUserReservations(userId);
+
+    long reservedQuantity = reservationsRepository.getReservedQuantity(userId, productId);
+
+    if (reservedQuantity == 0) {
       log.info("Product {} is not reserved by user {}, skipping decrement", productId, userId);
       return;
     }
-
-    long reservedQuantity = reservationsRepository.getReservedQuantity(userId, productId);
 
     var productOpt = productRepository.getById(productId);
 
@@ -45,13 +47,14 @@ public class DecreaseProductReservationQuantityUseCaseImpl implements DecreasePr
     if (reservedQuantity > 1) {
       log.info("Decreasing reservation quantity for product {} for user {}", productId, userId);
 
-      changeQuantityUseCase.changeQuantityOfProduct(product, 1);
+      changeQuantityUseCase.changeQuantityOfProduct(product, -1);
       reservationsRepository.decrementProductReservationQuantity(userId, productId);
 
     } else {
       log.info("Last reserved item, removing product {} for user {}", productId, userId);
 
-      changeQuantityUseCase.changeQuantityOfProduct(product, 1);
+      changeQuantityUseCase.changeQuantityOfProduct(product, -1);
+
       reservationsRepository.removeProductFromReservations(userId, productId);
     }
   }

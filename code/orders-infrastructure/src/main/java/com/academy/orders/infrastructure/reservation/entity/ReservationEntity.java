@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,9 +21,6 @@ public class ReservationEntity {
 
   @EmbeddedId
   private ReservationId id;
-
-  @Version
-  private Long version;
 
   @Column(name = "added_at", nullable = false, updatable = false)
   private Instant addedAt;
