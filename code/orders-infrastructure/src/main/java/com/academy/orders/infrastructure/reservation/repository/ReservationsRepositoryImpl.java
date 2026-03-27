@@ -47,15 +47,11 @@ public class ReservationsRepositoryImpl implements ReservationsRepository {
 
   @Override
   public void decrementProductReservationQuantity(Long accountId, UUID productId) {
-    ReservationId id = new ReservationId(accountId, productId);
+    int updated = reservationsJpa.decrementQuantityIfGreaterThanOne(accountId, productId);
 
-    reservationsJpa.findById(id).ifPresent(entity -> {
-      if (entity.getQuantity() > 1) {
-        entity.decreaseQuantity(1);
-      } else {
-        reservationsJpa.deleteById(id);
-      }
-    });
+    if (updated == 0) {
+      reservationsJpa.deleteIfQuantityIsOne(accountId, productId);
+    }
   }
 
   @Override

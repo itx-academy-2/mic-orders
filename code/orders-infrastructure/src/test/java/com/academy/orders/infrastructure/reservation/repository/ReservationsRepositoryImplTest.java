@@ -85,56 +85,44 @@ class ReservationsRepositoryImplTest {
   }
 
   @Test
-  void decrementProductQuantityShouldDecreaseQuantityWhenGreaterThanOneTest() {
+  void decrementProductQuantityShouldDecreaseWhenGreaterThanOneTest() {
     // Given
-    ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
-    ReservationEntity entity = ReservationEntity.builder()
-        .id(reservationId)
-        .addedAt(Instant.now())
-        .quantity(3)
-        .build();
-    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.of(entity));
+    when(reservationsJpa.decrementQuantityIfGreaterThanOne(ACCOUNT_ID, PRODUCT_ID)).thenReturn(1);
 
     // When
     repository.decrementProductReservationQuantity(ACCOUNT_ID, PRODUCT_ID);
 
     // Then
-    assertEquals(2, entity.getQuantity());
-    verify(reservationsJpa, times(1)).findById(reservationId);
-    verify(reservationsJpa, never()).deleteById(any());
+    verify(reservationsJpa, times(1)).decrementQuantityIfGreaterThanOne(ACCOUNT_ID, PRODUCT_ID);
+    verify(reservationsJpa, never()).deleteIfQuantityIsOne(any(), any());
   }
 
   @Test
   void decrementProductQuantityShouldDeleteWhenQuantityIsOneTest() {
     // Given
-    ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
-    ReservationEntity entity = ReservationEntity.builder()
-        .id(reservationId)
-        .addedAt(Instant.now())
-        .quantity(1)
-        .build();
-    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.of(entity));
+    when(reservationsJpa.decrementQuantityIfGreaterThanOne(ACCOUNT_ID, PRODUCT_ID)).thenReturn(0);
+    when(reservationsJpa.deleteIfQuantityIsOne(ACCOUNT_ID, PRODUCT_ID)).thenReturn(1);
 
     // When
     repository.decrementProductReservationQuantity(ACCOUNT_ID, PRODUCT_ID);
 
     // Then
-    verify(reservationsJpa, times(1)).deleteById(reservationId);
-    verify(reservationsJpa, times(1)).findById(reservationId);
+    verify(reservationsJpa, times(1)).decrementQuantityIfGreaterThanOne(ACCOUNT_ID, PRODUCT_ID);
+    verify(reservationsJpa, times(1)).deleteIfQuantityIsOne(ACCOUNT_ID, PRODUCT_ID);
   }
 
   @Test
-  void decrementProductQuantityShouldDoNothingWhenReservationDoesNotExistTest() {
+  void decrementProductQuantityShouldDoNothingWhenNothingExistsTest() {
     // Given
-    ReservationId reservationId = new ReservationId(ACCOUNT_ID, PRODUCT_ID);
-    when(reservationsJpa.findById(reservationId)).thenReturn(Optional.empty());
+    when(reservationsJpa.decrementQuantityIfGreaterThanOne(ACCOUNT_ID, PRODUCT_ID)).thenReturn(0);
+    when(reservationsJpa.deleteIfQuantityIsOne(ACCOUNT_ID, PRODUCT_ID)).thenReturn(0);
 
     // When
     repository.decrementProductReservationQuantity(ACCOUNT_ID, PRODUCT_ID);
 
     // Then
-    verify(reservationsJpa, times(1)).findById(reservationId);
-    verify(reservationsJpa, never()).deleteById(any());
+    verify(reservationsJpa, times(1)).decrementQuantityIfGreaterThanOne(ACCOUNT_ID, PRODUCT_ID);
+    verify(reservationsJpa, times(1)).deleteIfQuantityIsOne(ACCOUNT_ID, PRODUCT_ID);
   }
 
   @Test

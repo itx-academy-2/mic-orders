@@ -83,4 +83,33 @@ public interface UserReservationsJpaAdapter extends JpaRepository<ReservationEnt
         DO UPDATE SET quantity = user_reservations.quantity + 1
       """, nativeQuery = true)
   void upsertAndIncrement(@Param("userId") Long userId, @Param("productId") UUID productId);
+
+  /**
+   * Decrements quantity by 1 if it is greater than 1.
+   *
+   * @return number of affected rows (0 or 1)
+   */
+  @Modifying
+  @Query("""
+      UPDATE ReservationEntity r
+         SET r.quantity = r.quantity - 1
+       WHERE r.id.userId = :userId
+         AND r.id.productId = :productId
+         AND r.quantity > 1
+      """)
+  int decrementQuantityIfGreaterThanOne(@Param("userId") Long userId, @Param("productId") UUID productId);
+
+  /**
+   * Deletes a reservation only if its quantity equals 1.
+   *
+   * @return number of affected rows (0 or 1)
+   */
+  @Modifying
+  @Query("""
+      DELETE FROM ReservationEntity r
+       WHERE r.id.userId = :userId
+         AND r.id.productId = :productId
+         AND r.quantity = 1
+      """)
+  int deleteIfQuantityIsOne(@Param("userId") Long userId, @Param("productId") UUID productId);
 }

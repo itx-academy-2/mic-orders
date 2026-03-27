@@ -96,7 +96,7 @@ class DecreaseProductReservationQuantityUseCaseImplTest {
 
     // Then
     verify(changeQuantityUseCase, times(1)).changeQuantityOfProduct(product, -1);
-    verify(reservationsRepository, times(1)).removeProductFromReservations(TEST_USER_ID, TEST_PRODUCT_ID);
-    verify(reservationsRepository, never()).decrementProductReservationQuantity(any(), any());
+    verify(reservationsRepository, times(1)).decrementProductReservationQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
+    verify(reservationsRepository, never()).removeProductFromReservations(any(), any());
   }
 }
