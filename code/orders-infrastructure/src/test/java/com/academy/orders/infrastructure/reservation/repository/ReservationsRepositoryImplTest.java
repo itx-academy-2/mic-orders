@@ -52,18 +52,6 @@ class ReservationsRepositoryImplTest {
   private ProductMapper productMapper;
 
   @Test
-  void lockUserReservationsTest() {
-    // Given
-    when(reservationsJpa.lockAllByUserId(ACCOUNT_ID)).thenReturn(List.of());
-
-    // When
-    repository.lockUserReservations(ACCOUNT_ID);
-
-    // Then
-    verify(reservationsJpa, times(1)).lockAllByUserId(ACCOUNT_ID);
-  }
-
-  @Test
   void addProductToReservationsShouldCallUpsertTest() {
     // When
     repository.addProductToReservations(ACCOUNT_ID, PRODUCT_ID);
@@ -187,10 +175,10 @@ class ReservationsRepositoryImplTest {
   @Test
   void sumReservedQuantityTest() {
     // Given
-    when(reservationsJpa.sumReservedQuantity(ACCOUNT_ID)).thenReturn(3);
+    when(reservationsJpa.sumReservedQuantity(ACCOUNT_ID)).thenReturn(3L);
 
     // When
-    int result = repository.sumReservedQuantity(ACCOUNT_ID);
+    long result = repository.sumReservedQuantity(ACCOUNT_ID);
 
     // Then
     assertEquals(3, result);

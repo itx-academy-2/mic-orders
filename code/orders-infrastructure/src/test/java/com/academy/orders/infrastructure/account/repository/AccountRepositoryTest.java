@@ -60,6 +60,18 @@ class AccountRepositoryTest {
   private PageableMapper pageableMapper;
 
   @Test
+  void lockUserTest() {
+    // Given
+    Long userId = TEST_ID;
+
+    // When
+    repository.lockUser(userId);
+
+    // Then
+    verify(accountJpaAdapter, times(1)).lockById(userId);
+  }
+
+  @Test
   void findAccountByEmailTest() {
     var accountEntity = getAccountEntity();
     var accountDomain = getAccount();

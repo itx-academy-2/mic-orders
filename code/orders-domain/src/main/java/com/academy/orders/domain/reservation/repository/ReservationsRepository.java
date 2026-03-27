@@ -13,11 +13,6 @@ import java.util.UUID;
 public interface ReservationsRepository {
 
   /**
-   * Locks all reservations for a user to ensure atomic operations.
-   */
-  void lockUserReservations(Long accountId);
-
-  /**
    * Adds a product to the user's reservations or increases its quantity by 1 if already reserved.
    *
    * @param accountId the {@link Long} ID of the user.
@@ -64,7 +59,7 @@ public interface ReservationsRepository {
    * @param accountId the user ID
    * @return sum of reserved quantities
    */
-  int sumReservedQuantity(Long accountId);
+  long sumReservedQuantity(Long accountId);
 
   /**
    * Calculates current total cost of all reserved products. Used to validate maximum total price rule.

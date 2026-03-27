@@ -1,5 +1,6 @@
 package com.academy.orders.application.reservation.usecase;
 
+import com.academy.orders.domain.account.repository.AccountRepository;
 import com.academy.orders.domain.product.entity.Product;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.ChangeQuantityUseCase;
@@ -16,6 +17,7 @@ import static com.academy.orders.application.TestConstants.TEST_ID;
 import static com.academy.orders.application.TestConstants.TEST_UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,6 +33,9 @@ class DecreaseProductReservationQuantityUseCaseImplTest {
 
   @InjectMocks
   private DecreaseProductReservationQuantityUseCaseImpl useCase;
+
+  @Mock
+  private AccountRepository accountRepository;
 
   @Mock
   private ReservationsRepository reservationsRepository;
@@ -50,6 +55,7 @@ class DecreaseProductReservationQuantityUseCaseImplTest {
     useCase.decreaseReservationQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
 
     // Then
+    verify(accountRepository, times(1)).lockUser(TEST_USER_ID);
     verify(reservationsRepository, times(1)).getReservedQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
     verifyNoInteractions(productRepository, changeQuantityUseCase);
   }
@@ -64,8 +70,11 @@ class DecreaseProductReservationQuantityUseCaseImplTest {
     useCase.decreaseReservationQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
 
     // Then
-    verify(reservationsRepository, times(1)).removeProductFromReservations(TEST_USER_ID, TEST_PRODUCT_ID);
+    verify(accountRepository, times(1)).lockUser(TEST_USER_ID);
+    verify(reservationsRepository, times(1)).getReservedQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
+    verify(productRepository, times(1)).getById(TEST_PRODUCT_ID);
     verify(changeQuantityUseCase, never()).changeQuantityOfProduct(any(), anyInt());
+    verify(reservationsRepository, never()).decrementProductReservationQuantity(anyLong(), any());
   }
 
   @Test
@@ -79,9 +88,12 @@ class DecreaseProductReservationQuantityUseCaseImplTest {
     useCase.decreaseReservationQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
 
     // Then
+    verify(accountRepository, times(1)).lockUser(TEST_USER_ID);
+    verify(reservationsRepository, times(1)).getReservedQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
+    verify(productRepository, times(1)).getById(TEST_PRODUCT_ID);
     verify(changeQuantityUseCase, times(1)).changeQuantityOfProduct(product, -1);
     verify(reservationsRepository, times(1)).decrementProductReservationQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
-    verify(reservationsRepository, never()).removeProductFromReservations(any(), any());
+    verify(reservationsRepository, never()).removeProductFromReservations(anyLong(), any());
   }
 
   @Test
@@ -95,8 +107,11 @@ class DecreaseProductReservationQuantityUseCaseImplTest {
     useCase.decreaseReservationQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
 
     // Then
+    verify(accountRepository, times(1)).lockUser(TEST_USER_ID);
+    verify(reservationsRepository, times(1)).getReservedQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
+    verify(productRepository, times(1)).getById(TEST_PRODUCT_ID);
     verify(changeQuantityUseCase, times(1)).changeQuantityOfProduct(product, -1);
     verify(reservationsRepository, times(1)).decrementProductReservationQuantity(TEST_USER_ID, TEST_PRODUCT_ID);
-    verify(reservationsRepository, never()).removeProductFromReservations(any(), any());
+    verify(reservationsRepository, never()).removeProductFromReservations(anyLong(), any());
   }
 }

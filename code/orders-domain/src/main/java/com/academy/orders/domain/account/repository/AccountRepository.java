@@ -15,6 +15,14 @@ import java.util.Optional;
  * Repository interface for managing accounts.
  */
 public interface AccountRepository {
+
+  /**
+   * Locks the user for reservation modifications to prevent concurrent insert race conditions.
+   *
+   * @param userId the user ID
+   */
+  void lockUser(Long userId);
+
   /**
    * Retrieves an {@link Account} entity by its email address.
    *

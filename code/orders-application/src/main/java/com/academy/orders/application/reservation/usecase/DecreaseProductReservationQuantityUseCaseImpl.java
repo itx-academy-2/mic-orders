@@ -1,5 +1,6 @@
 package com.academy.orders.application.reservation.usecase;
 
+import com.academy.orders.domain.account.repository.AccountRepository;
 import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.ChangeQuantityUseCase;
 import com.academy.orders.domain.reservation.repository.ReservationsRepository;
@@ -15,6 +16,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DecreaseProductReservationQuantityUseCaseImpl implements DecreaseProductReservationQuantityUseCase {
 
+  private final AccountRepository accountRepository;
+
   private final ReservationsRepository reservationsRepository;
 
   private final ProductRepository productRepository;
@@ -25,7 +28,7 @@ public class DecreaseProductReservationQuantityUseCaseImpl implements DecreasePr
   @Transactional
   public void decreaseReservationQuantity(Long userId, UUID productId) {
 
-    reservationsRepository.lockUserReservations(userId);
+    accountRepository.lockUser(userId);
 
     int reservedQuantity = reservationsRepository.getReservedQuantity(userId, productId);
 

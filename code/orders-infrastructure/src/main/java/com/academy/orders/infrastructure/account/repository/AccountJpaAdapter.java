@@ -4,20 +4,31 @@ import com.academy.orders.domain.account.dto.AccountManagementFilterDto;
 import com.academy.orders.domain.account.entity.enumerated.Role;
 import com.academy.orders.domain.account.entity.enumerated.UserStatus;
 import com.academy.orders.infrastructure.account.entity.AccountEntity;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
 
 @Repository
 public interface AccountJpaAdapter extends JpaRepository<AccountEntity, Long> {
+
+  /**
+   * Locks account row for the given user.
+   *
+   * Used to serialize operations per user and prevent concurrent violations.
+   */
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("SELECT a FROM AccountEntity a WHERE a.id = :id")
+  AccountEntity lockById(@Param("id") Long id);
+
   Optional<AccountEntity> findByEmail(String email);
 
   Boolean existsByEmail(String email);

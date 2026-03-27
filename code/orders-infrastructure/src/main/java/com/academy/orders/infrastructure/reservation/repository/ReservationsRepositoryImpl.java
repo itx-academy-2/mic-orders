@@ -30,11 +30,6 @@ public class ReservationsRepositoryImpl implements ReservationsRepository {
   private final ProductMapper productMapper;
 
   @Override
-  public void lockUserReservations(Long accountId) {
-    reservationsJpa.lockAllByUserId(accountId);
-  }
-
-  @Override
   public void addProductToReservations(Long accountId, UUID productId) {
     reservationsJpa.upsertAndIncrement(accountId, productId);
   }
@@ -75,7 +70,7 @@ public class ReservationsRepositoryImpl implements ReservationsRepository {
 
   @Override
   @Transactional(readOnly = true)
-  public int sumReservedQuantity(Long accountId) {
+  public long sumReservedQuantity(Long accountId) {
     return reservationsJpa.sumReservedQuantity(accountId);
   }
 

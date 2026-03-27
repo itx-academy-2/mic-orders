@@ -40,7 +40,7 @@ class GetUserReservationsMetadataUseCaseImplTest {
     var reservation = new ReservationMetadata(reservationId, reservedAt, 2);
 
     when(reservationsRepository.getUserReservationMetadata(TEST_USER_ID)).thenReturn(List.of(reservation));
-    when(reservationsRepository.sumReservedQuantity(TEST_USER_ID)).thenReturn(2);
+    when(reservationsRepository.sumReservedQuantity(TEST_USER_ID)).thenReturn(2L);
     when(reservationsRepository.calculateTotalReservationCost(TEST_USER_ID)).thenReturn(BigDecimal.valueOf(300));
     when(reservationProperties.getMaxReservedProducts()).thenReturn(5);
     when(reservationProperties.getMaxTotalCost()).thenReturn(BigDecimal.valueOf(1000));
@@ -65,7 +65,7 @@ class GetUserReservationsMetadataUseCaseImplTest {
   void getUserReservationsMetadataWhenReservedQuantityExceedsLimitTest() {
     // Given
     when(reservationsRepository.getUserReservationMetadata(TEST_USER_ID)).thenReturn(List.of());
-    when(reservationsRepository.sumReservedQuantity(TEST_USER_ID)).thenReturn(10);
+    when(reservationsRepository.sumReservedQuantity(TEST_USER_ID)).thenReturn(10L);
     when(reservationsRepository.calculateTotalReservationCost(TEST_USER_ID)).thenReturn(BigDecimal.ZERO);
     when(reservationProperties.getMaxReservedProducts()).thenReturn(5);
     when(reservationProperties.getMaxTotalCost()).thenReturn(BigDecimal.valueOf(1000));
@@ -81,7 +81,7 @@ class GetUserReservationsMetadataUseCaseImplTest {
   void getUserReservationsMetadataWhenReservedMoneyExceedsLimitTest() {
     // Given
     when(reservationsRepository.getUserReservationMetadata(TEST_USER_ID)).thenReturn(List.of());
-    when(reservationsRepository.sumReservedQuantity(TEST_USER_ID)).thenReturn(1);
+    when(reservationsRepository.sumReservedQuantity(TEST_USER_ID)).thenReturn(1L);
     when(reservationsRepository.calculateTotalReservationCost(TEST_USER_ID)).thenReturn(BigDecimal.valueOf(2000));
     when(reservationProperties.getMaxReservedProducts()).thenReturn(5);
     when(reservationProperties.getMaxTotalCost()).thenReturn(BigDecimal.valueOf(1000));

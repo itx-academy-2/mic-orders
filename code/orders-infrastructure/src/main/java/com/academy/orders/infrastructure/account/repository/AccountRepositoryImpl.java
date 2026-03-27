@@ -38,6 +38,12 @@ public class AccountRepositoryImpl implements AccountRepository, AccountV2Reposi
   private final PageableMapper pageableMapper;
 
   @Override
+  @Transactional
+  public void lockUser(Long userId) {
+    accountJpaAdapter.lockById(userId);
+  }
+
+  @Override
   public Optional<Account> findAccountByEmail(String email) {
     var accountEntity = accountJpaAdapter.findByEmail(email);
     return accountEntity.map(accountMapper::fromEntity);

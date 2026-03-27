@@ -30,7 +30,7 @@ public interface UserReservationsJpaAdapter extends JpaRepository<ReservationEnt
       FROM ReservationEntity r
       WHERE r.id.userId = :userId
       """)
-  int sumReservedQuantity(@Param("userId") Long userId);
+  long sumReservedQuantity(@Param("userId") Long userId);
 
   /**
    * Computes the total price of all user's reserved products.
