@@ -26,6 +26,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -45,6 +46,7 @@ import static java.util.Collections.singletonList;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.of;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -102,9 +104,25 @@ class ProductRepositoryTest {
   }
 
   @Test
-  void setNewProductQuantityTest() {
-    doNothing().when(productJpaAdapter).setNewProductQuantity(any(UUID.class), anyInt());
-    assertDoesNotThrow(() -> productRepository.setNewProductQuantity(UUID.randomUUID(), 1));
+  void setNewProductQuantitySuccessTest() {
+    // Given
+    UUID productId = UUID.randomUUID();
+    when(productJpaAdapter.setNewProductQuantity(productId, 10, 1)).thenReturn(1);
+
+    // When & Then
+    assertDoesNotThrow(() -> productRepository.setNewProductQuantity(productId, 10, 1));
+    verify(productJpaAdapter).setNewProductQuantity(productId, 10, 1);
+  }
+
+  @Test
+  void setNewProductQuantityShouldThrowWhenConcurrentModificationTest() {
+    // Given
+    UUID productId = UUID.randomUUID();
+    when(productJpaAdapter.setNewProductQuantity(productId, 10, 1)).thenReturn(0);
+
+    // When & Then
+    assertThrows(OptimisticLockingFailureException.class, () -> productRepository.setNewProductQuantity(productId, 10, 1));
+    verify(productJpaAdapter).setNewProductQuantity(productId, 10, 1);
   }
 
   @ParameterizedTest

@@ -47,13 +47,17 @@ public interface ProductRepository {
   Page<Product> findAllProducts(String language, Pageable pageable, ProductFilterDto filterDto, List<UUID> bestsellersIds);
 
   /**
-   * Method sets new quantity of products.
+   * Updates the product quantity using optimistic locking.
    *
-   * @param productId id of the product.
-   * @param quantity new quantity of the product.
-   * @author Denys Ryhal
+   * <p>This method performs an atomic update of the product quantity and increments the version only if the current version in the database
+   * matches the provided one. If another transaction has already modified the product (version mismatch), the update will not be
+   * applied.</p>
+   *
+   * @param productId the ID of the product
+   * @param quantity the new quantity to set
+   * @param version the current version of the product for optimistic locking
    */
-  void setNewProductQuantity(UUID productId, Integer quantity);
+  void setNewProductQuantity(UUID productId, Integer quantity, Integer version);
 
   /**
    * Method checks if product with id already exists.

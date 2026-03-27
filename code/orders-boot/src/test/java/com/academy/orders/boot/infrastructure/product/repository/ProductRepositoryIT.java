@@ -15,6 +15,8 @@ import com.academy.orders.infrastructure.product.ProductManagementMapper;
 import com.academy.orders.infrastructure.product.ProductMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.dao.OptimisticLockingFailureException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
@@ -35,6 +37,7 @@ import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProductRepositoryIT extends AbstractRepositoryIT {
@@ -46,6 +49,9 @@ class ProductRepositoryIT extends AbstractRepositoryIT {
 
   @Autowired
   private ProductMapper productMapper;
+
+  @Autowired
+  private TestEntityManager entityManager;
 
   @Test
   void findAllByLanguageWithFilterTest() {
@@ -134,10 +140,34 @@ class ProductRepositoryIT extends AbstractRepositoryIT {
 
   @Test
   void setNewProductQuantityTest() {
-    productRepository.setNewProductQuantity(PRODUCT_UUID, 2);
-    final var product = productRepository.getById(PRODUCT_UUID);
+    // Given
+    var productBefore = productRepository.getById(PRODUCT_UUID)
+        .orElseThrow(ProductNotFoundException::new);
+    int newQuantity = 2;
+    System.out.println("Before: " + productBefore);
 
-    assertEquals(2, product.get().getQuantity());
+    // When
+    productRepository.setNewProductQuantity(PRODUCT_UUID, newQuantity, productBefore.getVersion());
+    entityManager.clear();
+
+    // Then
+    var productAfter = productRepository.getById(PRODUCT_UUID)
+        .orElseThrow(ProductNotFoundException::new);
+    System.out.println("After: " + productAfter);
+
+    assertEquals(newQuantity, productAfter.getQuantity());
+  }
+
+  @Test
+  void setNewProductQuantityShouldThrowWhenVersionMismatchTest() {
+    // Given
+    var product = productRepository.getById(PRODUCT_UUID)
+        .orElseThrow(ProductNotFoundException::new);
+
+    int wrongVersion = product.getVersion() - 1;
+
+    // When & Then
+    assertThrows(OptimisticLockingFailureException.class, () -> productRepository.setNewProductQuantity(PRODUCT_UUID, 5, wrongVersion));
   }
 
   @Test
