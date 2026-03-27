@@ -87,6 +87,9 @@ public interface UserReservationsJpaAdapter extends JpaRepository<ReservationEnt
   /**
    * Decrements quantity by 1 if it is greater than 1.
    *
+   * <p><b>Thread-safety:</b> This method is NOT thread-safe on its own. The caller must acquire an account-level lock
+   * (AccountRepository.lockUser) to prevent race conditions when multiple threads modify the same user's reservations concurrently.
+   *
    * @return number of affected rows (0 or 1)
    */
   @Modifying
@@ -101,6 +104,9 @@ public interface UserReservationsJpaAdapter extends JpaRepository<ReservationEnt
 
   /**
    * Deletes a reservation only if its quantity equals 1.
+   *
+   * <p><b>Thread-safety:</b> This method is NOT thread-safe on its own. The caller must acquire an account-level lock
+   * (AccountRepository.lockUser) to prevent race conditions when multiple threads modify the same user's reservations concurrently.
    *
    * @return number of affected rows (0 or 1)
    */
