@@ -62,7 +62,7 @@ public class AddToUserReservationsUseCaseImpl implements AddToUserReservationsUs
     int maxReservedItems = reservationProperties.getMaxReservedProducts();
 
     if (currentQuantity >= maxReservedItems) {
-      log.warn("User {} cannot reserve more than {} items", userId, maxReservedItems);
+      log.error("User {} cannot reserve more than {} items", userId, maxReservedItems);
       throw new ReservationLimitExceededException(maxReservedItems);
     }
 
