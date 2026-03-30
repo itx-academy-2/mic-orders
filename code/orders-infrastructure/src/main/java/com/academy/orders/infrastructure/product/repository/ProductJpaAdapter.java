@@ -105,8 +105,13 @@ public interface ProductJpaAdapter extends JpaRepository<ProductEntity, UUID> {
    * @author Denys Ryhal
    */
   @Modifying
-  @Query(nativeQuery = true, value = "UPDATE products SET quantity = :quantity WHERE id = :id")
-  void setNewProductQuantity(UUID id, Integer quantity);
+  @Query(nativeQuery = true, value = """
+      UPDATE products
+         SET quantity = :quantity, version = version + 1
+       WHERE id = :id
+         AND version = :version
+      """)
+  int setNewProductQuantity(UUID id, Integer quantity, Integer version);
 
   /**
    * Finds paginated product IDs by language code and filter criteria.

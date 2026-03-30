@@ -21,6 +21,9 @@ public class ReservationEntity {
   @EmbeddedId
   private ReservationId id;
 
-  @Column(name = "added_at", nullable = false)
+  @Column(name = "added_at", nullable = false, updatable = false)
   private Instant addedAt;
+
+  @Column(name = "quantity", nullable = false)
+  private int quantity;
 }

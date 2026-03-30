@@ -27,8 +27,8 @@ public class GetUserReservationsMetadataUseCaseImpl implements GetUserReservatio
     int maxReservedItems = reservationProperties.getMaxReservedProducts();
     BigDecimal maxReservedMoney = reservationProperties.getMaxTotalCost();
 
-    int reservedCount = reservationsRepository.countReservedProducts(userId);
-    int remainingItems = Math.max(maxReservedItems - reservedCount, 0);
+    long reservedQuantity = reservationsRepository.sumReservedQuantity(userId);
+    int remainingItems = Math.toIntExact(Math.max(maxReservedItems - reservedQuantity, 0));
 
     BigDecimal reservedTotal = reservationsRepository.calculateTotalReservationCost(userId);
     BigDecimal remainingMoney = maxReservedMoney.subtract(reservedTotal);

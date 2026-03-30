@@ -26,6 +26,7 @@ import com.academy.orders.infrastructure.product.entity.ProductTranslationEntity
 import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
@@ -93,8 +94,12 @@ public class ProductRepositoryImpl implements ProductRepository {
 
   @Override
   @Transactional
-  public void setNewProductQuantity(UUID productId, Integer quantity) {
-    productJpaAdapter.setNewProductQuantity(productId, quantity);
+  public void setNewProductQuantity(UUID productId, Integer quantity, Integer version) {
+    int updatedRows = productJpaAdapter.setNewProductQuantity(productId, quantity, version);
+
+    if (updatedRows == 0) {
+      throw new OptimisticLockingFailureException("Failed to update product %s due to concurrent modification" + productId);
+    }
   }
 
   @Override

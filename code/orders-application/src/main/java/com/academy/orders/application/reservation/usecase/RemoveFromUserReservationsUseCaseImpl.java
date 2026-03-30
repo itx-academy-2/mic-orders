@@ -38,9 +38,10 @@ public class RemoveFromUserReservationsUseCaseImpl implements RemoveFromUserRese
     }
 
     var product = productOpt.get();
-    changeQuantityUseCase.changeQuantityOfProduct(product, -1);
+    int reservedQuantity = reservationsRepository.getReservedQuantity(userId, productId);
+
+    changeQuantityUseCase.changeQuantityOfProduct(product, -reservedQuantity);
     reservationsRepository.removeProductFromReservations(userId, productId);
     log.info("Product {} removed from reservations for user {}", productId, userId);
   }
-
 }

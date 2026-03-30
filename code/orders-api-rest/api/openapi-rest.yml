@@ -1433,7 +1433,7 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
-          description: Product not found
+          $ref: '#/components/responses/NotFoundResponse'
 
     delete:
       tags:
@@ -1455,7 +1455,30 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
-          description: Product not found
+          $ref: '#/components/responses/NotFoundResponse'
+
+  /v1/my-reservations/{productId}/decrement:
+    patch:
+      tags:
+        - Reservations
+      summary: Decrease reserved quantity of a product
+      description: Decreases the reserved quantity of the specified product by 1 for the authenticated user. If the quantity becomes zero, the reservation is removed.
+      operationId: decrementReservation
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '204':
+          description: Reservation quantity decreased successfully
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
 
   /v1/my-reservations/metadata:
     get:
@@ -1503,8 +1526,6 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFoundResponse'
 
 #COMPONENTS
 #=======================================================================================================================
@@ -2914,9 +2935,15 @@ components:
           format: date-time
           example: '2026-02-24T13:42:38.196466'
           description: Date and time when the product was reserved (ISO 8601).
+        reservedQuantity:
+          type: integer
+          minimum: 1
+          example: 3
+          description: Number of units reserved for this product.
       required:
         - id
         - reservedAt
+        - reservedQuantity
 
     PageAccounts:
       type: object

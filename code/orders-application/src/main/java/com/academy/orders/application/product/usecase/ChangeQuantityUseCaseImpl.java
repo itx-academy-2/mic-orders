@@ -6,8 +6,7 @@ import com.academy.orders.domain.product.repository.ProductRepository;
 import com.academy.orders.domain.product.usecase.ChangeQuantityUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +15,7 @@ public class ChangeQuantityUseCaseImpl implements ChangeQuantityUseCase {
   private final ProductRepository productRepository;
 
   @Override
+  @Transactional
   public void changeQuantityOfProduct(Product product, int delta) {
     int newQuantity = product.getQuantity() - delta;
 
@@ -23,6 +23,6 @@ public class ChangeQuantityUseCaseImpl implements ChangeQuantityUseCase {
       throw new InsufficientProductQuantityException(product.getId());
     }
 
-    productRepository.setNewProductQuantity(product.getId(), newQuantity);
+    productRepository.setNewProductQuantity(product.getId(), newQuantity, product.getVersion());
   }
 }

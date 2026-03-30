@@ -1,6 +1,7 @@
 package com.academy.orders.application.reservation.usecase;
 
 import com.academy.orders.application.reservation.usecase.config.ReservationProperties;
+import com.academy.orders.domain.account.repository.AccountRepository;
 import com.academy.orders.domain.product.entity.enumerated.ProductStatus;
 import com.academy.orders.domain.product.exception.ProductNotFoundException;
 import com.academy.orders.domain.product.exception.ProductNotVisibleException;
@@ -23,6 +24,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AddToUserReservationsUseCaseImpl implements AddToUserReservationsUseCase {
 
+  private final AccountRepository accountRepository;
+
   private final ReservationProperties reservationProperties;
 
   private final ProductRepository productRepository;
@@ -34,6 +37,9 @@ public class AddToUserReservationsUseCaseImpl implements AddToUserReservationsUs
   @Override
   @Transactional
   public void addProductToReservations(Long userId, UUID productId) {
+
+    accountRepository.lockUser(userId);
+
     log.debug("Checking existence of product {} for user {}", productId, userId);
 
     var product = productRepository.getById(productId)
@@ -47,26 +53,23 @@ public class AddToUserReservationsUseCaseImpl implements AddToUserReservationsUs
       throw new ProductNotVisibleException(productId);
     }
 
-    if (reservationsRepository.exists(userId, productId)) {
-      log.info("Product {} is already reserved for user {}, skipping", productId, userId);
-      return;
-    }
-
     if (product.getQuantity() <= 0) {
       log.warn("Product {} is out of stock for user {}", productId, userId);
       throw new ProductOutOfStockException(productId);
     }
 
-    int currentCount = reservationsRepository.countReservedProducts(userId);
+    long currentQuantity = reservationsRepository.sumReservedQuantity(userId);
     int maxReservedItems = reservationProperties.getMaxReservedProducts();
-    BigDecimal maxReservedMoney = reservationProperties.getMaxTotalCost();
-    if (currentCount >= maxReservedItems) {
-      log.warn("User {} cannot reserve more than {} products", userId, maxReservedItems);
+
+    if (currentQuantity >= maxReservedItems) {
+      log.error("User {} cannot reserve more than {} items", userId, maxReservedItems);
       throw new ReservationLimitExceededException(maxReservedItems);
     }
 
     BigDecimal currentTotal = reservationsRepository.calculateTotalReservationCost(userId);
     BigDecimal newTotal = currentTotal.add(product.getPrice());
+    BigDecimal maxReservedMoney = reservationProperties.getMaxTotalCost();
+
     if (newTotal.compareTo(maxReservedMoney) > 0) {
       log.warn("User {} cannot exceed reservation cost of {}, current={} new={}",
           userId, maxReservedMoney, currentTotal, newTotal);

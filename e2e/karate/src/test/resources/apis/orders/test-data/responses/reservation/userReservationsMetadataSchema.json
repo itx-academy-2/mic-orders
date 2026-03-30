@@ -1,5 +1,5 @@
 {
-  "remainingMoney": "#number",
+  "remainingMoney": "#string",
   "remainingItems": "#number",
   "reservations": "#[]"
 }

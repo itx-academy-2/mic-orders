@@ -33,8 +33,10 @@ Feature: Get reservations metadata
     When method get
     Then status 200
     * match response == metadataSchema
-    * match each response.reservations == { id: "#uuid", reservedAt: "#string" }
+    * match each response.reservations == { id: "#uuid", reservedAt: "#string", reservedQuantity: "#number" }
     * match response.reservations[*].id contains productId
+    * def addedReservation = response.reservations.find(r => r.id == productId)
+    * assert addedReservation.reservedQuantity == 1
     * assert response.remainingMoney < initialRemainingMoney
     * assert response.remainingItems < initialRemainingItems
     * assert response.reservations.length == initialReservationCount + 1

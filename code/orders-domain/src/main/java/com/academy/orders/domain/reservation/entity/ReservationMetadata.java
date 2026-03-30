@@ -6,5 +6,5 @@ import java.util.UUID;
 /**
  * Represents a single reserved product's metadata.
  */
-public record ReservationMetadata(UUID productId, Instant reservedAt) {
+public record ReservationMetadata(UUID productId, Instant reservedAt, int reservedQuantity) {
 }

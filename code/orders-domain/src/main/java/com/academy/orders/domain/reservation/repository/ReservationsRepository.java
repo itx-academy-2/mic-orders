@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface ReservationsRepository {
 
   /**
-   * Adds a product to the user's reservations. If the product is already present, this operation is a no-op.
+   * Adds a product to the user's reservations or increases its quantity by 1 if already reserved.
    *
    * @param accountId the {@link Long} ID of the user.
    * @param productId the {@link UUID} ID of the product to add.
@@ -27,6 +27,14 @@ public interface ReservationsRepository {
    * @param productId the {@link UUID} ID of the product to remove.
    */
   void removeProductFromReservations(Long accountId, UUID productId);
+
+  /**
+   * Decreases the reserved quantity of a product by 1 for a user. If the quantity becomes zero, the reservation is removed.
+   *
+   * @param accountId the user ID
+   * @param productId the product ID
+   */
+  void decrementProductReservationQuantity(Long accountId, UUID productId);
 
   /**
    * Retrieves all reserved products for the user.
@@ -46,15 +54,15 @@ public interface ReservationsRepository {
   List<ReservationMetadata> getUserReservationMetadata(Long accountId);
 
   /**
-   * Returns total count of distinct reserved products. Used to validate maximum 5 products rule.
+   * Returns the total quantity of all reserved items. Used to validate maximum total quantity limit.
    *
    * @param accountId the user ID
-   * @return number of reserved products
+   * @return sum of reserved quantities
    */
-  int countReservedProducts(Long accountId);
+  long sumReservedQuantity(Long accountId);
 
   /**
-   * Calculates current total cost of all reserved products. Used to validate maximum 5000 total price rule.
+   * Calculates current total cost of all reserved products. Used to validate maximum total price rule.
    *
    * @param accountId the user ID
    * @return sum of prices as BigDecimal
@@ -71,11 +79,19 @@ public interface ReservationsRepository {
   boolean exists(Long accountId, UUID productId);
 
   /**
+   * Returns the reserved quantity for a specific product for a user.
+   *
+   * @param accountId the user ID
+   * @param productId the product ID
+   * @return reserved quantity, 0 if not reserved
+   */
+  int getReservedQuantity(Long accountId, UUID productId);
+
+  /**
    * Returns reserved quantity for given products.
    *
    * @param productIds list of product ids
    * @return map where key = productId and value = reserved quantity
    */
   Map<UUID, Long> getReservedQuantitiesByProductIds(List<UUID> productIds);
-
 }
