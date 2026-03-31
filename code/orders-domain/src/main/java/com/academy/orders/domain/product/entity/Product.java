@@ -69,6 +69,11 @@ public class Product {
     if (quantity == null || quantity <= 0) {
       return ProductAvailability.ENDED;
     }
+
+    if (quantity == 1) {
+      return ProductAvailability.END_SOON;
+    }
+
     return ProductAvailability.AVAILABLE;
   }
 }
